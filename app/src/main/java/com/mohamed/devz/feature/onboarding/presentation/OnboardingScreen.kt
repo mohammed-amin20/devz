@@ -12,7 +12,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -41,6 +43,16 @@ fun OnboardingScreen(
     val scope = rememberCoroutineScope()
     val isLastPage = pagerState.currentPage == 2
 
+    val alpha by animateFloatAsState(
+        targetValue = if (visible) 1f else 0f,
+        animationSpec = tween(durationMillis = 900, easing = EaseInOut),
+        label = "alpha"
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (visible) 1f else 0.75f,
+        animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
+        label = "scale"
+    )
     val bgOffsetX by animateFloatAsState(
         targetValue = if (visible) 0.5f else 0.75f,
         animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
@@ -72,7 +84,10 @@ fun OnboardingScreen(
     ) {
         HorizontalPager(
             state = pagerState,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(alpha)
+                .scale(scale)
         ) { page ->
             when (page) {
                 0 -> FirstScreen()
@@ -84,7 +99,9 @@ fun OnboardingScreen(
         Column(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(start = 32.dp, end = 32.dp, bottom = 52.dp),
+                .padding(start = 32.dp, end = 32.dp, bottom = 52.dp)
+                .alpha(alpha)
+                .scale(scale),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Button(
@@ -145,7 +162,9 @@ fun OnboardingScreen(
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 16.dp),
+                    .padding(end = 16.dp, bottom = 16.dp)
+                    .alpha(alpha)
+                    .scale(scale),
                 colors = ButtonDefaults.textButtonColors(contentColor = CyanPrimary)
             ) {
                 Text(

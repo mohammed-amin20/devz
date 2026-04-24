@@ -1,5 +1,10 @@
-package com.mohamed.devz.feature.authentication.login_screen.presentation
+package com.mohamed.devz.feature.authentication.presentation.components.login_screen.presentation
 
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -14,11 +19,16 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -30,42 +40,28 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mohamed.devz.feature.splash.presentation.SplashScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzBlack
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzInput
 import com.mohamed.devz.ui.theme.LabelGray
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.R
 
 @Composable
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit,
-    viewModel: LoginViewModel = hiltViewModel(),
+    // viewModel: LoginViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    // val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.5f, 0.45f),
-                    radius = 1200f
-                )
-            )
-            .then(modifier)
     ) {
         Column(
             modifier = Modifier
@@ -74,28 +70,19 @@ fun LoginScreen(
                 .padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             Spacer(modifier = Modifier.height(60.dp))
 
-            // ── Logo + App name ───────────────────────────────────────────
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center
             ) {
-                // Logo box
-                Box(
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = null,
                     modifier = Modifier
                         .size(48.dp)
-                        .background(Color(0xFF1E2A2A), RoundedCornerShape(10.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = Icons.Filled.Terminal,
-                        contentDescription = null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(26.dp)
-                    )
-                }
+                        .clip(RoundedCornerShape(16.dp))
+                )
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = buildAnnotatedString {
@@ -111,7 +98,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            // ── Title ─────────────────────────────────────────────────────
             Text(
                 text = "Welcome Back.",
                 color = TextWhite,
@@ -132,7 +118,6 @@ fun LoginScreen(
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            // ── Form card ─────────────────────────────────────────────────
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
@@ -149,8 +134,8 @@ fun LoginScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = uiState.email,
-                        onValueChange = viewModel::onEmailChange,
+                        value = /*uiState.email*/ "",
+                        onValueChange = /*viewModel::onEmailChange*/ {},
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("architect@devz.io", color = TextSubtle) },
                         leadingIcon = {
@@ -172,7 +157,6 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    // Password row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -200,8 +184,8 @@ fun LoginScreen(
                     }
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = uiState.password,
-                        onValueChange = viewModel::onPasswordChange,
+                        value = /*uiState.password*/ "",
+                        onValueChange = /*viewModel::onPasswordChange*/ {},
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("••••••••", color = TextSubtle) },
                         leadingIcon = {
@@ -234,45 +218,42 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(28.dp))
 
-                    // Login button
                     Button(
-                        onClick = { viewModel.login(onLoginSuccess) },
+                        onClick = { /*viewModel.login(onLoginSuccess)*/ },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp),
                         shape = RoundedCornerShape(50),
-                        enabled = !uiState.isLoading,
+                        enabled = /*!uiState.isLoading*/ true,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CyanPrimary,
                             contentColor = Color.Black
                         )
                     ) {
-                        if (uiState.isLoading) {
+                        /*if (uiState.isLoading) {
                             CircularProgressIndicator(
                                 color = Color.Black,
                                 modifier = Modifier.size(22.dp),
                                 strokeWidth = 2.dp
                             )
-                        } else {
+                        } else {*/
                             Text(
-                                text = "Login →",
+                                text = "Login",
                                 fontSize = 17.sp,
                                 fontWeight = FontWeight.Bold
                             )
-                        }
+//                        }
                     }
                 }
             }
 
-            // Error message
-            uiState.error?.let {
+            /*uiState.error?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-            }
+            }*/
 
             Spacer(modifier = Modifier.height(28.dp))
 
-            // ── Sign up link ──────────────────────────────────────────────
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text("Don't have an account? ", color = TextGray, fontSize = 14.sp)
                 TextButton(

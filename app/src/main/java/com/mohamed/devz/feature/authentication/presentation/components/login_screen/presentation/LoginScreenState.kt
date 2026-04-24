@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.authentication.login_screen.presentation
+package com.mohamed.devz.feature.authentication.presentation.components.login_screen.presentation
 
 data class LoginScreenState(
     val email: String = "",

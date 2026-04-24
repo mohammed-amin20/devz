@@ -58,7 +58,7 @@ fun FirstScreen() {
                         fontStyle = FontStyle.Italic,
                         fontSize = 26.sp
                     )
-                ) { append("devz!") }
+                ) { append("devZ!") }
             },
             textAlign = TextAlign.Center
         )

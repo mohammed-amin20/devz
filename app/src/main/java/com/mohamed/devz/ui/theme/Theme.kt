@@ -40,7 +40,7 @@ private val LightColorScheme = lightColorScheme(
 
 @Composable
 fun DevzTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = true,
     // Dynamic color is available on Android 12+
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit
@@ -51,8 +51,8 @@ fun DevzTheme(
         val window = (view.context as Activity).window
         val controller = WindowCompat.getInsetsController(window, view)
 
-//        window.statusBarColor = Color.Transparent.toArgb()
-//        window.navigationBarColor = Color.Transparent.toArgb()
+        window.statusBarColor = Color.Transparent.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
 
         controller.isAppearanceLightStatusBars = !darkTheme
         controller.isAppearanceLightNavigationBars = !darkTheme
