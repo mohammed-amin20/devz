@@ -61,10 +61,14 @@ fun SignUpScreen(
     ) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 24.dp),
+                .fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            contentPadding = PaddingValues(top = 64.dp, bottom = 32.dp)
+            contentPadding = PaddingValues(
+                top = 64.dp,
+                bottom = 32.dp,
+                start = 24.dp,
+                end = 24.dp
+            )
         ) {
             item {
                 Row(

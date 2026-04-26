@@ -53,16 +53,6 @@ fun OnboardingScreen(
         animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
         label = "scale"
     )
-    val bgOffsetX by animateFloatAsState(
-        targetValue = if (visible) 0.5f else 0.75f,
-        animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
-        label = "bgOffsetX"
-    )
-    val bgOffsetY by animateFloatAsState(
-        targetValue = if (visible) 0.45f else 0.75f,
-        animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
-        label = "bgOffsetX"
-    )
 
     LaunchedEffect(Unit) { visible = true }
 

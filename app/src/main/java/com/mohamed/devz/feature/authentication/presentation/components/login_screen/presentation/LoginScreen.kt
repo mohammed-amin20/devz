@@ -99,7 +99,7 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(36.dp))
 
             Text(
-                text = "Welcome Back.",
+                text = "Welcome Back",
                 color = TextWhite,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
@@ -157,31 +157,13 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = "PASSWORD",
-                            color = LabelGray,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            letterSpacing = 1.5.sp
-                        )
-                        TextButton(
-                            onClick = { /* TODO: forgot password */ },
-                            contentPadding = PaddingValues(0.dp)
-                        ) {
-                            Text(
-                                text = "FORGOT?",
-                                color = CyanPrimary,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                letterSpacing = 1.5.sp
-                            )
-                        }
-                    }
+                    Text(
+                        text = "PASSWORD",
+                        color = LabelGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        letterSpacing = 1.5.sp
+                    )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
                         value = /*uiState.password*/ "",
