@@ -22,12 +22,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.feature.onboarding.presentation.components.FirstScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.SecondScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.ThirdScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzBlack
 import com.mohamed.devz.ui.theme.DotInactive
 import kotlinx.coroutines.launch
 

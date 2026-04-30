@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import com.mohamed.devz.feature.authentication.presentation.components.login_screen.presentation.LoginScreen
 import com.mohamed.devz.feature.authentication.presentation.components.signup_screen.presentation.SignUpScreen
 
@@ -87,4 +88,12 @@ fun AuthScreen(
             )
         }
     }
+}
+
+@Preview (showSystemUi = true)
+@Composable
+private fun PrevAuth() {
+    AuthScreen(
+        onLoginSuccess = {}
+    )
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.input.OutputTransformation
 import androidx.compose.foundation.text.input.TextFieldLineLimits
 import androidx.compose.foundation.text.input.rememberTextFieldState
 import androidx.compose.material.icons.Icons
@@ -105,7 +106,12 @@ fun AddEditQuestionScreen(
                             shape = RoundedCornerShape(10.dp)
                         )
                 ) {
-                    Text("Publish", fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                    Text(
+                        "Publish",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
         }
@@ -144,7 +150,8 @@ fun AddEditQuestionScreen(
                             append("\nInquiry")
                         }
                     },
-                    lineHeight = 32.sp
+                    lineHeight = 32.sp,
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.height(8.dp))
             }
@@ -480,6 +487,9 @@ return query.get()
                             }
                             innerTextField()
                         }
+                    },
+                    outputTransformation = OutputTransformation {
+                        replace(0, length, formatCode(highlightedCode.text, SyntaxLanguage.PYTHON))
                     }
                 )
             }
@@ -487,7 +497,6 @@ return query.get()
     }
 }
 
-// ── Format code before tokenizing ────────────────────────────────────────────
 private fun formatCode(code: String, language: SyntaxLanguage): String {
     if (code.isBlank()) return code
     return if (language == SyntaxLanguage.PYTHON)
