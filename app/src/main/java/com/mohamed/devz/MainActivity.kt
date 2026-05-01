@@ -69,6 +69,15 @@ class MainActivity : ComponentActivity() {
                                     .padding(innerPadding)
                             )
                         }
+                        composable<Route.Home> {
+                            Scaffold(
+                                bottomBar = {
+
+                                }
+                            ) { innerPadding ->
+
+                            }
+                        }
                     }
                 }
             }
@@ -86,4 +95,7 @@ private sealed interface Route {
 
     @Serializable
     data object Auth : Route
+
+    @Serializable
+    data object Home : Route
 }

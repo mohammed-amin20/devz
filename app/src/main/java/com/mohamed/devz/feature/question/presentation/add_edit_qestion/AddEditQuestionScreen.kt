@@ -232,7 +232,10 @@ fun AddEditQuestionScreen(
                     color = CyanPrimary.copy(alpha = 0.4f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    CodeEditorField()
+                    CodeEditorField(
+                        modifier = Modifier
+                            .padding(start = 3.dp)
+                    )
                 }
                 Spacer(modifier = Modifier.height(20.dp))
             }
@@ -250,13 +253,16 @@ fun AddEditQuestionScreen(
                     items(tags) { tag ->
                         Box(
                             modifier = Modifier
+                                .padding(vertical = 4.dp)
+                                .height(40.dp)
                                 .clip(RoundedCornerShape(50))
                                 .background(CyanPrimary.copy(0.3f))
                                 .border(
                                     width = 1.dp,
                                     color = CyanPrimary.copy(alpha = 0.35f),
                                     shape = RoundedCornerShape(50)
-                                )
+                                ),
+                            contentAlignment = Alignment.Center
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -283,14 +289,12 @@ fun AddEditQuestionScreen(
                     }
 
                     item {
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50))
-                                .background(Color(0xFF1A2424))
-                                .clickable { /*viewModel.onAction(AddEditAction.ShowTagInput)*/ showTagInput =
-                                    true
-                                }
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                        Button(
+                            onClick = {},
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1A2424)
+                            ),
+                            contentPadding = PaddingValues(horizontal = 12.dp)
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -338,44 +342,41 @@ fun AddEditQuestionScreen(
             item {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = Color(0xFF1C1B1B),
-                    modifier = Modifier.fillMaxWidth()
+                    color = CyanPrimary.copy(alpha = 0.4f),
+                    modifier = Modifier
+                        .fillMaxWidth()
                 ) {
-                    Row {
-                        Box(
-                            modifier = Modifier
-                                .width(3.dp)
-                                .height(160.dp)
-                                .background(CyanPrimary.copy(alpha = 0.4f))
+                    Row(
+                        modifier = Modifier
+                            .padding(start = 3.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF0A0A0A))
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Icon(
+                            Icons.Filled.Lightbulb,
+                            null,
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(20.dp)
                         )
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.Top
-                        ) {
-                            Icon(
-                                Icons.Filled.Lightbulb,
-                                null,
-                                tint = CyanPrimary,
-                                modifier = Modifier.size(20.dp)
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                "Review before publishing",
+                                color = TextWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.titleLarge
                             )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    "Review before publishing",
-                                    color = TextWhite,
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    style = MaterialTheme.typography.titleLarge
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = "Ensure all sensitive API keys and credentials have been removed from your code snippets.",
-                                    color = TextGray,
-                                    fontSize = 12.sp,
-                                    lineHeight = 18.sp,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Ensure all sensitive API keys and credentials have been removed from your code snippets.",
+                                color = TextGray,
+                                fontSize = 12.sp,
+                                lineHeight = 18.sp,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
                         }
                     }
                 }
@@ -400,39 +401,35 @@ private fun devzTextFieldColors() = OutlinedTextFieldDefaults.colors(
 fun CodeEditorField(
     modifier: Modifier = Modifier,
     language: SyntaxLanguage = SyntaxLanguage.KOTLIN,
-    minLines: Int = 6,
+    minLines: Int = 1,
     placeholder: String = "// Paste your code here...",
 ) {
-    var codeInput by remember {
-        mutableStateOf(
-            """
-def fetch_paged_data(limit: int) -> list:
-# Query the database
-query = db.collection("items")
-.order_by("timestamp")
-.limit(limit)
-return query.get()
-    """.trimIndent()
-        )
-    }
-
-    val highlightedCode = remember(codeInput, language) {
+    val codeInputState = rememberTextFieldState()
+    val highlightedCode = remember(codeInputState.text, language) {
         buildAnnotatedString {
-            tokenize(codeInput, language).forEach { token ->
+            tokenize(codeInputState.text.toString(), language).forEach { token ->
                 withStyle(SpanStyle(color = token.color)) {
                     append(token.text)
                 }
             }
         }
     }
-    val codeInputState = rememberTextFieldState(highlightedCode.text)
+
+    LaunchedEffect(codeInputState) {
+        codeInputState.edit {
+            val code = if (language == SyntaxLanguage.PYTHON)
+            PythonIndentFormatter().format(this.originalText.toString())
+        else
+            IndentationFormatter().format(this.originalText.toString())
+            replace(0, length, code)
+        }
+    }
 
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color(0xFF0E0E0E),
         modifier = modifier
             .fillMaxWidth()
-            .padding(start = 3.dp)
             .border(0.5.dp, Color(0xFF3C494C).copy(alpha = 0.15f), RoundedCornerShape(16.dp))
     ) {
         Column {
@@ -441,7 +438,7 @@ return query.get()
                     .fillMaxWidth()
                     .defaultMinSize(minHeight = (minLines * 20).dp)
             ) {
-                val lineCount = codeInput.lines().size.coerceAtLeast(minLines)
+                val lineCount = codeInputState.text.lines().size.coerceAtLeast(minLines)
                 Column(
                     modifier = Modifier
                         .background(Color(0xFF0A0A0A))
@@ -466,14 +463,11 @@ return query.get()
                         .defaultMinSize(minHeight = (minLines * 20).dp)
                         .horizontalScroll(rememberScrollState())
                         .padding(horizontal = 12.dp, vertical = 16.dp),
-                    textStyle = TextStyle(
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 12.sp,
-                        lineHeight = 20.sp,
-                        color = Color(0xFFE5E2E1)
-                    ),
                     cursorBrush = SolidColor(Color(0xFF44D8F1)),
                     lineLimits = TextFieldLineLimits.MultiLine(),
+                    textStyle = TextStyle(
+                        color = Color.Transparent
+                    ),
                     decorator = { innerTextField ->
                         Box {
                             if (codeInputState.text.isEmpty()) {
@@ -484,25 +478,21 @@ return query.get()
                                     fontFamily = FontFamily.Monospace,
                                     lineHeight = 20.sp
                                 )
+                            } else {
+                                Text(
+                                    text = highlightedCode,
+                                    fontSize = 12.sp,
+                                    fontFamily = FontFamily.Monospace,
+                                    lineHeight = 20.sp
+                                )
                             }
                             innerTextField()
                         }
-                    },
-                    outputTransformation = OutputTransformation {
-                        replace(0, length, formatCode(highlightedCode.text, SyntaxLanguage.PYTHON))
                     }
                 )
             }
         }
     }
-}
-
-private fun formatCode(code: String, language: SyntaxLanguage): String {
-    if (code.isBlank()) return code
-    return if (language == SyntaxLanguage.PYTHON)
-        PythonIndentFormatter().format(code)
-    else
-        IndentationFormatter().format(code)
 }
 
 @Preview
