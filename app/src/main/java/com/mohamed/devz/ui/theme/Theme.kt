@@ -1,6 +1,8 @@
 package com.mohamed.devz.ui.theme
 
 import android.app.Activity
+import android.content.Context
+import android.content.ContextWrapper
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -48,14 +50,18 @@ fun DevzTheme(
     val view = LocalView.current
 
     SideEffect {
-        val window = (view.context as Activity).window
-        val controller = WindowCompat.getInsetsController(window, view)
+        // Use the findActivity extension to safely get the Activity context.
+        // Direct casting to Activity fails in Compose Previews.
+        val activity = view.context.findActivity()
+        activity?.window?.let { window ->
+            val controller = WindowCompat.getInsetsController(window, view)
 
-        window.statusBarColor = Color.Transparent.toArgb()
-        window.navigationBarColor = Color.Transparent.toArgb()
+            window.statusBarColor = Color.Transparent.toArgb()
+            window.navigationBarColor = Color.Transparent.toArgb()
 
-        controller.isAppearanceLightStatusBars = !darkTheme
-        controller.isAppearanceLightNavigationBars = !darkTheme
+            controller.isAppearanceLightStatusBars = !darkTheme
+            controller.isAppearanceLightNavigationBars = !darkTheme
+        }
     }
 
     val colorScheme = when {
@@ -73,4 +79,14 @@ fun DevzTheme(
         typography = Typography,
         content = content
     )
+}
+
+/**
+ * Extension function to safely find the Activity context.
+ * This prevents ClassCastException in Compose Previews where the context might be a BridgeContext.
+ */
+private tailrec fun Context.findActivity(): Activity? = when (this) {
+    is Activity -> this
+    is ContextWrapper -> baseContext.findActivity()
+    else -> null
 }

@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion.components
+package com.mohamed.devz.feature.question.presentation.question_details.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -35,6 +35,7 @@ import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -42,6 +43,7 @@ import androidx.compose.ui.unit.sp
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.tokenize
 import com.mohamed.devz.ui.theme.DevzTheme
+import kotlinx.coroutines.delay
 
 @Composable
 fun CodeBlock(
@@ -89,9 +91,9 @@ fun CodeBlock(
                 ) {
                     if (showTrafficLights) {
                         listOf(
-                            Color(0xFFFF5F57),
-                            Color(0xFFFFBD2E),
-                            Color(0xFF28C840)
+                            Color(0xFFA6574C),
+                            Color(0xFF9F6C3B),
+                            Color(0xFF2D8F9F)
                         ).forEach { dotColor ->
                             Box(
                                 modifier = Modifier
@@ -135,7 +137,7 @@ fun CodeBlock(
                             text = if (copied) "COPIED!" else "COPY",
                             color = if (copied) Color(0xFF44D8F1) else Color(0xFF869396),
                             fontSize = 9.sp,
-                            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+                            fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp
                         )
                     }
@@ -158,7 +160,7 @@ fun CodeBlock(
 
     LaunchedEffect(copied) {
         if (copied) {
-            kotlinx.coroutines.delay(2000)
+            delay(2000)
             copied = false
         }
     }
