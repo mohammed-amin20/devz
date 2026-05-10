@@ -39,10 +39,7 @@ private object SyntaxKeywords {
 }
 
 fun tokenize(code: String, language: SyntaxLanguage): List<Token> {
-    val indentedCode = if (language == SyntaxLanguage.PYTHON)
-        PythonIndentFormatter().format(code)
-    else
-        IndentationFormatter().format(code)
+    val indentedCode = formatCode(language, code)
 
     val keywords = when (language) {
         SyntaxLanguage.KOTLIN -> SyntaxKeywords.kotlinKeywords
@@ -135,4 +132,15 @@ fun tokenize(code: String, language: SyntaxLanguage): List<Token> {
     }
 
     return tokens
+}
+
+fun formatCode(
+    language: SyntaxLanguage,
+    code: String,
+): String {
+    val indentedCode = if (language == SyntaxLanguage.PYTHON)
+        PythonIndentFormatter().format(code)
+    else
+        IndentationFormatter().format(code)
+    return indentedCode
 }

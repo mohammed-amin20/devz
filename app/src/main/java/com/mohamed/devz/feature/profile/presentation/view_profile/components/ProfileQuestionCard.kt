@@ -8,27 +8,30 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mohamed.devz.R
 import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 
@@ -39,7 +42,7 @@ fun ProfileQuestionCard(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = DevzCard,
+        color = Color(0xFF1C1B1B),
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onClick)
@@ -52,17 +55,28 @@ fun ProfileQuestionCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.AutoMirrored.Filled.Help,
-                        null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
                     Spacer(modifier = Modifier.width(6.dp))
+                    Box(
+                        modifier = Modifier
+                            .width(15.dp)
+                            .aspectRatio(1f)
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(CyanPrimary),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_help),
+                            contentDescription = null,
+                            tint = Color(0xFF1C1B1B),
+                            modifier = Modifier.size(11.dp)
+                        )
+                    }
+                    Spacer(Modifier.width(4.dp))
                     Text(
                         text = "Asked ${question.timeAgo}",
                         color = TextGray,
-                        fontSize = 11.sp
+                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
                 Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -71,32 +85,47 @@ fun ProfileQuestionCard(
                             text = question.votes.toString(),
                             color = TextWhite,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge
                         )
-                        Text("VOTES", color = TextGray, fontSize = 9.sp, letterSpacing = 0.5.sp)
+                        Text(
+                            "VOTES",
+                            color = TextGray,
+                            fontSize = 9.sp,
+                            letterSpacing = 0.5.sp,
+                            style = MaterialTheme.typography.titleLarge
+                        )
                     }
                     // Answers badge
                     Column(
                         modifier = Modifier
-                            .clip(RoundedCornerShape(6.dp))
+                            .clip(RoundedCornerShape(8.dp))
+                            .border(
+                                width = 1.dp,
+                                shape = RoundedCornerShape(8.dp),
+                                color = if (question.answerCount > 0) CyanPrimary.copy(0.3f)
+                                else TextGray.copy(0.2f)
+                            )
                             .background(
-                                if (question.answerCount > 0) CyanPrimary
-                                else Color(0xFF2A3A3A)
+                                if (question.answerCount > 0) CyanPrimary.copy(0.2f)
+                                else Color.Transparent
                             )
                             .padding(horizontal = 8.dp, vertical = 4.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = question.answerCount.toString(),
-                            color = if (question.answerCount > 0) Color.Black else TextGray,
+                            color = if (question.answerCount > 0) CyanPrimary else TextGray,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             "ANSWERS",
-                            color = if (question.answerCount > 0) Color.Black else TextGray,
+                            color = if (question.answerCount > 0) CyanPrimary else TextGray,
                             fontSize = 9.sp,
-                            letterSpacing = 0.5.sp
+                            letterSpacing = 0.5.sp,
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 }
@@ -110,7 +139,8 @@ fun ProfileQuestionCard(
                 color = TextWhite,
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -121,20 +151,38 @@ fun ProfileQuestionCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(5.dp))
-                            .background(Color(0xFF0F1A1A))
-                            .border(0.5.dp, Color(0xFF2A3A3A), RoundedCornerShape(5.dp))
-                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                            .background(TextGray.copy(0.3f))
+                            .padding(horizontal = 8.dp, vertical = 4.dp)
                     ) {
                         Text(
                             text = tag.uppercase(),
                             color = TextGray,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Medium,
-                            letterSpacing = 0.5.sp
+                            letterSpacing = 0.5.sp,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewProfileQuestionCard() {
+    DevzTheme {
+        ProfileQuestionCard(
+            question = ProfileQuestionUiModel(
+                id = "1",
+                title = "Implementing zero-copy serialization in Rust with rkyv for high-throughput messaging",
+                timeAgo = "2 days ago",
+                votes = 12,
+                answerCount = 4,
+                tags = listOf("rust", "serialization")
+            ),
+            onClick = {}
+        )
     }
 }

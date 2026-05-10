@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +27,7 @@ fun StatCard(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = DevzCard,
+        color = Color(0xFF1C1B1B),
         modifier = modifier
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -35,14 +36,16 @@ fun StatCard(
                 color = TextGray,
                 fontSize = 10.sp,
                 fontWeight = FontWeight.Bold,
-                letterSpacing = 1.5.sp
+                letterSpacing = 1.5.sp,
+                style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier = Modifier.height(6.dp))
             Text(
                 text = value,
                 color = valueColor,
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge
             )
         }
     }

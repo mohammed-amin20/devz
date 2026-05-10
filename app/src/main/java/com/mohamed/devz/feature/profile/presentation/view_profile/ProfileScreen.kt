@@ -20,6 +20,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -36,6 +37,7 @@ import com.mohamed.devz.R
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileViewModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
 import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
@@ -53,17 +55,7 @@ fun ProfileScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.5f, 0.45f),
-                    radius = 1200f
-                )
-            )
+            .background(Color(0xFF131313))
             .padding(horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -132,7 +124,12 @@ fun ProfileScreen(
                 )
                 Box(
                     modifier = Modifier
-                        .size(96.dp)
+                        .size(100.dp)
+                        .shadow(
+                            elevation = 24.dp,
+                            spotColor = CyanPrimary,
+                            shape = CircleShape
+                        )
                         .clip(CircleShape)
                         .background(DevzCard)
                         .border(2.dp, CyanPrimary.copy(alpha = 0.6f), CircleShape),
@@ -155,7 +152,8 @@ fun ProfileScreen(
                 text = uiState.profile?.fullName ?: "Alex Rivera",
                 color = TextWhite,
                 fontSize = 22.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge
             )
             Spacer(modifier = Modifier.height(6.dp))
             Row(
@@ -165,7 +163,8 @@ fun ProfileScreen(
                 Text(
                     text = "@${uiState.profile?.username ?: "arivera_dev"}",
                     color = TextGray,
-                    fontSize = 14.sp
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium
                 )
                 Row(
                     modifier = Modifier
@@ -186,7 +185,8 @@ fun ProfileScreen(
                         text = "${uiState.profile?.points ?: "2,480"} PTS",
                         color = CyanPrimary,
                         fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
@@ -198,15 +198,19 @@ fun ProfileScreen(
             Button(
                 onClick = onEditProfile,
                 modifier = Modifier
-                    .width(180.dp)
-                    .height(44.dp),
-                shape = RoundedCornerShape(50),
+                    .height(40.dp),
+                shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CyanPrimary,
-                    contentColor = Color.Black
+                    contentColor = Color(0xFF00363E)
                 )
             ) {
-                Text("Edit Profile", fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                Text(
+                    text = "Edit Profile",
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 15.sp,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
             Spacer(modifier = Modifier.height(24.dp))
         }
@@ -256,7 +260,8 @@ fun ProfileScreen(
                     color = TextGray,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp
+                    letterSpacing = 2.sp,
+                    style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 val skills = uiState.profile?.skills
@@ -265,28 +270,24 @@ fun ProfileScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    skills.forEachIndexed { index, skill ->
-                        val isHighlighted = index == 0 || index == 3
+                    skills.forEach { skill ->
                         Box(
                             modifier = Modifier
                                 .clip(RoundedCornerShape(8.dp))
-                                .background(
-                                    if (isHighlighted) CyanPrimary.copy(alpha = 0.15f)
-                                    else DevzCard
-                                )
+                                .background(Color(0XFF2A2A2A))
                                 .border(
                                     1.dp,
-                                    if (isHighlighted) CyanPrimary.copy(alpha = 0.5f)
-                                    else Color(0xFF2A3A3A),
+                                    Color(0xFF2A3A3A),
                                     RoundedCornerShape(8.dp)
                                 )
                                 .padding(horizontal = 12.dp, vertical = 6.dp)
                         ) {
                             Text(
                                 text = skill,
-                                color = if (isHighlighted) CyanPrimary else TextGray,
+                                color = TextGray,
                                 fontSize = 13.sp,
-                                fontWeight = if (isHighlighted) FontWeight.SemiBold else FontWeight.Normal
+                                fontWeight = FontWeight.Normal,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
@@ -311,13 +312,15 @@ fun ProfileScreen(
                             color = if (isSelected) CyanPrimary else TextGray,
                             fontSize = 12.sp,
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            letterSpacing = 1.sp
+                            letterSpacing = 1.sp,
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(2.dp)
+                                .clip(RoundedCornerShape(50))
                                 .background(if (isSelected) CyanPrimary else Color.Transparent)
                         )
                     }
@@ -354,10 +357,12 @@ fun ProfileScreen(
 @Preview
 @Composable
 private fun PrevProfile() {
-    ProfileScreen(
-        onEditProfile = {},
-        onQuestionClick = {},
-        onAsk = {},
-        onHome = {}
-    )
+    DevzTheme {
+        ProfileScreen(
+            onEditProfile = {},
+            onQuestionClick = {},
+            onAsk = {},
+            onHome = {}
+        )
+    }
 }

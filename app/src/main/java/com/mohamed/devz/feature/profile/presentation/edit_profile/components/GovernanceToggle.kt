@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 
@@ -36,7 +38,7 @@ fun GovernanceToggle(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = DevzCard,
+        color = Color(0xFF1C1B1B),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -45,19 +47,31 @@ fun GovernanceToggle(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Column(modifier = Modifier.weight(1f)) {
-                Text(title, color = TextWhite, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Text(
+                    title,
+                    color = TextWhite,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge
+                )
                 Spacer(modifier = Modifier.height(3.dp))
-                Text(subtitle, color = TextGray, fontSize = 12.sp)
+                Text(
+                    subtitle,
+                    color = TextGray,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodyMedium
+                )
             }
             Spacer(modifier = Modifier.width(12.dp))
             Switch(
                 checked = checked,
                 onCheckedChange = { onCheckedChange() },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color.Black,
+                    checkedThumbColor = Color(0xFF00363E),
                     checkedTrackColor = CyanPrimary,
                     uncheckedThumbColor = TextGray,
-                    uncheckedTrackColor = Color(0xFF2A3A3A)
+                    uncheckedTrackColor = Color(0xFF353534),
+                    uncheckedBorderColor = Color.Transparent,
                 )
             )
         }
@@ -67,10 +81,12 @@ fun GovernanceToggle(
 @Preview
 @Composable
 private fun Prev() {
-    GovernanceToggle(
-        title = "",
-        subtitle = "",
-        checked= true ,
-        onCheckedChange = {}
-    )
+    DevzTheme {
+        GovernanceToggle(
+            title = "Public Profile Visibility",
+            subtitle = "Allow others to see your technical queries",
+            checked= false ,
+            onCheckedChange = {}
+        )
+    }
 }

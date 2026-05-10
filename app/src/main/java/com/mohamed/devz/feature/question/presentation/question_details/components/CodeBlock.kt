@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.question.presentation.question_details.components
 
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -50,7 +51,6 @@ fun CodeBlock(
     code: String,
     modifier: Modifier = Modifier,
     language: SyntaxLanguage = SyntaxLanguage.KOTLIN,
-    fileName: String? = null,
     showCopyButton: Boolean = true,
     showTrafficLights: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
@@ -68,6 +68,13 @@ fun CodeBlock(
         }
     }
 
+    LaunchedEffect(copied) {
+        if (copied) {
+            delay(2000)
+            copied = false
+        }
+    }
+
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color(0xFF0E0E0E),
@@ -80,8 +87,7 @@ fun CodeBlock(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(Color(0xFF2A2A2A).copy(alpha = 0.5f))
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 12.dp),
+                    .padding(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -102,15 +108,6 @@ fun CodeBlock(
                                     .background(dotColor.copy(alpha = 0.5f))
                             )
                         }
-                    }
-                    fileName?.let {
-                        Spacer(modifier = Modifier.width(if (showTrafficLights) 8.dp else 0.dp))
-                        Text(
-                            text = it,
-                            color = Color(0xFF869396),
-                            fontSize = 10.sp,
-                            fontFamily = FontFamily.Monospace
-                        )
                     }
                 }
 
@@ -157,13 +154,6 @@ fun CodeBlock(
             )
         }
     }
-
-    LaunchedEffect(copied) {
-        if (copied) {
-            delay(2000)
-            copied = false
-        }
-    }
 }
 
 @Preview
@@ -179,8 +169,7 @@ query = db.collection("items")
 .limit(limit)
 return query.get()
     """.trimIndent(),
-            language = SyntaxLanguage.PYTHON,
-            fileName = "data_service.py"
+            language = SyntaxLanguage.PYTHON
         )
     }
 }

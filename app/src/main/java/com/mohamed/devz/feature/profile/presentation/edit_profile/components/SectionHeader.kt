@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,7 +22,7 @@ import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
-fun SectionHeader(title: String, icon: ImageVector) {
+fun SectionHeader(title: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -39,7 +40,8 @@ fun SectionHeader(title: String, icon: ImageVector) {
             text = title,
             color = TextWhite,
             fontSize = 18.sp,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }

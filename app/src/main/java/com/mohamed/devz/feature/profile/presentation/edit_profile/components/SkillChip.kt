@@ -17,10 +17,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun SkillChip(skill: String, onRemove: () -> Unit) {
@@ -28,22 +31,37 @@ fun SkillChip(skill: String, onRemove: () -> Unit) {
         modifier = Modifier
             .clip(RoundedCornerShape(20.dp))
             .background(CyanPrimary.copy(alpha = 0.12f))
-            .border(1.dp, CyanPrimary.copy(alpha = 0.35f), RoundedCornerShape(20.dp))
             .padding(horizontal = 10.dp, vertical = 5.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(5.dp)
         ) {
-            Text(skill, color = CyanPrimary, fontSize = 12.sp, fontWeight = FontWeight.Medium)
+            Text(
+                text = skill,
+                color = Color(0xFF89B8C2),
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Medium
+            )
             Icon(
                 Icons.Filled.Close,
                 null,
-                tint = CyanPrimary,
+                tint = Color(0xFF89B8C2),
                 modifier = Modifier
                     .size(14.dp)
                     .clickable(onClick = onRemove)
             )
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewSkillChip() {
+    DevzTheme {
+        SkillChip(
+            skill = "Kotlin",
+            onRemove = {}
+        )
     }
 }
