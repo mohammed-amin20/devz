@@ -48,6 +48,7 @@ import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.R
+import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun LoginScreen(
@@ -92,7 +93,8 @@ fun LoginScreen(
                         withStyle(SpanStyle(color = CyanPrimary, fontWeight = FontWeight.Bold, fontSize = 26.sp)) {
                             append("Z")
                         }
-                    }
+                    },
+                    style = MaterialTheme.typography.titleLarge
                 )
             }
 
@@ -103,7 +105,8 @@ fun LoginScreen(
                 color = TextWhite,
                 fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -113,7 +116,8 @@ fun LoginScreen(
                 color = TextGray,
                 fontSize = 14.sp,
                 textAlign = TextAlign.Center,
-                lineHeight = 22.sp
+                lineHeight = 22.sp,
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(modifier = Modifier.height(36.dp))
@@ -130,7 +134,8 @@ fun LoginScreen(
                         color = LabelGray,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 1.5.sp
+                        letterSpacing = 1.5.sp,
+                        style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
@@ -152,7 +157,8 @@ fun LoginScreen(
                             cursorColor = CyanPrimary,
                             focusedContainerColor = DevzInput,
                             unfocusedContainerColor = DevzInput
-                        )
+                        ),
+                        textStyle = MaterialTheme.typography.bodyMedium
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -162,7 +168,8 @@ fun LoginScreen(
                         color = LabelGray,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
-                        letterSpacing = 1.5.sp
+                        letterSpacing = 1.5.sp,
+                        style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
@@ -195,13 +202,17 @@ fun LoginScreen(
                             cursorColor = CyanPrimary,
                             focusedContainerColor = DevzInput,
                             unfocusedContainerColor = DevzInput
-                        )
+                        ),
+                        textStyle = MaterialTheme.typography.bodyMedium
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
 
                     Button(
-                        onClick = { /*viewModel.login(onLoginSuccess)*/ },
+                        onClick = {
+                            /*viewModel.login(onLoginSuccess)*/
+                            onLoginSuccess()
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(54.dp),
@@ -222,7 +233,8 @@ fun LoginScreen(
                             Text(
                                 text = "Login",
                                 fontSize = 17.sp,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium
                             )
 //                        }
                     }
@@ -237,12 +249,23 @@ fun LoginScreen(
             Spacer(modifier = Modifier.height(28.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("Don't have an account? ", color = TextGray, fontSize = 14.sp)
+                Text(
+                    text = "Don't have an account? ",
+                    color = TextGray,
+                    fontSize = 14.sp,
+                    style = MaterialTheme.typography.bodyMedium
+                )
                 TextButton(
                     onClick = onNavigateToRegister,
                     contentPadding = PaddingValues(0.dp)
                 ) {
-                    Text("Sign Up", color = CyanPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    Text(
+                        text = "Sign Up",
+                        color = CyanPrimary,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
@@ -252,9 +275,11 @@ fun LoginScreen(
 }
 @Preview(showSystemUi = true)
 @Composable
-private fun Preview() {
-    LoginScreen(
-        onLoginSuccess = {},
-        onNavigateToRegister = {}
-    )
+private fun PreviewLoginScreen() {
+    DevzTheme {
+        LoginScreen(
+            onLoginSuccess = {},
+            onNavigateToRegister = {}
+        )
+    }
 }

@@ -34,8 +34,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileUiState
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileViewModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
+import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextWhite
@@ -44,19 +46,20 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun ProfileScreen(
     onEditProfile: () -> Unit,
     onQuestionClick: (String) -> Unit,
-    onHome: () -> Unit,
-    onAsk: () -> Unit,
-    viewModel: ProfileViewModel = hiltViewModel()
+    modifier: Modifier = Modifier,
+    //viewModel: ProfileViewModel = hiltViewModel()
 ) {
-    val uiState by viewModel.uiState.collectAsState()
+    //val uiState by viewModel.uiState.collectAsState()
+    val uiState by remember { mutableStateOf(ProfileUiState()) }
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf("MY QUESTIONS", "MY ANSWERS")
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF131313))
-            .padding(horizontal = 16.dp),
+            .background(Bg)
+            .padding(horizontal = 16.dp)
+            .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         item {
@@ -239,7 +242,7 @@ fun ProfileScreen(
             ) {
                 StatCard(
                     label = "ACCEPTED",
-                    value = "${uiState.profile?.acceptedRate ?: "86%"}",
+                    value = uiState.profile?.acceptedRate ?: "86%",
                     modifier = Modifier.weight(1f)
                 )
                 StatCard(
@@ -360,9 +363,7 @@ private fun PrevProfile() {
     DevzTheme {
         ProfileScreen(
             onEditProfile = {},
-            onQuestionClick = {},
-            onAsk = {},
-            onHome = {}
+            onQuestionClick = {}
         )
     }
 }

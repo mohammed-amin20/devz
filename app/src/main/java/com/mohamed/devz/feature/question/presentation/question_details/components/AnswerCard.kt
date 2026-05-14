@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,8 +29,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.mohamed.devz.feature.question.presentation.question_details.AnswerUiModel
 
+data class AnswerUiModel(
+    val authorName: String,
+    val avatarUrl: String,
+    val body: String,
+    val isAccepted: Boolean,
+    val likes: Int,
+    val timeAgo: String
+)
 @Composable
 fun AnswerCard(answer: AnswerUiModel) {
     Row(
@@ -67,14 +75,16 @@ fun AnswerCard(answer: AnswerUiModel) {
                             text = answer.authorName,
                             color = OnSurface,
                             fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             text = answer.timeAgo,
                             color = if (answer.isAccepted) Primary else Outline,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.2.sp
+                            letterSpacing = 1.2.sp,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -92,7 +102,8 @@ fun AnswerCard(answer: AnswerUiModel) {
                             color = Primary,
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Black,
-                            letterSpacing = 0.8.sp
+                            letterSpacing = 0.8.sp,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -104,7 +115,8 @@ fun AnswerCard(answer: AnswerUiModel) {
                 text = answer.body,
                 color = OnSurfaceVariant,
                 fontSize = 14.sp,
-                lineHeight = 23.sp
+                lineHeight = 23.sp,
+                style = MaterialTheme.typography.bodyMedium
             )
 
             Spacer(Modifier.height(16.dp))
@@ -129,7 +141,8 @@ fun AnswerCard(answer: AnswerUiModel) {
                             text = answer.likes.toString(),
                             color = if (answer.isAccepted) Primary else Outline,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }

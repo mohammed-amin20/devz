@@ -26,6 +26,7 @@ import com.mohamed.devz.feature.onboarding.presentation.components.FirstScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.SecondScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.ThirdScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.DotInactive
 import kotlinx.coroutines.launch
 
@@ -115,7 +116,8 @@ fun OnboardingScreen(
                 Text(
                     text = if (isLastPage) "Get Started" else "Next",
                     fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             Spacer(modifier = Modifier.height(28.dp))
@@ -158,7 +160,8 @@ fun OnboardingScreen(
                 Text(
                     text = "skip",
                     fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium
+                    fontWeight = FontWeight.Medium,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -168,7 +171,9 @@ fun OnboardingScreen(
 @Preview(showSystemUi = true)
 @Composable
 private fun PrevS1() {
-    OnboardingScreen(
-        onFinish = {}
-    )
+    DevzTheme {
+        OnboardingScreen(
+            onFinish = {}
+        )
+    }
 }

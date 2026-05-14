@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.sp
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.CodeEditorField
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.DefaultFieldLabel
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.LanguageDropdownField
+import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.formatCode
 import com.mohamed.devz.ui.theme.CyanPrimary
@@ -71,9 +72,9 @@ import com.mohamed.devz.ui.theme.TextWhite
 @Composable
 fun AddEditQuestionScreen(
     questionId: String? = null, // null = Add, non-null = Edit
-    onClose: () -> Unit,
-    onPublished: () -> Unit,
-    //viewModel: AddEditQuestionViewModel = hiltViewModel()
+    navigateUp: () -> Unit,
+    //viewModel: AddEditQuestionViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
     // uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null
@@ -87,19 +88,24 @@ fun AddEditQuestionScreen(
         questionId?.let { /*viewModel.onAction(AddEditAction.LoadQuestion(it))*/ }
     }
 
-    Scaffold(
-        containerColor = Color(0xFF131313),
-        topBar = {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Bg)
+            .imePadding()
+            .then(modifier)
+    ) {
+        stickyHeader {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                    .background(Bg)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    IconButton(onClick = onClose) {
+                    IconButton(onClick = navigateUp) {
                         Icon(Icons.Filled.Close, null, tint = TextWhite.copy(alpha = 0.3f))
                     }
                     Spacer(modifier = Modifier.width(4.dp))
@@ -112,7 +118,10 @@ fun AddEditQuestionScreen(
                     )
                 }
                 Button(
-                    onClick = { /*viewModel.onAction(AddEditAction.Publish, onPublished)*/ },
+                    onClick = {
+                        //viewModel.onAction(AddEditAction.Publish, onPublished)
+                        navigateUp()
+                    },
                     shape = RoundedCornerShape(10.dp),
                     enabled = /*!uiState.isLoading*/ true,
                     colors = ButtonDefaults.buttonColors(
@@ -136,302 +145,328 @@ fun AddEditQuestionScreen(
                 }
             }
         }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .imePadding()
-                .padding(horizontal = 20.dp)
-        ) {
-            item {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            style = SpanStyle(
-                                color = TextWhite,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp
-                            )
-                        ) {
-                            append("Architect Your")
-                        }
-                        withStyle(
-                            style = SpanStyle(
+
+        item {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(
+                        style = SpanStyle(
+                            color = TextWhite,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp
+                        )
+                    ) {
+                        append("Architect Your")
+                    }
+                    withStyle(
+                        style = SpanStyle(
+                            color = CyanPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp,
+                            shadow = Shadow(
                                 color = CyanPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp,
-                                shadow = Shadow(
-                                    color = CyanPrimary,
-                                    offset = Offset(0f, 0f),
-                                    blurRadius = 20f
-                                )
+                                offset = Offset(0f, 0f),
+                                blurRadius = 20f
                             )
-                        ) {
-                            append("\nInquiry")
-                        }
-                    },
-                    lineHeight = 32.sp,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+                        )
+                    ) {
+                        append("\nInquiry")
+                    }
+                },
+                lineHeight = 32.sp,
+                style = MaterialTheme.typography.titleLarge,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
-            item {
+        item {
+            Text(
+                text = "Provide as much context as possible. High-quality\ntechnical questions attract high-quality architectural solutions.",
+                color = TextGray,
+                fontSize = 13.sp,
+                lineHeight = 20.sp,
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(28.dp))
+        }
+
+        item {
+            DefaultFieldLabel(
+                text = "CHOOSE LANGUAGE",
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            LanguageDropdownField(
+                selectedLanguage = selectedLanguage,
+                onLanguageSelected = { selectedLanguage = it },
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        item {
+            DefaultFieldLabel(
+                text = "PROBLEM STATEMENT",
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            OutlinedTextField(
+                value = /*uiState.title*/ "",
+                onValueChange = { /*viewModel.onAction(AddEditAction.TitleChanged(it))*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                placeholder = {
+                    Text(
+                        "e.g., How to implement firestore pagination...",
+                        color = TextSubtle,
+                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                colors = devzTextFieldColors()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        item {
+            DefaultFieldLabel(
+                text = "TECHNICAL CONTEXT",
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+        }
+
+        item {
+            OutlinedTextField(
+                value = /*uiState.body*/ "",
+                onValueChange = { /*viewModel.onAction(AddEditAction.BodyChanged(it))*/ },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(140.dp),
+                placeholder = {
+                    Text(
+                        "Describe what you're trying to achieve and what you've tried so far...",
+                        color = TextSubtle,
+                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                shape = RoundedCornerShape(12.dp),
+                colors = devzTextFieldColors()
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                DefaultFieldLabel(
+                    text = "CODE IMPLEMENTATION"
+                )
                 Text(
-                    text = "Provide as much context as possible. High-quality\ntechnical questions attract high-quality architectural solutions.",
-                    color = TextGray,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
-                    style = MaterialTheme.typography.bodyMedium
+                    text = "FORMAT CODE",
+                    color = CyanPrimary,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier
+                        .clickable { code = formatCode(selectedLanguage, code) }
                 )
-
-                Spacer(modifier = Modifier.height(28.dp))
             }
+            Spacer(modifier = Modifier.height(8.dp))
+        }
 
-            item {
-                DefaultFieldLabel("CHOOSE LANGUAGE")
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            item {
-                LanguageDropdownField(
-                    selectedLanguage = selectedLanguage,
-                    onLanguageSelected = { selectedLanguage = it }
+        item {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                color = CyanPrimary.copy(alpha = 0.4f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                CodeEditorField(
+                    modifier = Modifier
+                        .padding(start = 3.dp),
+                    code = code,
+                    onCodeChange = { code = it }
                 )
-
-                Spacer(modifier = Modifier.height(20.dp))
             }
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
-            item {
-                DefaultFieldLabel("PROBLEM STATEMENT")
-                Spacer(modifier = Modifier.height(8.dp))
+        item {
+            DefaultFieldLabel(
+                text = "CLASSIFICATION TAGS",
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+        }
+
+        item {
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                tags.forEach { tag ->
+                    Box(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(50))
+                            .background(CyanPrimary.copy(0.3f))
+                            .border(
+                                width = 1.dp,
+                                color = CyanPrimary.copy(alpha = 0.35f),
+                                shape = RoundedCornerShape(50)
+                            ),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                        ) {
+                            Text(
+                                "#$tag",
+                                color = CyanPrimary,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Medium,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Icon(
+                                Icons.Filled.Close,
+                                null,
+                                tint = CyanPrimary,
+                                modifier = Modifier
+                                    .size(14.dp)
+                                    .clickable { /*viewModel.onAction(AddEditAction.RemoveTag(tag))*/ }
+                            )
+                        }
+                    }
+                }
+                Button(
+                    onClick = {},
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF1A2424)
+                    ),
+                    contentPadding = PaddingValues(horizontal = 12.dp)
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Filled.Add,
+                            null,
+                            tint = TextGray,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text("Add Tag", color = TextGray, fontSize = 13.sp)
+                    }
+                }
             }
+        }
 
-            item {
+        item {
+            if (/*uiState.*/showTagInput) {
+                Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
-                    value = /*uiState.title*/ "",
-                    onValueChange = { /*viewModel.onAction(AddEditAction.TitleChanged(it))*/ },
-                    modifier = Modifier.fillMaxWidth(),
+                    value = /*uiState.tagInput*/ "",
+                    onValueChange = { /*viewModel.onAction(AddEditAction.TagInputChanged(it))*/ },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
                     placeholder = {
                         Text(
-                            "e.g., How to implement firestore pagination...",
+                            "e.g. Kotlin, Firebase",
                             color = TextSubtle,
-                            fontSize = 13.sp,
-                            style = MaterialTheme.typography.bodyMedium
+                            fontSize = 13.sp
                         )
                     },
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        IconButton(onClick = { /*viewModel.onAction(AddEditAction.AddTag)*/ }) {
+                            Icon(Icons.Filled.Check, null, tint = CyanPrimary)
+                        }
+                    },
                     colors = devzTextFieldColors()
                 )
-
-                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            item {
-                DefaultFieldLabel("TECHNICAL CONTEXT")
-                Spacer(modifier = Modifier.height(8.dp))
-            }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
-            item {
-                OutlinedTextField(
-                    value = /*uiState.body*/ "",
-                    onValueChange = { /*viewModel.onAction(AddEditAction.BodyChanged(it))*/ },
+        item {
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = CyanPrimary.copy(alpha = 0.4f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Row(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(140.dp),
-                    placeholder = {
+                        .padding(start = 3.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFF1C1B1B))
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.Top
+                ) {
+                    Icon(
+                        Icons.Filled.Lightbulb,
+                        null,
+                        tint = CyanPrimary,
+                        modifier = Modifier.size(20.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column {
                         Text(
-                            "Describe what you're trying to achieve and what you've tried so far...",
-                            color = TextSubtle,
-                            fontSize = 13.sp,
+                            "Review before publishing",
+                            color = TextWhite,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = "Ensure all sensitive API keys and credentials have been removed from your code snippets.",
+                            color = TextGray,
+                            fontSize = 12.sp,
+                            lineHeight = 18.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                    },
-                    shape = RoundedCornerShape(12.dp),
-                    colors = devzTextFieldColors()
-                )
-
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    DefaultFieldLabel("CODE IMPLEMENTATION")
-                    Text(
-                        text = "FORMAT CODE",
-                        color = CyanPrimary,
-                        fontSize = 12.sp,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier
-                            .clickable { code = formatCode(selectedLanguage, code) }
-                    )
-                }
-                Spacer(modifier = Modifier.height(8.dp))
-            }
-
-            item {
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = CyanPrimary.copy(alpha = 0.4f),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    CodeEditorField(
-                        modifier = Modifier
-                            .padding(start = 3.dp),
-                        code = code,
-                        onCodeChange = { code = it },
-                        language = SyntaxLanguage.KOTLIN
-                    )
-                }
-                Spacer(modifier = Modifier.height(20.dp))
-            }
-
-            item {
-                DefaultFieldLabel("CLASSIFICATION TAGS")
-                Spacer(modifier = Modifier.height(10.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    tags.forEach { tag ->
-                        Box(
-                            modifier = Modifier
-                                .padding(vertical = 4.dp)
-                                .height(40.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(CyanPrimary.copy(0.3f))
-                                .border(
-                                    width = 1.dp,
-                                    color = CyanPrimary.copy(alpha = 0.35f),
-                                    shape = RoundedCornerShape(50)
-                                ),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-                            ) {
-                                Text(
-                                    "#$tag",
-                                    color = CyanPrimary,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Medium,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Icon(
-                                    Icons.Filled.Close,
-                                    null,
-                                    tint = CyanPrimary,
-                                    modifier = Modifier
-                                        .size(14.dp)
-                                        .clickable { /*viewModel.onAction(AddEditAction.RemoveTag(tag))*/ }
-                                )
-                            }
-                        }
-                    }
-                    Button(
-                        onClick = {},
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF1A2424)
-                        ),
-                        contentPadding = PaddingValues(horizontal = 12.dp)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(
-                                Icons.Filled.Add,
-                                null,
-                                tint = TextGray,
-                                modifier = Modifier.size(14.dp)
-                            )
-                            Spacer(modifier = Modifier.width(4.dp))
-                            Text("Add Tag", color = TextGray, fontSize = 13.sp)
-                        }
                     }
                 }
             }
-
-            item {
-                if (/*uiState.*/showTagInput) {
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = /*uiState.tagInput*/ "",
-                        onValueChange = { /*viewModel.onAction(AddEditAction.TagInputChanged(it))*/ },
-                        modifier = Modifier.fillMaxWidth(),
-                        placeholder = {
-                            Text(
-                                "e.g. Kotlin, Firebase",
-                                color = TextSubtle,
-                                fontSize = 13.sp
-                            )
-                        },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        trailingIcon = {
-                            IconButton(onClick = { /*viewModel.onAction(AddEditAction.AddTag)*/ }) {
-                                Icon(Icons.Filled.Check, null, tint = CyanPrimary)
-                            }
-                        },
-                        colors = devzTextFieldColors()
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-            }
-
-            item {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = CyanPrimary.copy(alpha = 0.4f),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(start = 3.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(Color(0xFF1C1B1B))
-                            .padding(16.dp),
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Icon(
-                            Icons.Filled.Lightbulb,
-                            null,
-                            tint = CyanPrimary,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                "Review before publishing",
-                                color = TextWhite,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.SemiBold,
-                                style = MaterialTheme.typography.titleLarge
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = "Ensure all sensitive API keys and credentials have been removed from your code snippets.",
-                                color = TextGray,
-                                fontSize = 12.sp,
-                                lineHeight = 18.sp,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+            Spacer(modifier = Modifier.height(32.dp))
         }
     }
 }
@@ -452,8 +487,7 @@ private fun devzTextFieldColors() = OutlinedTextFieldDefaults.colors(
 private fun PreviewAddEditQuestionScreen() {
     DevzTheme {
         AddEditQuestionScreen(
-            onClose = {},
-            onPublished = {}
+            navigateUp = {}
         )
     }
 }

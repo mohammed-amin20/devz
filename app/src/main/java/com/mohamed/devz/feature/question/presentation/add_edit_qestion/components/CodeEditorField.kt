@@ -49,18 +49,10 @@ import kotlinx.coroutines.delay
 fun CodeEditorField(
     code: String,
     onCodeChange: (String) -> Unit,
-    language: SyntaxLanguage,
     modifier: Modifier = Modifier,
     minLines: Int = 1,
     placeholder: String = "// Paste your code here...",
 ) {
-    val job: Job? = null
-    LaunchedEffect(code) {
-        job?.cancel()
-        delay(1000L)
-        onCodeChange(formatCode(language, code))
-    }
-
     Surface(
         shape = RoundedCornerShape(16.dp),
         color = Color(0xFF0E0E0E),

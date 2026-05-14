@@ -43,7 +43,6 @@ fun AnswerInputBar(
             .fillMaxWidth()
             .background(Bg.copy(alpha = 0.92f))
             .padding(horizontal = 16.dp, vertical = 8.dp)
-            .navigationBarsPadding()
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -62,10 +61,7 @@ fun AnswerInputBar(
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
-                textStyle = TextStyle(
-                    color = OnSurface,
-                    fontSize = 14.sp
-                ),
+                textStyle = MaterialTheme.typography.bodyMedium,
                 colors = TextFieldDefaults.colors(
                     cursorColor = Primary,
                     focusedContainerColor = SurfaceHigh,

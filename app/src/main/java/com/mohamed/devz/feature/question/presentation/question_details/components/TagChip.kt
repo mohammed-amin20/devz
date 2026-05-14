@@ -29,7 +29,7 @@ fun TagChip(text: String) {
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.3.sp,
-            style = MaterialTheme.typography.bodyMedium
+            style = MaterialTheme.typography.titleLarge
         )
     }
 }

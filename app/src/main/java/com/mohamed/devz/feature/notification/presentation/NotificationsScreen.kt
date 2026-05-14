@@ -21,20 +21,18 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DoneAll
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,29 +40,23 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
 import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
-fun NotificationScreen(
-    onBack: () -> Unit,
+fun NotificationsScreen(
+    modifier: Modifier = Modifier
 ) {
     val notifications = sampleNotifications
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    radius = 1800f
-                )
-            )
+            .background(Bg)
+            .then(modifier)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -73,24 +65,17 @@ fun NotificationScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .statusBarsPadding()
-                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                IconButton(onClick = onBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, null, tint = CyanPrimary, modifier = Modifier.size(24.dp))
-                }
                 Text(
                     text = "Notifications",
                     color = CyanPrimary,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
-                    fontStyle = FontStyle.Italic,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleLarge
                 )
-                IconButton(onClick = {}) {
-                    Icon(Icons.Filled.DoneAll, null, tint = TextGray, modifier = Modifier.size(22.dp))
-                }
             }
 
             // ── List ──────────────────────────────────────────────────────
@@ -140,9 +125,9 @@ fun NotificationItem(notification: NotificationUiModel) {
             Icon(
                 imageVector = when (notification.type) {
                     NotificationType.ACCEPTED -> Icons.Filled.CheckCircle
-                    NotificationType.UPVOTE   -> Icons.Filled.ArrowUpward
-                    NotificationType.LIKE     -> Icons.Filled.FavoriteBorder
-                    NotificationType.COMMENT  -> Icons.Filled.ChatBubbleOutline
+                    NotificationType.UPVOTE -> Icons.Filled.ArrowUpward
+                    NotificationType.LIKE -> Icons.Filled.FavoriteBorder
+                    NotificationType.COMMENT -> Icons.Filled.ChatBubbleOutline
                 },
                 contentDescription = null,
                 tint = CyanPrimary,
@@ -150,7 +135,6 @@ fun NotificationItem(notification: NotificationUiModel) {
             )
         }
 
-        // Text
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = buildAnnotatedString {
@@ -170,7 +154,8 @@ fun NotificationItem(notification: NotificationUiModel) {
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 maxLines = 2,
-                overflow = TextOverflow.Ellipsis
+                overflow = TextOverflow.Ellipsis,
+                style = MaterialTheme.typography.bodyMedium
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
@@ -179,11 +164,11 @@ fun NotificationItem(notification: NotificationUiModel) {
                 fontSize = 12.sp,
                 fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal,
                 modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End
+                textAlign = TextAlign.End,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
 
-        // Unread dot
         if (isUnread) {
             Box(
                 modifier = Modifier
@@ -194,6 +179,7 @@ fun NotificationItem(notification: NotificationUiModel) {
         }
     }
 }
+
 // ── Notification types ────────────────────────────────────────────────────────
 enum class NotificationType {
     ACCEPTED,
@@ -210,14 +196,14 @@ data class NotificationUiModel(
     val message: String,
     val questionTitle: String,
     val timeAgo: String,
-    val isRead: Boolean = false
+    val isRead: Boolean = false,
 )
 
 // ── UiState ───────────────────────────────────────────────────────────────────
 data class NotificationsUiState(
     val notifications: List<NotificationUiModel> = emptyList(),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
 )
 
 // ── Actions ───────────────────────────────────────────────────────────────────
@@ -306,6 +292,8 @@ val sampleNotifications = listOf(
 @Preview(showSystemUi = true)
 @Composable
 private fun PreviewNotifications() {
-    NotificationScreen(onBack = {})
+    DevzTheme {
+        NotificationsScreen()
+    }
 }
 

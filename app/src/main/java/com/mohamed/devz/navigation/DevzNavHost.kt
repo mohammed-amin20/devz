@@ -1,0 +1,100 @@
+package com.mohamed.devz.navigation
+
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
+import com.mohamed.devz.feature.authentication.presentation.AuthScreen
+import com.mohamed.devz.feature.onboarding.presentation.OnboardingScreen
+import com.mohamed.devz.feature.profile.presentation.edit_profile.EditProfileScreen
+import com.mohamed.devz.feature.question.presentation.add_edit_qestion.AddEditQuestionScreen
+import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
+import com.mohamed.devz.feature.splash.presentation.SplashScreen
+import com.mohamed.devz.navigation.components.HomeScreen
+
+@Composable
+fun DevzNavHost(
+    modifier: Modifier = Modifier
+) {
+    val navController = rememberNavController()
+
+    NavHost(
+        navController = navController,
+        startDestination = Route.Splash,
+        modifier = Modifier
+            .fillMaxSize()
+    ) {
+        composable<Route.Splash> {
+            SplashScreen(
+                onNavigate = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Onboarding)
+                    }
+                },
+                modifier = modifier
+            )
+        }
+        composable<Route.Onboarding> {
+            OnboardingScreen(
+                onFinish = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Auth)
+                    }
+                },
+                modifier = modifier
+            )
+        }
+        composable<Route.Auth> {
+            AuthScreen(
+                onLoginSuccess = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Home)
+                    }
+                },
+                modifier = modifier
+            )
+        }
+        composable<Route.Home> {
+            HomeScreen(
+                navigateToQuestionDetails = { id ->
+                    navController.navigate(Route.QuestionDetails(id))
+                },
+                navigateToAddEditQuestion = { id ->
+                    navController.navigate(Route.AddEditQuestion(id))
+                },
+                navigateToEditProfile = {
+                    navController.navigate(Route.EditProfile)
+                }
+            )
+        }
+        composable<Route.QuestionDetails> {
+            val id = it.toRoute<Route.QuestionDetails>().id
+
+            QuestionDetailScreen(
+                questionId = id,
+                modifier = modifier
+            )
+        }
+        composable<Route.AddEditQuestion> {
+            val id = it.toRoute<Route.AddEditQuestion>().id
+
+            AddEditQuestionScreen(
+                questionId = id,
+                navigateUp = { navController.navigateUp() },
+                modifier = modifier
+            )
+        }
+        composable<Route.EditProfile> {
+            EditProfileScreen(
+                navigateUp = { navController.navigateUp() },
+                modifier = modifier
+            )
+        }
+    }
+}

@@ -38,15 +38,16 @@ import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
 import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
 import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun ViewQuestionsScreen(
     onQuestionClick: (String) -> Unit,
-    onAddQuestion: () -> Unit,
     onProfileClick: () -> Unit,
-    //viewModel: HomeViewModel = hiltViewModel()
+    //viewModel: HomeViewModel = hiltViewModel(),
+    modifier: Modifier = Modifier
 ) {
     //val uiState by viewModel.uiState.collectAsState()
 
@@ -92,231 +93,212 @@ fun ViewQuestionsScreen(
         )
     )
 
-    Scaffold(
-        containerColor = DevzBlack,
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddQuestion,
-                containerColor = CyanPrimary,
-                contentColor = Color.Black,
-                shape = CircleShape,
-                modifier = Modifier.size(56.dp)
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Bg)
+            .padding(horizontal = 16.dp)
+            .then(modifier),
+        verticalArrangement = Arrangement.spacedBy(0.dp)
+    ) {
+        item {
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Ask", modifier = Modifier.size(28.dp))
-            }
-        },
-        /*bottomBar = {
-            DevzBottomBar(
-                selected = 0,
-                onHome = {},
-                onAsk = onAddQuestion,
-                onProfile = onProfileClick
-            )
-        }*/
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(0.dp)
-        ) {
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Image(
+                        painter = painterResource(R.drawable.logo),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = buildAnnotatedString {
+                            withStyle(
+                                SpanStyle(
+                                    color = TextWhite,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            ) { append("dev") }
+                            withStyle(
+                                SpanStyle(
+                                    color = CyanPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 16.sp
+                                )
+                            ) { append("Z") }
+                        },
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                }
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Image(
-                            painter = painterResource(R.drawable.logo),
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = buildAnnotatedString {
-                                withStyle(
-                                    SpanStyle(
-                                        color = TextWhite,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                ) { append("dev") }
-                                withStyle(
-                                    SpanStyle(
-                                        color = CyanPrimary,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 16.sp
-                                    )
-                                ) { append("Z") }
+                    Icon(
+                        Icons.Filled.Search,
+                        null,
+                        tint = TextGray,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Icon(
+                        Icons.Filled.Notifications,
+                        null,
+                        tint = TextGray,
+                        modifier = Modifier.size(22.dp)
+                    )
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .clip(CircleShape)
+                            .background(Color(0xFF2A3A3A))
+                            .clickable {
+                                onProfileClick()
                             },
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        verticalAlignment = Alignment.CenterVertically
+                        contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            Icons.Filled.Search,
+                            Icons.Filled.Person,
                             null,
                             tint = TextGray,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(18.dp)
                         )
-                        Icon(
-                            Icons.Filled.Notifications,
-                            null,
-                            tint = TextGray,
-                            modifier = Modifier.size(22.dp)
-                        )
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(Color(0xFF2A3A3A)),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Icon(
-                                Icons.Filled.Person,
-                                null,
-                                tint = TextGray,
-                                modifier = Modifier.size(18.dp)
-                            )
-                        }
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
             }
+            Spacer(modifier = Modifier.height(24.dp))
+        }
 
-            item {
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                color = TextWhite,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp
-                            )
-                        ) {
-                            append("Architecting ")
-                        }
-                        withStyle(
-                            SpanStyle(
+        item {
+            Text(
+                text = buildAnnotatedString {
+                    withStyle(
+                        SpanStyle(
+                            color = TextWhite,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp
+                        )
+                    ) {
+                        append("Architecting ")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            color = CyanPrimary,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp,
+                            shadow = Shadow(
                                 color = CyanPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp,
-                                shadow = Shadow(
-                                    color = CyanPrimary,
-                                    offset = Offset(0f, 0f),
-                                    blurRadius = 20f
-                                )
+                                offset = Offset(0f, 0f),
+                                blurRadius = 20f
                             )
-                        ) {
-                            append("Solutions")
-                        }
-                        withStyle(
-                            SpanStyle(
-                                color = TextWhite,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp
-                            )
-                        ) {
-                            append(".")
-                        }
-                    },
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "A premium workspace for developers to exchange\nhigh-level technical logic and editorial-grade code.",
-                    color = TextGray,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(20.dp))
-            }
+                        )
+                    ) {
+                        append("Solutions")
+                    }
+                    withStyle(
+                        SpanStyle(
+                            color = TextWhite,
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 28.sp
+                        )
+                    ) {
+                        append(".")
+                    }
+                },
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "A premium workspace for developers to exchange\nhigh-level technical logic and editorial-grade code.",
+                color = TextGray,
+                fontSize = 13.sp,
+                lineHeight = 20.sp,
+                style = MaterialTheme.typography.bodyMedium
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
 
-            item {
-                OutlinedTextField(
-                    value = /*uiState.searchQuery*/ "",
-                    onValueChange = { /*viewModel.onAction(HomeAction.SearchQueryChanged(it))*/ },
-                    modifier = Modifier.fillMaxWidth(),
-                    placeholder = {
+        item {
+            OutlinedTextField(
+                value = /*uiState.searchQuery*/ "",
+                onValueChange = { /*viewModel.onAction(HomeAction.SearchQueryChanged(it))*/ },
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = {
+                    Text(
+                        "Query the collective intelligence...",
+                        color = TextSubtle,
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                },
+                leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
+                singleLine = true,
+                shape = RoundedCornerShape(14.dp),
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = CyanPrimary,
+                    unfocusedBorderColor = Color(0xFF2A3A3A),
+                    focusedTextColor = TextWhite,
+                    unfocusedTextColor = TextWhite,
+                    cursorColor = CyanPrimary,
+                    focusedContainerColor = DevzCard,
+                    unfocusedContainerColor = DevzCard
+                )
+            )
+            Spacer(modifier = Modifier.height(20.dp))
+        }
+
+        item {
+            val tabs = listOf("Newest", "Popular", "Trending", "Bounties")
+            Row(
+                modifier = Modifier.horizontalScroll(rememberScrollState()),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                tabs.forEachIndexed { index, tab ->
+                    val isSelected = /*index == uiState.selectedTab*/ index == 0
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(if (isSelected) CyanPrimary else Color(0xFF1A2424))
+                            .clickable { /*viewModel.onAction(HomeAction.TabSelected(index))*/ }
+                            .padding(horizontal = 18.dp, vertical = 8.dp)
+                    ) {
                         Text(
-                            "Query the collective intelligence...",
-                            color = TextSubtle,
-                            fontSize = 14.sp,
+                            text = tab,
+                            color = if (isSelected) Color.Black else TextGray,
+                            fontSize = 13.sp,
+                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                    },
-                    leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
-                    singleLine = true,
-                    shape = RoundedCornerShape(14.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = CyanPrimary,
-                        unfocusedBorderColor = Color(0xFF2A3A3A),
-                        focusedTextColor = TextWhite,
-                        unfocusedTextColor = TextWhite,
-                        cursorColor = CyanPrimary,
-                        focusedContainerColor = DevzCard,
-                        unfocusedContainerColor = DevzCard
-                    )
-                )
-                Spacer(modifier = Modifier.height(20.dp))
+                    }
+                }
             }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
 
+        /*if (uiState.isLoading) {
             item {
-                val tabs = listOf("Newest", "Popular", "Trending", "Bounties")
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    tabs.forEachIndexed { index, tab ->
-                        val isSelected = /*index == uiState.selectedTab*/ index == 0
-                        Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(50))
-                                .background(if (isSelected) CyanPrimary else Color(0xFF1A2424))
-                                .clickable { /*viewModel.onAction(HomeAction.TabSelected(index))*/ }
-                                .padding(horizontal = 18.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = tab,
-                                color = if (isSelected) Color.Black else TextGray,
-                                fontSize = 13.sp,
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                        }
-                    }
+                Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator(color = CyanPrimary)
                 }
-                Spacer(modifier = Modifier.height(16.dp))
             }
-
-            /*if (uiState.isLoading) {
-                item {
-                    Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator(color = CyanPrimary)
-                    }
-                }
-            } else {*/
-            items(questions, key = { it.id }) { question ->
-                QuestionCard(
-                    question = question,
-                    onClick = { onQuestionClick(question.id) },
-                    onBookmark = { /*viewModel.onAction(HomeAction.ToggleBookmark(question.id))*/ }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
+        } else {*/
+        items(questions, key = { it.id }) { question ->
+            QuestionCard(
+                question = question,
+                onClick = { onQuestionClick(question.id) },
+                onBookmark = { /*viewModel.onAction(HomeAction.ToggleBookmark(question.id))*/ }
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
 //            }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
-        }
+        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
 
@@ -339,7 +321,6 @@ data class QuestionUiModel(
 private fun PreviewViewQuestionsScreen() {
     DevzTheme {
         ViewQuestionsScreen(
-            onAddQuestion = {},
             onQuestionClick = {},
             onProfileClick = {}
         )

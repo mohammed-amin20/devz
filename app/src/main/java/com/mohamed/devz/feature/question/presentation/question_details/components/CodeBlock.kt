@@ -19,7 +19,10 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.rounded.ContentCopy
+import androidx.compose.material.icons.rounded.Done
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -119,23 +122,23 @@ fun CodeBlock(
 
                                 copied = true
                             }
-                            .background(if (copied) Color(0xFF44D8F1).copy(alpha = 0.1f) else Color.Transparent)
-                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                            .padding(horizontal = 8.dp, vertical = 12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
                         Icon(
-                            Icons.Filled.ContentCopy,
+                            if(copied) Icons.Rounded.Done else Icons.Rounded.ContentCopy,
                             null,
-                            tint = if (copied) Color(0xFF44D8F1) else Color(0xFF869396),
-                            modifier = Modifier.size(13.dp)
+                            tint = Color(0xFF869396),
+                            modifier = Modifier.size(15.dp)
                         )
                         Text(
                             text = if (copied) "COPIED!" else "COPY",
-                            color = if (copied) Color(0xFF44D8F1) else Color(0xFF869396),
-                            fontSize = 9.sp,
+                            color = Color(0xFF869396),
+                            fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.sp
+                            letterSpacing = 1.sp,
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 }

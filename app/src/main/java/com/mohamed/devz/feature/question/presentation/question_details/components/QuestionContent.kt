@@ -32,7 +32,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.mohamed.devz.feature.question.presentation.question_details.AnswerUiModel
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailUiModel
 
 @Composable
@@ -62,7 +61,6 @@ fun QuestionContent(
                 fontSize = 28.sp,
                 lineHeight = 34.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = FontFamily.SansSerif,
                 style = MaterialTheme.typography.titleLarge
             )
             Spacer(Modifier.height(18.dp))
@@ -89,7 +87,7 @@ fun QuestionContent(
                             color = OnSurface,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyMedium
+                            style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             text = "Asked ${question.timeAgo}",
@@ -116,7 +114,8 @@ fun QuestionContent(
                 text = question.body,
                 color = OnSurfaceVariant,
                 fontSize = 16.sp,
-                lineHeight = 26.sp
+                lineHeight = 26.sp,
+                style = MaterialTheme.typography.bodyMedium
             )
             Spacer(Modifier.height(18.dp))
         }
@@ -178,7 +177,8 @@ fun QuestionContent(
                 text = "${answers.size} Answers",
                 color = OnSurface,
                 fontSize = 20.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge
             )
             Spacer(Modifier.height(16.dp))
         }

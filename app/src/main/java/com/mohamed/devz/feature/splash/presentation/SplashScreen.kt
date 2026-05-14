@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +32,7 @@ import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 import kotlinx.coroutines.delay
 import com.mohamed.devz.R
+import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun SplashScreen(
@@ -107,7 +109,7 @@ fun SplashScreen(
                 },
                 fontSize = 42.sp,
                 letterSpacing = 3.sp,
-                fontStyle = FontStyle.Italic
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -148,7 +150,8 @@ fun SplashScreen(
                 color = TextSubtle,
                 fontSize = 11.sp,
                 letterSpacing = 3.sp,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
+                style = MaterialTheme.typography.titleLarge
             )
 
             Spacer(modifier = Modifier.height(4.dp))
@@ -157,7 +160,8 @@ fun SplashScreen(
                 text = "v1.0.0",
                 color = TextSubtle.copy(alpha = 0.6f),
                 fontSize = 10.sp,
-                letterSpacing = 1.sp
+                letterSpacing = 1.sp,
+                style = MaterialTheme.typography.bodyMedium
             )
         }
     }
@@ -166,7 +170,9 @@ fun SplashScreen(
 @Preview(showSystemUi = true)
 @Composable
 private fun Preview() {
-    SplashScreen(
-        onNavigate = {}
-    )
+    DevzTheme {
+        SplashScreen(
+            onNavigate = {}
+        )
+    }
 }
