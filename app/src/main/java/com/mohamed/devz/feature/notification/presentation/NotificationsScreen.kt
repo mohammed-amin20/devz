@@ -64,7 +64,6 @@ fun NotificationsScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .statusBarsPadding()
                     .padding(horizontal = 16.dp, vertical = 16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

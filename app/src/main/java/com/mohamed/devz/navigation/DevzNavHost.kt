@@ -70,7 +70,8 @@ fun DevzNavHost(
                 },
                 navigateToEditProfile = {
                     navController.navigate(Route.EditProfile)
-                }
+                },
+                modifier = modifier
             )
         }
         composable<Route.QuestionDetails> {

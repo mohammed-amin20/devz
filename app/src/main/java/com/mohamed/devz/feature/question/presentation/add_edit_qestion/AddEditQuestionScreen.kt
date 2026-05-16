@@ -296,7 +296,9 @@ fun AddEditQuestionScreen(
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
+                        .clip(RoundedCornerShape(50))
                         .clickable { code = formatCode(selectedLanguage, code) }
+                        .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
             Spacer(modifier = Modifier.height(8.dp))

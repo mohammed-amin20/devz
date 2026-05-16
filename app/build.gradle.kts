@@ -67,6 +67,7 @@ dependencies {
 
     //icon
     implementation(libs.androidx.material.icons.extended)
+
     // hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
@@ -78,4 +79,11 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
+
+    // Supabase
+    implementation(platform(libs.bom))
+    implementation(libs.postgrest.kt)
+    implementation(libs.storage.kt)
+    implementation(libs.gotrue.kt)
+    implementation(libs.ktor.client.android)
 }

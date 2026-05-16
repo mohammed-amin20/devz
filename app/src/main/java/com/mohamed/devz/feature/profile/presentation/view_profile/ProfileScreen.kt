@@ -58,7 +58,7 @@ fun ProfileScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(Bg)
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 16.dp)
             .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
