@@ -3,12 +3,14 @@ package com.mohamed.devz.navigation
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.mohamed.devz.feature.authentication.presentation.AuthScreen
 import com.mohamed.devz.feature.onboarding.presentation.OnboardingScreen
+import com.mohamed.devz.feature.onboarding.presentation.OnboardingViewModel
 import com.mohamed.devz.feature.profile.presentation.edit_profile.EditProfileScreen
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.AddEditQuestionScreen
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
@@ -29,11 +31,14 @@ fun DevzNavHost(
     ) {
         composable<Route.Splash> {
             SplashScreen(
-                onNavigate = {
-                    navController.apply {
-                        popBackStack()
-                        navigate(Route.Onboarding)
-                    }
+                navigateToOnboarding = {
+                    navController.apply { popBackStack(); navigate(Route.Onboarding) }
+                },
+                navigateToAuth = {
+                    navController.apply { popBackStack(); navigate(Route.Auth) }
+                },
+                navigateToHome = {
+                    navController.apply { popBackStack(); navigate(Route.Home) }
                 },
                 modifier = modifier
             )

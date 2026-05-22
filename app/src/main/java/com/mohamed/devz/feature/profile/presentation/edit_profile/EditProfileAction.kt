@@ -1,7 +1,7 @@
 package com.mohamed.devz.feature.profile.presentation.edit_profile
 
 sealed class EditProfileAction {
-    object PickAvatar                            : EditProfileAction()
+    data class PickAvatar(val imageBytes: ByteArray) : EditProfileAction()
     data class FullNameChanged(val v: String)    : EditProfileAction()
     data class UsernameChanged(val v: String)    : EditProfileAction()
     data class BioChanged(val v: String)         : EditProfileAction()

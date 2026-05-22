@@ -3,6 +3,8 @@ package com.mohamed.devz.feature.profile.presentation.edit_profile
 data class EditProfileState(
     val fullName: String = "",
     val username: String = "",
+    val email: String = "",
+    val password: String = "",
     val bio: String = "",
     val github: String = "",
     val linkedin: String = "",
@@ -10,6 +12,7 @@ data class EditProfileState(
     val skills: List<String> = emptyList(),
     val skillInput: String = "",
     val showSkillInput: Boolean = false,
+    val imageUrl: String = "",
     val isPublicProfile: Boolean = true,
     val displayEmail: Boolean = false,
     val isLoading: Boolean = false,

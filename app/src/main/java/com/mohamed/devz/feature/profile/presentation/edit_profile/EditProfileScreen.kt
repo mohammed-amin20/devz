@@ -1,5 +1,8 @@
 package com.mohamed.devz.feature.profile.presentation.edit_profile
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -45,13 +48,13 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -68,15 +71,27 @@ import com.mohamed.devz.ui.theme.LabelGray
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
+import coil3.compose.AsyncImage
 
 @Composable
 fun EditProfileScreen(
     navigateUp: () -> Unit,
-    //viewModel: EditProfileViewModel = hiltViewModel(),
     modifier: Modifier = Modifier,
+    viewModel: EditProfileViewModel = hiltViewModel(),
 ) {
-    //val uiState by viewModel.uiState.collectAsState()
-    val uiState by remember { mutableStateOf(EditProfileState()) }
+    val uiState by viewModel.uiState.collectAsState()
+    val context = LocalContext.current
+
+    val imagePickerLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri: Uri? ->
+        uri?.let {
+            val bytes = context.contentResolver.openInputStream(it)?.readBytes()
+            if (bytes != null) {
+                viewModel.onAction(EditProfileAction.PickAvatar(bytes))
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -143,12 +158,23 @@ fun EditProfileScreen(
                     .border(2.dp, CyanPrimary.copy(alpha = 0.5f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    Icons.Filled.Person,
-                    null,
-                    tint = CyanPrimary,
-                    modifier = Modifier.size(52.dp)
-                )
+                if (uiState.imageUrl.isNotEmpty()) {
+                    AsyncImage(
+                        model = uiState.imageUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else {
+                    Icon(
+                        Icons.Filled.Person,
+                        null,
+                        tint = CyanPrimary,
+                        modifier = Modifier.size(52.dp)
+                    )
+                }
             }
             // Camera button
             Box(
@@ -156,7 +182,7 @@ fun EditProfileScreen(
                     .size(30.dp)
                     .clip(CircleShape)
                     .background(CyanPrimary)
-                    .clickable { /*viewModel.onAction(EditProfileAction.PickAvatar)*/ },
+                    .clickable { imagePickerLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(

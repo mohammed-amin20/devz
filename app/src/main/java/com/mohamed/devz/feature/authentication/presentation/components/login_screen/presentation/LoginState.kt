@@ -1,8 +1,10 @@
 package com.mohamed.devz.feature.authentication.presentation.components.login_screen.presentation
 
-data class LoginScreenState(
+import com.mohamed.devz.feature.core.presentation.util.UIText
+
+data class LoginState(
     val email: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UIText? = null
 )

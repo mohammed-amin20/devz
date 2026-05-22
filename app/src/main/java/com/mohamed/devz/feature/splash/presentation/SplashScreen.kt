@@ -1,14 +1,32 @@
 package com.mohamed.devz.feature.splash.presentation
 
-
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -21,23 +39,23 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.feature.splash.presentation.SplashViewModel.SplashEvent
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
-import kotlinx.coroutines.delay
-import com.mohamed.devz.R
-import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun SplashScreen(
-   onNavigate: () -> Unit,
-   modifier: Modifier = Modifier
+    navigateToOnboarding: () -> Unit,
+    navigateToAuth: () -> Unit,
+    navigateToHome: () -> Unit,
+    modifier: Modifier = Modifier,
+    viewModel: SplashViewModel = hiltViewModel()
 ) {
     var visible by remember { mutableStateOf(false) }
 
@@ -60,8 +78,17 @@ fun SplashScreen(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 2000, easing = LinearEasing)
         )
-        delay(1000)
-        onNavigate()
+        viewModel.onAction(SplashAction.DecideWhereToGoAction)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.splashEvent.collect { event ->
+            when (event) {
+                SplashEvent.NavigateToOnboarding -> navigateToOnboarding()
+                SplashEvent.NavigateToAuth -> navigateToAuth()
+                SplashEvent.NavigateToHome -> navigateToHome()
+            }
+        }
     }
 
     Box(
@@ -88,7 +115,7 @@ fun SplashScreen(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                painter = painterResource(R.drawable.logo),
+                painter = painterResource(com.mohamed.devz.R.drawable.logo),
                 contentDescription = "DevZ Logo",
                 modifier = Modifier
                     .size(150.dp)
@@ -167,12 +194,4 @@ fun SplashScreen(
     }
 }
 
-@Preview(showSystemUi = true)
-@Composable
-private fun Preview() {
-    DevzTheme {
-        SplashScreen(
-            onNavigate = {}
-        )
-    }
-}
+

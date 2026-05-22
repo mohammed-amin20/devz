@@ -29,6 +29,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -43,6 +44,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,6 +61,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
@@ -73,10 +76,10 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun SignUpScreen(
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
-//    viewModel: SignUpScreenViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: SignUpViewModel = hiltViewModel(),
 ) {
-//    val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
@@ -164,8 +167,8 @@ fun SignUpScreen(
                         AuthFieldLabel("FULL NAME")
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = /*uiState.fullName*/ "",
-                            onValueChange = /*viewModel::onFullNameChange*/ {},
+                            value = uiState.fullName,
+                            onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
                             placeholder = "John Doe",
                             leadingIcon = { Icon(Icons.Filled.Person, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
                         )
@@ -175,8 +178,8 @@ fun SignUpScreen(
                         AuthFieldLabel("USERNAME")
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = /*uiState.username*/ "",
-                            onValueChange = /*viewModel::onUsernameChange*/ {},
+                            value = uiState.username,
+                            onValueChange = { viewModel.onAction(SignUpAction.UsernameChanged(it)) },
                             placeholder = "architect_dev",
                             leadingIcon = { Icon(Icons.Filled.AlternateEmail, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
                         )
@@ -186,8 +189,8 @@ fun SignUpScreen(
                         AuthFieldLabel("EMAIL ADDRESS")
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = /*uiState.email*/ "",
-                            onValueChange = /*viewModel::onEmailChange*/ {},
+                            value = uiState.email,
+                            onValueChange = { viewModel.onAction(SignUpAction.EmailChanged(it)) },
                             placeholder = "architect@devz.io",
                             keyboardType = KeyboardType.Email,
                             leadingIcon = { Icon(Icons.Filled.Email, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
@@ -198,8 +201,8 @@ fun SignUpScreen(
                         AuthFieldLabel("PASSWORD")
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = /*uiState.password*/ "",
-                            onValueChange = /*viewModel::onPasswordChange*/ {},
+                            value = uiState.password,
+                            onValueChange = { viewModel.onAction(SignUpAction.PasswordChanged(it)) },
                             placeholder = "••••••••••••",
                             keyboardType = KeyboardType.Password,
                             isPassword = true,
@@ -213,8 +216,8 @@ fun SignUpScreen(
                         AuthFieldLabel("CONFIRM PASSWORD")
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = /*uiState.confirmPassword*/ "",
-                            onValueChange = /*viewModel::onConfirmPasswordChange*/ {},
+                            value = uiState.confirmPassword,
+                            onValueChange = { viewModel.onAction(SignUpAction.ConfirmPasswordChanged(it)) },
                             placeholder = "••••••••••••",
                             keyboardType = KeyboardType.Password,
                             isPassword = true,
@@ -252,41 +255,43 @@ fun SignUpScreen(
 
                         // Sign Up button
                         Button(
-                            onClick = { /*viewModel.register(onRegisterSuccess)*/ },
+                            onClick = { viewModel.onAction(SignUpAction.RegisterClicked(onRegisterSuccess)) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(54.dp),
                             shape = RoundedCornerShape(50),
-                            enabled = /*!uiState.isLoading*/ true,
+                            enabled = !uiState.isLoading,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = CyanPrimary,
                                 contentColor = Color.Black
                             )
                         ) {
-                            /*if (uiState.isLoading) {
+                            if (uiState.isLoading) {
                                 CircularProgressIndicator(
                                     color = Color.Black,
                                     modifier = Modifier.size(22.dp),
                                     strokeWidth = 2.dp
                                 )
-                            } else {*/
+                            } else {
                                 Text(
                                     text = "Sign Up →",
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
-//                            }
+                            }
                         }
                     }
                 }
             }
 
             // Error
-            /*uiState.error?.let {
-                Spacer(modifier = Modifier.height(12.dp))
-                Text(text = it, color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
-            }*/
+            item {
+                uiState.error?.let {
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(text = it.toUIText(), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                }
+            }
 
             item {
                 Spacer(modifier = Modifier.height(28.dp))
@@ -375,7 +380,7 @@ private fun PreviewSignUpScreen() {
             SignUpScreen(
                 onNavigateToLogin = {},
                 onRegisterSuccess = {},
-//        viewModel = SignUpScreenViewModel(),
+
                 modifier = Modifier.padding(innerPadding)
             )
         }

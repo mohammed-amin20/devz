@@ -73,6 +73,9 @@ dependencies {
     ksp(libs.hilt.android.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
 
+    // DataStore
+    implementation(libs.androidx.datastore.preferences)
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
 

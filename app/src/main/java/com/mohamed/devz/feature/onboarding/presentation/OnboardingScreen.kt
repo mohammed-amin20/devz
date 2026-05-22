@@ -22,6 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.feature.onboarding.presentation.components.FirstScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.SecondScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.ThirdScreen
@@ -33,8 +34,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnboardingScreen(
     onFinish: () -> Unit,
-    // viewModel: OnboardingViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     var visible by remember { mutableStateOf(false) }
 
@@ -99,7 +100,7 @@ fun OnboardingScreen(
                         if (!isLastPage) {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         } else {
-                            //viewModel.completeOnboarding()
+                            viewModel.onAction(OnboardingAction.FinishAction)
                             onFinish()
                         }
                     }
@@ -147,7 +148,7 @@ fun OnboardingScreen(
         if (!isLastPage) {
             TextButton(
                 onClick = {
-                    //viewModel.completeOnboarding()
+                    viewModel.onAction(OnboardingAction.FinishAction)
                     onFinish()
                 },
                 modifier = Modifier
