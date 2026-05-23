@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.R
 import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.theme.QOutline
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
@@ -77,8 +78,8 @@ fun TopBar() {
         }
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Icon(Icons.Default.Search, contentDescription = null, tint = Outline)
-            Icon(Icons.Default.Notifications, contentDescription = null, tint = Outline)
+            Icon(Icons.Default.Search, contentDescription = null, tint = QOutline)
+            Icon(Icons.Default.Notifications, contentDescription = null, tint = QOutline)
         }
     }
 }

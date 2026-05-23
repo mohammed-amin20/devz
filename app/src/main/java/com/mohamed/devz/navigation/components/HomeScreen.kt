@@ -41,14 +41,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
-import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun HomeScreen(
-    navigateToQuestionDetails: (String) -> Unit,
-    navigateToAddEditQuestion: (String?) -> Unit,
+    navigateToQuestionDetails: (Int) -> Unit,
+    navigateToAddEditQuestion: (Int?) -> Unit,
     navigateToEditProfile: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -131,7 +131,7 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                        .background(Bg.copy(0.9f))
+                        .background(QBg.copy(0.9f))
                         .navigationBarsPadding()
                         .height(64.dp)
                         .padding(horizontal = 8.dp),
@@ -212,8 +212,8 @@ private fun NavIconButton(
 private fun PreviewHomeScreen() {
     DevzTheme {
         HomeScreen(
-            navigateToQuestionDetails = {},
-            navigateToAddEditQuestion = {},
+            navigateToQuestionDetails = { _ -> },
+            navigateToAddEditQuestion = { _ -> },
             navigateToEditProfile = {}
         )
     }

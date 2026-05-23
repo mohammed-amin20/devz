@@ -40,7 +40,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
@@ -55,7 +55,7 @@ fun NotificationsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Bg)
+            .background(QBg)
             .then(modifier)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {

@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
-import com.mohamed.devz.feature.core.presentation.util.UIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,7 +36,7 @@ class SignUpViewModel @Inject constructor(
 
     private fun register(onSuccess: () -> Unit) {
         if (uiState.value.password != uiState.value.confirmPassword) {
-            _uiState.update { it.copy(error = UIText.StringValue("Passwords do not match")) }
+            _uiState.update { it.copy(error = UiText.DynamicString("Passwords do not match")) }
             return
         }
         viewModelScope.launch {
@@ -58,6 +58,7 @@ class SignUpViewModel @Inject constructor(
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     userPreferencesRepository.setLoggedIn()
+                    userPreferencesRepository.setAccountId(result.data.id)
                     onSuccess()
                 }
                 is com.mohamed.devz.feature.core.domain.util.Result.Error -> {

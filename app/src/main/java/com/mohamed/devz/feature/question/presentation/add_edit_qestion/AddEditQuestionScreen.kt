@@ -6,7 +6,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
@@ -26,7 +24,6 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lightbulb
-import androidx.compose.material.icons.rounded.TextFormat
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -34,12 +31,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,41 +53,46 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.CodeEditorField
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.DefaultFieldLabel
 import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.LanguageDropdownField
-import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.formatCode
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun AddEditQuestionScreen(
-    questionId: String? = null, // null = Add, non-null = Edit
+    questionId: Int? = null,
     navigateUp: () -> Unit,
-    //viewModel: AddEditQuestionViewModel = hiltViewModel(),
+    viewModel: AddEditQuestionViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    // uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null
 
     var selectedLanguage by remember { mutableStateOf(SyntaxLanguage.KOTLIN) }
-    var code by remember { mutableStateOf("") }
-    val tags = listOf("kotlin", "firebase" /*"firestore", "pagination"*/)
-    var showTagInput by remember { mutableStateOf(false) }
 
     LaunchedEffect(questionId) {
-        questionId?.let { /*viewModel.onAction(AddEditAction.LoadQuestion(it))*/ }
+        questionId?.let { viewModel.onAction(AddEditQuestionAction.LoadQuestion(it)) }
+    }
+
+    LaunchedEffect(uiState.selectedLangTypeId, uiState.languageTypes) {
+        if (uiState.languageTypes.isNotEmpty()) {
+            val match = uiState.languageTypes.find { it.id == uiState.selectedLangTypeId }
+            selectedLanguage = match?.let { typeToSyntaxLanguage(it.type) } ?: SyntaxLanguage.KOTLIN
+        }
     }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Bg)
+            .background(QBg)
             .imePadding()
             .then(modifier)
     ) {
@@ -99,7 +100,7 @@ fun AddEditQuestionScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Bg)
+                    .background(QBg)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -119,22 +120,15 @@ fun AddEditQuestionScreen(
                 }
                 Button(
                     onClick = {
-                        //viewModel.onAction(AddEditAction.Publish, onPublished)
-                        navigateUp()
+                        viewModel.onAction(AddEditQuestionAction.Publish(navigateUp))
                     },
                     shape = RoundedCornerShape(10.dp),
-                    enabled = /*!uiState.isLoading*/ true,
+                    enabled = !uiState.isLoading,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = CyanPrimary,
                         contentColor = Color.Black
                     ),
                     contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
-//                    modifier = Modifier
-//                        .shadow(
-//                            spotColor = CyanPrimary,
-//                            elevation = 12.dp,
-//                            shape = RoundedCornerShape(10.dp)
-//                        )
                 ) {
                     Text(
                         "Publish",
@@ -207,7 +201,13 @@ fun AddEditQuestionScreen(
         item {
             LanguageDropdownField(
                 selectedLanguage = selectedLanguage,
-                onLanguageSelected = { selectedLanguage = it },
+                onLanguageSelected = { lang ->
+                    selectedLanguage = lang
+                    val typeId = uiState.languageTypes
+                        .find { it.type.equals(lang.label, ignoreCase = true) }
+                        ?.id ?: 1
+                    viewModel.onAction(AddEditQuestionAction.LanguageSelected(typeId))
+                },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
             )
@@ -226,8 +226,8 @@ fun AddEditQuestionScreen(
 
         item {
             OutlinedTextField(
-                value = /*uiState.title*/ "",
-                onValueChange = { /*viewModel.onAction(AddEditAction.TitleChanged(it))*/ },
+                value = uiState.title,
+                onValueChange = { viewModel.onAction(AddEditQuestionAction.TitleChanged(it)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -258,8 +258,8 @@ fun AddEditQuestionScreen(
 
         item {
             OutlinedTextField(
-                value = /*uiState.body*/ "",
-                onValueChange = { /*viewModel.onAction(AddEditAction.BodyChanged(it))*/ },
+                value = uiState.body,
+                onValueChange = { viewModel.onAction(AddEditQuestionAction.BodyChanged(it)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
@@ -297,7 +297,7 @@ fun AddEditQuestionScreen(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .clickable { code = formatCode(selectedLanguage, code) }
+                        .clickable { viewModel.onAction(AddEditQuestionAction.CodeChanged(formatCode(selectedLanguage, uiState.code))) }
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -315,8 +315,8 @@ fun AddEditQuestionScreen(
                 CodeEditorField(
                     modifier = Modifier
                         .padding(start = 3.dp),
-                    code = code,
-                    onCodeChange = { code = it }
+                    code = uiState.code,
+                    onCodeChange = { viewModel.onAction(AddEditQuestionAction.CodeChanged(it)) }
                 )
             }
             Spacer(modifier = Modifier.height(20.dp))
@@ -338,7 +338,7 @@ fun AddEditQuestionScreen(
                     .horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                tags.forEach { tag ->
+                uiState.tags.forEach { tag ->
                     Box(
                         modifier = Modifier
                             .padding(vertical = 4.dp)
@@ -370,13 +370,13 @@ fun AddEditQuestionScreen(
                                 tint = CyanPrimary,
                                 modifier = Modifier
                                     .size(14.dp)
-                                    .clickable { /*viewModel.onAction(AddEditAction.RemoveTag(tag))*/ }
+                                    .clickable { viewModel.onAction(AddEditQuestionAction.RemoveTag(tag)) }
                             )
                         }
                     }
                 }
                 Button(
-                    onClick = {},
+                    onClick = { viewModel.onAction(AddEditQuestionAction.ShowTagInput) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF1A2424)
                     ),
@@ -397,11 +397,11 @@ fun AddEditQuestionScreen(
         }
 
         item {
-            if (/*uiState.*/showTagInput) {
+            if (uiState.showTagInput) {
                 Spacer(modifier = Modifier.height(10.dp))
                 OutlinedTextField(
-                    value = /*uiState.tagInput*/ "",
-                    onValueChange = { /*viewModel.onAction(AddEditAction.TagInputChanged(it))*/ },
+                    value = uiState.tagInput,
+                    onValueChange = { viewModel.onAction(AddEditQuestionAction.TagInputChanged(it)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp),
@@ -415,7 +415,7 @@ fun AddEditQuestionScreen(
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
                     trailingIcon = {
-                        IconButton(onClick = { /*viewModel.onAction(AddEditAction.AddTag)*/ }) {
+                        IconButton(onClick = { viewModel.onAction(AddEditQuestionAction.AddTag) }) {
                             Icon(Icons.Filled.Check, null, tint = CyanPrimary)
                         }
                     },
@@ -471,6 +471,11 @@ fun AddEditQuestionScreen(
             Spacer(modifier = Modifier.height(32.dp))
         }
     }
+}
+
+private fun typeToSyntaxLanguage(type: String): SyntaxLanguage {
+    return SyntaxLanguage.entries.firstOrNull { it.label.equals(type, ignoreCase = true) }
+        ?: SyntaxLanguage.GENERIC
 }
 
 @Composable

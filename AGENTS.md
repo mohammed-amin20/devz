@@ -9,7 +9,7 @@
 ./gradlew lint                      # lint check
 ```
 
-## Full file tree (88 source files)
+## Full file tree (92 source files)
 
 ```
 com.mohamed.devz/
@@ -17,12 +17,12 @@ com.mohamed.devz/
 ├── MainActivity.kt                    # @AndroidEntryPoint, setContent { DevzNavHost }
 │
 ├── navigation/
-│   ├── Route.kt                       # sealed interface, @Serializable: Splash, Onboarding, Auth, Home, QuestionDetails(id), AddEditQuestion(id?), EditProfile
+│   ├── Route.kt                       # sealed interface, @Serializable: Splash, Onboarding, Auth, Home, QuestionDetails(id: Int), AddEditQuestion(id: Int?), EditProfile
 │   ├── DevzNavHost.kt                 # NavHost with all 8 composable routes; splash pops backstack before forward nav
 │   └── components/HomeScreen.kt       # Home screen (bottom nav shell with question list, notifications, profile tabs)
 │
 ├── ui/theme/
-│   ├── Color.kt                       # Dark theme palette (CyanPrimary, TextWhite, DevzCard, DevzInput, etc.)
+│   ├── Color.kt                       # Dark theme palette (CyanPrimary, TextWhite, DevzCard, DevzInput, Q* colors)
 │   ├── Theme.kt                       # DevzTheme with dark-only Material3 scheme
 │   └── Type.kt                        # Inter (body), Space Grotesk (titles) via google fonts
 │
@@ -47,45 +47,45 @@ com.mohamed.devz/
     │       ├── login_screen/presentation/
     │       │   ├── LoginAction.kt     # sealed interface { EmailChanged, PasswordChanged, LoginClicked(onSuccess) }
     │       │   ├── LoginViewModel.kt  # MVI: onAction → login() → AccountRepository.getByUsernameAndPassword()
-    │       │   ├── LoginState.kt      # data class: email, password, isLoading, error: UIText?
+    │       │   ├── LoginState.kt      # data class: email, password, isLoading, error: UiText?
     │       │   └── LoginScreen.kt     # Login form with animated gradient, hiltViewModel default param
     │       └── signup_screen/presentation/
     │           ├── SignUpAction.kt    # sealed interface { FullNameChanged, UsernameChanged, EmailChanged, PasswordChanged, ConfirmPasswordChanged, RegisterClicked(onSuccess) }
     │           ├── SignUpViewModel.kt # MVI: onAction → register() → AccountRepository.insert()
-    │           ├── SignUpState.kt     # data class: fullName, username, email, password, confirmPassword, isLoading, error: UIText?
+    │           ├── SignUpState.kt     # data class: fullName, username, email, password, confirmPassword, isLoading, error: UiText?
     │           └── SignUpScreen.kt    # Sign-up form with 5 fields, terms text, LazyColumn
     │
     ├── core/
     │   ├── domain/
     │   │   ├── model/
-    │   │   │   ├── Account.kt         # id, fullName, email, password, imageUrl, bio, techStack, githubUrl, linkedInUrl, websiteUrl
-    │   │   │   ├── Question.kt        # id, title, description, code, likesCount, answersCount, tags, langTypeId, accountId, createdAt
-    │   │   │   ├── Answer.kt          # id, description, accepted, votedIds, questionId, accountId, createdAt
-    │   │   │   ├── LanguageType.kt    # id, type
-    │   │   │   ├── Notification.kt    # id, description, accountId, typeId, seen, createdAt
-    │   │   │   └── NotificationType.kt# id, type
+    │   │   │   ├── Account.kt         # id: Int, fullName, email, password, imageUrl, bio, techStack, githubUrl, linkedInUrl, websiteUrl
+    │   │   │   ├── Question.kt        # id: Int, title, description, code, likesCount, answersCount, tags, langTypeId, accountId, createdAt
+    │   │   │   ├── Answer.kt          # id: Int, description, accepted, votedIds, questionId, accountId, createdAt
+    │   │   │   ├── LanguageType.kt    # id: Int, type
+    │   │   │   ├── Notification.kt    # id: Int, description, accountId, typeId, seen, createdAt
+    │   │   │   └── NotificationType.kt# id: Int, type
     │   │   ├── repository/
-    │   │   │   ├── AccountRepository.kt          # getById, getByUsernameAndPassword, insert, update, uploadImage
-    │   │   │   ├── QuestionRepository.kt         # getById, getByAccountId, getByTag, insert, update, delete
+    │   │   │   ├── AccountRepository.kt          # getById, getByUsernameAndPassword, getAll, insert, update, uploadImage
+    │   │   │   ├── QuestionRepository.kt         # getById, getByAccountId, getByTag, getAll(offset,limit,orderBy,asc), insert, update, delete
     │   │   │   ├── AnswerRepository.kt           # getById, getByQuestionId, getByAccountId, insert, update, delete
     │   │   │   ├── LanguageTypeRepository.kt     # getAll
     │   │   │   ├── NotificationRepository.kt     # insert, getAllByAccountId, update
     │   │   │   ├── NotificationTypeRepository.kt # getAll
-    │   │   │   └── UserPreferencesRepository.kt  # observeIsFirstTime(), observeIsLoggedIn(), setNotFirstTime(), setLoggedIn(), setLoggedOut()
+    │   │   │   └── UserPreferencesRepository.kt  # observeIsFirstTime, observeIsLoggedIn, observeCurrentAccountId, setNotFirstTime, setLoggedIn, setAccountId, setLoggedOut, clearAccountId
     │   │   └── util/
-    │   │       ├── Error.kt           # sealed interface with 6 data objects: NotFound, Conflict, Unauthorized, Network, Storage, Unknown
-    │   │       │                      # Also contains: fun Error.toUIText(): UIText (maps each error to a user-friendly message)
+    │   │       ├── Error.kt           # sealed interface: NotFound, Conflict, Unauthorized, Network, Storage (data object), Unknown(val message: String)
+    │   │       │                      # Also contains: fun Error.toUIText(): UiText (maps each error to a user-friendly message)
     │   │       └── Result.kt          # sealed interface Result<D, E : DomainError> { Success(data), Error(error, data?) }
     │   │
     │   ├── data/
     │   │   ├── data_source/
     │   │   │   ├── remote/
-    │   │   │   │   ├── DevZRemoteDataSource.kt       # interface with 6 inner table interfaces (AccountTable, QuestionTable, AnswerTable, LanguageTypeTable, NotificationTable, NotificationTypeTable)
-    │   │   │   │   └── DevZRemoteDataSourceImpl.kt   # Implementation: Postgrest queries via supabase-kt DSL (select, insert, update, delete, filter, decodeSingle, decodeList)
+    │   │   │   │   ├── DevZRemoteDataSource.kt       # interface with 6 inner table interfaces; QuestionTable has getAll(offset,limit,orderBy,asc), AccountTable has getAll
+    │   │   │   │   └── DevZRemoteDataSourceImpl.kt   # Implementation: Postgrest queries via supabase-kt DSL
     │   │   │   └── local/preferences/
-    │   │   │       ├── UserPreferences.kt            # interface: observeIsFirstTime, observeIsLoggedIn, setNotFirstTime, setLoggedIn, setLoggedOut
-    │   │   │       └── UserPreferencesImpl.kt        # UserPreferencesManager (@Singleton, DataStore, preferencesDataStore("user_prefs"), two booleanPreferencesKey: is_first_time, is_logged_in)
-    │   │   ├── model/                                # @Serializable data classes with @SerialName mappings (snake_case in DB → camelCase in Kotlin)
+    │   │   │       ├── UserPreferences.kt            # interface: observeIsFirstTime, observeIsLoggedIn, observeCurrentAccountId, setNotFirstTime, setLoggedIn, setAccountId, setLoggedOut, clearAccountId
+    │   │   │       └── UserPreferencesImpl.kt        # UserPreferencesManager (@Singleton, DataStore, preferencesDataStore("user_prefs"), 3 keys: is_first_time, is_logged_in, current_account_id)
+    │   │   ├── model/                                # @Serializable data classes with @SerialName mappings (snake_case → camelCase)
     │   │   │   ├── Account.kt, Question.kt, Answer.kt, LanguageType.kt, Notification.kt, NotificationType.kt
     │   │   ├── mapper/
     │   │   │   ├── AccountMapper.kt      # DataAccount.toDomain(), DomainAccount.toData()
@@ -103,29 +103,41 @@ com.mohamed.devz/
     │   │       ├── NotificationTypeRepositoryImpl.kt # (same pattern)
     │   │       └── UserPreferencesRepositoryImpl.kt  # Delegates to UserPreferences interface, wraps in Result
     │   ├── presentation/util/
-    │   │   └── UIText.kt               # sealed class UIText { StringValue(value), StringResource(resId, args) } with @Composable fun toUIText(): String
+    │   │   └── UiText.kt               # sealed class UiText { DynamicString(value), StringResource(resId, args) } with @Composable fun asString(): String
     │   └── di/CoreModule.kt            # @Module @InstallIn(SingletonComponent): provides SupabaseClient, Postgrest, Storage, DevZRemoteDataSource, all 7 repositories, UserPreferences
     │
     ├── question/presentation/
     │   ├── view_questions/
-    │   │   ├── ViewQuestionsScreen.kt  # Feed list
-    │   │   └── components/QuestionCard.kt
+    │   │   ├── ViewQuestionsAction.kt     # sealed interface: LoadNextPage, Refresh, BookmarkToggled, SearchQueryChanged, TabSelected
+    │   │   ├── ViewQuestionsState.kt      # data class: questions, isLoading, isLoadingMore, error, searchQuery, selectedTab, bookmarkedIds, hasMore
+    │   │   ├── ViewQuestionsViewModel.kt  # MVI: paginated feed, caches Account + LanguageType on init, builds QuestionFeedUiModel
+    │   │   ├── QuestionFeedUiModel.kt     # data class: id, title, body, code, tags, authorName, authorAvatar, timeAgo, likes, answers, isBookmarked, langTypeId
+    │   │   ├── ViewQuestionsScreen.kt     # Feed list with search bar, category tabs, pull-to-refresh, infinite scroll pagination
+    │   │   └── components/QuestionCard.kt # Takes QuestionFeedUiModel
     │   ├── question_details/
-    │   │   ├── QuestionDetailsScreen.kt
-    │   │   └── components/ (AnswerCard, AnswerInputBar, Breadcrumb, CodeBlock, Colors, QuestionContent, TagChip, TopBar, ActionPill)
+    │   │   ├── QuestionDetailsAction.kt   # sealed interface: LoadQuestion(id), AnswerTextChanged(value), PostAnswer(onSuccess)
+    │   │   ├── QuestionDetailsState.kt    # data class: question (QuestionDetailUiModel), answers, answerText, isLoading, isPosting, error
+    │   │   ├── QuestionDetailsViewModel.kt# MVI: loads question + answers, posts answer
+    │   │   ├── QuestionDetailsScreen.kt   # Wired with ViewModel, shows question content + answer input bar
+    │   │   └── components/ (AnswerCard, AnswerInputBar, Breadcrumb, CodeBlock, QuestionContent, TagChip, TopBar, ActionPill)
     │   ├── add_edit_qestion/
-    │   │   ├── AddEditQuestionScreen.kt
+    │   │   ├── AddEditQuestionAction.kt   # sealed interface: LoadQuestion(id), TitleChanged, BodyChanged, CodeChanged, LanguageSelected, TagInputChanged, AddTag, RemoveTag, ShowTagInput, Publish
+    │   │   ├── AddEditQuestionState.kt    # data class: title, body, code, selectedLangTypeId, tags, tagInput, showTagInput, languageTypes, isLoading, isEdit, editQuestionId, error
+    │   │   ├── AddEditQuestionViewModel.kt# MVI: loads language types, loads question for edit, publishes/updates
+    │   │   ├── AddEditQuestionScreen.kt   # Wired with ViewModel, all form fields connected
     │   │   └── components/ (CodeEditorField, DefaultFieldLabel, LanguageDrowdownField)
     │   └── util/
-    │       ├── SyntaxLanguage.kt       # Enum: JAVASCRIPT("JavScript" — typo), PYTHON("Python"), JAVA("Java"), etc.
+    │       ├── SyntaxLanguage.kt       # Enum: KOTLIN, JAVASCRIPT("JavScript"), PYTHON, GENERIC
     │       ├── Token.kt                # Sealed class: Keyword, Operator, Punctuation, etc.
-    │       ├── tokenize.kt             # Character-by-character tokenizer per language
+    │       ├── tokenize.kt             # Character-by-character tokenizer per language + formatCode()
     │       └── IndentationFormatter.kt # Brace-based + Python indent formatters
     │
     ├── profile/presentation/
     │   ├── view_profile/
-    │   │   ├── ProfileScreen.kt
+    │   │   ├── ProfileScreen.kt          # onQuestionClick: (Int) -> Unit
     │   │   └── components/ (ProfileAnswerCard, ProfileQuestionCard, ProfileUiModel, StatCard)
+    │   │       ├── ProfileUiModel.kt     # ProfileUiState(id: Int), ProfileQuestionUiModel(id: Int), ProfileAnswerUiModel(id: Int)
+    │   │       └── ProfileViewModel.kt   # @HiltViewModel (stub with hardcoded data)
     │   └── edit_profile/
     │       ├── EditProfileAction.kt    # sealed interface: UpdateField, UploadPhoto, Save, Logout, etc.
     │       ├── EditProfileViewModel.kt # MVI: onAction(action) dispatch
@@ -145,16 +157,25 @@ Composable Screen → ViewModel (MVI) → Repository (interface) → RepositoryI
                          │                                                   │
                     domain/util/                                        data/model/
                     Error, Result                                       @Serializable
-                    UIText (presentation/util/)                         data/mapper/
+                    UiText (presentation/util/)                         data/mapper/
                                                                         toDomain()/toData()
 ```
 
+### UiText (presentation/util/UiText.kt)
+
+- **File path**: `feature/core/presentation/util/UiText.kt` (lowercase 'i' in `UiText`)
+- **Sealed class `UiText`** with two variants:
+  - `DynamicString(value: String)` — plain string (previously `StringValue`)
+  - `StringResource(resId: Int, args: List<Any>)` — localized resource
+- **`@Composable fun asString(): String`** — resolves to the string value (previously `toUIText()`)
+- **Usage**: `UiText.DynamicString("error message")` in ViewModels
+- **Error display**: `.asString()` called inside composable: `Text(text = it.asString(), ...)`
+
 ### Error handling
 
-- **`Error`** (`domain/util/Error.kt`): sealed interface with 6 `data object` variants — `NotFound`, `Conflict`, `Unauthorized`, `Network`, `Storage`, `Unknown`
+- **`Error`** (`domain/util/Error.kt`): sealed interface — `NotFound`, `Conflict`, `Unauthorized`, `Network`, `Storage` as `data object` (no params), **`Unknown(val message: String)`** as `data class` with message
 - **`Result<D, E : Error>`** (`domain/util/Result.kt`): sealed interface — `Success(data)` or `Error(error, data?)`. `E` is bounded by `Error` alias (`DomainError`).
-- **`UIText`** (`presentation/util/UIText.kt`): sealed class — `StringValue(value: String)` for plain strings, `StringResource(resId: Int, args: List<Any>)` for localized resources. Has `@Composable fun toUIText(): String`.
-- **`Error.toUIText()`** (`domain/util/Error.kt`): extension mapping each Error variant to a user-friendly `UIText.StringValue`.
+- **`Error.toUIText()`** (`domain/util/Error.kt`): extension mapping each Error variant to a user-friendly `UiText.DynamicString`. Only `Unknown` passes the message through; all others use hardcoded strings.
 - **Repository catch pattern**: Every repo impl catches `PostgrestRestException` (status-based routing → NotFound/Conflict/Unauthorized/Unknown), `IOException` → Network, generic `Exception` → Unknown.
 - **ViewModel consume pattern**: `when (result) { is Result.Success -> ... ; is Result.Error -> _uiState.update { it.copy(error = result.error.toUIText()) } }`
 
@@ -162,8 +183,8 @@ Composable Screen → ViewModel (MVI) → Repository (interface) → RepositoryI
 
 Every ViewModel follows the same architecture:
 
-1. **Action** — sealed interface in a separate file (or inside VM for splash/onboarding). Data objects for intent-only actions, data classes carrying `value: String` for field changes, and `onSuccess: () -> Unit` for submission actions.
-2. **State** — `data class` with form fields, `isLoading: Boolean`, `error: UIText?`. Exposed as `StateFlow` via `MutableStateFlow.asStateFlow()`.
+1. **Action** — sealed interface in a separate file. Data objects for intent-only actions, data classes carrying `value: String` for field changes, and `onSuccess: () -> Unit` for submission actions.
+2. **State** — `data class` with form fields, `isLoading: Boolean`, `error: UiText?`. Exposed as `StateFlow` via `MutableStateFlow.asStateFlow()`.
 3. **Events** (one-shot) — used in `SplashViewModel`: sealed interface emitted via `SharedFlow`, collected in `LaunchedEffect` in screen.
 4. **`onAction(action)`** — single entry point dispatching via `when` expression.
 5. **Screen** — receives `viewModel: XViewModel = hiltViewModel()` as default parameter; collects state with `.collectAsState()`; calls `viewModel.onAction(...)` from composable callbacks.
@@ -174,6 +195,9 @@ Every ViewModel follows the same architecture:
 | Onboarding | Separate `OnboardingAction`     | none | none | finish() → setNotFirstTime() |
 | Login | Separate `LoginAction.kt`       | LoginState | onSuccess callback | AccountRepository.getByUsernameAndPassword() |
 | SignUp | Separate `SignUpAction.kt`      | SignUpState | onSuccess callback | AccountRepository.insert() |
+| ViewQuestions | Separate `ViewQuestionsAction.kt` | ViewQuestionsState | none | QuestionRepository.getAll() |
+| QuestionDetails | Separate `QuestionDetailsAction.kt` | QuestionDetailsState | onSuccess callback | QuestionRepository.getById(), AnswerRepository.insert() |
+| AddEditQuestion | Separate `AddEditQuestionAction.kt` | AddEditQuestionState | onSuccess callback | QuestionRepository.insert()/update() |
 | EditProfile | Separate `EditProfileAction.kt` | EditProfileState | none | AccountRepository.update() |
 
 ### Navigation flow
@@ -190,14 +214,19 @@ Each forward navigation pops the backstack first (no back-navigation to previous
 
 - Routes are `@Serializable` sealed interface `Route` with data objects/classes.
 - `DevzNavHost` uses `NavHost` with `composable<Route.X>` type-safe syntax.
-- `toRoute()` for parameterized routes (`QuestionDetails(id)`, `AddEditQuestion(id?)`).
+- `toRoute()` for parameterized routes: `Route.QuestionDetails(id: Int)`, `Route.AddEditQuestion(id: Int?)`.
 - `AddEditQuestion.id = null` → create mode, `non-null` → edit mode.
+- **IDs are `Int` throughout the entire navigation chain** (Route, DevzNavHost, HomeScreen, Screen lambdas).
 
 ### Preferences (DataStore)
 
 - **`UserPreferences`** interface (data layer) → **`UserPreferencesRepository`** interface (domain layer) → **`UserPreferencesRepositoryImpl`** wraps in `Result<Unit, Error>`.
-- **`UserPreferencesManager`** (`@Singleton`, `@Inject constructor(@ApplicationContext)`): uses `preferencesDataStore(name = "user_prefs")` with 2 keys: `is_first_time` (default true), `is_logged_in` (default false).
+- **`UserPreferencesManager`** (`@Singleton`, `@Inject constructor(@ApplicationContext)`): uses `preferencesDataStore(name = "user_prefs")` with 3 keys:
+  - `is_first_time` (boolean, default `true`)
+  - `is_logged_in` (boolean, default `false`)
+  - `current_account_id` (int, default `0`)
 - DataStore file path: `feature.core.data.data_source.local.preferences.UserPreferencesImpl.kt`.
+- `current_account_id` is saved in `LoginViewModel.login()` and `SignUpViewModel.register()` immediately after `setLoggedIn()`.
 
 ### Backend (Supabase)
 
@@ -211,7 +240,7 @@ Each forward navigation pops the backstack first (no back-navigation to previous
 
 - **KSP** annotation processing (no kapt). Compiler: `libs.hilt.android.compiler`.
 - **Module**: `CoreModule` (`@Module @InstallIn(SingletonComponent::class)`).
-- **Provides**: SupabaseClient, Postgrest, Storage, DevZRemoteDataSource, 7 repositories (Account, Question, Answer, LanguageType, Notification, NotificationType, UserPreferences), UserPreferences.
+- **Provides**: SupabaseClient, Postgrest, Storage, DevZRemoteDataSource, 7 repositories, UserPreferences.
 - All repo providers bind interface → implementation using `@Provides @Singleton`. No `@Binds`.
 - Uses `jakarta.inject.Inject` (not `javax`).
 
@@ -251,8 +280,10 @@ Mappers are `toDomain()`/`toData()` extension functions using import aliases (`a
 - **`SyntaxLanguage.JAVASCRIPT`** has typo: label is `"JavScript"` not `"JavaScript"`.
 - **Package quirk**: `feature/authentication/presentation/components/login_screen/presentation/` — `presentation` appears twice.
 - **proguard-rules.pro**: exists but empty boilerplate.
-- **Most screens** still use hardcoded sample data (question list, profile, notifications, question details). Only SplashScreen, OnboardingScreen, LoginScreen, and SignUpScreen have fully wired ViewModels.
 - **EditProfileScreen** has a ViewModel and Action sealed interface but the screen wiring is partial (not all fields connected to ViewModel).
+- **ProfileViewModel** still uses hardcoded sample data — not wired to repository.
+- **NotificationsScreen** still uses hardcoded sample data — no ViewModel.
+- **QuestionCard preview** uses hardcoded `QuestionFeedUiModel` — not a live preview.
 - **NotificationType** field name `type` may conflict with Kotlin's `type` keyword — handled by `@SerialName`.
 - **All screens** use dark-only theme (no light mode support in `Theme.kt`).
 - **Local fonts** (Inter, Space Grotesk) from `res/font/` — loaded via Google Fonts Compose library.
@@ -261,9 +292,15 @@ Mappers are `toDomain()`/`toData()` extension functions using import aliases (`a
 
 - MVI: sealed `Action` interface in separate file, `onAction(action)` entry point, `StateFlow<State>` with `_uiState` backing.
 - Error strings: use `result.error.toUIText()` from `Error.toUIText()` — never hardcode error strings in ViewModels.
-- Hardcoded validation errors (e.g., "Passwords do not match", "Invalid credentials"): use `UIText.StringValue("...")`.
-- Repos: catch `PostgrestRestException` → status-based routing, `IOException` → Network, `Exception` → Unknown.
-- Navigation: `navController.apply { popBackStack(); navigate(Route.X) }` for forward-only flows.
+- Hardcoded validation errors (e.g., "Passwords do not match", "Invalid credentials"): use `UiText.DynamicString("...")`.
+- Error display in composables: call `.asString()` on `UiText` (e.g., `Text(text = error.asString())`).
+- Repos: catch `PostgrestRestException` → status-based routing, `IOException` → Network, `Exception` → Unknown. Only `Unknown` carries a constructor message; all other errors are `data object`.
+- Navigation: `navController.apply { popBackStack(); navigate(Route.X) }` for forward-only flows. IDs are `Int`.
 - Screens: receive `viewModel: XViewModel = hiltViewModel()` as default parameter.
 - Imports: use `jakarta.inject.Inject` (not `javax`).
 - Compose state: `val uiState by viewModel.uiState.collectAsState()`.
+- Pagination: ViewModel tracks `currentPage`, `hasMore`, `PAGE_SIZE = 10`. Data source uses `.range().order().decodeList()`. Feed loads initially + on scroll to bottom.
+- Question feed: `ViewQuestionsViewModel` loads all `Account` + `LanguageType` into caches on init, builds `QuestionFeedUiModel` via `toFeedUiModel()`.
+- Bookmark: local-only via `bookmarkedIds: Set<Int>` in state, not persisted.
+- Colors for question details: use Q-prefixed colors (`QBg`, `QPrimary`, `QOutline`, `QOnSurface`, `QOnSurfaceVariant`) from `ui/theme/Color.kt`.
+- AddEdit tags: stored as comma-separated `String` in DB (`Question.tags`); converted to/from `List<String>` in ViewModel.

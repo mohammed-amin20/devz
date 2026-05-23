@@ -1,6 +1,6 @@
 package com.mohamed.devz.feature.core.domain.util
 
-import com.mohamed.devz.feature.core.presentation.util.UIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 
 sealed interface Error {
     data object NotFound : Error
@@ -8,16 +8,16 @@ sealed interface Error {
     data object Unauthorized : Error
     data object Network : Error
     data object Storage : Error
-    data object Unknown : Error
+    data class Unknown(val message: String) : Error
 }
 
-fun Error.toUIText(): UIText {
+fun Error.toUIText(): UiText {
     return when (this) {
-        Error.NotFound -> UIText.StringValue("Resource not found")
-        Error.Conflict -> UIText.StringValue("Data already exists")
-        Error.Unauthorized -> UIText.StringValue("Please log in again")
-        Error.Network -> UIText.StringValue("Check your internet connection")
-        Error.Storage -> UIText.StringValue("Something went wrong saving data")
-        Error.Unknown -> UIText.StringValue("An unexpected error occurred")
+        Error.NotFound -> UiText.DynamicString("Resource not found")
+        Error.Conflict -> UiText.DynamicString("Data already exists")
+        Error.Unauthorized -> UiText.DynamicString("Please log in again")
+        Error.Network -> UiText.DynamicString("Check your internet connection")
+        Error.Storage -> UiText.DynamicString("Something went wrong saving data")
+        is Error.Unknown -> UiText.DynamicString(message)
     }
 }

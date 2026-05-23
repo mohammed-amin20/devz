@@ -19,6 +19,10 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         return userPreferences.observeIsLoggedIn()
     }
 
+    override fun observeCurrentAccountId(): Flow<Int?> {
+        return userPreferences.observeCurrentAccountId()
+    }
+
     override suspend fun setNotFirstTime(): Result<Unit, Error> {
         return try {
             userPreferences.setNotFirstTime()
@@ -34,6 +38,24 @@ class UserPreferencesRepositoryImpl @Inject constructor(
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(Error.Unknown(e.message ?: "Failed to save preference"))
+        }
+    }
+
+    override suspend fun setAccountId(id: Int): Result<Unit, Error> {
+        return try {
+            userPreferences.setAccountId(id)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Failed to save preference"))
+        }
+    }
+
+    override suspend fun clearAccountId(): Result<Unit, Error> {
+        return try {
+            userPreferences.clearAccountId()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Failed to clear account"))
         }
     }
 

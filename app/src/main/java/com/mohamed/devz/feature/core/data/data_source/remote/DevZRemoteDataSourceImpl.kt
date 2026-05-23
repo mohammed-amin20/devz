@@ -41,6 +41,12 @@ class DevZRemoteDataSourceImpl(
                     .decodeSingle()
             }
 
+            override suspend fun getAllAccounts(): List<Account> {
+                return db.from(tableName)
+                    .select()
+                    .decodeList()
+            }
+
             override suspend fun getAccountByUsernameAndPassword(
                 username: String,
                 password: String,
@@ -96,6 +102,20 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         filter { like("tags", "%$tag%") }
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getAllQuestions(
+                offset: Int,
+                limit: Int,
+                orderBy: String,
+                ascending: Boolean,
+            ): List<Question> {
+                return db.from(tableName)
+                    .select {
+                        range(offset, offset + limit - 1)
+                        order(column = orderBy, ascending = ascending)
                     }
                     .decodeList()
             }

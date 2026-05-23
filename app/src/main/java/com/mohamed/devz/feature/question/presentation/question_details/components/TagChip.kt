@@ -13,19 +13,22 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mohamed.devz.ui.theme.QOutlineVariant
+import com.mohamed.devz.ui.theme.QPrimary
+import com.mohamed.devz.ui.theme.QSurfaceHigh
 
 @Composable
 fun TagChip(text: String) {
     Box(
         modifier = Modifier
             .clip(RoundedCornerShape(9999.dp))
-            .background(SurfaceHigh)
-            .border(1.dp, OutlineVariant.copy(alpha = 0.2f), RoundedCornerShape(9999.dp))
+            .background(QSurfaceHigh)
+            .border(1.dp, QOutlineVariant.copy(alpha = 0.2f), RoundedCornerShape(9999.dp))
             .padding(horizontal = 14.dp, vertical = 8.dp)
     ) {
         Text(
             text = text,
-            color = Primary,
+            color = QPrimary,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 1.3.sp,

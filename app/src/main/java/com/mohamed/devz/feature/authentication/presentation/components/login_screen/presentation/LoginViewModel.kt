@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
-import com.mohamed.devz.feature.core.presentation.util.UIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -39,9 +39,10 @@ class LoginViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false) }
                     if (result.data != null) {
                         userPreferencesRepository.setLoggedIn()
+                        userPreferencesRepository.setAccountId(result.data.id)
                         onSuccess()
                     } else {
-                        _uiState.update { it.copy(error = UIText.StringValue("Invalid credentials"), isLoading = false) }
+                        _uiState.update { it.copy(error = UiText.DynamicString("Invalid credentials"), isLoading = false) }
                     }
                 }
                 is com.mohamed.devz.feature.core.domain.util.Result.Error -> {

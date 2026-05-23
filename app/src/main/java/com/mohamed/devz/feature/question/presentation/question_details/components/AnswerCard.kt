@@ -29,6 +29,12 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.ui.theme.QOnSurface
+import com.mohamed.devz.ui.theme.QOnSurfaceVariant
+import com.mohamed.devz.ui.theme.QOutline
+import com.mohamed.devz.ui.theme.QPrimary
+import com.mohamed.devz.ui.theme.QSurfaceHigh
+import com.mohamed.devz.ui.theme.QSurfaceLow
 
 data class AnswerUiModel(
     val authorName: String,
@@ -45,7 +51,7 @@ fun AnswerCard(answer: AnswerUiModel) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
-                if(answer.isAccepted) Primary.copy(alpha = 0.3f) else Color.Transparent
+                if(answer.isAccepted) QPrimary.copy(alpha = 0.3f) else Color.Transparent
             )
     ) {
         Column(
@@ -53,7 +59,7 @@ fun AnswerCard(answer: AnswerUiModel) {
                 .fillMaxSize()
                 .padding(start = if(answer.isAccepted) 3.dp else 0.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(SurfaceLow)
+                .background(QSurfaceLow)
                 .padding(18.dp)
         ) {
             Row(
@@ -73,14 +79,14 @@ fun AnswerCard(answer: AnswerUiModel) {
                     Column {
                         Text(
                             text = answer.authorName,
-                            color = OnSurface,
+                            color = QOnSurface,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             text = answer.timeAgo,
-                            color = if (answer.isAccepted) Primary else Outline,
+                            color = if (answer.isAccepted) QPrimary else QOutline,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.2.sp,
@@ -94,12 +100,12 @@ fun AnswerCard(answer: AnswerUiModel) {
                         Icon(
                             Icons.Default.VerifiedUser,
                             contentDescription = null,
-                            tint = Primary,
+                            tint = QPrimary,
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
                             text = "Accepted",
-                            color = Primary,
+                            color = QPrimary,
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 0.8.sp,
@@ -113,7 +119,7 @@ fun AnswerCard(answer: AnswerUiModel) {
 
             Text(
                 text = answer.body,
-                color = OnSurfaceVariant,
+                color = QOnSurfaceVariant,
                 fontSize = 14.sp,
                 lineHeight = 23.sp,
                 style = MaterialTheme.typography.bodyMedium
@@ -124,7 +130,7 @@ fun AnswerCard(answer: AnswerUiModel) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Surface(
                     shape = RoundedCornerShape(10.dp),
-                    color = if (answer.isAccepted) Primary.copy(alpha = 0.1f) else SurfaceHigh
+                    color = if (answer.isAccepted) QPrimary.copy(alpha = 0.1f) else QSurfaceHigh
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -134,12 +140,12 @@ fun AnswerCard(answer: AnswerUiModel) {
                         Icon(
                             Icons.Default.KeyboardArrowUp,
                             contentDescription = null,
-                            tint = if (answer.isAccepted) Primary else Outline,
+                            tint = if (answer.isAccepted) QPrimary else QOutline,
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = answer.likes.toString(),
-                            color = if (answer.isAccepted) Primary else Outline,
+                            color = if (answer.isAccepted) QPrimary else QOutline,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium

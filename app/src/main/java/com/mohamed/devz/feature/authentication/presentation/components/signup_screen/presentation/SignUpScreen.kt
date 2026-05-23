@@ -289,7 +289,7 @@ fun SignUpScreen(
             item {
                 uiState.error?.let {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = it.toUIText(), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                    Text(text = it.asString(), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
                 }
             }
 

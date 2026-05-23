@@ -21,7 +21,7 @@ data class ProfileUiModel(
 )
 
 data class ProfileQuestionUiModel(
-    val id: String,
+    val id: Int,
     val title: String,
     val timeAgo: String,
     val votes: Int,
@@ -30,7 +30,7 @@ data class ProfileQuestionUiModel(
 )
 
 data class ProfileAnswerUiModel(
-    val id: String,
+    val id: Int,
     val questionTitle: String,
     val preview: String,
     val likes: Int,
@@ -40,11 +40,11 @@ data class ProfileAnswerUiModel(
 )
 
 data class ProfileUiState(
-    val id: String = "",
+    val id: Int = 0,
     val profile: ProfileUiModel? = null,
     val myQuestions: List<ProfileQuestionUiModel> = listOf(
         ProfileQuestionUiModel(
-            id = "1",
+            id = 1,
             title = "Implementing zero-copy serialization in Rust with rkyv for high-throughput messaging",
             timeAgo = "2 days ago",
             votes = 12,
@@ -52,7 +52,7 @@ data class ProfileUiState(
             tags = listOf("rust", "serialization")
         ),
         ProfileQuestionUiModel(
-            id = "2",
+            id = 2,
             title = "Optimizing hydration mismatch in Next.js 14 with localized suspense boundaries",
             timeAgo = "1 week ago",
             votes = 45,
@@ -60,7 +60,7 @@ data class ProfileUiState(
             tags = listOf("nextjs", "performance")
         ),
         ProfileQuestionUiModel(
-            id = "3",
+            id = 3,
             title = "How to implement clean architecture with Jetpack Compose and Hilt?",
             timeAgo = "3 days ago",
             votes = 30,
@@ -68,7 +68,7 @@ data class ProfileUiState(
             tags = listOf("kotlin", "android", "hilt")
         ),
         ProfileQuestionUiModel(
-            id = "4",
+            id = 4,
             title = "Best practices for managing coroutine scopes in a multi-module Android project",
             timeAgo = "2 weeks ago",
             votes = 18,
@@ -76,7 +76,7 @@ data class ProfileUiState(
             tags = listOf("kotlin", "coroutines")
         ),
         ProfileQuestionUiModel(
-            id = "5",
+            id = 5,
             title = "Firestore pagination with Flow and Room caching strategy",
             timeAgo = "1 month ago",
             votes = 67,
@@ -86,7 +86,7 @@ data class ProfileUiState(
     ),
     val myAnswers: List<ProfileAnswerUiModel> = listOf(
         ProfileAnswerUiModel(
-            id = "1",
+            id = 1,
             questionTitle = "Optimizing Memory Management in High-Concurrency Rust Services",
             preview = "To truly optimize memory in this scenario, you should avoid the default global allocator. Consider using jemalloc or mimalloc as a drop-in replacement, which significantly reduces fragmentation in multi-threaded workloads.",
             likes = 1200,
@@ -95,7 +95,7 @@ data class ProfileUiState(
             isAccepted = true
         ),
         ProfileAnswerUiModel(
-            id = "2",
+            id = 2,
             questionTitle = "Handling Complex State Propagation in Microfrontends",
             preview = "The core challenge here is event-bus saturation. I recommend a federated state model where each module owns its domain but broadcasts thin events rather than deep state snapshots. This maintains loose coupling while ensuring eventual consistency.",
             likes = 84,
@@ -104,7 +104,7 @@ data class ProfileUiState(
             isAccepted = false
         ),
         ProfileAnswerUiModel(
-            id = "3",
+            id = 3,
             questionTitle = "Best Practices for Horizontal Scaling of WebSockets",
             preview = "Sticky sessions are only half the battle. You need a backplane for broadcasting — Redis Pub/Sub works well here. Each server instance subscribes to a shared channel and forwards messages to its locally connected clients.",
             likes = 2400,
@@ -113,7 +113,7 @@ data class ProfileUiState(
             isAccepted = true
         ),
         ProfileAnswerUiModel(
-            id = "4",
+            id = 4,
             questionTitle = "How to implement clean architecture with Jetpack Compose and Hilt?",
             preview = "The key is keeping your Composables completely dumb. They should only receive UI state and dispatch actions. All business logic lives in the ViewModel, and the repository layer handles data sources independently.",
             likes = 340,
@@ -122,7 +122,7 @@ data class ProfileUiState(
             isAccepted = true
         ),
         ProfileAnswerUiModel(
-            id = "5",
+            id = 5,
             questionTitle = "Firestore pagination with Flow and Room caching strategy",
             preview = "Use a RemoteMediator with Paging 3 library. It handles the coordination between Firestore as your remote source and Room as your local cache automatically, giving you offline support and seamless pagination.",
             likes = 56,

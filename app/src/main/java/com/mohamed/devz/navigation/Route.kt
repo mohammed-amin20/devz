@@ -18,12 +18,12 @@ sealed interface Route {
 
     @Serializable
     data class QuestionDetails(
-        val id: String
+        val id: Int
     ) : Route
 
     @Serializable
     data class AddEditQuestion(
-        val id: String?
+        val id: Int?
     ) : Route
 
     @Serializable

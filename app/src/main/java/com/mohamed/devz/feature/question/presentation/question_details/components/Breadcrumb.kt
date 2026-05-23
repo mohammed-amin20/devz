@@ -16,6 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mohamed.devz.ui.theme.QOnSurfaceVariant
+import com.mohamed.devz.ui.theme.QOutline
+import com.mohamed.devz.ui.theme.QOutlineVariant
 
 @Composable
 fun Breadcrumb() {
@@ -24,22 +27,22 @@ fun Breadcrumb() {
             Icon(
                 Icons.Default.ArrowBack,
                 contentDescription = null,
-                tint = Outline,
+                tint = QOutline,
                 modifier = Modifier.size(18.dp)
             )
             Spacer(Modifier.width(4.dp))
             Text(
                 text = "Questions",
-                color = Outline,
+                color = QOutline,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Medium,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
-        Text(text = " / ", color = OutlineVariant, fontSize = 13.sp)
+        Text(text = " / ", color = QOutlineVariant, fontSize = 13.sp)
         Text(
             text = "How to implement a clean architecture with React and Tailwind while keeping components reusable?",
-            color = OnSurfaceVariant,
+            color = QOnSurfaceVariant,
             fontSize = 13.sp,
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,

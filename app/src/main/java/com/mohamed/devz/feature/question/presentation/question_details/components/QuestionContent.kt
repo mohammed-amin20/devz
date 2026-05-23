@@ -33,6 +33,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailUiModel
+import com.mohamed.devz.ui.theme.QOnSurface
+import com.mohamed.devz.ui.theme.QOnSurfaceVariant
+import com.mohamed.devz.ui.theme.QOutline
+import com.mohamed.devz.ui.theme.QPrimary
 
 @Composable
 fun QuestionContent(
@@ -57,7 +61,7 @@ fun QuestionContent(
         item {
             Text(
                 text = question.title,
-                color = OnSurface,
+                color = QOnSurface,
                 fontSize = 28.sp,
                 lineHeight = 34.sp,
                 fontWeight = FontWeight.Bold,
@@ -78,20 +82,20 @@ fun QuestionContent(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(2.dp, Primary.copy(alpha = 0.2f), CircleShape)
+                            .border(2.dp, QPrimary.copy(alpha = 0.2f), CircleShape)
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {
                         Text(
                             text = question.authorName,
-                            color = OnSurface,
+                            color = QOnSurface,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold,
                             style = MaterialTheme.typography.titleLarge
                         )
                         Text(
                             text = "Asked ${question.timeAgo}",
-                            color = Outline,
+                            color = QOutline,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -112,7 +116,7 @@ fun QuestionContent(
         item {
             Text(
                 text = question.body,
-                color = OnSurfaceVariant,
+                color = QOnSurfaceVariant,
                 fontSize = 16.sp,
                 lineHeight = 26.sp,
                 style = MaterialTheme.typography.bodyMedium
@@ -145,13 +149,13 @@ fun QuestionContent(
                     Icon(
                         Icons.Default.Share,
                         contentDescription = null,
-                        tint = Outline,
+                        tint = QOutline,
                         modifier = Modifier.size(18.dp)
                     )
                     Spacer(Modifier.width(4.dp))
                     Text(
                         text = "Share",
-                        color = Outline,
+                        color = QOutline,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
                         letterSpacing = 1.sp,
@@ -167,7 +171,7 @@ fun QuestionContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(Primary.copy(alpha = 0.18f))
+                    .background(QPrimary.copy(alpha = 0.18f))
             )
             Spacer(Modifier.height(16.dp))
         }
@@ -175,7 +179,7 @@ fun QuestionContent(
         item {
             Text(
                 text = "${answers.size} Answers",
-                color = OnSurface,
+                color = QOnSurface,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge

@@ -37,7 +37,7 @@ import com.mohamed.devz.R
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileUiState
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileViewModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
-import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextWhite
@@ -45,7 +45,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 @Composable
 fun ProfileScreen(
     onEditProfile: () -> Unit,
-    onQuestionClick: (String) -> Unit,
+    onQuestionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     //viewModel: ProfileViewModel = hiltViewModel()
 ) {
@@ -57,7 +57,7 @@ fun ProfileScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Bg)
+            .background(QBg)
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .then(modifier),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -363,7 +363,7 @@ private fun PrevProfile() {
     DevzTheme {
         ProfileScreen(
             onEditProfile = {},
-            onQuestionClick = {}
+            onQuestionClick = { _ -> }
         )
     }
 }

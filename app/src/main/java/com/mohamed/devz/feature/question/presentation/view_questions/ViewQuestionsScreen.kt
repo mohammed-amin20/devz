@@ -4,17 +4,37 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,79 +44,54 @@ import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.mohamed.devz.R
+import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
 import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzBlack
 import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
-import com.mohamed.devz.R
-import com.mohamed.devz.feature.question.presentation.question_details.components.Bg
-import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
-import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun ViewQuestionsScreen(
-    onQuestionClick: (String) -> Unit,
+    onQuestionClick: (Int) -> Unit,
     onProfileClick: () -> Unit,
-    //viewModel: HomeViewModel = hiltViewModel(),
+    viewModel: ViewQuestionsViewModel = hiltViewModel(),
     modifier: Modifier = Modifier
 ) {
-    //val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+    val listState = rememberLazyListState()
 
-    val questions = listOf(
-        QuestionUiModel(
-            id = "1",
-            authorName = "Amina",
-            timeAgo = 2,
-            isBookmarked = true,
-            category = "Kotlin",
-            title = "How do I make a sealed class for UI states?",
-            preview = "I am trying to model loading, success, and error states in my app...",
-            codeSnippet = null,
-            tags = listOf("kotlin", "sealed-class", "ui-state"),
-            likes = 14,
-            answers = 3
-        ),
-        QuestionUiModel(
-            id = "2",
-            authorName = "Omar",
-            timeAgo = 5,
-            isBookmarked = false,
-            category = "Android",
-            title = "Why does my RecyclerView not update?",
-            preview = "The list shows old data even after I submit a new list...",
-            codeSnippet = "adapter.submitList(newList)",
-            tags = listOf("android", "recyclerview", "listadapter"),
-            likes = 9,
-            answers = 2
-        ),
-        QuestionUiModel(
-            id = "3",
-            authorName = "Sara",
-            timeAgo = 8,
-            isBookmarked = true,
-            category = "Compose",
-            title = "How can I animate visibility in Jetpack Compose?",
-            preview = "I want a smooth fade in/out effect when a button is pressed...",
-            codeSnippet = null,
-            tags = listOf("compose", "animation", "jetpack-compose"),
-            likes = 21,
-            answers = 5
-        )
-    )
+    val shouldLoadMore by remember {
+        derivedStateOf {
+            val lastVisible = listState.layoutInfo.visibleItemsInfo.lastOrNull()?.index ?: 0
+            lastVisible >= listState.layoutInfo.totalItemsCount - 3
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.onAction(ViewQuestionsAction.LoadInitialQuestions)
+    }
+
+    LaunchedEffect(shouldLoadMore) {
+        if (shouldLoadMore && uiState.questions.isNotEmpty()) {
+            viewModel.onAction(ViewQuestionsAction.LoadNextPage)
+        }
+    }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier
             .fillMaxSize()
-            .background(Bg)
+            .background(QBg)
             .padding(horizontal = 16.dp, vertical = 16.dp)
             .then(modifier),
         verticalArrangement = Arrangement.spacedBy(0.dp)
@@ -158,9 +153,7 @@ fun ViewQuestionsScreen(
                             .size(32.dp)
                             .clip(CircleShape)
                             .background(Color(0xFF2A3A3A))
-                            .clickable {
-                                onProfileClick()
-                            },
+                            .clickable { onProfileClick() },
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
@@ -184,9 +177,7 @@ fun ViewQuestionsScreen(
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
-                    ) {
-                        append("Architecting ")
-                    }
+                    ) { append("Architecting ") }
                     withStyle(
                         SpanStyle(
                             color = CyanPrimary,
@@ -198,18 +189,14 @@ fun ViewQuestionsScreen(
                                 blurRadius = 20f
                             )
                         )
-                    ) {
-                        append("Solutions")
-                    }
+                    ) { append("Solutions") }
                     withStyle(
                         SpanStyle(
                             color = TextWhite,
                             fontWeight = FontWeight.Bold,
                             fontSize = 28.sp
                         )
-                    ) {
-                        append(".")
-                    }
+                    ) { append(".") }
                 },
                 style = MaterialTheme.typography.titleLarge
             )
@@ -226,8 +213,8 @@ fun ViewQuestionsScreen(
 
         item {
             OutlinedTextField(
-                value = /*uiState.searchQuery*/ "",
-                onValueChange = { /*viewModel.onAction(HomeAction.SearchQueryChanged(it))*/ },
+                value = uiState.searchQuery,
+                onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = {
                     Text(
@@ -260,12 +247,12 @@ fun ViewQuestionsScreen(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 tabs.forEachIndexed { index, tab ->
-                    val isSelected = /*index == uiState.selectedTab*/ index == 0
+                    val isSelected = index == uiState.selectedTab
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(50))
                             .background(if (isSelected) CyanPrimary else Color(0xFF1A2424))
-                            .clickable { /*viewModel.onAction(HomeAction.TabSelected(index))*/ }
+                            .clickable { viewModel.onAction(ViewQuestionsAction.TabSelected(index)) }
                             .padding(horizontal = 18.dp, vertical = 8.dp)
                     ) {
                         Text(
@@ -281,40 +268,48 @@ fun ViewQuestionsScreen(
             Spacer(modifier = Modifier.height(16.dp))
         }
 
-        /*if (uiState.isLoading) {
+        if (uiState.isLoading) {
             item {
-                Box(modifier = Modifier.fillMaxWidth().height(200.dp), contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                    contentAlignment = Alignment.Center
+                ) {
                     CircularProgressIndicator(color = CyanPrimary)
                 }
             }
-        } else {*/
-        items(questions, key = { it.id }) { question ->
-            QuestionCard(
-                question = question,
-                onClick = { onQuestionClick(question.id) },
-                onBookmark = { /*viewModel.onAction(HomeAction.ToggleBookmark(question.id))*/ }
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-        }
-//            }
+        } else {
+            items(uiState.questions, key = { it.id }) { question ->
+                QuestionCard(
+                    question = question,
+                    onClick = { onQuestionClick(question.id) },
+                    onBookmark = { viewModel.onAction(ViewQuestionsAction.ToggleBookmark(question.id)) }
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
 
-        item { Spacer(modifier = Modifier.height(80.dp)) }
+            if (uiState.isLoadingMore) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = CyanPrimary,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(80.dp)) }
+        }
     }
 }
-
-data class QuestionUiModel(
-    val id: String,
-    val authorName: String,
-    val timeAgo: Int,
-    val isBookmarked: Boolean,
-    val category: String,
-    val title: String,
-    val preview: String,
-    val codeSnippet: String?,
-    val tags: List<String>,
-    val likes: Int,
-    val answers: Int,
-)
 
 @Preview
 @Composable

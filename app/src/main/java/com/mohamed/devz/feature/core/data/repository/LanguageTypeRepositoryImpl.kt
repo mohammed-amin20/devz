@@ -21,7 +21,7 @@ class LanguageTypeRepositoryImpl @Inject constructor(
         } catch (e: PostgrestRestException) {
             Result.Error(Error.Unknown(e.message ?: "Database error"))
         } catch (e: IOException) {
-            Result.Error(Error.Network("Network error: ${e.message}"))
+            Result.Error(Error.Network)
         } catch (e: Exception) {
             Result.Error(Error.Unknown(e.message ?: "Unknown error"))
         }

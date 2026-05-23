@@ -28,6 +28,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import com.mohamed.devz.ui.theme.QBg
+import com.mohamed.devz.ui.theme.QOutline
+import com.mohamed.devz.ui.theme.QPrimary
+import com.mohamed.devz.ui.theme.QPrimaryContainer
+import com.mohamed.devz.ui.theme.QSurfaceHigh
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,7 +46,7 @@ fun AnswerInputBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Bg.copy(alpha = 0.92f))
+            .background(QBg.copy(alpha = 0.92f))
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         Row(
@@ -56,16 +61,16 @@ fun AnswerInputBar(
                 placeholder = {
                     Text(
                         text = "Write your answer...",
-                        color = Outline,
+                        color = QOutline,
                         fontSize = 14.sp,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
                 colors = TextFieldDefaults.colors(
-                    cursorColor = Primary,
-                    focusedContainerColor = SurfaceHigh,
-                    unfocusedContainerColor = SurfaceHigh,
+                    cursorColor = QPrimary,
+                    focusedContainerColor = QSurfaceHigh,
+                    unfocusedContainerColor = QSurfaceHigh,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
@@ -76,7 +81,7 @@ fun AnswerInputBar(
                 modifier = Modifier
                     .size(width = 78.dp, height = 46.dp)
                     .background(
-                        Brush.linearGradient(listOf(Primary, PrimaryContainer)),
+                        Brush.linearGradient(listOf(QPrimary, QPrimaryContainer)),
                         RoundedCornerShape(14.dp)
                     )
                     .clip(RoundedCornerShape(14.dp)),

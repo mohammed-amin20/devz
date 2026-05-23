@@ -3,17 +3,17 @@ package com.mohamed.devz.feature.core.presentation.util
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
-sealed class UIText {
-    data class StringValue(val value: String) : UIText()
+sealed class UiText {
+    data class DynamicString(val value: String) : UiText()
     data class StringResource(
         val resId: Int,
         val args: List<Any>,
-    ) : UIText()
+    ) : UiText()
 
     @Composable
-    fun toUIText(): String {
+    fun asString(): String {
         return when (this) {
-            is StringValue -> value
+            is DynamicString -> value
             is StringResource -> stringResource(resId, *args.toTypedArray())
         }
     }

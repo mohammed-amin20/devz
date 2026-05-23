@@ -22,6 +22,7 @@ interface DevZRemoteDataSource {
         suspend fun insertAccount(account: Account): Account
 
         suspend fun getAccountById(id: Int): Account
+        suspend fun getAllAccounts(): List<Account>
         suspend fun getAccountByUsernameAndPassword(
             username: String,
             password: String,
@@ -36,6 +37,12 @@ interface DevZRemoteDataSource {
         suspend fun getQuestionById(id: Int): Question
         suspend fun getQuestionsByAccountId(accountId: Int): List<Question>
         suspend fun getQuestionsByTag(tag: String): List<Question>
+        suspend fun getAllQuestions(
+            offset: Int,
+            limit: Int,
+            orderBy: String = "created_at",
+            ascending: Boolean = false,
+        ): List<Question>
 
         suspend fun updateQuestion(question: Question)
 
