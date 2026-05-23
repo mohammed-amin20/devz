@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion
+package com.mohamed.devz.feature.question.presentation.add_edit_question
 
 import com.mohamed.devz.feature.core.domain.model.LanguageType
 import com.mohamed.devz.feature.core.presentation.util.UiText

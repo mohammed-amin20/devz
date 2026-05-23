@@ -14,7 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 

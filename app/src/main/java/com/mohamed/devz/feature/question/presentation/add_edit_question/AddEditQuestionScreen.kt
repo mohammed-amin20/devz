@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion
+package com.mohamed.devz.feature.question.presentation.add_edit_question
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -53,10 +54,10 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
-import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.CodeEditorField
-import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.DefaultFieldLabel
-import com.mohamed.devz.feature.question.presentation.add_edit_qestion.components.LanguageDropdownField
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.feature.question.presentation.add_edit_question.components.CodeEditorField
+import com.mohamed.devz.feature.question.presentation.add_edit_question.components.DefaultFieldLabel
+import com.mohamed.devz.feature.question.presentation.add_edit_question.components.LanguageDropdownField
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.formatCode
 import com.mohamed.devz.ui.theme.CyanPrimary
@@ -68,10 +69,10 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun AddEditQuestionScreen(
-    questionId: Int? = null,
     navigateUp: () -> Unit,
-    viewModel: AddEditQuestionViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    questionId: Int? = null,
+    viewModel: AddEditQuestionViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null

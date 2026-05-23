@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion.components
+package com.mohamed.devz.feature.question.presentation.add_edit_question.components
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape

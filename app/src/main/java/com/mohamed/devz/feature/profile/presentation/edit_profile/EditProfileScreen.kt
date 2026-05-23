@@ -88,7 +88,7 @@ fun EditProfileScreen(
         uri?.let {
             val bytes = context.contentResolver.openInputStream(it)?.readBytes()
             if (bytes != null) {
-                viewModel.onAction(EditProfileAction.PickAvatar(bytes))
+                viewModel.onAction(EditProfileAction.PickImage(bytes))
             }
         }
     }
@@ -134,7 +134,7 @@ fun EditProfileScreen(
                 )
             }
             TextButton(onClick = {
-                //viewModel.onAction(EditProfileAction.Save, navigateUp)
+                viewModel.onAction(EditProfileAction.Save(navigateUp))
             }) {
                 Text(
                     text = "Save",
@@ -222,7 +222,7 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.fullName,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.FullNameChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.FullNameChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
@@ -252,7 +252,7 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.username,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.UsernameChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.UsernameChanged(it)) },
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
@@ -291,7 +291,7 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.bio,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.BioChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.BioChanged(it)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(110.dp),
@@ -336,13 +336,13 @@ fun EditProfileScreen(
                         SkillChip(
                             skill = skill,
                             onRemove = {
-                                //viewModel.onAction(EditProfileAction.RemoveSkill(skill))
+                                viewModel.onAction(EditProfileAction.RemoveSkill(skill))
                             }
                         )
                     }
                     // Add interest button
                     Button(
-                        onClick = { /*viewModel.onAction(EditProfileAction.ShowSkillInput)*/ },
+                        onClick = { viewModel.onAction(EditProfileAction.ShowSkillInput) },
                         shape = RoundedCornerShape(20.dp),
                         border = BorderStroke(
                             width = 0.5.dp,
@@ -378,7 +378,7 @@ fun EditProfileScreen(
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = uiState.skillInput,
-                        onValueChange = { /*viewModel.onAction(EditProfileAction.SkillInputChanged(it))*/ },
+                        onValueChange = { viewModel.onAction(EditProfileAction.SkillInputChanged(it)) },
                         modifier = Modifier
                             .fillMaxWidth(),
                         placeholder = {
@@ -390,7 +390,7 @@ fun EditProfileScreen(
                             )
                         },
                         trailingIcon = {
-                            IconButton(onClick = { /*viewModel.onAction(EditProfileAction.AddSkill)*/ }) {
+                            IconButton(onClick = { viewModel.onAction(EditProfileAction.AddSkill) }) {
                                 Icon(
                                     Icons.Rounded.Check,
                                     null,
@@ -416,21 +416,21 @@ fun EditProfileScreen(
         SocialField(
             icon = Icons.Filled.Code,
             value = uiState.github,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.GithubChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.GithubChanged(it)) },
             placeholder = "github.com/your_username"
         )
         Spacer(modifier = Modifier.height(10.dp))
         SocialField(
             icon = Icons.Filled.Link,
             value = uiState.linkedin,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.LinkedinChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.LinkedinChanged(it)) },
             placeholder = "linkedin.com/in/your_name"
         )
         Spacer(modifier = Modifier.height(10.dp))
         SocialField(
             icon = Icons.Filled.Language,
             value = uiState.website,
-            onValueChange = { /*viewModel.onAction(EditProfileAction.WebsiteChanged(it))*/ },
+            onValueChange = { viewModel.onAction(EditProfileAction.WebsiteChanged(it)) },
             placeholder = "your-website.dev"
         )
 
@@ -445,7 +445,7 @@ fun EditProfileScreen(
             subtitle = "Allow others to see your technical queries",
             checked = uiState.isPublicProfile,
             onCheckedChange = {
-                //viewModel.onAction(EditProfileAction.TogglePublicProfile)
+                viewModel.onAction(EditProfileAction.TogglePublicProfile)
             }
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -454,7 +454,7 @@ fun EditProfileScreen(
             subtitle = "Visible to verified team members",
             checked = uiState.displayEmail,
             onCheckedChange = {
-                //viewModel.onAction(EditProfileAction.ToggleDisplayEmail)
+                viewModel.onAction(EditProfileAction.ToggleDisplayEmail)
             }
         )
 
@@ -462,7 +462,7 @@ fun EditProfileScreen(
 
         // ── Save button ───────────────────────────────────────────────
         Button(
-            onClick = { /*viewModel.onAction(EditProfileAction.Save, navigateUp)*/ },
+            onClick = { viewModel.onAction(EditProfileAction.Save(navigateUp)) },
             modifier = Modifier
                 .fillMaxWidth()
                 .height(54.dp)
@@ -497,8 +497,7 @@ fun EditProfileScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // ── Deactivate account ────────────────────────────────────────
-        TextButton(onClick = { /*viewModel.onAction(EditProfileAction.DeactivateAccount)*/ }) {
+        TextButton(onClick = { viewModel.onAction(EditProfileAction.DeactivateAccount) }) {
             Text(
                 text = "Deactivate Account",
                 color = MaterialTheme.colorScheme.error,

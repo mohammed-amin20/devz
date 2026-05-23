@@ -9,7 +9,7 @@
 ./gradlew lint                      # lint check
 ```
 
-## Full file tree (92 source files)
+## Full file tree (94 source files)
 
 ```
 com.mohamed.devz/
@@ -58,11 +58,11 @@ com.mohamed.devz/
     ├── core/
     │   ├── domain/
     │   │   ├── model/
-    │   │   │   ├── Account.kt         # id: Int, fullName, email, password, imageUrl, bio, techStack, githubUrl, linkedInUrl, websiteUrl
+    │   │   │   ├── Account.kt         # id: Int, username, fullName, email, password, imageUrl, bio, techStack, githubUrl, linkedInUrl, websiteUrl
     │   │   │   ├── Question.kt        # id: Int, title, description, code, likesCount, answersCount, tags, langTypeId, accountId, createdAt
     │   │   │   ├── Answer.kt          # id: Int, description, accepted, votedIds, questionId, accountId, createdAt
     │   │   │   ├── LanguageType.kt    # id: Int, type
-    │   │   │   ├── Notification.kt    # id: Int, description, accountId, typeId, seen, createdAt
+    │   │   │   ├── Notification.kt    # id: Int, description, actorName: String?, type: String, seen, createdAt
     │   │   │   └── NotificationType.kt# id: Int, type
     │   │   ├── repository/
     │   │   │   ├── AccountRepository.kt          # getById, getByUsernameAndPassword, getAll, insert, update, uploadImage
@@ -92,7 +92,7 @@ com.mohamed.devz/
     │   │   │   ├── QuestionMapper.kt     # DataQuestion.toDomain(), DomainQuestion.toData()
     │   │   │   ├── AnswerMapper.kt       # DataAnswer.toDomain(), DomainAnswer.toData()
     │   │   │   ├── LanguageTypeMapper.kt # DataLanguageType.toDomain(), DomainLanguageType.toData()
-    │   │   │   ├── NotificationMapper.kt # DataNotification.toDomain(), DomainNotification.toData()
+    │   │   │   ├── NotificationMapper.kt # DataNotification.toDomain(typeString, actorName) — resolves typeId/accountId from other tables
     │   │   │   └── NotificationTypeMapper.kt # DataNotificationType.toDomain(), DomainNotificationType.toData()
     │   │   └── repository/
     │   │       ├── AccountRepositoryImpl.kt          # Catches PostgrestRestException, IOException, Exception → maps to Error variants
@@ -118,34 +118,35 @@ com.mohamed.devz/
     │   │   ├── QuestionDetailsAction.kt   # sealed interface: LoadQuestion(id), AnswerTextChanged(value), PostAnswer(onSuccess)
     │   │   ├── QuestionDetailsState.kt    # data class: question (QuestionDetailUiModel), answers, answerText, isLoading, isPosting, error
     │   │   ├── QuestionDetailsViewModel.kt# MVI: loads question + answers, posts answer
-    │   │   ├── QuestionDetailsScreen.kt   # Wired with ViewModel, shows question content + answer input bar
+    │   │   ├── QuestionDetailsScreen.kt   # Wired with ViewModel, shows question content + answer input bar + error/retry UI
     │   │   └── components/ (AnswerCard, AnswerInputBar, Breadcrumb, CodeBlock, QuestionContent, TagChip, TopBar, ActionPill)
-    │   ├── add_edit_qestion/
+    │   ├── add_edit_question/
     │   │   ├── AddEditQuestionAction.kt   # sealed interface: LoadQuestion(id), TitleChanged, BodyChanged, CodeChanged, LanguageSelected, TagInputChanged, AddTag, RemoveTag, ShowTagInput, Publish
     │   │   ├── AddEditQuestionState.kt    # data class: title, body, code, selectedLangTypeId, tags, tagInput, showTagInput, languageTypes, isLoading, isEdit, editQuestionId, error
     │   │   ├── AddEditQuestionViewModel.kt# MVI: loads language types, loads question for edit, publishes/updates
     │   │   ├── AddEditQuestionScreen.kt   # Wired with ViewModel, all form fields connected
-    │   │   └── components/ (CodeEditorField, DefaultFieldLabel, LanguageDrowdownField)
+    │   │   └── components/ (CodeEditorField, DefaultFieldLabel, LanguageDropdownField)
     │   └── util/
-    │       ├── SyntaxLanguage.kt       # Enum: KOTLIN, JAVASCRIPT("JavScript"), PYTHON, GENERIC
+    │       ├── SyntaxLanguage.kt       # Enum: KOTLIN, JAVASCRIPT("JavaScript"), PYTHON, GENERIC
     │       ├── Token.kt                # Sealed class: Keyword, Operator, Punctuation, etc.
     │       ├── tokenize.kt             # Character-by-character tokenizer per language + formatCode()
     │       └── IndentationFormatter.kt # Brace-based + Python indent formatters
     │
     ├── profile/presentation/
     │   ├── view_profile/
-    │   │   ├── ProfileScreen.kt          # onQuestionClick: (Int) -> Unit
+    │   │   ├── ProfileScreen.kt          # Wired to ProfileViewModel, displays real data
     │   │   └── components/ (ProfileAnswerCard, ProfileQuestionCard, ProfileUiModel, StatCard)
-    │   │       ├── ProfileUiModel.kt     # ProfileUiState(id: Int), ProfileQuestionUiModel(id: Int), ProfileAnswerUiModel(id: Int)
-    │   │       └── ProfileViewModel.kt   # @HiltViewModel (stub with hardcoded data)
+    │   │       ├── ProfileUiModel.kt     # ProfileUiState, ProfileViewModel (wired to repos), ProfileAction
+    │   │       └── ProfileViewModel.kt   # Inline in ProfileUiModel.kt — injects Account/Question/Answer repos
     │   └── edit_profile/
     │       ├── EditProfileAction.kt    # sealed interface: UpdateField, UploadPhoto, Save, Logout, etc.
-    │       ├── EditProfileViewModel.kt # MVI: onAction(action) dispatch
-    │       ├── EditProfileState.kt     # data class with all form fields + isLoading + error
+    │       ├── EditProfileViewModel.kt # MVI: loads account on init, onAction dispatch, UiText errors
+    │       ├── EditProfileState.kt     # data class with all form fields + isLoading + error (UiText?)
     │       └── components/ (GovernanceToggle, SectionHeader, SkillChip, SocialField)
     │
     └── notification/presentation/
-        └── NotificationsScreen.kt      # Notification list (hardcoded sample data)
+        ├── NotificationsScreen.kt      # Notification list wired to ViewModel
+        └── NotificationsViewModel.kt   # MVI: injects NotificationRepository + UserPreferencesRepository
 ```
 
 ## Architecture
@@ -199,6 +200,8 @@ Every ViewModel follows the same architecture:
 | QuestionDetails | Separate `QuestionDetailsAction.kt` | QuestionDetailsState | onSuccess callback | QuestionRepository.getById(), AnswerRepository.insert() |
 | AddEditQuestion | Separate `AddEditQuestionAction.kt` | AddEditQuestionState | onSuccess callback | QuestionRepository.insert()/update() |
 | EditProfile | Separate `EditProfileAction.kt` | EditProfileState | none | AccountRepository.update() |
+| Profile | Inline in `ProfileUiModel.kt` | ProfileUiState | none | AccountRepository.getById(), QuestionRepository.getByAccountId(), AnswerRepository.getByAccountId() |
+| Notifications | Inline in `NotificationsViewModel.kt` | NotificationsUiState | none | NotificationRepository.getAllByAccountId() |
 
 ### Navigation flow
 
@@ -231,7 +234,7 @@ Each forward navigation pops the backstack first (no back-navigation to previous
 ### Backend (Supabase)
 
 - **Client**: `createSupabaseClient(url, key)` with `Postgrest` + `Storage` plugins installed in `CoreModule`.
-- **Auth plugin** (`gotrue-kt`) is in dependencies but **NOT installed** — auth is stubbed via PostgREST direct queries (plaintext password comparison).
+- **Auth plugin** (`gotrue-kt`) was removed — auth is stubbed via PostgREST direct queries (plaintext password comparison).
 - **6 tables**: `Account`, `Question`, `Answer`, `LanguageType`, `Notification`, `NotificationType` — mapped via `@SerialName` to snake_case.
 - **Storage bucket**: `images` for profile photo uploads.
 - **Supabase URL/anon key**: hardcoded in `CoreModule.kt` (no BuildConfig or secrets management).
@@ -248,7 +251,7 @@ Each forward navigation pops the backstack first (no back-navigation to previous
 
 | Domain | Data (@Serializable) | @SerialName differences |
 |--------|---------------------|------------------------|
-| Account | Account | full_name, image_url, tech_stack, github_url, linkedin_url, website_url |
+| Account | Account | username, full_name, image_url, tech_stack, github_url, linkedin_url, website_url |
 | Question | Question | likes_count, answers_count, lang_type_id, account_id, created_at |
 | Answer | Answer | voted_ids, question_id, account_id, created_at |
 | LanguageType | LanguageType | (none — identical) |
@@ -276,17 +279,14 @@ Mappers are `toDomain()`/`toData()` extension functions using import aliases (`a
 ## Known issues & quirks
 
 - **Room** (`androidx.room.ktx`) is listed in dependencies but has NO compiler (ksp), no database, no entities, no wiring in CoreModule.
-- **Account domain model** stores plaintext `password` — insecure PostgREST-based auth. `gotrue-kt` is in deps but Auth plugin not installed in SupabaseClient.
-- **`SyntaxLanguage.JAVASCRIPT`** has typo: label is `"JavScript"` not `"JavaScript"`.
+- **Account domain model** stores plaintext `password` — insecure PostgREST-based auth (no Supabase Auth).
 - **Package quirk**: `feature/authentication/presentation/components/login_screen/presentation/` — `presentation` appears twice.
 - **proguard-rules.pro**: exists but empty boilerplate.
-- **EditProfileScreen** has a ViewModel and Action sealed interface but the screen wiring is partial (not all fields connected to ViewModel).
-- **ProfileViewModel** still uses hardcoded sample data — not wired to repository.
-- **NotificationsScreen** still uses hardcoded sample data — no ViewModel.
 - **QuestionCard preview** uses hardcoded `QuestionFeedUiModel` — not a live preview.
 - **NotificationType** field name `type` may conflict with Kotlin's `type` keyword — handled by `@SerialName`.
 - **All screens** use dark-only theme (no light mode support in `Theme.kt`).
 - **Local fonts** (Inter, Space Grotesk) from `res/font/` — loaded via Google Fonts Compose library.
+- **EditProfileViewModel** `DeactivateAccount` action is a no-op (no confirmation dialog).
 
 ## Conventions for new code
 

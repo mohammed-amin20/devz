@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.question.presentation.view_questions
 
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 
 data class ViewQuestionsState(
     val questions: List<QuestionFeedUiModel> = emptyList(),

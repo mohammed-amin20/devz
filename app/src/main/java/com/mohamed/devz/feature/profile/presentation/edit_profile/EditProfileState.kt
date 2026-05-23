@@ -1,6 +1,9 @@
 package com.mohamed.devz.feature.profile.presentation.edit_profile
 
+import com.mohamed.devz.feature.core.presentation.util.UiText
+
 data class EditProfileState(
+    val id: Int = 0,
     val fullName: String = "",
     val username: String = "",
     val email: String = "",
@@ -16,5 +19,5 @@ data class EditProfileState(
     val isPublicProfile: Boolean = true,
     val displayEmail: Boolean = false,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: UiText? = null
 )

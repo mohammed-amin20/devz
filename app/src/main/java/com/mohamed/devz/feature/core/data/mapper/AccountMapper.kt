@@ -5,6 +5,7 @@ import com.mohamed.devz.feature.core.domain.model.Account as DomainAccount
 
 fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     id = id,
+    username = username,
     fullName = fullName,
     email = email,
     password = password,
@@ -18,6 +19,7 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
 
 fun DomainAccount.toData(): DataAccount = DataAccount(
     id = id,
+    username = username,
     fullName = fullName,
     email = email,
     password = password,

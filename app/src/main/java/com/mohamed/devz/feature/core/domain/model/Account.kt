@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.core.domain.model
 
 data class Account(
     val id: Int,
+    val username: String,
     val fullName: String,
     val email: String,
     val password: String,

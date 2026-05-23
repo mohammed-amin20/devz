@@ -12,7 +12,7 @@ import com.mohamed.devz.feature.authentication.presentation.AuthScreen
 import com.mohamed.devz.feature.onboarding.presentation.OnboardingScreen
 import com.mohamed.devz.feature.onboarding.presentation.OnboardingViewModel
 import com.mohamed.devz.feature.profile.presentation.edit_profile.EditProfileScreen
-import com.mohamed.devz.feature.question.presentation.add_edit_qestion.AddEditQuestionScreen
+import com.mohamed.devz.feature.question.presentation.add_edit_question.AddEditQuestionScreen
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
 import com.mohamed.devz.feature.splash.presentation.SplashScreen
 import com.mohamed.devz.navigation.components.HomeScreen

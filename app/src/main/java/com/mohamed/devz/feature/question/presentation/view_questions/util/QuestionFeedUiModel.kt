@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.view_questions
+package com.mohamed.devz.feature.question.presentation.view_questions.util
 
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.model.LanguageType

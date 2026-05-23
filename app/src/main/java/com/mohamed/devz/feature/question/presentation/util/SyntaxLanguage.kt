@@ -4,7 +4,7 @@ enum class SyntaxLanguage(
     val label: String
 ) {
     KOTLIN("Kotlin"),
-    JAVASCRIPT("JavScript"),
+    JAVASCRIPT("JavaScript"),
     PYTHON("Python"),
     GENERIC("Other")
 }

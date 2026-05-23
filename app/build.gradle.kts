@@ -87,6 +87,5 @@ dependencies {
     implementation(platform(libs.bom))
     implementation(libs.postgrest.kt)
     implementation(libs.storage.kt)
-    implementation(libs.gotrue.kt)
     implementation(libs.ktor.client.android)
 }

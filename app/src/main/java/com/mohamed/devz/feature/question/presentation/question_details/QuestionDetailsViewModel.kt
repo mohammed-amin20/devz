@@ -49,12 +49,6 @@ class QuestionDetailsViewModel @Inject constructor(
                     val q = questionResult.data
                     val account = (accountRepository.getById(q.accountId) as? Result.Success)?.data
                     val langTypeId = q.langTypeId
-                    val langLabel = when (langTypeId) {
-                        1 -> SyntaxLanguage.KOTLIN.label
-                        2 -> SyntaxLanguage.JAVASCRIPT.label
-                        3 -> SyntaxLanguage.PYTHON.label
-                        else -> SyntaxLanguage.GENERIC.label
-                    }
                     val detailUiModel = QuestionDetailUiModel(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
@@ -72,7 +66,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         likes = q.likesCount,
                         answersCount = q.answersCount,
                     )
-                    _uiState.update { it.copy(question = detailUiModel, isLoading = false) }
+                    _uiState.update { it.copy(question = detailUiModel, isLoading = false, error = null ) }
                     loadAnswers(questionId)
                 }
                 is Result.Error -> {

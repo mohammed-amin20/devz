@@ -34,7 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.feature.question.presentation.view_questions.QuestionFeedUiModel
+import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.TextGray

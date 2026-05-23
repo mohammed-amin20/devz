@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion
+package com.mohamed.devz.feature.question.presentation.add_edit_question
 
 sealed interface AddEditQuestionAction {
     data class LoadQuestion(val questionId: Int) : AddEditQuestionAction

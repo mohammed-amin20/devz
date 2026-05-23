@@ -4,23 +4,32 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
+import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
+import com.mohamed.devz.feature.core.domain.util.Result
+import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
-import jakarta.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
-import com.mohamed.devz.feature.core.domain.util.Error as DomainError
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @HiltViewModel
 class EditProfileViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
+    private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(EditProfileState())
     val uiState = _uiState.asStateFlow()
 
-    fun onAction(action: EditProfileAction, onSaved: () -> Unit = {}) {
+    init {
+        loadProfile()
+    }
+
+    fun onAction(action: EditProfileAction) {
         when (action) {
             is EditProfileAction.FullNameChanged -> _uiState.update { it.copy(fullName = action.v) }
             is EditProfileAction.UsernameChanged -> _uiState.update { it.copy(username = action.v) }
@@ -43,12 +52,45 @@ class EditProfileViewModel @Inject constructor(
                     }
                 }
             }
-
             is EditProfileAction.TogglePublicProfile -> _uiState.update { it.copy(isPublicProfile = !it.isPublicProfile) }
             is EditProfileAction.ToggleDisplayEmail -> _uiState.update { it.copy(displayEmail = !it.displayEmail) }
-            is EditProfileAction.PickAvatar -> uploadImage(action.imageBytes)
-            is EditProfileAction.Save -> save(onSaved)
-            is EditProfileAction.DeactivateAccount -> { /* TODO: show confirmation dialog */
+            is EditProfileAction.PickImage -> uploadImage(action.imageBytes)
+            is EditProfileAction.Save -> save(action.onSave)
+            is EditProfileAction.DeactivateAccount -> { }
+        }
+    }
+
+    private fun loadProfile() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            if (accountId == 0) {
+                _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("User not found")) }
+                return@launch
+            }
+            when (val result = accountRepository.getById(accountId)) {
+                is Result.Success -> {
+                    val a = result.data
+                    _uiState.update {
+                        it.copy(
+                            id = a.id,
+                            fullName = a.fullName,
+                            username = a.username,
+                            email = a.email,
+                            password = a.password,
+                            bio = a.bio,
+                            github = a.githubUrl,
+                            linkedin = a.linkedInUrl,
+                            website = a.websiteUrl,
+                            skills = a.techStack.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() },
+                            imageUrl = a.imageUrl,
+                            isLoading = false,
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
+                }
             }
         }
     }
@@ -56,13 +98,12 @@ class EditProfileViewModel @Inject constructor(
     private fun uploadImage(imageBytes: ByteArray) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true) }
-            when (val result = accountRepository.uploadImage(imageBytes, "avatar.jpg")) {
-                is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
+            when (val result = accountRepository.uploadImage(imageBytes, "image-${System.currentTimeMillis()}.jpg")) {
+                is Result.Success -> {
                     _uiState.update { it.copy(imageUrl = result.data, isLoading = false) }
                 }
-
-                is com.mohamed.devz.feature.core.domain.util.Result.Error -> {
-                    _uiState.update { it.copy(error = (result.error as DomainError).message, isLoading = false) }
+                is Result.Error -> {
+                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
                 }
             }
         }
@@ -70,14 +111,15 @@ class EditProfileViewModel @Inject constructor(
 
     private fun save(onSaved: () -> Unit) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isLoading = true, error = null) }
             val state = _uiState.value
             val result = accountRepository.update(
                 Account(
-                    id = 0,
+                    id = state.id,
+                    username = state.username,
                     fullName = state.fullName,
-                    email = "", // TODO: load actual email
-                    password = "", // TODO: load actual password
+                    email = state.email,
+                    password = state.password,
                     imageUrl = state.imageUrl,
                     bio = state.bio,
                     techStack = state.skills.joinToString(", "),
@@ -87,13 +129,12 @@ class EditProfileViewModel @Inject constructor(
                 )
             )
             when (result) {
-                is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
+                is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     onSaved()
                 }
-
-                is com.mohamed.devz.feature.core.domain.util.Result.Error -> {
-                    _uiState.update { it.copy(error = (result.error as DomainError).message, isLoading = false) }
+                is Result.Error -> {
+                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
                 }
             }
         }

@@ -1,4 +1,4 @@
-package com.mohamed.devz.feature.question.presentation.add_edit_qestion
+package com.mohamed.devz.feature.question.presentation.add_edit_question
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -62,7 +62,7 @@ class AddEditQuestionViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = languageTypeRepository.getAll()) {
                 is Result.Success -> _uiState.update { it.copy(languageTypes = result.data) }
-                is Result.Error -> { /* silently fail, user can still type */ }
+                is Result.Error -> { }
             }
         }
     }

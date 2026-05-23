@@ -27,6 +27,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +42,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -48,9 +51,11 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun NotificationsScreen(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: NotificationsViewModel = hiltViewModel(),
 ) {
-    val notifications = sampleNotifications
+    val uiState by viewModel.uiState.collectAsState()
+    val notifications = uiState.notifications
 
     Box(
         modifier = Modifier
@@ -59,8 +64,6 @@ fun NotificationsScreen(
             .then(modifier)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
-
-            // ── Top bar ───────────────────────────────────────────────────
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,7 +80,6 @@ fun NotificationsScreen(
                 )
             }
 
-            // ── List ──────────────────────────────────────────────────────
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -96,7 +98,6 @@ fun NotificationsScreen(
     }
 }
 
-// ── Notification Item ─────────────────────────────────────────────────────────
 @Composable
 fun NotificationItem(notification: NotificationUiModel) {
     val isUnread = !notification.isRead
@@ -110,7 +111,6 @@ fun NotificationItem(notification: NotificationUiModel) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
     ) {
-        // Icon
         Box(
             modifier = Modifier
                 .size(44.dp)
@@ -179,115 +179,6 @@ fun NotificationItem(notification: NotificationUiModel) {
     }
 }
 
-// ── Notification types ────────────────────────────────────────────────────────
-enum class NotificationType {
-    ACCEPTED,
-    UPVOTE,
-    LIKE,
-    COMMENT
-}
-
-// ── Notification model ────────────────────────────────────────────────────────
-data class NotificationUiModel(
-    val id: String,
-    val type: NotificationType,
-    val actorName: String?,
-    val message: String,
-    val questionTitle: String,
-    val timeAgo: String,
-    val isRead: Boolean = false,
-)
-
-// ── UiState ───────────────────────────────────────────────────────────────────
-data class NotificationsUiState(
-    val notifications: List<NotificationUiModel> = emptyList(),
-    val isLoading: Boolean = false,
-    val error: String? = null,
-)
-
-// ── Actions ───────────────────────────────────────────────────────────────────
-sealed class NotificationsAction {
-    object MarkAllRead : NotificationsAction()
-    data class MarkRead(val id: String) : NotificationsAction()
-}
-
-// ── Sample data ───────────────────────────────────────────────────────────────
-val sampleNotifications = listOf(
-    NotificationUiModel(
-        id = "1",
-        type = NotificationType.ACCEPTED,
-        actorName = null,
-        message = "Your answer was chosen as the best in",
-        questionTitle = "How to implement clean architecture...",
-        timeAgo = "2m ago",
-        isRead = false
-    ),
-    NotificationUiModel(
-        id = "2",
-        type = NotificationType.UPVOTE,
-        actorName = null,
-        message = "Your answer received 26 upvotes in",
-        questionTitle = "How to implement firestore pagination...",
-        timeAgo = "1h ago",
-        isRead = false
-    ),
-    NotificationUiModel(
-        id = "3",
-        type = NotificationType.LIKE,
-        actorName = "John Doe",
-        message = "liked on your question in",
-        questionTitle = "How to implement firestore....",
-        timeAgo = "1h ago",
-        isRead = true
-    ),
-    NotificationUiModel(
-        id = "4",
-        type = NotificationType.COMMENT,
-        actorName = "John Doe",
-        message = "commented on your question in",
-        questionTitle = "How to implement ...",
-        timeAgo = "1h ago",
-        isRead = true
-    ),
-    NotificationUiModel(
-        id = "5",
-        type = NotificationType.UPVOTE,
-        actorName = "John Doe",
-        message = "upvoted on your answer in",
-        questionTitle = "How to implement fir...",
-        timeAgo = "2d ago",
-        isRead = true
-    ),
-    NotificationUiModel(
-        id = "6",
-        type = NotificationType.UPVOTE,
-        actorName = "John Doe",
-        message = "upvoted on your answer in",
-        questionTitle = "How to implement fir...",
-        timeAgo = "3d ago",
-        isRead = true
-    ),
-    NotificationUiModel(
-        id = "7",
-        type = NotificationType.COMMENT,
-        actorName = "John Doe",
-        message = "commented on your question in",
-        questionTitle = "How to implement ...",
-        timeAgo = "1w ago",
-        isRead = true
-    ),
-    NotificationUiModel(
-        id = "8",
-        type = NotificationType.COMMENT,
-        actorName = "John Doe",
-        message = "commented on your question in",
-        questionTitle = "How to implement ...",
-        timeAgo = "1w ago",
-        isRead = true
-    )
-)
-
-
 @Preview(showSystemUi = true)
 @Composable
 private fun PreviewNotifications() {
@@ -295,4 +186,3 @@ private fun PreviewNotifications() {
         NotificationsScreen()
     }
 }
-

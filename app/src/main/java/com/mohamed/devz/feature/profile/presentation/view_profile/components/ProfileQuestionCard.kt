@@ -30,6 +30,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
@@ -175,7 +176,7 @@ private fun PreviewProfileQuestionCard() {
     DevzTheme {
         ProfileQuestionCard(
             question = ProfileQuestionUiModel(
-                id = "1",
+                id = 1,
                 title = "Implementing zero-copy serialization in Rust with rkyv for high-throughput messaging",
                 timeAgo = "2 days ago",
                 votes = 12,

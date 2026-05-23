@@ -7,7 +7,9 @@ import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.Storage
+import java.util.stream.IntStream.range
 
 class DevZRemoteDataSourceImpl(
     private val db : Postgrest,
@@ -115,7 +117,7 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         range(offset, offset + limit - 1)
-                        order(column = orderBy, ascending = ascending)
+                        order(column = orderBy, order = Order.ASCENDING)
                     }
                     .decodeList()
             }

@@ -1,7 +1,6 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile.components
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -32,8 +31,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
@@ -149,7 +148,7 @@ private fun PrevAnswer() {
     DevzTheme {
         ProfileAnswerCard(
             answer = ProfileAnswerUiModel (
-                id = "1",
+                id = 1,
                 questionTitle = "How do I make a sealed class for UI states?",
                 preview = "I am trying to model loading, success, and error states in my app...",
                 likes = 14,
