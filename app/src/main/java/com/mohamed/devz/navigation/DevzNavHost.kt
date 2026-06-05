@@ -62,6 +62,12 @@ fun DevzNavHost(
                         navigate(Route.Home)
                     }
                 },
+                onRegisterSuccess = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Home)
+                    }
+                },
                 modifier = modifier
             )
         }

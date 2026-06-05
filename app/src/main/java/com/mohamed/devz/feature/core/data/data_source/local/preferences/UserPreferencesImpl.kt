@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.data_source.local.preferences
 
+import android.app.Application
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -7,7 +8,6 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import jakarta.inject.Inject
@@ -19,40 +19,39 @@ private val IS_FIRST_TIME = booleanPreferencesKey("is_first_time")
 private val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 private val CURRENT_ACCOUNT_ID = intPreferencesKey("current_account_id")
 
-@Singleton
-class UserPreferencesManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
+class UserPreferencesImpl(
+    private val app: Application,
 ) : UserPreferences {
 
     override fun observeIsFirstTime(): Flow<Boolean> {
-        return context.dataStore.data.map { it[IS_FIRST_TIME] ?: true }
+        return app.dataStore.data.map { it[IS_FIRST_TIME] ?: true }
     }
 
     override fun observeIsLoggedIn(): Flow<Boolean> {
-        return context.dataStore.data.map { it[IS_LOGGED_IN] ?: false }
+        return app.dataStore.data.map { it[IS_LOGGED_IN] ?: false }
     }
 
     override fun observeCurrentAccountId(): Flow<Int?> {
-        return context.dataStore.data.map { it[CURRENT_ACCOUNT_ID] }
+        return app.dataStore.data.map { it[CURRENT_ACCOUNT_ID] }
     }
 
     override suspend fun setNotFirstTime() {
-        context.dataStore.edit { it[IS_FIRST_TIME] = false }
+        app.dataStore.edit { it[IS_FIRST_TIME] = false }
     }
 
     override suspend fun setLoggedIn() {
-        context.dataStore.edit { it[IS_LOGGED_IN] = true }
+        app.dataStore.edit { it[IS_LOGGED_IN] = true }
     }
 
     override suspend fun setAccountId(id: Int) {
-        context.dataStore.edit { it[CURRENT_ACCOUNT_ID] = id }
+        app.dataStore.edit { it[CURRENT_ACCOUNT_ID] = id }
     }
 
     override suspend fun clearAccountId() {
-        context.dataStore.edit { it.remove(CURRENT_ACCOUNT_ID) }
+        app.dataStore.edit { it.remove(CURRENT_ACCOUNT_ID) }
     }
 
     override suspend fun setLoggedOut() {
-        context.dataStore.edit { it[IS_LOGGED_IN] = false }
+        app.dataStore.edit { it[IS_LOGGED_IN] = false }
     }
 }

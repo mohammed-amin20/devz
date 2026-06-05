@@ -61,12 +61,12 @@ fun SplashScreen(
 
     val alpha by animateFloatAsState(
         targetValue = if (visible) 1f else 0f,
-        animationSpec = tween(durationMillis = 900, easing = EaseInOut),
+        animationSpec = tween(durationMillis = 500, easing = EaseInOut),
         label = "alpha"
     )
     val scale by animateFloatAsState(
         targetValue = if (visible) 1f else 0.75f,
-        animationSpec = tween(durationMillis = 900, easing = EaseOutBack),
+        animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
         label = "scale"
     )
 
@@ -76,7 +76,7 @@ fun SplashScreen(
         visible = true
         progressAnim.animateTo(
             targetValue = 1f,
-            animationSpec = tween(durationMillis = 2000, easing = LinearEasing)
+            animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
         )
         viewModel.onAction(SplashAction.DecideWhereToGoAction)
     }

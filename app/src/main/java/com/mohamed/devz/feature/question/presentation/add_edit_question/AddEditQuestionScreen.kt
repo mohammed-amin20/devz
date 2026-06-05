@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.question.presentation.add_edit_question
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -76,6 +78,7 @@ fun AddEditQuestionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null
+    val context = LocalContext.current
 
     var selectedLanguage by remember { mutableStateOf(SyntaxLanguage.KOTLIN) }
 
@@ -298,7 +301,16 @@ fun AddEditQuestionScreen(
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .clickable { viewModel.onAction(AddEditQuestionAction.CodeChanged(formatCode(selectedLanguage, uiState.code))) }
+                        .clickable {
+                            viewModel.onAction(
+                                AddEditQuestionAction.CodeChanged(
+                                    formatCode(
+                                        selectedLanguage,
+                                        uiState.code
+                                    )
+                                )
+                            )
+                        }
                         .padding(horizontal = 8.dp, vertical = 4.dp)
                 )
             }
@@ -371,7 +383,13 @@ fun AddEditQuestionScreen(
                                 tint = CyanPrimary,
                                 modifier = Modifier
                                     .size(14.dp)
-                                    .clickable { viewModel.onAction(AddEditQuestionAction.RemoveTag(tag)) }
+                                    .clickable {
+                                        viewModel.onAction(
+                                            AddEditQuestionAction.RemoveTag(
+                                                tag
+                                            )
+                                        )
+                                    }
                             )
                         }
                     }
@@ -425,6 +443,19 @@ fun AddEditQuestionScreen(
             }
 
             Spacer(modifier = Modifier.height(24.dp))
+        }
+
+        uiState.error?.let { error ->
+            item {
+                Text(
+                    text = error.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
 
         item {

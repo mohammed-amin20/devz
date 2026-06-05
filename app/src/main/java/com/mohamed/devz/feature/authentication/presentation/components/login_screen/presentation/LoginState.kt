@@ -3,7 +3,7 @@ package com.mohamed.devz.feature.authentication.presentation.components.login_sc
 import com.mohamed.devz.feature.core.presentation.util.UiText
 
 data class LoginState(
-    val email: String = "",
+    val username: String = "",
     val password: String = "",
     val isLoading: Boolean = false,
     val error: UiText? = null

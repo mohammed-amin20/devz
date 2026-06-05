@@ -1,9 +1,10 @@
 package com.mohamed.devz.feature.core.di
 
+import android.app.Application
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSourceImpl
 import com.mohamed.devz.feature.core.data.data_source.local.preferences.UserPreferences
-import com.mohamed.devz.feature.core.data.data_source.local.preferences.UserPreferencesManager
+import com.mohamed.devz.feature.core.data.data_source.local.preferences.UserPreferencesImpl
 import com.mohamed.devz.feature.core.data.repository.AccountRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.AnswerRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.LanguageTypeRepositoryImpl
@@ -121,9 +122,9 @@ object CoreModule {
     @Provides
     @Singleton
     fun provideUserPreferences(
-        userPreferencesManager: UserPreferencesManager,
+        app: Application
     ): UserPreferences {
-        return userPreferencesManager
+        return UserPreferencesImpl(app)
     }
 
     @Provides

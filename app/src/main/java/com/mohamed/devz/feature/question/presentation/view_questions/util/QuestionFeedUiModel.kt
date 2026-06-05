@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.question.presentation.view_questions.util
 
+
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.model.LanguageType
 import com.mohamed.devz.feature.core.domain.model.Question
@@ -22,7 +23,8 @@ data class QuestionFeedUiModel(
     val isBookmarked: Boolean = false,
 )
 
-private fun computeTimeAgo(createdAt: String): String {
+private fun computeTimeAgo(createdAt: String?): String {
+    if (createdAt == null) return "just now"
     return try {
         val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[XXX]")
         val parsed = LocalDateTime.parse(createdAt, formatter)

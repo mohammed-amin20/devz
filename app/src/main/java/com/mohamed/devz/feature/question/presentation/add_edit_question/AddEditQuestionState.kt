@@ -13,6 +13,7 @@ data class AddEditQuestionState(
     val showTagInput: Boolean = false,
     val languageTypes: List<LanguageType> = emptyList(),
     val isLoading: Boolean = false,
+    val createdAt: String? = null,
     val isEdit: Boolean = false,
     val editQuestionId: Int? = null,
     val error: UiText? = null,

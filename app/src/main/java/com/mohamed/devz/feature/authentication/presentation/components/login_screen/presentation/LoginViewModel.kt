@@ -24,7 +24,7 @@ class LoginViewModel @Inject constructor(
 
     fun onAction(action: LoginAction) {
         when (action) {
-            is LoginAction.EmailChanged -> _uiState.update { it.copy(email = action.value) }
+            is LoginAction.UsernameChanged -> _uiState.update { it.copy(username = action.value) }
             is LoginAction.PasswordChanged -> _uiState.update { it.copy(password = action.value) }
             is LoginAction.LoginClicked -> login(action.onSuccess)
         }
@@ -34,7 +34,7 @@ class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val state = _uiState.value
-            when (val result = accountRepository.getByUsernameAndPassword(state.email, state.password)) {
+            when (val result = accountRepository.getByUsernameAndPassword(state.username, state.password)) {
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     if (result.data != null) {

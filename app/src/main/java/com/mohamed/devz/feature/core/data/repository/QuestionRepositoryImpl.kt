@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.repository
 
+import android.util.Log
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
 import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
@@ -80,13 +81,16 @@ class QuestionRepositoryImpl @Inject constructor(
             val inserted = remoteDataSource.question.insertQuestion(question.toData())
             Result.Success(inserted.toDomain())
         } catch (e: PostgrestRestException) {
+            Log.e("mhmd", e.message.toString())
             when (e.statusCode) {
                 409 -> Result.Error(Error.Conflict)
                 else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
             }
         } catch (e: IOException) {
+            Log.e("mhmd", e.message.toString())
             Result.Error(Error.Network)
         } catch (e: Exception) {
+            Log.e("mhmd", e.message.toString())
             Result.Error(Error.Unknown(e.message ?: "Unknown error"))
         }
     }

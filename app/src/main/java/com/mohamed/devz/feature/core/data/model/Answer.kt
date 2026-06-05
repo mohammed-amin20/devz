@@ -15,5 +15,5 @@ data class Answer(
     @SerialName("account_id")
     val accountId: Int,
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String?
 )

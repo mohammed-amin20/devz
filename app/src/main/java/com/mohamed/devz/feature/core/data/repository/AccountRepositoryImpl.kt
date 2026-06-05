@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.repository
 
+import android.util.Log
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
 import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
@@ -23,7 +24,7 @@ class AccountRepositoryImpl @Inject constructor(
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
                 in 401..403 -> Result.Error(Error.Unauthorized)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
@@ -37,7 +38,7 @@ class AccountRepositoryImpl @Inject constructor(
             val accounts = remoteDataSource.account.getAllAccounts()
             Result.Success(accounts.map { it.toDomain() })
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
+            Result.Error(Error.Unknown("Unknown error. Try again later."))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
@@ -55,7 +56,7 @@ class AccountRepositoryImpl @Inject constructor(
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
                 in 401..403 -> Result.Error(Error.Unauthorized)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
@@ -71,9 +72,9 @@ class AccountRepositoryImpl @Inject constructor(
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
             Result.Error(Error.Unknown(e.message ?: "Unknown error"))
@@ -88,7 +89,7 @@ class AccountRepositoryImpl @Inject constructor(
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)

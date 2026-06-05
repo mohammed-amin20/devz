@@ -84,7 +84,7 @@ class ProfileViewModel @Inject constructor(
                                 ProfileQuestionUiModel(
                                     id = q.id,
                                     title = q.title,
-                                    timeAgo = q.createdAt,
+                                    timeAgo = q.createdAt ?: "",
                                     votes = q.likesCount,
                                     answerCount = q.answersCount,
                                     tags = q.tags.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() }
@@ -97,7 +97,7 @@ class ProfileViewModel @Inject constructor(
                                     preview = a.description,
                                     likes = a.votedIds.split(",").count { id -> id.isNotBlank() },
                                     comments = 0,
-                                    timeAgo = a.createdAt,
+                                    timeAgo = a.createdAt ?: "",
                                     isAccepted = a.accepted
                                 )
                             },

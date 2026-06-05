@@ -117,10 +117,22 @@ fun SignUpScreen(
                     Spacer(modifier = Modifier.width(12.dp))
                     Text(
                         text = buildAnnotatedString {
-                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold, fontSize = 26.sp)) {
+                            withStyle(
+                                SpanStyle(
+                                    color = TextWhite,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 26.sp
+                                )
+                            ) {
                                 append("dev")
                             }
-                            withStyle(SpanStyle(color = CyanPrimary, fontWeight = FontWeight.Bold, fontSize = 26.sp)) {
+                            withStyle(
+                                SpanStyle(
+                                    color = CyanPrimary,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 26.sp
+                                )
+                            ) {
                                 append("Z")
                             }
                         },
@@ -170,7 +182,14 @@ fun SignUpScreen(
                             value = uiState.fullName,
                             onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
                             placeholder = "John Doe",
-                            leadingIcon = { Icon(Icons.Filled.Person, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.Person,
+                                    null,
+                                    tint = TextSubtle,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -181,7 +200,14 @@ fun SignUpScreen(
                             value = uiState.username,
                             onValueChange = { viewModel.onAction(SignUpAction.UsernameChanged(it)) },
                             placeholder = "architect_dev",
-                            leadingIcon = { Icon(Icons.Filled.AlternateEmail, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.AlternateEmail,
+                                    null,
+                                    tint = TextSubtle,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -193,7 +219,14 @@ fun SignUpScreen(
                             onValueChange = { viewModel.onAction(SignUpAction.EmailChanged(it)) },
                             placeholder = "architect@devz.io",
                             keyboardType = KeyboardType.Email,
-                            leadingIcon = { Icon(Icons.Filled.Email, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.Email,
+                                    null,
+                                    tint = TextSubtle,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -208,7 +241,14 @@ fun SignUpScreen(
                             isPassword = true,
                             passwordVisible = passwordVisible,
                             onTogglePassword = { passwordVisible = !passwordVisible },
-                            leadingIcon = { Icon(Icons.Filled.Lock, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.Lock,
+                                    null,
+                                    tint = TextSubtle,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -217,13 +257,26 @@ fun SignUpScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
                             value = uiState.confirmPassword,
-                            onValueChange = { viewModel.onAction(SignUpAction.ConfirmPasswordChanged(it)) },
+                            onValueChange = {
+                                viewModel.onAction(
+                                    SignUpAction.ConfirmPasswordChanged(
+                                        it
+                                    )
+                                )
+                            },
                             placeholder = "••••••••••••",
                             keyboardType = KeyboardType.Password,
                             isPassword = true,
                             passwordVisible = confirmPasswordVisible,
                             onTogglePassword = { confirmPasswordVisible = !confirmPasswordVisible },
-                            leadingIcon = { Icon(Icons.Filled.Lock, null, tint = TextSubtle, modifier = Modifier.size(20.dp)) }
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Filled.Lock,
+                                    null,
+                                    tint = TextSubtle,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -255,7 +308,13 @@ fun SignUpScreen(
 
                         // Sign Up button
                         Button(
-                            onClick = { viewModel.onAction(SignUpAction.RegisterClicked(onRegisterSuccess)) },
+                            onClick = {
+                                viewModel.onAction(
+                                    SignUpAction.RegisterClicked(
+                                        onRegisterSuccess
+                                    )
+                                )
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(54.dp),
@@ -285,11 +344,14 @@ fun SignUpScreen(
                 }
             }
 
-            // Error
             item {
                 uiState.error?.let {
                     Spacer(modifier = Modifier.height(12.dp))
-                    Text(text = it.asString(), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                    Text(
+                        text = it.asString(),
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 13.sp
+                    )
                 }
             }
 
@@ -302,7 +364,12 @@ fun SignUpScreen(
                         onClick = onNavigateToLogin,
                         contentPadding = PaddingValues(0.dp)
                     ) {
-                        Text("Log In", color = CyanPrimary, fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        Text(
+                            "Log In",
+                            color = CyanPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
             }
@@ -333,7 +400,7 @@ fun DevzTextField(
     isPassword: Boolean = false,
     passwordVisible: Boolean = false,
     onTogglePassword: (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null
+    leadingIcon: @Composable (() -> Unit)? = null,
 ) {
     OutlinedTextField(
         value = value,

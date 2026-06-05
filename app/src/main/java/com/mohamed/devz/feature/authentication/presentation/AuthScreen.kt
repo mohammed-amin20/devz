@@ -29,6 +29,7 @@ import com.mohamed.devz.feature.authentication.presentation.components.signup_sc
 @Composable
 fun AuthScreen(
     onLoginSuccess: () -> Unit,
+    onRegisterSuccess: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var index by remember { mutableIntStateOf(0) }
@@ -84,7 +85,7 @@ fun AuthScreen(
 
             1 -> SignUpScreen(
                 onNavigateToLogin = { index = 0 },
-                onRegisterSuccess = { index = 0 }
+                onRegisterSuccess = onRegisterSuccess
             )
         }
     }
@@ -94,6 +95,7 @@ fun AuthScreen(
 @Composable
 private fun PrevAuth() {
     AuthScreen(
-        onLoginSuccess = {}
+        onLoginSuccess = {},
+        onRegisterSuccess = {}
     )
 }

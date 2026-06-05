@@ -7,5 +7,5 @@ data class Answer(
     val votedIds: String,
     val questionId: Int,
     val accountId: Int,
-    val createdAt: String
+    val createdAt: String?
 )

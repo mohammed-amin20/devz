@@ -20,6 +20,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
@@ -71,9 +72,9 @@ fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: LoginViewModel = hiltViewModel()
+    viewModel: LoginViewModel = hiltViewModel(),
 ) {
-     val uiState by viewModel.uiState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
@@ -103,10 +104,22 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.width(12.dp))
                 Text(
                     text = buildAnnotatedString {
-                        withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold, fontSize = 26.sp)) {
+                        withStyle(
+                            SpanStyle(
+                                color = TextWhite,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 26.sp
+                            )
+                        ) {
                             append("dev")
                         }
-                        withStyle(SpanStyle(color = CyanPrimary, fontWeight = FontWeight.Bold, fontSize = 26.sp)) {
+                        withStyle(
+                            SpanStyle(
+                                color = CyanPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 26.sp
+                            )
+                        ) {
                             append("Z")
                         }
                     },
@@ -146,7 +159,7 @@ fun LoginScreen(
                 Column(modifier = Modifier.padding(20.dp)) {
                     // Email
                     Text(
-                        text = "EMAIL ADDRESS",
+                        text = "USERNAME",
                         color = LabelGray,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.SemiBold,
@@ -155,14 +168,19 @@ fun LoginScreen(
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     OutlinedTextField(
-                        value = uiState.email,
-                        onValueChange = { viewModel.onAction(LoginAction.EmailChanged(it)) },
+                        value = uiState.username,
+                        onValueChange = { viewModel.onAction(LoginAction.UsernameChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("architect@devz.io", color = TextSubtle) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Email, null, tint = TextSubtle, modifier = Modifier.size(20.dp))
+                            Icon(
+                                Icons.Filled.Person,
+                                null,
+                                tint = TextSubtle,
+                                modifier = Modifier.size(20.dp)
+                            )
                         },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -194,7 +212,12 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = { Text("••••••••", color = TextSubtle) },
                         leadingIcon = {
-                            Icon(Icons.Filled.Lock, null, tint = TextSubtle, modifier = Modifier.size(20.dp))
+                            Icon(
+                                Icons.Filled.Lock,
+                                null,
+                                tint = TextSubtle,
+                                modifier = Modifier.size(20.dp)
+                            )
                         },
                         trailingIcon = {
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
@@ -258,7 +281,11 @@ fun LoginScreen(
 
             uiState.error?.let {
                 Spacer(modifier = Modifier.height(12.dp))
-                Text(text = it.asString(), color = MaterialTheme.colorScheme.error, fontSize = 13.sp)
+                Text(
+                    text = it.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 13.sp
+                )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -288,6 +315,7 @@ fun LoginScreen(
         }
     }
 }
+
 @Preview(showSystemUi = true)
 @Composable
 private fun PreviewLoginScreen() {

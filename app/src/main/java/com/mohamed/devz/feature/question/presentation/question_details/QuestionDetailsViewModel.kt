@@ -53,7 +53,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
                         authorAvatarUrl = account?.imageUrl ?: "",
-                        timeAgo = q.createdAt,
+                        timeAgo = q.createdAt ?: "",
                         tags = q.tags.split(",").filter { it.isNotBlank() },
                         body = q.description,
                         language = when (langTypeId) {
@@ -87,7 +87,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         body = answer.description,
                         isAccepted = answer.accepted,
                         likes = answer.votedIds.split(",").count { it.isNotBlank() },
-                        timeAgo = "Replied ${answer.createdAt}",
+                        timeAgo = "Replied ${answer.createdAt ?: ""}",
                     )
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }
@@ -111,7 +111,7 @@ class QuestionDetailsViewModel @Inject constructor(
                 votedIds = "",
                 questionId = questionId,
                 accountId = currentAccountId,
-                createdAt = "",
+                createdAt = null,
             )
             when (val result = answerRepository.insert(answer)) {
                 is Result.Success -> {

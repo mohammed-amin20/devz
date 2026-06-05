@@ -80,6 +80,7 @@ class AddEditQuestionViewModel @Inject constructor(
                             code = q.code,
                             selectedLangTypeId = q.langTypeId,
                             tags = q.tags.split(",").filter { tag -> tag.isNotBlank() },
+                            createdAt = q.createdAt,
                             isLoading = false,
                         )
                     }
@@ -106,7 +107,7 @@ class AddEditQuestionViewModel @Inject constructor(
                 tags = state.tags.joinToString(","),
                 langTypeId = state.selectedLangTypeId,
                 accountId = currentAccountId,
-                createdAt = "",
+                createdAt = state.createdAt,
             )
             if (state.isEdit) {
                 when (val r = questionRepository.update(question)) {

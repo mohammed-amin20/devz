@@ -10,5 +10,5 @@ data class Question(
     val tags: String,
     val langTypeId: Int,
     val accountId: Int,
-    val createdAt: String
+    val createdAt: String?
 )
