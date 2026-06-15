@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.profile.presentation.edit_profile
 
+import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -7,6 +8,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -52,7 +54,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -71,6 +76,7 @@ import com.mohamed.devz.ui.theme.LabelGray
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
+import androidx.compose.runtime.remember
 import coil3.compose.AsyncImage
 
 @Composable
@@ -148,7 +154,48 @@ fun EditProfileScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
+        // ── Error banner ──────────────────────────────────────────────
+        uiState.error?.let { error ->
+            val errorMessage = error.asString()
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                color = MaterialTheme.colorScheme.errorContainer,
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text(
+                        text = errorMessage,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                        fontSize = 13.sp,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f)
+                    )
+                    IconButton(
+                        onClick = { viewModel.onAction(EditProfileAction.ClearError) },
+                        modifier = Modifier.size(20.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Add,
+                            contentDescription = "Dismiss",
+                            tint = MaterialTheme.colorScheme.onErrorContainer,
+                            modifier = Modifier.size(16.dp).rotate(45f)
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(16.dp))
+        }
+
         // ── Avatar picker ─────────────────────────────────────────────
+        val localBitmap = uiState.localImageBytes?.let { bytes ->
+            remember(bytes) {
+                BitmapFactory.decodeByteArray(bytes, 0, bytes.size)?.asImageBitmap()
+            }
+        }
         Box(contentAlignment = Alignment.BottomEnd) {
             Box(
                 modifier = Modifier
@@ -158,7 +205,16 @@ fun EditProfileScreen(
                     .border(2.dp, CyanPrimary.copy(alpha = 0.5f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                if (uiState.imageUrl.isNotEmpty()) {
+                if (localBitmap != null) {
+                    Image(
+                        bitmap = localBitmap,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                } else if (uiState.imageUrl.isNotEmpty()) {
                     AsyncImage(
                         model = uiState.imageUrl,
                         contentDescription = null,
@@ -174,6 +230,22 @@ fun EditProfileScreen(
                         tint = CyanPrimary,
                         modifier = Modifier.size(52.dp)
                     )
+                }
+                // Loading overlay during upload
+                if (uiState.isUploadingImage) {
+                    Box(
+                        modifier = Modifier
+                            .size(96.dp)
+                            .clip(CircleShape)
+                            .background(Color.Black.copy(alpha = 0.5f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = CyanPrimary,
+                            modifier = Modifier.size(28.dp),
+                            strokeWidth = 2.5.dp
+                        )
+                    }
                 }
             }
             // Camera button
@@ -226,7 +298,7 @@ fun EditProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
-                    "Alexander Vance",
+                    "Enter your full name",
                     color = TextSubtle,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
@@ -256,7 +328,7 @@ fun EditProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
-                    "architect_dev",
+                    "Choose a username",
                     color = TextSubtle,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
@@ -297,7 +369,7 @@ fun EditProfileScreen(
                 .height(110.dp),
             placeholder = {
                 Text(
-                    "Full-stack architect specializing in...",
+                    "Tell us about yourself",
                     color = TextSubtle,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium

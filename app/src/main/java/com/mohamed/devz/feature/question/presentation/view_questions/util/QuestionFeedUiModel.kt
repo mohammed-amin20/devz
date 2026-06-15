@@ -4,6 +4,7 @@ package com.mohamed.devz.feature.question.presentation.view_questions.util
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.model.LanguageType
 import com.mohamed.devz.feature.core.domain.model.Question
+import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -23,25 +24,10 @@ data class QuestionFeedUiModel(
     val isBookmarked: Boolean = false,
 )
 
-private fun computeTimeAgo(createdAt: String?): String {
-    if (createdAt == null) return "just now"
-    return try {
-        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss[XXX]")
-        val parsed = LocalDateTime.parse(createdAt, formatter)
-        val minutes = Duration.between(parsed, LocalDateTime.now()).toMinutes()
-        when {
-            minutes < 1 -> "just now"
-            minutes < 60 -> "${minutes}m ago"
-            minutes < 1440 -> "${minutes / 60}h ago"
-            else -> "${minutes / 1440}d ago"
-        }
-    } catch (_: Exception) {
-        createdAt
-    }
-}
-
 private val accountCache = mutableMapOf<Int, Account>()
 private var languageTypeCache: Map<Int, LanguageType> = emptyMap()
+
+fun getCachedAccountIds(): Set<Int> = accountCache.keys.toSet()
 
 fun updateAccountCache(accounts: List<Account>) {
     accountCache.putAll(accounts.associateBy { it.id })
@@ -60,7 +46,7 @@ fun Question.toFeedUiModel(
         id = id,
         authorName = account?.fullName ?: "Unknown",
         authorAvatarUrl = account?.imageUrl ?: "",
-        timeAgo = computeTimeAgo(createdAt),
+        timeAgo = formatRelativeTime(createdAt),
         category = langType?.type ?: "Other",
         title = title,
         preview = description,

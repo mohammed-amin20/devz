@@ -69,7 +69,7 @@ fun QuestionDetailScreen(
     ) {
         TopBar()
 
-        if (uiState.isLoading) {
+        if (uiState.isLoading && uiState.question == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -78,7 +78,7 @@ fun QuestionDetailScreen(
             ) {
                 CircularProgressIndicator(color = CyanPrimary)
             }
-        } else if (uiState.error != null) {
+        } else if (uiState.error != null && uiState.question == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

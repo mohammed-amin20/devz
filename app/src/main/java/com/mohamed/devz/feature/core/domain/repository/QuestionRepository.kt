@@ -14,6 +14,11 @@ interface QuestionRepository {
         orderBy: String = "created_at",
         ascending: Boolean = false,
     ): Result<List<Question>, Error>
+    suspend fun search(
+        query: String,
+        offset: Int,
+        limit: Int,
+    ): Result<List<Question>, Error>
     suspend fun insert(question: Question): Result<Question, Error>
     suspend fun update(question: Question): Result<Unit, Error>
     suspend fun delete(id: Int): Result<Unit, Error>

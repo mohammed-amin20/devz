@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -41,7 +42,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
-import com.mohamed.devz.ui.theme.QBg
+import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.ui.theme.DevzTheme
 
@@ -51,6 +52,7 @@ fun HomeScreen(
     navigateToAddEditQuestion: (Int?) -> Unit,
     navigateToEditProfile: () -> Unit,
     modifier: Modifier = Modifier,
+    profileRefreshCounter: Int = 0,
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
 
@@ -70,8 +72,7 @@ fun HomeScreen(
             onClick = { selectedIndex = 0 },
             content = {
                 ViewQuestionsScreen(
-                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onProfileClick = { selectedIndex = 3 },
+                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) }
                 )
             }
         ),
@@ -100,6 +101,7 @@ fun HomeScreen(
                 ProfileScreen(
                     onEditProfile = navigateToEditProfile,
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    refreshTrigger = profileRefreshCounter,
                 )
             }
         )
@@ -131,9 +133,9 @@ fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                        .background(QBg.copy(0.9f))
-                        .navigationBarsPadding()
+                        .background(QSurfaceLow)
                         .height(64.dp)
+                        .imePadding()
                         .padding(horizontal = 8.dp),
                     horizontalArrangement = Arrangement.SpaceAround,
                     verticalAlignment = Alignment.CenterVertically

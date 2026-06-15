@@ -15,5 +15,6 @@ sealed class EditProfileAction {
     data object TogglePublicProfile : EditProfileAction()
     data object ToggleDisplayEmail : EditProfileAction()
     data object DeactivateAccount : EditProfileAction()
+    data object ClearError : EditProfileAction()
     data class Save(val onSave: () -> Unit) : EditProfileAction()
 }

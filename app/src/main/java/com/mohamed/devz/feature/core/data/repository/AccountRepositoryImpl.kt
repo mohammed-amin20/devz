@@ -102,6 +102,13 @@ class AccountRepositoryImpl @Inject constructor(
         return try {
             val url = remoteDataSource.account.uploadImage(imageBytes, fileName)
             Result.Success(url)
+        } catch (e: PostgrestRestException) {
+            when (e.statusCode) {
+                404 -> Result.Error(Error.NotFound)
+                in 401..403 -> Result.Error(Error.Unauthorized)
+                413 -> Result.Error(Error.Unknown("Image file too large"))
+                else -> Result.Error(Error.Storage)
+            }
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {

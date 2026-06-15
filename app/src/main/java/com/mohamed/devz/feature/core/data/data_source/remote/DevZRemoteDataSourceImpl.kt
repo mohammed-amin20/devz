@@ -9,6 +9,8 @@ import com.mohamed.devz.feature.core.data.model.Question
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.Storage
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
 import java.util.stream.IntStream.range
 
 class DevZRemoteDataSourceImpl(
@@ -28,8 +30,21 @@ class DevZRemoteDataSourceImpl(
             }
 
             override suspend fun insertAccount(account: Account): Account {
+                val json = buildJsonObject {
+                    put("username", account.username)
+                    put("full_name", account.fullName)
+                    put("email", account.email)
+                    put("password", account.password)
+                    put("image_url", account.imageUrl)
+                    put("bio", account.bio)
+                    put("tech_stack", account.techStack)
+                    put("github_url", account.githubUrl)
+                    put("linkedin_url", account.linkedInUrl)
+                    put("website_url", account.websiteUrl)
+                }
+
                 return db.from(tableName)
-                    .insert(account) {
+                    .insert(json) {
                         select()
                     }
                     .decodeSingle()
@@ -77,8 +92,19 @@ class DevZRemoteDataSourceImpl(
             private val tableName = "Question"
 
             override suspend fun insertQuestion(question: Question): Question {
+                val json = buildJsonObject {
+                    put("title", question.title)
+                    put("description", question.description)
+                    put("code", question.code)
+                    put("likes_count", question.likesCount)
+                    put("answers_count", question.answersCount)
+                    put("tags", question.tags)
+                    put("lang_type_id", question.langTypeId)
+                    put("account_id", question.accountId)
+                }
+
                 return db.from(tableName)
-                    .insert(question) {
+                    .insert(json) {
                         select()
                     }
                     .decodeSingle()
@@ -122,6 +148,27 @@ class DevZRemoteDataSourceImpl(
                     .decodeList()
             }
 
+            override suspend fun searchQuestions(
+                query: String,
+                offset: Int,
+                limit: Int,
+            ): List<Question> {
+                return db.from(tableName)
+                    .select {
+                        range(offset, offset + limit - 1)
+                        order(column = "created_at", order = Order.DESCENDING)
+                        filter {
+                            or {
+                                add { like("title", "%$query%") }
+                                add { like("description", "%$query%") }
+                                add { like("code", "%$query%") }
+                                add { like("tags", "%$query%") }
+                            }
+                        }
+                    }
+                    .decodeList()
+            }
+
             override suspend fun updateQuestion(question: Question) {
                 db.from(tableName)
                     .update(question) {
@@ -153,8 +200,16 @@ class DevZRemoteDataSourceImpl(
             private val tableName = "Answer"
 
             override suspend fun insertAnswer(answer: Answer): Answer {
+                val json = buildJsonObject {
+                    put("description", answer.description)
+                    put("accepted", answer.accepted)
+                    put("voted_ids", answer.votedIds)
+                    put("question_id", answer.questionId)
+                    put("account_id", answer.accountId)
+                }
+
                 return db.from(tableName)
-                    .insert(answer) {
+                    .insert(json) {
                         select()
                     }
                     .decodeSingle()
@@ -204,8 +259,15 @@ class DevZRemoteDataSourceImpl(
             private val tableName = "Notification"
 
             override suspend fun insertNotification(notification: Notification): Notification {
+                val json = buildJsonObject {
+                    put("description", notification.description)
+                    put("account_id", notification.accountId)
+                    put("type_id", notification.typeId)
+                    put("seen", notification.seen)
+                }
+
                 return db.from(tableName)
-                    .insert(notification) {
+                    .insert(json) {
                         select()
                     }
                     .decodeSingle()

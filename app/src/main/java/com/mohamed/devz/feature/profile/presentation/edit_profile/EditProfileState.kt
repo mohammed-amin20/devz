@@ -16,8 +16,10 @@ data class EditProfileState(
     val skillInput: String = "",
     val showSkillInput: Boolean = false,
     val imageUrl: String = "",
+    val localImageBytes: ByteArray? = null,
     val isPublicProfile: Boolean = true,
     val displayEmail: Boolean = false,
     val isLoading: Boolean = false,
+    val isUploadingImage: Boolean = false,
     val error: UiText? = null
 )

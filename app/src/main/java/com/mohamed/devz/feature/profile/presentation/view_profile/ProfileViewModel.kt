@@ -9,6 +9,7 @@ import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
@@ -31,9 +32,7 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileState())
     val uiState = _uiState.asStateFlow()
 
-    init {
-        loadProfile()
-    }
+    init { loadProfile() }
 
     fun onAction(action: ProfileAction) {
         when (action) {
@@ -57,8 +56,10 @@ class ProfileViewModel @Inject constructor(
                     val questionsResult = questionRepository.getByAccountId(accountId)
                     val answersResult = answerRepository.getByAccountId(accountId)
 
-                    val questions = (questionsResult as? Result.Success)?.data ?: emptyList()
-                    val answers = (answersResult as? Result.Success)?.data ?: emptyList()
+                    val questions = ((questionsResult as? Result.Success)?.data ?: emptyList())
+                        .sortedByDescending { it.createdAt }
+                    val answers = ((answersResult as? Result.Success)?.data ?: emptyList())
+                        .sortedByDescending { it.createdAt }
 
                     val acceptedAnswers = answers.count { it.accepted }
                     val acceptedRate = if (answers.isNotEmpty()) {
@@ -73,18 +74,22 @@ class ProfileViewModel @Inject constructor(
                             profile = ProfileUiModel(
                                 fullName = account.fullName,
                                 username = account.username,
+                                imageUrl = account.imageUrl,
+                                bio = account.bio,
                                 points = "0",
                                 answerCount = answers.size,
                                 questionCount = questions.size,
                                 acceptedRate = acceptedRate,
-                                globalRank = "-",
-                                skills = account.techStack.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() }
+                                skills = account.techStack.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() },
+                                githubUrl = account.githubUrl,
+                                linkedInUrl = account.linkedInUrl,
+                                websiteUrl = account.websiteUrl,
                             ),
                             myQuestions = questions.map { q ->
                                 ProfileQuestionUiModel(
                                     id = q.id,
                                     title = q.title,
-                                    timeAgo = q.createdAt ?: "",
+                                    timeAgo = formatRelativeTime(q.createdAt),
                                     votes = q.likesCount,
                                     answerCount = q.answersCount,
                                     tags = q.tags.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() }
@@ -97,7 +102,7 @@ class ProfileViewModel @Inject constructor(
                                     preview = a.description,
                                     likes = a.votedIds.split(",").count { id -> id.isNotBlank() },
                                     comments = 0,
-                                    timeAgo = a.createdAt ?: "",
+                                    timeAgo = formatRelativeTime(a.createdAt),
                                     isAccepted = a.accepted
                                 )
                             },

@@ -56,6 +56,7 @@ class EditProfileViewModel @Inject constructor(
             is EditProfileAction.ToggleDisplayEmail -> _uiState.update { it.copy(displayEmail = !it.displayEmail) }
             is EditProfileAction.PickImage -> uploadImage(action.imageBytes)
             is EditProfileAction.Save -> save(action.onSave)
+            is EditProfileAction.ClearError -> _uiState.update { it.copy(error = null) }
             is EditProfileAction.DeactivateAccount -> { }
         }
     }
@@ -97,13 +98,13 @@ class EditProfileViewModel @Inject constructor(
 
     private fun uploadImage(imageBytes: ByteArray) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true) }
+            _uiState.update { it.copy(isUploadingImage = true, localImageBytes = imageBytes) }
             when (val result = accountRepository.uploadImage(imageBytes, "image-${System.currentTimeMillis()}.jpg")) {
                 is Result.Success -> {
-                    _uiState.update { it.copy(imageUrl = result.data, isLoading = false) }
+                    _uiState.update { it.copy(imageUrl = result.data, isUploadingImage = false) }
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
+                    _uiState.update { it.copy(error = result.error.toUIText(), isUploadingImage = false) }
                 }
             }
         }

@@ -44,6 +44,12 @@ interface DevZRemoteDataSource {
             ascending: Boolean = false,
         ): List<Question>
 
+        suspend fun searchQuestions(
+            query: String,
+            offset: Int,
+            limit: Int,
+        ): List<Question>
+
         suspend fun updateQuestion(question: Question)
 
         suspend fun deleteQuestion(id: Int)

@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,13 +24,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -50,7 +56,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
 import com.mohamed.devz.ui.theme.CyanPrimary
@@ -61,12 +67,12 @@ import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewQuestionsScreen(
     onQuestionClick: (Int) -> Unit,
-    onProfileClick: () -> Unit,
+    modifier: Modifier = Modifier,
     viewModel: ViewQuestionsViewModel = hiltViewModel(),
-    modifier: Modifier = Modifier
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val listState = rememberLazyListState()
@@ -88,226 +94,212 @@ fun ViewQuestionsScreen(
         }
     }
 
-    LazyColumn(
-        state = listState,
-        modifier = Modifier
-            .fillMaxSize()
-            .background(QBg)
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-            .then(modifier),
-        verticalArrangement = Arrangement.spacedBy(0.dp)
+    val pullRefreshState = rememberPullToRefreshState()
+    PullToRefreshBox(
+        isRefreshing = uiState.isRefreshing,
+        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+        state = pullRefreshState,
+        indicator = {
+            PullToRefreshDefaults.Indicator(
+                modifier = Modifier.align(Alignment.TopCenter),
+                isRefreshing = uiState.isRefreshing,
+                state = pullRefreshState,
+                color = CyanPrimary,
+            )
+        },
     ) {
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(
-                                SpanStyle(
-                                    color = TextWhite,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("dev") }
-                            withStyle(
-                                SpanStyle(
-                                    color = CyanPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("Z") }
-                        },
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
+        LazyColumn(
+            state = listState,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(QBg)
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+                .then(modifier),
+            verticalArrangement = Arrangement.spacedBy(0.dp)
+        ) {
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        Icons.Filled.Search,
-                        null,
-                        tint = TextGray,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Icon(
-                        Icons.Filled.Notifications,
-                        null,
-                        tint = TextGray,
-                        modifier = Modifier.size(22.dp)
-                    )
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(CircleShape)
-                            .background(Color(0xFF2A3A3A))
-                            .clickable { onProfileClick() },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            Icons.Filled.Person,
-                            null,
-                            tint = TextGray,
-                            modifier = Modifier.size(18.dp)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Image(
+                            painter = painterResource(R.drawable.logo),
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(32.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = buildAnnotatedString {
+                                withStyle(
+                                    SpanStyle(
+                                        color = TextWhite,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
+                                ) { append("dev") }
+                                withStyle(
+                                    SpanStyle(
+                                        color = CyanPrimary,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp
+                                    )
+                                ) { append("Z") }
+                            },
+                            style = MaterialTheme.typography.titleLarge
                         )
                     }
                 }
+                Spacer(modifier = Modifier.height(24.dp))
             }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
 
-        item {
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(
-                        SpanStyle(
-                            color = TextWhite,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp
-                        )
-                    ) { append("Architecting ") }
-                    withStyle(
-                        SpanStyle(
-                            color = CyanPrimary,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp,
-                            shadow = Shadow(
-                                color = CyanPrimary,
-                                offset = Offset(0f, 0f),
-                                blurRadius = 20f
+            item {
+                Text(
+                    text = buildAnnotatedString {
+                        withStyle(
+                            SpanStyle(
+                                color = TextWhite,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp
                             )
-                        )
-                    ) { append("Solutions") }
-                    withStyle(
-                        SpanStyle(
-                            color = TextWhite,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 28.sp
-                        )
-                    ) { append(".") }
-                },
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "A premium workspace for developers to exchange\nhigh-level technical logic and editorial-grade code.",
-                color = TextGray,
-                fontSize = 13.sp,
-                lineHeight = 20.sp,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        item {
-            OutlinedTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = {
-                    Text(
-                        "Query the collective intelligence...",
-                        color = TextSubtle,
-                        fontSize = 14.sp,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
-                singleLine = true,
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CyanPrimary,
-                    unfocusedBorderColor = Color(0xFF2A3A3A),
-                    focusedTextColor = TextWhite,
-                    unfocusedTextColor = TextWhite,
-                    cursorColor = CyanPrimary,
-                    focusedContainerColor = DevzCard,
-                    unfocusedContainerColor = DevzCard
+                        ) { append("Architecting ") }
+                        withStyle(
+                            SpanStyle(
+                                color = CyanPrimary,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp,
+                                shadow = Shadow(
+                                    color = CyanPrimary,
+                                    offset = Offset(0f, 0f),
+                                    blurRadius = 20f
+                                )
+                            )
+                        ) { append("Solutions") }
+                        withStyle(
+                            SpanStyle(
+                                color = TextWhite,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 28.sp
+                            )
+                        ) { append(".") }
+                    },
+                    style = MaterialTheme.typography.titleLarge
                 )
-            )
-            Spacer(modifier = Modifier.height(20.dp))
-        }
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "A premium workspace for developers to exchange\nhigh-level technical logic and editorial-grade code.",
+                    color = TextGray,
+                    fontSize = 13.sp,
+                    lineHeight = 20.sp,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(20.dp))
+            }
 
-        item {
-            val tabs = listOf("Newest", "Popular", "Trending", "Bounties")
-            Row(
-                modifier = Modifier.horizontalScroll(rememberScrollState()),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                tabs.forEachIndexed { index, tab ->
-                    val isSelected = index == uiState.selectedTab
-                    Box(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(50))
-                            .background(if (isSelected) CyanPrimary else Color(0xFF1A2424))
-                            .clickable { viewModel.onAction(ViewQuestionsAction.TabSelected(index)) }
-                            .padding(horizontal = 18.dp, vertical = 8.dp)
-                    ) {
+            stickyHeader {
+                OutlinedTextField(
+                    value = uiState.searchQuery,
+                    onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = {
                         Text(
-                            text = tab,
-                            color = if (isSelected) Color.Black else TextGray,
-                            fontSize = 13.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                            "Query the collective intelligence...",
+                            color = TextSubtle,
+                            fontSize = 14.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        if (uiState.isLoading) {
-            item {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = CyanPrimary)
-                }
-            }
-        } else {
-            items(uiState.questions, key = { it.id }) { question ->
-                QuestionCard(
-                    question = question,
-                    onClick = { onQuestionClick(question.id) },
-                    onBookmark = { viewModel.onAction(ViewQuestionsAction.ToggleBookmark(question.id)) }
+                    },
+                    leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
+                    singleLine = true,
+                    shape = RoundedCornerShape(14.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = CyanPrimary,
+                        unfocusedBorderColor = Color(0xFF2A3A3A),
+                        focusedTextColor = TextWhite,
+                        unfocusedTextColor = TextWhite,
+                        cursorColor = CyanPrimary,
+                        focusedContainerColor = DevzCard,
+                        unfocusedContainerColor = DevzCard
+                    )
                 )
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(20.dp))
             }
 
-            if (uiState.isLoadingMore) {
+            if (uiState.isLoading) {
                 item {
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .height(200.dp),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = CyanPrimary,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
-                        )
+                        CircularProgressIndicator(color = CyanPrimary)
                     }
                 }
-            }
+            } else {
+                if (uiState.questions.isEmpty()) {
+                    item {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 48.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Forum,
+                                contentDescription = null,
+                                tint = Color(0xFF3A4A4A),
+                                modifier = Modifier.size(56.dp)
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = "No questions yet",
+                                color = TextGray,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Medium
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Questions will appear here once they are posted.",
+                                color = TextGray.copy(alpha = 0.5f),
+                                fontSize = 13.sp
+                            )
+                        }
+                    }
+                } else {
+                    items(uiState.questions, key = { it.id }) { question ->
+                        QuestionCard(
+                            question = question,
+                            onClick = { onQuestionClick(question.id) },
+                            onBookmark = { viewModel.onAction(ViewQuestionsAction.ToggleBookmark(question.id)) }
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                    }
+                }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
+                if (uiState.isLoadingMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(
+                                color = CyanPrimary,
+                                modifier = Modifier.size(24.dp),
+                                strokeWidth = 2.dp
+                            )
+                        }
+                    }
+                }
+
+                item { Spacer(modifier = Modifier.height(80.dp)) }
+            }
         }
     }
 }
@@ -318,7 +310,6 @@ private fun PreviewViewQuestionsScreen() {
     DevzTheme {
         ViewQuestionsScreen(
             onQuestionClick = {},
-            onProfileClick = {}
         )
     }
 }

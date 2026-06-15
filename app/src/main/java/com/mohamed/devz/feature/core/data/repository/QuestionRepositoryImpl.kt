@@ -1,6 +1,5 @@
 package com.mohamed.devz.feature.core.data.repository
 
-import android.util.Log
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
 import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
@@ -23,12 +22,12 @@ class QuestionRepositoryImpl @Inject constructor(
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Database error"))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -37,11 +36,11 @@ class QuestionRepositoryImpl @Inject constructor(
             val questions = remoteDataSource.question.getQuestionsByAccountId(accountId)
             Result.Success(questions.map { it.toDomain() })
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
+            Result.Error(Error.Unknown("Database error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -50,11 +49,11 @@ class QuestionRepositoryImpl @Inject constructor(
             val questions = remoteDataSource.question.getQuestionsByTag(tag)
             Result.Success(questions.map { it.toDomain() })
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
+            Result.Error(Error.Unknown("Database error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -68,11 +67,28 @@ class QuestionRepositoryImpl @Inject constructor(
             val questions = remoteDataSource.question.getAllQuestions(offset, limit, orderBy, ascending)
             Result.Success(questions.map { it.toDomain() })
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
+            Result.Error(Error.Unknown("Database error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun search(
+        query: String,
+        offset: Int,
+        limit: Int,
+    ): Result<List<Question>, Error> {
+        return try {
+            val questions = remoteDataSource.question.searchQuestions(query, offset, limit)
+            Result.Success(questions.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -81,17 +97,15 @@ class QuestionRepositoryImpl @Inject constructor(
             val inserted = remoteDataSource.question.insertQuestion(question.toData())
             Result.Success(inserted.toDomain())
         } catch (e: PostgrestRestException) {
-            Log.e("mhmd", e.message.toString())
             when (e.statusCode) {
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Database error"))
             }
         } catch (e: IOException) {
-            Log.e("mhmd", e.message.toString())
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Log.e("mhmd", e.message.toString())
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            e.printStackTrace()
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -103,12 +117,12 @@ class QuestionRepositoryImpl @Inject constructor(
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Database error"))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -120,12 +134,12 @@ class QuestionRepositoryImpl @Inject constructor(
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown("Database error"))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 }

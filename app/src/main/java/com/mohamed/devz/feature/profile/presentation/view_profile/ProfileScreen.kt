@@ -1,7 +1,18 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile
 
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import coil3.compose.AsyncImage
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,36 +32,60 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Code
+import androidx.compose.material.icons.filled.Language
+import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.profile.presentation.view_profile.components.EmptyTabContent
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileAnswerCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileQuestionCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
@@ -58,323 +93,684 @@ import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.QBg
+import com.mohamed.devz.ui.theme.QError
+import com.mohamed.devz.ui.theme.QOnSurface
+import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProfileScreen(
     onEditProfile: () -> Unit,
     onQuestionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: ProfileViewModel = hiltViewModel()
+    refreshTrigger: Int = 0,
+    viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("MY QUESTIONS", "MY ANSWERS")
 
-    LazyColumn(
+    LaunchedEffect(refreshTrigger) {
+        if (refreshTrigger > 0) {
+            viewModel.onAction(ProfileAction.Refresh)
+        }
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxSize()
             .background(QBg)
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-            .then(modifier),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .then(modifier)
     ) {
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(
-                                SpanStyle(
-                                    color = TextWhite,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("dev") }
-                            withStyle(
-                                SpanStyle(
-                                    color = CyanPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("Z") }
-                        },
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-                    Icon(
-                        Icons.Filled.Notifications,
-                        null,
-                        tint = TextGray,
-                        modifier = Modifier.size(22.dp)
-                    )
+        when {
+            uiState.isLoading && uiState.profile == null -> {
+                CircularProgressIndicator(
+                    color = CyanPrimary,
+                    modifier = Modifier.align(Alignment.Center)
+                )
             }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
 
-        // ── Avatar ────────────────────────────────────────────────────
-        item {
-            Spacer(modifier = Modifier.height(24.dp))
-            Box(contentAlignment = Alignment.Center) {
+            uiState.error != null && uiState.profile == null -> {
+                val animAlpha by animateFloatAsState(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 500, easing = EaseInOut),
+                )
+                val animScale by animateFloatAsState(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
+                )
+
                 Box(
                     modifier = Modifier
-                        .size(110.dp)
-                        .clip(CircleShape)
+                        .fillMaxSize()
                         .background(
                             Brush.radialGradient(
                                 colors = listOf(
-                                    CyanPrimary.copy(alpha = 0.3f),
-                                    Color.Transparent
-                                )
+                                    Color(0xFF0D3333),
+                                    Color(0xFF0A1A1A),
+                                    Color(0xFF060D0D)
+                                ),
+                                center = Offset(0.5f, 0.4f),
+                                radius = 1200f
                             )
                         )
-                )
-                Box(
-                    modifier = Modifier
-                        .size(100.dp)
-                        .shadow(
-                            elevation = 24.dp,
-                            spotColor = CyanPrimary,
-                            shape = CircleShape
-                        )
-                        .clip(CircleShape)
-                        .background(DevzCard)
-                        .border(2.dp, CyanPrimary.copy(alpha = 0.6f), CircleShape),
-                    contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        Icons.Filled.Person,
-                        null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(52.dp)
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-
-        // ── Name + username + points ──────────────────────────────────
-        item {
-            Text(
-                text = uiState.profile?.fullName ?: "Alex Rivera",
-                color = TextWhite,
-                fontSize = 22.sp,
-                fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.titleLarge
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                Text(
-                    text = "@${uiState.profile?.username ?: "arivera_dev"}",
-                    color = TextGray,
-                    fontSize = 14.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Row(
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .background(CyanPrimary.copy(alpha = 0.15f))
-                        .border(1.dp, CyanPrimary.copy(alpha = 0.4f), CircleShape)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    Icon(
-                        Icons.Filled.Star,
-                        null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(13.dp)
-                    )
-                    Text(
-                        text = "${uiState.profile?.points ?: "2,480"} PTS",
-                        color = CyanPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                }
-            }
-            Spacer(modifier = Modifier.height(20.dp))
-        }
-
-        // ── Edit Profile button ───────────────────────────────────────
-        item {
-            Button(
-                onClick = onEditProfile,
-                modifier = Modifier
-                    .height(40.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CyanPrimary,
-                    contentColor = Color(0xFF00363E)
-                )
-            ) {
-                Text(
-                    text = "Edit Profile",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 15.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // ── Stats grid ────────────────────────────────────────────────
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                StatCard(
-                    label = "ANSWERS",
-                    value = "${uiState.profile?.answerCount ?: 142}",
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    label = "QUESTIONS",
-                    value = "${uiState.profile?.questionCount ?: 28}",
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                StatCard(
-                    label = "ACCEPTED",
-                    value = uiState.profile?.acceptedRate ?: "86%",
-                    modifier = Modifier.weight(1f)
-                )
-                StatCard(
-                    label = "GLOBAL RANK",
-                    value = "#${uiState.profile?.globalRank ?: "1,204"}",
-                    valueColor = CyanPrimary,
-                    modifier = Modifier.weight(1f)
-                )
-            }
-            Spacer(modifier = Modifier.height(24.dp))
-        }
-
-        // ── Specialized skills ────────────────────────────────────────
-        item {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "SPECIALIZED SKILLS",
-                    color = TextGray,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 2.sp,
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                val skills = uiState.profile?.skills
-                    ?: listOf("TypeScript", "React", "Next.js", "Rust", "GraphQL", "WebAssembly", "PostgreSQL", "Tailwind CSS")
-                FlowRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    skills.forEach { skill ->
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.Center)
+                            .alpha(animAlpha)
+                            .scale(animScale)
+                            .padding(horizontal = 32.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
                         Box(
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(8.dp))
-                                .background(Color(0XFF2A2A2A))
-                                .border(
-                                    1.dp,
-                                    Color(0xFF2A3A3A),
-                                    RoundedCornerShape(8.dp)
-                                )
-                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                            modifier = Modifier.size(120.dp),
+                            contentAlignment = Alignment.Center
                         ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.radialGradient(
+                                            colors = listOf(
+                                                QError.copy(alpha = 0.2f),
+                                                Color.Transparent
+                                            )
+                                        )
+                                    )
+                            )
+                            Icon(
+                                Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = QError,
+                                modifier = Modifier.size(64.dp)
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Text(
+                            text = "Oops!",
+                            color = QOnSurface,
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Text(
+                            text = "Something went wrong",
+                            color = QOnSurfaceVariant,
+                            fontSize = 16.sp,
+                            textAlign = TextAlign.Center
+                        )
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            color = DevzCard
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(20.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    Icons.Filled.Warning,
+                                    contentDescription = null,
+                                    tint = QError,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                Text(
+                                    text = uiState.error!!.asString(),
+                                    color = QOnSurfaceVariant,
+                                    fontSize = 14.sp,
+                                    textAlign = TextAlign.Center,
+                                    lineHeight = 20.sp
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        Button(
+                            onClick = { viewModel.onAction(ProfileAction.Refresh) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(54.dp),
+                            shape = RoundedCornerShape(50),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = CyanPrimary,
+                                contentColor = Color.Black
+                            )
+                        ) {
+                            Icon(
+                                Icons.Filled.Refresh,
+                                contentDescription = null,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = skill,
-                                color = TextGray,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.Normal,
-                                style = MaterialTheme.typography.bodyMedium
+                                text = "Try Again",
+                                fontSize = 17.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(28.dp))
-        }
 
-        // ── Tabs ──────────────────────────────────────────────────────
-        item {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                tabs.forEachIndexed { index, tab ->
-                    val isSelected = selectedTab == index
-                    Column(
+            else -> {
+                var selectedTab by remember { mutableIntStateOf(0) }
+                val tabs = listOf("MY QUESTIONS", "MY ANSWERS")
+
+                val pullRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = uiState.isLoading,
+                    onRefresh = { viewModel.onAction(ProfileAction.Refresh) },
+                    state = pullRefreshState,
+                    modifier = Modifier.fillMaxSize(),
+                    indicator = {
+                        PullToRefreshDefaults.Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = uiState.isLoading,
+                            state = pullRefreshState,
+                            color = CyanPrimary,
+                        )
+                    },
+                ) {
+                    LazyColumn(
                         modifier = Modifier
-                            .weight(1f)
-                            .clickable { selectedTab = index },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                            .fillMaxSize()
+                            .padding(horizontal = 16.dp, vertical = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    stickyHeader {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .background(QBg),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Image(
+                                    painter = painterResource(R.drawable.logo),
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = buildAnnotatedString {
+                                        withStyle(
+                                            SpanStyle(
+                                                color = TextWhite,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp
+                                            )
+                                        ) { append("dev") }
+                                        withStyle(
+                                            SpanStyle(
+                                                color = CyanPrimary,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp
+                                            )
+                                        ) { append("Z") }
+                                    },
+                                    style = MaterialTheme.typography.titleLarge
+                                )
+                            }
+                        }
+                    }
+
+                    // ── Avatar ────────────────────────────────────────────────────
+                    item {
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Box(contentAlignment = Alignment.Center) {
+                            Box(
+                                modifier = Modifier
+                                    .size(110.dp)
+                                    .clip(CircleShape)
+                                    .background(
+                                        Brush.radialGradient(
+                                            colors = listOf(
+                                                CyanPrimary.copy(alpha = 0.3f),
+                                                Color.Transparent
+                                            )
+                                        )
+                                    )
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .size(100.dp)
+                                    .shadow(
+                                        elevation = 24.dp,
+                                        spotColor = CyanPrimary,
+                                        shape = CircleShape
+                                    )
+                                    .clip(CircleShape)
+                                    .background(DevzCard)
+                                    .border(2.dp, CyanPrimary.copy(alpha = 0.6f), CircleShape),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                val avatarUrl = uiState.profile?.imageUrl
+                                if (avatarUrl != null && avatarUrl.isNotEmpty()) {
+                                    AsyncImage(
+                                        model = avatarUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(100.dp)
+                                            .clip(CircleShape),
+                                        contentScale = ContentScale.Crop
+                                    )
+                                } else {
+                                    Icon(
+                                        Icons.Filled.Person,
+                                        null,
+                                        tint = CyanPrimary,
+                                        modifier = Modifier.size(52.dp)
+                                    )
+                                }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    item {
                         Text(
-                            text = tab,
-                            color = if (isSelected) CyanPrimary else TextGray,
-                            fontSize = 12.sp,
-                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                            letterSpacing = 1.sp,
+                            text = uiState.profile?.fullName ?: "Alex riv",
+                            color = TextWhite,
+                            fontSize = 22.sp,
+                            fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge
                         )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            val username = uiState.profile?.username
+                            if (!username.isNullOrEmpty()) {
+                                Text(
+                                    text = "@$username",
+                                    color = TextGray,
+                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            } else {
+                                Text(
+                                    text = "No username",
+                                    color = TextGray.copy(alpha = 0.5f),
+                                    fontSize = 14.sp,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            Row(
+                                modifier = Modifier
+                                    .clip(CircleShape)
+                                    .background(CyanPrimary.copy(alpha = 0.15f))
+                                    .border(1.dp, CyanPrimary.copy(alpha = 0.4f), CircleShape)
+                                    .padding(horizontal = 10.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(
+                                    Icons.Filled.Star,
+                                    null,
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(13.dp)
+                                )
+                                Text(
+                                    text = "${uiState.profile?.points ?: "2,480"} PTS",
+                                    color = CyanPrimary,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                        }
+                        val bio = uiState.profile?.bio
+                        if (bio != null && bio.isNotEmpty()) {
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = bio,
+                                color = TextGray,
+                                fontSize = 14.sp,
+                                style = MaterialTheme.typography.bodyMedium,
+                                modifier = Modifier.padding(horizontal = 8.dp),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                         Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // ── Edit Profile button ───────────────────────────────────────
+                    item {
+                        Button(
+                            onClick = onEditProfile,
+                            modifier = Modifier
+                                .height(40.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = CyanPrimary,
+                                contentColor = Color(0xFF00363E)
+                            )
+                        ) {
+                            Text(
+                                text = "Edit Profile",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // ── Stats grid ────────────────────────────────────────────────
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            StatCard(
+                                label = "ANSWERS",
+                                value = "${uiState.profile?.answerCount ?: 0}",
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "QUESTIONS",
+                                value = "${uiState.profile?.questionCount ?: 0}",
+                                modifier = Modifier.weight(1f)
+                            )
+                            StatCard(
+                                label = "ACCEPTED",
+                                value = uiState.profile?.acceptedRate ?: "0%",
+                                modifier = Modifier.weight(1f)
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // ── Skills & Social Links (collapsible) ────────────────────────
+                    item {
+                        var sectionsExpanded by remember { mutableStateOf(false) }
+                        val skills = uiState.profile?.skills
+                            ?: listOf(
+                                "TypeScript",
+                                "React",
+                                "Next.js",
+                                "Rust",
+                                "GraphQL",
+                                "WebAssembly",
+                                "PostgreSQL",
+                                "Tailwind CSS"
+                            )
+                        val socialLinks = listOfNotNull(
+                            uiState.profile?.let { p ->
+                                if (p.githubUrl.isNotBlank()) Triple(
+                                    Icons.Filled.Code,
+                                    "GitHub",
+                                    p.githubUrl
+                                ) else null
+                            },
+                            uiState.profile?.let { p ->
+                                if (p.linkedInUrl.isNotBlank()) Triple(
+                                    Icons.Filled.Link,
+                                    "LinkedIn",
+                                    p.linkedInUrl
+                                ) else null
+                            },
+                            uiState.profile?.let { p ->
+                                if (p.websiteUrl.isNotBlank()) Triple(
+                                    Icons.Filled.Language,
+                                    "Website",
+                                    p.websiteUrl
+                                ) else null
+                            },
+                        )
+
+                        Column(
+                            modifier = Modifier
+                                .padding(top = 8.dp)
+                                .fillMaxWidth()
+                        ) {
+                            AnimatedVisibility(
+                                visible = sectionsExpanded,
+                                enter = expandVertically(animationSpec = tween(350)) + fadeIn(
+                                    tween(
+                                        250
+                                    )
+                                ),
+                                exit = shrinkVertically(animationSpec = tween(350)) + fadeOut(
+                                    tween(
+                                        250
+                                    )
+                                )
+                            ) {
+                                Column {
+                                    if(skills.isNotEmpty()) {
+                                        Text(
+                                            text = "SPECIALIZED SKILLS",
+                                            color = TextGray,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 2.sp,
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        FlowRow(
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            skills.forEach { skill ->
+                                                Box(
+                                                    modifier = Modifier
+                                                        .clip(RoundedCornerShape(8.dp))
+                                                        .background(Color(0XFF2A2A2A))
+                                                        .border(
+                                                            1.dp,
+                                                            Color(0xFF2A3A3A),
+                                                            RoundedCornerShape(8.dp)
+                                                        )
+                                                        .padding(
+                                                            horizontal = 12.dp,
+                                                            vertical = 6.dp
+                                                        )
+                                                ) {
+                                                    Text(
+                                                        text = skill,
+                                                        color = TextGray,
+                                                        fontSize = 13.sp,
+                                                        fontWeight = FontWeight.Normal,
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    if (socialLinks.isNotEmpty()) {
+                                        Spacer(modifier = Modifier.height(28.dp))
+                                        Text(
+                                            text = "SOCIAL LINKS",
+                                            color = TextGray,
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 2.sp,
+                                            style = MaterialTheme.typography.titleLarge
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        val uriHandler = LocalUriHandler.current
+                                        fun ensureScheme(url: String): String {
+                                            return if (url.startsWith("http://") || url.startsWith("https://")) url
+                                            else "https://$url"
+                                        }
+                                        socialLinks.forEach { (icon, label, url) ->
+                                            Surface(
+                                                onClick = { uriHandler.openUri(ensureScheme(url)) },
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(vertical = 4.dp),
+                                                shape = RoundedCornerShape(12.dp),
+                                                color = DevzCard,
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier.padding(
+                                                        horizontal = 16.dp,
+                                                        vertical = 14.dp
+                                                    ),
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                                ) {
+                                                    Icon(
+                                                        icon,
+                                                        contentDescription = null,
+                                                        tint = CyanPrimary,
+                                                        modifier = Modifier.size(20.dp)
+                                                    )
+                                                    Text(
+                                                        text = label,
+                                                        color = TextWhite,
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Medium,
+                                                        style = MaterialTheme.typography.bodyMedium
+                                                    )
+                                                    Spacer(modifier = Modifier.weight(1f))
+                                                    Icon(
+                                                        Icons.Filled.Language,
+                                                        contentDescription = null,
+                                                        tint = TextGray.copy(alpha = 0.5f),
+                                                        modifier = Modifier.size(16.dp)
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if(skills.isNotEmpty() || socialLinks.isNotEmpty()) {
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { sectionsExpanded = !sectionsExpanded }
+                                        .padding(vertical = 6.dp),
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Text(
+                                        text = if (sectionsExpanded) "Show less" else "Show more",
+                                        color = CyanPrimary,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = if (sectionsExpanded) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                                        contentDescription = null,
+                                        tint = CyanPrimary,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
+                    }
+
+                    // ── Tabs ──────────────────────────────────────────────────────
+                    item {
+                        Row(modifier = Modifier.fillMaxWidth()) {
+                            tabs.forEachIndexed { index, tab ->
+                                val isSelected = selectedTab == index
+                                Column(
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .clickable { selectedTab = index },
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Text(
+                                        text = tab,
+                                        color = if (isSelected) CyanPrimary else TextGray,
+                                        fontSize = 12.sp,
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        letterSpacing = 1.sp,
+                                        style = MaterialTheme.typography.titleLarge
+                                    )
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .height(2.dp)
+                                            .clip(RoundedCornerShape(50))
+                                            .background(if (isSelected) CyanPrimary else Color.Transparent)
+                                    )
+                                }
+                            }
+                        }
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .height(2.dp)
-                                .clip(RoundedCornerShape(50))
-                                .background(if (isSelected) CyanPrimary else Color.Transparent)
+                                .height(1.dp)
+                                .background(Color(0xFF2A3A3A))
                         )
+                        Spacer(modifier = Modifier.height(16.dp))
+                    }
+
+                    // ── Tab content ───────────────────────────────────────────────
+                    if (selectedTab == 0) {
+                        if (uiState.myQuestions.isEmpty()) {
+                            item {
+                                EmptyTabContent(
+                                    icon = Icons.AutoMirrored.Filled.Help,
+                                    title = "No questions yet",
+                                    subtitle = "Your questions will appear here"
+                                )
+                            }
+                        } else {
+                            items(uiState.myQuestions, key = { it.id }) { question ->
+                                ProfileQuestionCard(
+                                    question = question,
+                                    onClick = { onQuestionClick(question.id) }
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
+                    } else {
+                        if (uiState.myAnswers.isEmpty()) {
+                            item {
+                                EmptyTabContent(
+                                    icon = Icons.Filled.Forum,
+                                    title = "No answers yet",
+                                    subtitle = "Your answers will appear here"
+                                )
+                            }
+                        } else {
+                            items(uiState.myAnswers, key = { it.id }) { answer ->
+                                ProfileAnswerCard(answer = answer)
+                                Spacer(modifier = Modifier.height(12.dp))
+                            }
+                        }
+                    }
+
+                    item { Spacer(modifier = Modifier.height(80.dp)) }
                     }
                 }
             }
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(1.dp)
-                    .background(Color(0xFF2A3A3A))
-            )
-            Spacer(modifier = Modifier.height(16.dp))
         }
-
-        // ── Tab content ───────────────────────────────────────────────
-        if (selectedTab == 0) {
-            items(uiState.myQuestions, key = { it.id }) { question ->
-                ProfileQuestionCard(
-                    question = question,
-                    onClick = { onQuestionClick(question.id) }
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        } else {
-            items(uiState.myAnswers, key = { it.id }) { answer ->
-                ProfileAnswerCard(answer = answer)
-                Spacer(modifier = Modifier.height(12.dp))
-            }
-        }
-
-        item { Spacer(modifier = Modifier.height(80.dp)) }
     }
 }
+
 @Preview
 @Composable
 private fun PrevProfile() {
