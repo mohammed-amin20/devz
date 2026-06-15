@@ -159,10 +159,10 @@ class DevZRemoteDataSourceImpl(
                         order(column = "created_at", order = Order.DESCENDING)
                         filter {
                             or {
-                                add { like("title", "%$query%") }
-                                add { like("description", "%$query%") }
-                                add { like("code", "%$query%") }
-                                add { like("tags", "%$query%") }
+                                like("title", "%$query%")
+                                like("description", "%$query%")
+                                like("code", "%$query%")
+                                like("tags", "%$query%")
                             }
                         }
                     }
