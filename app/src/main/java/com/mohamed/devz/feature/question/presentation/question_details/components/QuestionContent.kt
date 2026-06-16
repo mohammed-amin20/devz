@@ -27,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,7 +42,9 @@ import com.mohamed.devz.ui.theme.QPrimary
 fun QuestionContent(
     question: QuestionDetailUiModel,
     answers: List<AnswerUiModel>,
-    modifier: Modifier = Modifier
+    navigateUp: () -> Unit,
+    onLikeClick: () -> Unit = {},
+    modifier: Modifier = Modifier,
 ) {
     LazyColumn(
         modifier = modifier
@@ -54,7 +56,10 @@ fun QuestionContent(
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         item {
-            Breadcrumb()
+            Breadcrumb(
+                questionTitle = question.title,
+                navigateUp = navigateUp
+            )
             Spacer(Modifier.height(24.dp))
         }
 
@@ -82,7 +87,8 @@ fun QuestionContent(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(2.dp, QPrimary.copy(alpha = 0.2f), CircleShape)
+                            .border(2.dp, QPrimary.copy(alpha = 0.2f), CircleShape),
+                        contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {
@@ -133,16 +139,20 @@ fun QuestionContent(
         }
 
         item {
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 ActionPill(
                     icon = Icons.Default.ThumbUp,
                     text = question.likes.toString(),
-                    active = false
+                    active = question.isLiked,
+                    onClick = onLikeClick,
                 )
                 ActionPill(
                     icon = Icons.Default.ModeComment,
                     text = question.answersCount.toString(),
-                    active = false
+                    active = false,
                 )
                 Spacer(Modifier.weight(1f))
                 Row(verticalAlignment = Alignment.CenterVertically) {

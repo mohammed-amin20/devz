@@ -14,6 +14,7 @@ fun DataQuestion.toDomain(): DomainQuestion = DomainQuestion(
     langTypeId = langTypeId,
     accountId = accountId,
     createdAt = createdAt,
+    likedAccountIds = likedAccountIds,
 )
 
 fun DomainQuestion.toData(): DataQuestion = DataQuestion(
@@ -27,4 +28,5 @@ fun DomainQuestion.toData(): DataQuestion = DataQuestion(
     langTypeId = langTypeId,
     accountId = accountId,
     createdAt = createdAt,
+    likedAccountIds = likedAccountIds,
 )

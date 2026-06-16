@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.question.presentation.question_details.components
 
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -27,7 +28,8 @@ import com.mohamed.devz.ui.theme.QSurfaceHigh
 fun ActionPill(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     text: String,
-    active: Boolean
+    active: Boolean,
+    onClick: () -> Unit = {},
 ) {
     Surface(
         shape = RoundedCornerShape(9999.dp),
@@ -39,6 +41,7 @@ fun ActionPill(
                 if (active) QPrimary.copy(alpha = 0.14f) else Color.Transparent,
                 RoundedCornerShape(9999.dp)
             )
+            .clickable(onClick = onClick)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),

@@ -76,10 +76,5 @@ fun TopBar() {
                 style = MaterialTheme.typography.titleLarge
             )
         }
-
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-            Icon(Icons.Default.Search, contentDescription = null, tint = QOutline)
-            Icon(Icons.Default.Notifications, contentDescription = null, tint = QOutline)
-        }
     }
 }

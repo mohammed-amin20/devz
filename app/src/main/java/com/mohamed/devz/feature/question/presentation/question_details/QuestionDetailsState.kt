@@ -9,5 +9,6 @@ data class QuestionDetailsState(
     val answerText: String = "",
     val isLoading: Boolean = false,
     val isPosting: Boolean = false,
+    val isLiking: Boolean = false,
     val error: UiText? = null,
 )

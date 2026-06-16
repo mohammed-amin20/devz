@@ -52,6 +52,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -62,6 +63,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,15 +106,27 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun ProfileScreen(
     onEditProfile: () -> Unit,
     onQuestionClick: (Int) -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier,
+    onAnswerClick: (Int) -> Unit = onQuestionClick,
     refreshTrigger: Int = 0,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    var showImagePreview by rememberSaveable { mutableStateOf(false) }
+
     LaunchedEffect(refreshTrigger) {
         if (refreshTrigger > 0) {
             viewModel.onAction(ProfileAction.Refresh)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.profileEvent.collect { event ->
+            when (event) {
+                is ProfileEvent.NavigateToAuth -> onLogout()
+            }
         }
     }
 
@@ -326,13 +340,28 @@ fun ProfileScreen(
                                     style = MaterialTheme.typography.titleLarge
                                 )
                             }
+                            TextButton(
+                                onClick = { viewModel.onAction(ProfileAction.Logout) },
+                            ) {
+                                Text(
+                                    text = "Log Out",
+                                    color = QError,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                            }
                         }
                     }
 
                     // ── Avatar ────────────────────────────────────────────────────
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
-                        Box(contentAlignment = Alignment.Center) {
+                        Box(
+                            modifier = Modifier.clickable {
+                                showImagePreview = true
+                            },
+                            contentAlignment = Alignment.Center
+                        ) {
                             Box(
                                 modifier = Modifier
                                     .size(110.dp)
@@ -757,13 +786,68 @@ fun ProfileScreen(
                             }
                         } else {
                             items(uiState.myAnswers, key = { it.id }) { answer ->
-                                ProfileAnswerCard(answer = answer)
+                                ProfileAnswerCard(
+                                    answer = answer,
+                                    onClick = { onAnswerClick(answer.questionId) }
+                                )
                                 Spacer(modifier = Modifier.height(12.dp))
                             }
                         }
                     }
 
                     item { Spacer(modifier = Modifier.height(80.dp)) }
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showImagePreview,
+            enter = fadeIn(tween(250)),
+            exit = fadeOut(tween(250))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.8f))
+                    .clickable { showImagePreview = false },
+                contentAlignment = Alignment.Center
+            ) {
+                val avatarUrl = uiState.profile?.imageUrl
+                if (avatarUrl != null && avatarUrl.isNotEmpty()) {
+                    Box(
+                        modifier = Modifier
+                            .size(280.dp)
+                            .shadow(32.dp, CircleShape, spotColor = CyanPrimary)
+                            .clip(CircleShape)
+                            .border(3.dp, CyanPrimary.copy(alpha = 0.8f), CircleShape)
+                            .background(DevzCard),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        AsyncImage(
+                            model = avatarUrl,
+                            contentDescription = "Profile picture",
+                            modifier = Modifier
+                                .size(280.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                    }
+                } else {
+                    Box(
+                        modifier = Modifier
+                            .size(200.dp)
+                            .clip(CircleShape)
+                            .background(CyanPrimary.copy(alpha = 0.15f))
+                            .border(2.dp, CyanPrimary.copy(alpha = 0.4f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = "Profile picture",
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(100.dp)
+                        )
                     }
                 }
             }
@@ -777,7 +861,9 @@ private fun PrevProfile() {
     DevzTheme {
         ProfileScreen(
             onEditProfile = {},
-            onQuestionClick = { _ -> }
+            onQuestionClick = { _ -> },
+            onAnswerClick = { _ -> },
+            onLogout = {}
         )
     }
 }

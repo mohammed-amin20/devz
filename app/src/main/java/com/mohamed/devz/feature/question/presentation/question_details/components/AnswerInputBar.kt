@@ -62,7 +62,6 @@ fun AnswerInputBar(
                     Text(
                         text = "Write your answer...",
                         color = QOutline,
-                        fontSize = 14.sp,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },

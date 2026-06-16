@@ -87,6 +87,12 @@ fun DevzNavHost(
                 navigateToEditProfile = {
                     navController.navigate(Route.EditProfile)
                 },
+                onLogout = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Auth)
+                    }
+                },
                 profileRefreshCounter = profileRefreshCounter,
                 modifier = modifier
             )
@@ -96,6 +102,7 @@ fun DevzNavHost(
 
             QuestionDetailScreen(
                 questionId = id,
+                navigateUp = { navController.navigateUp() },
                 modifier = modifier
             )
         }

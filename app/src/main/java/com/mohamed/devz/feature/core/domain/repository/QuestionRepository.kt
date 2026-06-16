@@ -21,5 +21,7 @@ interface QuestionRepository {
     ): Result<List<Question>, Error>
     suspend fun insert(question: Question): Result<Question, Error>
     suspend fun update(question: Question): Result<Unit, Error>
+    suspend fun toggleLike(id: Int, likedAccountIds: String, likesCount: Int): Result<Unit, Error>
+    suspend fun incrementAnswerCount(questionId: Int, answersCount: Int): Result<Unit, Error>
     suspend fun delete(id: Int): Result<Unit, Error>
 }

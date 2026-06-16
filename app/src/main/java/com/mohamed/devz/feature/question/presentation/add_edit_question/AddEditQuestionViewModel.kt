@@ -108,6 +108,7 @@ class AddEditQuestionViewModel @Inject constructor(
                 langTypeId = state.selectedLangTypeId,
                 accountId = currentAccountId,
                 createdAt = state.createdAt,
+                likedAccountIds = "",
             )
             if (state.isEdit) {
                 when (val r = questionRepository.update(question)) {

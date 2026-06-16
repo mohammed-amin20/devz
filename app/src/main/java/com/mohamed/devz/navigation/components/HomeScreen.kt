@@ -50,6 +50,7 @@ fun HomeScreen(
     navigateToQuestionDetails: (Int) -> Unit,
     navigateToAddEditQuestion: (Int?) -> Unit,
     navigateToEditProfile: () -> Unit,
+    onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     profileRefreshCounter: Int = 0,
 ) {
@@ -100,6 +101,8 @@ fun HomeScreen(
                 ProfileScreen(
                     onEditProfile = navigateToEditProfile,
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onLogout = onLogout,
                     refreshTrigger = profileRefreshCounter,
                 )
             }
@@ -215,7 +218,8 @@ private fun PreviewHomeScreen() {
         HomeScreen(
             navigateToQuestionDetails = { _ -> },
             navigateToAddEditQuestion = { _ -> },
-            navigateToEditProfile = {}
+            navigateToEditProfile = {},
+            onLogout = {}
         )
     }
 }

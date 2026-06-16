@@ -46,12 +46,15 @@ data class QuestionDetailUiModel(
     val language: SyntaxLanguage,
     val code: String,
     val likes: Int,
-    val answersCount: Int
+    val answersCount: Int,
+    val isLiked: Boolean = false,
+    val likedAccountIds: String = "",
 )
 
 @Composable
 fun QuestionDetailScreen(
     questionId: Int,
+    navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: QuestionDetailsViewModel = hiltViewModel()
 ) {
@@ -112,7 +115,9 @@ fun QuestionDetailScreen(
                 answers = uiState.answers,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f)
+                    .weight(1f),
+                navigateUp = navigateUp,
+                onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) }
             )
 
             AnswerInputBar(
@@ -129,7 +134,8 @@ fun QuestionDetailScreen(
 private fun PreviewQuestionDetailScreen() {
     DevzTheme {
         QuestionDetailScreen(
-            questionId = 1
+            questionId = 1,
+            navigateUp = {}
         )
     }
 }

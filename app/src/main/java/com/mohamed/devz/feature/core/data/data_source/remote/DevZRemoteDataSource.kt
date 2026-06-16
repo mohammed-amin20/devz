@@ -52,6 +52,10 @@ interface DevZRemoteDataSource {
 
         suspend fun updateQuestion(question: Question)
 
+        suspend fun toggleQuestionLike(id: Int, likedAccountIds: String, likesCount: Int)
+
+        suspend fun incrementAnswerCount(questionId: Int, answersCount: Int)
+
         suspend fun deleteQuestion(id: Int)
     }
 

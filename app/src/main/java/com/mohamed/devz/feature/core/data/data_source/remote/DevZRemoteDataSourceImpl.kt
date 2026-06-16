@@ -101,6 +101,7 @@ class DevZRemoteDataSourceImpl(
                     put("tags", question.tags)
                     put("lang_type_id", question.langTypeId)
                     put("account_id", question.accountId)
+                    put("like_accounts_ids", question.likedAccountIds)
                 }
 
                 return db.from(tableName)
@@ -173,6 +174,25 @@ class DevZRemoteDataSourceImpl(
                 db.from(tableName)
                     .update(question) {
                         filter { eq("id", question.id) }
+                    }
+            }
+
+            override suspend fun toggleQuestionLike(id: Int, likedAccountIds: String, likesCount: Int) {
+                db.from(tableName)
+                    .update(buildJsonObject {
+                        put("like_accounts_ids", likedAccountIds)
+                        put("likes_count", likesCount)
+                    }) {
+                        filter { eq("id", id) }
+                    }
+            }
+
+            override suspend fun incrementAnswerCount(questionId: Int, answersCount: Int) {
+                db.from(tableName)
+                    .update(buildJsonObject {
+                        put("answers_count", answersCount + 1)
+                    }) {
+                        filter { eq("id", questionId) }
                     }
             }
 

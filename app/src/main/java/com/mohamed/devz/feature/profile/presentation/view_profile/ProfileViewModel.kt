@@ -14,12 +14,19 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAn
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+sealed interface ProfileEvent {
+    data object NavigateToAuth : ProfileEvent
+}
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -32,11 +39,23 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileState())
     val uiState = _uiState.asStateFlow()
 
+    private val _profileEvent = MutableSharedFlow<ProfileEvent>()
+    val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
+
     init { loadProfile() }
 
     fun onAction(action: ProfileAction) {
         when (action) {
             is ProfileAction.Refresh -> loadProfile()
+            is ProfileAction.Logout -> logout()
+        }
+    }
+
+    private fun logout() {
+        viewModelScope.launch {
+            userPreferencesRepository.setLoggedOut()
+            userPreferencesRepository.clearAccountId()
+            _profileEvent.emit(ProfileEvent.NavigateToAuth)
         }
     }
 
@@ -98,6 +117,7 @@ class ProfileViewModel @Inject constructor(
                             myAnswers = answers.map { a ->
                                 ProfileAnswerUiModel(
                                     id = a.id,
+                                    questionId = a.questionId,
                                     questionTitle = questionMap[a.questionId]?.title ?: "",
                                     preview = a.description,
                                     likes = a.votedIds.split(",").count { id -> id.isNotBlank() },

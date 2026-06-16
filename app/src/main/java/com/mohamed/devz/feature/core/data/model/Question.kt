@@ -19,5 +19,7 @@ data class Question(
     @SerialName("account_id")
     val accountId: Int,
     @SerialName("created_at")
-    val createdAt: String?
+    val createdAt: String?,
+    @SerialName("like_accounts_ids")
+    val likedAccountIds: String = "",
 )

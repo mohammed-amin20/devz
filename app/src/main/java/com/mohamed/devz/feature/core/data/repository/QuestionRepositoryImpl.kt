@@ -126,6 +126,35 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun toggleLike(id: Int, likedAccountIds: String, likesCount: Int): Result<Unit, Error> {
+        return try {
+            remoteDataSource.question.toggleQuestionLike(id, likedAccountIds, likesCount)
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            when (e.statusCode) {
+                404 -> Result.Error(Error.NotFound)
+                else -> Result.Error(Error.Unknown("Database error"))
+            }
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun incrementAnswerCount(questionId: Int, answersCount: Int): Result<Unit, Error> {
+        return try {
+            remoteDataSource.question.incrementAnswerCount(questionId, answersCount)
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
     override suspend fun delete(id: Int): Result<Unit, Error> {
         return try {
             remoteDataSource.question.deleteQuestion(id)

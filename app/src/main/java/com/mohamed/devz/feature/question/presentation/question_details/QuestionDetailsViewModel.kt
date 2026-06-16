@@ -32,12 +32,57 @@ class QuestionDetailsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private var currentQuestionId: Int? = null
+    private var currentAccountId: Int = 0
+
+    init {
+        viewModelScope.launch {
+            currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+        }
+    }
 
     fun onAction(action: QuestionDetailsAction) {
         when (action) {
             is QuestionDetailsAction.LoadQuestion -> loadQuestion(action.questionId)
             is QuestionDetailsAction.AnswerTextChanged -> _uiState.update { it.copy(answerText = action.value) }
             is QuestionDetailsAction.PostAnswer -> postAnswer(action.onSuccess)
+            is QuestionDetailsAction.ToggleLike -> toggleLike()
+        }
+    }
+
+    private fun toggleLike() {
+        val state = _uiState.value
+        val question = state.question ?: return
+        val questionId = currentQuestionId ?: return
+        if (currentAccountId == 0) return
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLiking = true) }
+            val currentLikedIds = if (question.isLiked) {
+                question.likedAccountIds
+                    .split(",")
+                    .filter { it.isNotBlank() && it.toIntOrNull() != currentAccountId }
+                    .joinToString(",")
+            } else {
+                val ids = question.likedAccountIds.split(",").filter { it.isNotBlank() }.toMutableList()
+                ids.add(currentAccountId.toString())
+                ids.joinToString(",")
+            }
+            val newCount = if (currentLikedIds.isBlank()) 0 else currentLikedIds.split(",").size
+            _uiState.update {
+                it.copy(
+                    question = it.question?.copy(
+                        likes = newCount,
+                        isLiked = !question.isLiked,
+                    ),
+                    isLiking = false,
+                )
+            }
+            when (questionRepository.toggleLike(questionId, currentLikedIds, newCount)) {
+                is Result.Error -> {
+                    loadQuestion(questionId)
+                }
+                is Result.Success -> { }
+            }
         }
     }
 
@@ -50,6 +95,9 @@ class QuestionDetailsViewModel @Inject constructor(
                     val q = questionResult.data
                     val account = (accountRepository.getById(q.accountId) as? Result.Success)?.data
                     val langTypeId = q.langTypeId
+                    val isLiked = q.likedAccountIds
+                        .split(",")
+                        .any { it.trim().toIntOrNull() == currentAccountId }
                     val detailUiModel = QuestionDetailUiModel(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
@@ -66,6 +114,8 @@ class QuestionDetailsViewModel @Inject constructor(
                         code = q.code,
                         likes = q.likesCount,
                         answersCount = q.answersCount,
+                        isLiked = isLiked,
+                        likedAccountIds = q.likedAccountIds,
                     )
                     _uiState.update { it.copy(question = detailUiModel, isLoading = false, error = null ) }
                     loadAnswers(questionId)
@@ -116,7 +166,12 @@ class QuestionDetailsViewModel @Inject constructor(
             )
             when (val result = answerRepository.insert(answer)) {
                 is Result.Success -> {
+                    val currentCount = _uiState.value.question?.answersCount ?: 0
                     _uiState.update { it.copy(answerText = "", isPosting = false) }
+                    questionRepository.incrementAnswerCount(questionId, currentCount)
+                    _uiState.update {
+                        it.copy(question = it.question?.copy(answersCount = currentCount + 1))
+                    }
                     loadAnswers(questionId)
                     onSuccess()
                 }

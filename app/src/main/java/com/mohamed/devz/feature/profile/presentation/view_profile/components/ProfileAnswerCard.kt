@@ -38,8 +38,12 @@ import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
-fun ProfileAnswerCard(answer: ProfileAnswerUiModel) {
+fun ProfileAnswerCard(
+    answer: ProfileAnswerUiModel,
+    onClick: () -> Unit,
+) {
     Surface(
+        onClick = onClick,
         shape = RoundedCornerShape(14.dp),
         color = Color(0xFF1C1B1B),
         modifier = Modifier.fillMaxWidth()
@@ -149,13 +153,15 @@ private fun PrevAnswer() {
         ProfileAnswerCard(
             answer = ProfileAnswerUiModel (
                 id = 1,
+                questionId = 1,
                 questionTitle = "How do I make a sealed class for UI states?",
                 preview = "I am trying to model loading, success, and error states in my app...",
                 likes = 14,
                 comments = 3,
                 timeAgo = "2 hours ago",
                 isAccepted = true
-            )
+            ),
+            onClick = { }
         )
     }
 }
