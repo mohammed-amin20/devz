@@ -143,7 +143,7 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         range(offset, offset + limit - 1)
-                        order(column = orderBy, order = Order.ASCENDING)
+                        order(column = orderBy, order = if (ascending) Order.ASCENDING else Order.DESCENDING)
                     }
                     .decodeList()
             }
