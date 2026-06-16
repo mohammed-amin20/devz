@@ -9,6 +9,7 @@ import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerUiModel
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -53,7 +54,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
                         authorAvatarUrl = account?.imageUrl ?: "",
-                        timeAgo = q.createdAt ?: "",
+                        timeAgo = formatRelativeTime(q.createdAt),
                         tags = q.tags.split(",").filter { it.isNotBlank() },
                         body = q.description,
                         language = when (langTypeId) {
@@ -87,7 +88,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         body = answer.description,
                         isAccepted = answer.accepted,
                         likes = answer.votedIds.split(",").count { it.isNotBlank() },
-                        timeAgo = "Replied ${answer.createdAt ?: ""}",
+                        timeAgo = formatRelativeTime(answer.createdAt),
                     )
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }

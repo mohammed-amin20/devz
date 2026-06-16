@@ -69,46 +69,41 @@ fun QuestionDetailScreen(
     ) {
         TopBar()
 
-        if (uiState.isLoading && uiState.question == null) {
+        if (uiState.question == null) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .weight(1f),
                 contentAlignment = Alignment.Center
             ) {
-                CircularProgressIndicator(color = CyanPrimary)
-            }
-        } else if (uiState.error != null && uiState.question == null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.padding(horizontal = 32.dp)
-                ) {
-                    Icon(
-                        Icons.Filled.Warning,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(48.dp)
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = uiState.error!!.asString(),
-                        color = MaterialTheme.colorScheme.error,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextButton(onClick = {
-                        viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
-                    }) {
-                        Text("Retry")
+                if (uiState.error != null) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp)
+                    ) {
+                        Icon(
+                            Icons.Filled.Warning,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = uiState.error!!.asString(),
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        TextButton(onClick = {
+                            viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
+                        }) {
+                            Text("Retry")
+                        }
                     }
+                } else {
+                    CircularProgressIndicator(color = CyanPrimary)
                 }
             }
         } else {
