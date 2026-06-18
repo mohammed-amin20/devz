@@ -17,4 +17,6 @@ data class AddEditQuestionState(
     val isEdit: Boolean = false,
     val editQuestionId: Int? = null,
     val error: UiText? = null,
+    val titleError: UiText? = null,
+    val bodyError: UiText? = null,
 )

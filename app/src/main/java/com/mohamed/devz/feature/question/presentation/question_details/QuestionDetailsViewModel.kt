@@ -46,6 +46,7 @@ class QuestionDetailsViewModel @Inject constructor(
             is QuestionDetailsAction.AnswerTextChanged -> _uiState.update { it.copy(answerText = action.value) }
             is QuestionDetailsAction.PostAnswer -> postAnswer(action.onSuccess)
             is QuestionDetailsAction.ToggleLike -> toggleLike()
+            is QuestionDetailsAction.ToggleAnswerVote -> toggleAnswerVote(action.answerId)
         }
     }
 
@@ -130,20 +131,55 @@ class QuestionDetailsViewModel @Inject constructor(
     private suspend fun loadAnswers(questionId: Int) {
         when (val result = answerRepository.getByQuestionId(questionId)) {
             is Result.Success -> {
-                val answerUiModels = result.data.map { answer ->
+                val answers = result.data
+                val answerIds = answers.map { it.id }
+                val votesMap = if (answerIds.isNotEmpty()) {
+                    val votesResult = answerRepository.getVotesForAnswers(answerIds)
+                    (votesResult as? Result.Success)?.data?.groupBy { it.answerId } ?: emptyMap()
+                } else emptyMap()
+                val answerUiModels = answers.map { answer ->
+                    val votes = votesMap[answer.id] ?: emptyList()
                     val author = (accountRepository.getById(answer.accountId) as? Result.Success)?.data
                     AnswerUiModel(
+                        answerId = answer.id,
                         authorName = author?.fullName ?: "Unknown",
                         avatarUrl = author?.imageUrl ?: "",
                         body = answer.description,
                         isAccepted = answer.accepted,
-                        likes = answer.votedIds.split(",").count { it.isNotBlank() },
+                        likes = votes.size,
+                        isLiked = if (currentAccountId != 0) votes.any { it.userId == currentAccountId } else false,
                         timeAgo = formatRelativeTime(answer.createdAt),
                     )
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }
             }
             is Result.Error -> { /* silently fail for answers */ }
+        }
+    }
+
+    private fun toggleAnswerVote(answerId: Int) {
+        if (currentAccountId == 0) return
+        viewModelScope.launch {
+            val currentAnswers = _uiState.value.answers
+            val targetIndex = currentAnswers.indexOfFirst { it.answerId == answerId }
+            if (targetIndex == -1) return@launch
+            val target = currentAnswers[targetIndex]
+            _uiState.update { state ->
+                val updated = state.answers.toMutableList().apply {
+                    set(targetIndex, target.copy(
+                        isLiked = !target.isLiked,
+                        likes = if (target.isLiked) target.likes - 1 else target.likes + 1,
+                    ))
+                }
+                state.copy(answers = updated)
+            }
+            when (answerRepository.toggleAnswerVote(answerId, currentAccountId)) {
+                is Result.Error -> {
+                    val qId = currentQuestionId ?: return@launch
+                    loadAnswers(qId)
+                }
+                is Result.Success -> { }
+            }
         }
     }
 

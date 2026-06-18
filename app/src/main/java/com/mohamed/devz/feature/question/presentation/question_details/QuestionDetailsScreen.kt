@@ -117,7 +117,10 @@ fun QuestionDetailScreen(
                     .fillMaxWidth()
                     .weight(1f),
                 navigateUp = navigateUp,
-                onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) }
+                onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) },
+                onAnswerVoteClick = { answerId ->
+                    viewModel.onAction(QuestionDetailsAction.ToggleAnswerVote(answerId))
+                },
             )
 
             AnswerInputBar(

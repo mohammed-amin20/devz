@@ -8,6 +8,7 @@ import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,8 +34,8 @@ class AddEditQuestionViewModel @Inject constructor(
     fun onAction(action: AddEditQuestionAction) {
         when (action) {
             is AddEditQuestionAction.LoadQuestion -> loadQuestion(action.questionId)
-            is AddEditQuestionAction.TitleChanged -> _uiState.update { it.copy(title = action.value) }
-            is AddEditQuestionAction.BodyChanged -> _uiState.update { it.copy(body = action.value) }
+            is AddEditQuestionAction.TitleChanged -> _uiState.update { it.copy(title = action.value, titleError = null) }
+            is AddEditQuestionAction.BodyChanged -> _uiState.update { it.copy(body = action.value, bodyError = null) }
             is AddEditQuestionAction.CodeChanged -> _uiState.update { it.copy(code = action.value) }
             is AddEditQuestionAction.LanguageSelected -> _uiState.update { it.copy(selectedLangTypeId = action.langTypeId) }
             is AddEditQuestionAction.TagInputChanged -> _uiState.update { it.copy(tagInput = action.value) }
@@ -92,7 +93,22 @@ class AddEditQuestionViewModel @Inject constructor(
         }
     }
 
+    private fun validate(): Boolean {
+        val state = _uiState.value
+        var isValid = true
+        if (state.title.isBlank()) {
+            _uiState.update { it.copy(titleError = UiText.DynamicString("Title is required")) }
+            isValid = false
+        }
+        if (state.body.isBlank()) {
+            _uiState.update { it.copy(bodyError = UiText.DynamicString("Description is required")) }
+            isValid = false
+        }
+        return isValid
+    }
+
     private fun publish(onSuccess: () -> Unit) {
+        if (!validate()) return
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
             val state = _uiState.value

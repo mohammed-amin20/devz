@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.core.data.data_source.remote
 
 import com.mohamed.devz.feature.core.data.model.Account
 import com.mohamed.devz.feature.core.data.model.Answer
+import com.mohamed.devz.feature.core.data.model.AnswerVote
 import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
@@ -270,6 +271,41 @@ class DevZRemoteDataSourceImpl(
                 db.from(tableName)
                     .delete {
                         filter { eq("id", answer.id) }
+                    }
+            }
+
+            private val answerVotesTable = "answer_votes"
+
+            override suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<AnswerVote> {
+                return db.from(answerVotesTable)
+                    .select {
+                        filter { isIn("answer_id", answerIds) }
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getAnswerVote(userId: Int, answerId: Int): AnswerVote? {
+                return db.from(answerVotesTable)
+                    .select {
+                        filter { eq("user_id", userId) }
+                        filter { eq("answer_id", answerId) }
+                    }
+                    .decodeSingleOrNull()
+            }
+
+            override suspend fun insertAnswerVote(userId: Int, answerId: Int) {
+                db.from(answerVotesTable)
+                    .insert(buildJsonObject {
+                        put("user_id", userId)
+                        put("answer_id", answerId)
+                        put("is_upvote", true)
+                    })
+            }
+
+            override suspend fun deleteAnswerVote(id: Int) {
+                db.from(answerVotesTable)
+                    .delete {
+                        filter { eq("id", id) }
                     }
             }
         }

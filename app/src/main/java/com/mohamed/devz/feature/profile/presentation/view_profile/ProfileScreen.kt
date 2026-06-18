@@ -35,12 +35,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Link
-import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
@@ -68,6 +68,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
@@ -110,11 +111,14 @@ fun ProfileScreen(
     modifier: Modifier = Modifier,
     onAnswerClick: (Int) -> Unit = onQuestionClick,
     refreshTrigger: Int = 0,
+    onFullScreenChanged: (Boolean) -> Unit = {},
+    onDialogVisibilityChanged: (Boolean) -> Unit = {},
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
+    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
 
     LaunchedEffect(refreshTrigger) {
         if (refreshTrigger > 0) {
@@ -136,7 +140,14 @@ fun ProfileScreen(
             .background(QBg)
             .then(modifier)
     ) {
-        when {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .then(
+                    if (showLogoutDialog) Modifier.blur(8.dp) else Modifier
+                )
+        ) {
+            when {
             uiState.isLoading && uiState.profile == null -> {
                 CircularProgressIndicator(
                     color = CyanPrimary,
@@ -341,7 +352,10 @@ fun ProfileScreen(
                                 )
                             }
                             TextButton(
-                                onClick = { viewModel.onAction(ProfileAction.Logout) },
+                                onClick = {
+                                    showLogoutDialog = true
+                                    onDialogVisibilityChanged(true)
+                                },
                             ) {
                                 Text(
                                     text = "Log Out",
@@ -349,6 +363,14 @@ fun ProfileScreen(
                                     fontSize = 13.sp,
                                     fontWeight = FontWeight.SemiBold
                                 )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Logout,
+                                    contentDescription = null,
+                                    tint = QError,
+                                    modifier = Modifier.size(18.dp)
+                                )
+
                             }
                         }
                     }
@@ -359,6 +381,7 @@ fun ProfileScreen(
                         Box(
                             modifier = Modifier.clickable {
                                 showImagePreview = true
+                                onFullScreenChanged(true)
                             },
                             contentAlignment = Alignment.Center
                         ) {
@@ -799,6 +822,7 @@ fun ProfileScreen(
                     }
                 }
             }
+            }
         }
 
         AnimatedVisibility(
@@ -810,7 +834,10 @@ fun ProfileScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.8f))
-                    .clickable { showImagePreview = false },
+                    .clickable {
+                        showImagePreview = false
+                        onFullScreenChanged(false)
+                    },
                 contentAlignment = Alignment.Center
             ) {
                 val avatarUrl = uiState.profile?.imageUrl
@@ -848,6 +875,86 @@ fun ProfileScreen(
                             tint = CyanPrimary,
                             modifier = Modifier.size(100.dp)
                         )
+                    }
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showLogoutDialog,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(250))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.7f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    color = DevzCard,
+                    tonalElevation = 8.dp
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Log out",
+                            color = TextWhite,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Are you sure you want to log out?",
+                            color = TextGray,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(
+                                onClick = {
+                                    showLogoutDialog = false
+                                    onDialogVisibilityChanged(false)
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2A2A2A),
+                                    contentColor = TextWhite
+                                )
+                            ) {
+                                Text("Cancel", fontWeight = FontWeight.SemiBold)
+                            }
+                            Button(
+                                onClick = {
+                                    viewModel.onAction(ProfileAction.Logout)
+                                    showLogoutDialog = false
+                                    onDialogVisibilityChanged(false)
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = QError,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Log out", fontWeight = FontWeight.SemiBold)
+                            }
+                        }
                     }
                 }
             }

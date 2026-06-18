@@ -44,6 +44,7 @@ fun QuestionContent(
     answers: List<AnswerUiModel>,
     navigateUp: () -> Unit,
     onLikeClick: () -> Unit = {},
+    onAnswerVoteClick: (Int) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     LazyColumn(
@@ -198,7 +199,10 @@ fun QuestionContent(
         }
 
         items(answers.size) { index ->
-            AnswerCard(answers[index])
+            AnswerCard(
+                answer = answers[index],
+                onVoteClick = { onAnswerVoteClick(answers[index].answerId) },
+            )
             Spacer(Modifier.height(12.dp))
         }
     }

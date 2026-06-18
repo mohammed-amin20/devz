@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.question.presentation.question_details.components
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -38,15 +39,20 @@ import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.QSurfaceLow
 
 data class AnswerUiModel(
+    val answerId: Int,
     val authorName: String,
     val avatarUrl: String,
     val body: String,
     val isAccepted: Boolean,
     val likes: Int,
-    val timeAgo: String
+    val timeAgo: String,
+    val isLiked: Boolean = false,
 )
 @Composable
-fun AnswerCard(answer: AnswerUiModel) {
+fun AnswerCard(
+    answer: AnswerUiModel,
+    onVoteClick: () -> Unit = {},
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -131,8 +137,9 @@ fun AnswerCard(answer: AnswerUiModel) {
 
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
                 Surface(
+                    onClick = onVoteClick,
                     shape = RoundedCornerShape(10.dp),
-                    color = if (answer.isAccepted) QPrimary.copy(alpha = 0.1f) else QSurfaceHigh
+                    color = if (answer.isLiked) QPrimary.copy(alpha = 0.15f) else QSurfaceHigh
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -141,13 +148,13 @@ fun AnswerCard(answer: AnswerUiModel) {
                     ) {
                         Icon(
                             Icons.Default.KeyboardArrowUp,
-                            contentDescription = null,
-                            tint = if (answer.isAccepted) QPrimary else QOutline,
+                            contentDescription = if (answer.isLiked) "Remove upvote" else "Upvote",
+                            tint = if (answer.isLiked) QPrimary else QOutline,
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = answer.likes.toString(),
-                            color = if (answer.isAccepted) QPrimary else QOutline,
+                            color = if (answer.isLiked) QPrimary else QOutline,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium

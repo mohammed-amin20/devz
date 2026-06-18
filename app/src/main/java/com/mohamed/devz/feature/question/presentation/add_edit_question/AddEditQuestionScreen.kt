@@ -244,9 +244,20 @@ fun AddEditQuestionScreen(
                     )
                 },
                 singleLine = true,
+                isError = uiState.titleError != null,
                 shape = RoundedCornerShape(12.dp),
-                colors = devzTextFieldColors()
+                colors = devzTextFieldColors(isError = uiState.titleError != null)
             )
+
+            uiState.titleError?.let {
+                Text(
+                    text = it.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 20.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -268,6 +279,7 @@ fun AddEditQuestionScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
                     .height(140.dp),
+                isError = uiState.bodyError != null,
                 placeholder = {
                     Text(
                         "Describe what you're trying to achieve and what you've tried so far...",
@@ -277,8 +289,18 @@ fun AddEditQuestionScreen(
                     )
                 },
                 shape = RoundedCornerShape(12.dp),
-                colors = devzTextFieldColors()
+                colors = devzTextFieldColors(isError = uiState.bodyError != null)
             )
+
+            uiState.bodyError?.let {
+                Text(
+                    text = it.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(start = 20.dp, top = 4.dp)
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
         }
@@ -511,9 +533,9 @@ private fun typeToSyntaxLanguage(type: String): SyntaxLanguage {
 }
 
 @Composable
-private fun devzTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = Color.Transparent,
-    unfocusedBorderColor = Color.Transparent,
+private fun devzTextFieldColors(isError: Boolean = false) = OutlinedTextFieldDefaults.colors(
+    focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.Transparent,
+    unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else Color.Transparent,
     focusedTextColor = TextWhite,
     unfocusedTextColor = TextWhite,
     cursorColor = CyanPrimary,

@@ -25,6 +25,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -55,6 +56,8 @@ fun HomeScreen(
     profileRefreshCounter: Int = 0,
 ) {
     var selectedIndex by remember { mutableIntStateOf(0) }
+    var isFullScreenImage by remember { mutableStateOf(false) }
+    var isDialogOpen by remember { mutableStateOf(false) }
 
     data class NavigationItem(
         val title: String,
@@ -104,6 +107,8 @@ fun HomeScreen(
                     onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
                     onLogout = onLogout,
                     refreshTrigger = profileRefreshCounter,
+                    onFullScreenChanged = { isFullScreenImage = it },
+                    onDialogVisibilityChanged = { isDialogOpen = it },
                 )
             }
         )
@@ -117,40 +122,44 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color.Transparent,
-        bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .drawBehind {
-                        drawRect(
-                            brush = Brush.verticalGradient(
-                                colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
-                                startY = 0f,
-                                endY = size.height
-                            )
-                        )
-                    }
-            ) {
-                Row(
+        bottomBar = if (!isFullScreenImage && !isDialogOpen) {
+            {
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                        .background(QSurfaceLow)
-                        .height(64.dp)
-                        .imePadding()
-                        .padding(horizontal = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceAround,
-                    verticalAlignment = Alignment.CenterVertically
+                        .drawBehind {
+                            drawRect(
+                                brush = Brush.verticalGradient(
+                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
+                                    startY = 0f,
+                                    endY = size.height
+                                )
+                            )
+                        }
                 ) {
-                    navigationItems.forEachIndexed { index, item ->
-                        NavIconButton(
-                            icon = item.icon,
-                            isSelected = index == selectedIndex,
-                            onClick = item.onClick
-                        )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                            .background(QSurfaceLow)
+                            .height(64.dp)
+                            .imePadding()
+                            .padding(horizontal = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceAround,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        navigationItems.forEachIndexed { index, item ->
+                            NavIconButton(
+                                icon = item.icon,
+                                isSelected = index == selectedIndex,
+                                onClick = item.onClick
+                            )
+                        }
                     }
                 }
             }
+        } else {
+            {}
         },
         modifier = modifier
     ) { innerPadding ->
