@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.core.data.repository
 
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
+import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
 import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
@@ -16,19 +17,9 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun insert(notification: Notification): Result<Notification, Error> {
         return try {
-            val allTypes = remoteDataSource.notificationType.getAllNotificationTypes()
-            val typeId = allTypes.find { it.type == notification.type }?.id ?: 1
-            val data = com.mohamed.devz.feature.core.data.model.Notification(
-                id = notification.id,
-                description = notification.description,
-                accountId = 0,
-                typeId = typeId,
-                seen = notification.seen,
-                createdAt = notification.createdAt,
-            )
+            val data = notification.toData()
             val inserted = remoteDataSource.notification.insertNotification(data)
-            val typeString = allTypes.find { it.id == inserted.typeId }?.type ?: "UNKNOWN"
-            Result.Success(inserted.toDomain(typeString, null))
+            Result.Success(inserted.toDomain())
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
                 409 -> Result.Error(Error.Conflict)
@@ -44,15 +35,15 @@ class NotificationRepositoryImpl @Inject constructor(
     override suspend fun getAllByAccountId(accountId: Int): Result<List<Notification>, Error> {
         return try {
             val dataNotifications = remoteDataSource.notification.getAllNotificationsByAccountId(accountId)
-            val allTypes = remoteDataSource.notificationType.getAllNotificationTypes()
             val allAccounts = remoteDataSource.account.getAllAccounts()
-            val typeMap = allTypes.associateBy { it.id }
             val accountMap = allAccounts.associateBy { it.id }
 
             val domains = dataNotifications.map { notification ->
-                val typeString = typeMap[notification.typeId]?.type ?: "UNKNOWN"
-                val actorName = accountMap[notification.accountId]?.let { "${it.username}" }
-                notification.toDomain(typeString, actorName)
+                val actor = accountMap[notification.actorId]
+                notification.toDomain(
+                    actorName = actor?.username,
+                    actorAvatarUrl = actor?.imageUrl,
+                )
             }
             Result.Success(domains)
         } catch (e: PostgrestRestException) {
@@ -66,17 +57,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
     override suspend fun update(notification: Notification): Result<Unit, Error> {
         return try {
-            val allTypes = remoteDataSource.notificationType.getAllNotificationTypes()
-            val typeId = allTypes.find { it.type == notification.type }?.id ?: 1
-            val data = com.mohamed.devz.feature.core.data.model.Notification(
-                id = notification.id,
-                description = notification.description,
-                accountId = 0,
-                typeId = typeId,
-                seen = notification.seen,
-                createdAt = notification.createdAt,
-            )
-            remoteDataSource.notification.updateNotification(data)
+            remoteDataSource.notification.updateNotification(notification.toData())
             Result.Success(Unit)
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {

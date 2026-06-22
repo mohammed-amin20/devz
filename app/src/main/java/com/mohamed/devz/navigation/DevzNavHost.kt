@@ -7,19 +7,17 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.mohamed.devz.feature.authentication.presentation.AuthScreen
 import com.mohamed.devz.feature.onboarding.presentation.OnboardingScreen
-import com.mohamed.devz.feature.onboarding.presentation.OnboardingViewModel
 import com.mohamed.devz.feature.profile.presentation.edit_profile.EditProfileScreen
 import com.mohamed.devz.feature.question.presentation.add_edit_question.AddEditQuestionScreen
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
 import com.mohamed.devz.feature.splash.presentation.SplashScreen
-import com.mohamed.devz.navigation.components.HomeScreen
+import com.mohamed.devz.navigation.components.home.HomeScreen
 
 @Composable
 fun DevzNavHost(

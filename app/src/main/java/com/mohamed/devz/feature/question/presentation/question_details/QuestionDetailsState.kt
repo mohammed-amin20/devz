@@ -7,6 +7,7 @@ data class QuestionDetailsState(
     val question: QuestionDetailUiModel? = null,
     val answers: List<AnswerUiModel> = emptyList(),
     val answerText: String = "",
+    val currentAccountId: Int = 0,
     val isLoading: Boolean = false,
     val isPosting: Boolean = false,
     val isLiking: Boolean = false,

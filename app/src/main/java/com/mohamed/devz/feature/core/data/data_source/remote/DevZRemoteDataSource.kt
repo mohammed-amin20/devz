@@ -1,7 +1,6 @@
 package com.mohamed.devz.feature.core.data.data_source.remote
 
 import com.mohamed.devz.feature.core.data.model.Answer
-import com.mohamed.devz.feature.core.data.model.AnswerVote
 import com.mohamed.devz.feature.core.data.model.Account
 import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
@@ -75,10 +74,7 @@ interface DevZRemoteDataSource {
 
         suspend fun deleteAnswer(answer: Answer)
 
-        suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<AnswerVote>
-        suspend fun getAnswerVote(userId: Int, answerId: Int): AnswerVote?
-        suspend fun insertAnswerVote(userId: Int, answerId: Int)
-        suspend fun deleteAnswerVote(id: Int)
+        suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<String>
     }
 
     interface NotificationTable {

@@ -269,7 +269,6 @@ fun ViewQuestionsScreen(
                         QuestionCard(
                             question = question,
                             onClick = { onQuestionClick(question.id) },
-                            onBookmark = { viewModel.onAction(ViewQuestionsAction.ToggleBookmark(question.id)) }
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }

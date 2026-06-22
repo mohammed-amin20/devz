@@ -3,17 +3,24 @@ package com.mohamed.devz.feature.question.presentation.question_details
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.Answer
+import com.mohamed.devz.feature.core.domain.model.Notification
+import com.mohamed.devz.feature.core.domain.model.toggleVote
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
+import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerUiModel
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
@@ -26,17 +33,27 @@ class QuestionDetailsViewModel @Inject constructor(
     private val answerRepository: AnswerRepository,
     private val accountRepository: AccountRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val notificationRepository: NotificationRepository,
 ) : ViewModel() {
+
+    sealed interface QuestionDetailsEvent {
+        data class ShowError(val message: String) : QuestionDetailsEvent
+    }
 
     private val _uiState = MutableStateFlow(QuestionDetailsState())
     val uiState = _uiState.asStateFlow()
 
+    private val _questionDetailsEvent = MutableSharedFlow<QuestionDetailsEvent>()
+    val questionDetailsEvent: SharedFlow<QuestionDetailsEvent> = _questionDetailsEvent.asSharedFlow()
+
     private var currentQuestionId: Int? = null
     private var currentAccountId: Int = 0
+    private var questionOwnerAccountId: Int = 0
 
     init {
         viewModelScope.launch {
             currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            _uiState.update { it.copy(currentAccountId = currentAccountId) }
         }
     }
 
@@ -47,6 +64,7 @@ class QuestionDetailsViewModel @Inject constructor(
             is QuestionDetailsAction.PostAnswer -> postAnswer(action.onSuccess)
             is QuestionDetailsAction.ToggleLike -> toggleLike()
             is QuestionDetailsAction.ToggleAnswerVote -> toggleAnswerVote(action.answerId)
+            is QuestionDetailsAction.AcceptAnswer -> acceptAnswer(action.answerId)
         }
     }
 
@@ -55,16 +73,19 @@ class QuestionDetailsViewModel @Inject constructor(
         val question = state.question ?: return
         val questionId = currentQuestionId ?: return
         if (currentAccountId == 0) return
+        val wasLiked = question.isLiked
+        val originalLikes = question.likes
+        val originalLikedIds = question.likedAccountIds
 
         viewModelScope.launch {
             _uiState.update { it.copy(isLiking = true) }
-            val currentLikedIds = if (question.isLiked) {
-                question.likedAccountIds
+            val currentLikedIds = if (wasLiked) {
+                originalLikedIds
                     .split(",")
                     .filter { it.isNotBlank() && it.toIntOrNull() != currentAccountId }
                     .joinToString(",")
             } else {
-                val ids = question.likedAccountIds.split(",").filter { it.isNotBlank() }.toMutableList()
+                val ids = originalLikedIds.split(",").filter { it.isNotBlank() }.toMutableList()
                 ids.add(currentAccountId.toString())
                 ids.joinToString(",")
             }
@@ -73,16 +94,41 @@ class QuestionDetailsViewModel @Inject constructor(
                 it.copy(
                     question = it.question?.copy(
                         likes = newCount,
-                        isLiked = !question.isLiked,
+                        isLiked = !wasLiked,
                     ),
                     isLiking = false,
                 )
             }
             when (questionRepository.toggleLike(questionId, currentLikedIds, newCount)) {
                 is Result.Error -> {
-                    loadQuestion(questionId)
+                    _uiState.update {
+                        it.copy(
+                            question = it.question?.copy(
+                                likes = originalLikes,
+                                isLiked = wasLiked,
+                            ),
+                        )
+                    }
                 }
-                is Result.Success -> { }
+                is Result.Success -> {
+                    if (!wasLiked && currentAccountId != questionOwnerAccountId) {
+                        kotlin.runCatching {
+                            notificationRepository.insert(
+                                Notification(
+                                    id = 0,
+                                    userId = questionOwnerAccountId,
+                                    actorId = currentAccountId,
+                                    questionId = questionId,
+                                    answerId = null,
+                                    type = "like",
+                                    message = "liked your question",
+                                    isRead = false,
+                                    createdAt = "",
+                                )
+                            )
+                        }
+                    }
+                }
             }
         }
     }
@@ -94,6 +140,7 @@ class QuestionDetailsViewModel @Inject constructor(
             when (val questionResult = questionRepository.getById(questionId)) {
                 is Result.Success -> {
                     val q = questionResult.data
+                    questionOwnerAccountId = q.accountId
                     val account = (accountRepository.getById(q.accountId) as? Result.Success)?.data
                     val langTypeId = q.langTypeId
                     val isLiked = q.likedAccountIds
@@ -103,6 +150,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
                         authorAvatarUrl = account?.imageUrl ?: "",
+                        authorAccountId = q.accountId,
                         timeAgo = formatRelativeTime(q.createdAt),
                         tags = q.tags.split(",").filter { it.isNotBlank() },
                         body = q.description,
@@ -132,54 +180,79 @@ class QuestionDetailsViewModel @Inject constructor(
         when (val result = answerRepository.getByQuestionId(questionId)) {
             is Result.Success -> {
                 val answers = result.data
-                val answerIds = answers.map { it.id }
-                val votesMap = if (answerIds.isNotEmpty()) {
-                    val votesResult = answerRepository.getVotesForAnswers(answerIds)
-                    (votesResult as? Result.Success)?.data?.groupBy { it.answerId } ?: emptyMap()
-                } else emptyMap()
                 val answerUiModels = answers.map { answer ->
-                    val votes = votesMap[answer.id] ?: emptyList()
+                    val votes = answer.votedIds.split(",").filter { it.isNotBlank() }
                     val author = (accountRepository.getById(answer.accountId) as? Result.Success)?.data
                     AnswerUiModel(
                         answerId = answer.id,
                         authorName = author?.fullName ?: "Unknown",
                         avatarUrl = author?.imageUrl ?: "",
+                        authorAccountId = answer.accountId,
                         body = answer.description,
                         isAccepted = answer.accepted,
                         likes = votes.size,
-                        isLiked = if (currentAccountId != 0) votes.any { it.userId == currentAccountId } else false,
+                        isLiked = if (currentAccountId != 0) votes.any { it == currentAccountId.toString() } else false,
                         timeAgo = formatRelativeTime(answer.createdAt),
                     )
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }
             }
-            is Result.Error -> { /* silently fail for answers */ }
+            is Result.Error -> {
+                _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                    (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                ))
+            }
         }
     }
 
     private fun toggleAnswerVote(answerId: Int) {
         if (currentAccountId == 0) return
+
+        val answers = _uiState.value.answers
+        val index = answers.indexOfFirst { it.answerId == answerId }
+        if (index == -1) return
+        val original = answers[index]
+
+        _uiState.update { state ->
+            val idx = state.answers.indexOfFirst { it.answerId == answerId }
+            if (idx == -1) return@update state
+            val current = state.answers[idx]
+            state.copy(answers = state.answers.toMutableList().apply {
+                set(idx, current.copy(
+                    likes = if (current.isLiked) current.likes - 1 else current.likes + 1,
+                    isLiked = !current.isLiked
+                ))
+            })
+        }
+
         viewModelScope.launch {
-            val currentAnswers = _uiState.value.answers
-            val targetIndex = currentAnswers.indexOfFirst { it.answerId == answerId }
-            if (targetIndex == -1) return@launch
-            val target = currentAnswers[targetIndex]
-            _uiState.update { state ->
-                val updated = state.answers.toMutableList().apply {
-                    set(targetIndex, target.copy(
-                        isLiked = !target.isLiked,
-                        likes = if (target.isLiked) target.likes - 1 else target.likes + 1,
+            when (val answer = answerRepository.getById(answerId)) {
+                is Result.Success -> {
+                    when (val result = answerRepository.update(answer.data.toggleVote(currentAccountId))) {
+                        is Result.Success -> Unit
+                        is Result.Error -> {
+                            rollbackAnswerVote(answerId, original)
+                            _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                                (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                            ))
+                        }
+                    }
+                }
+                is Result.Error -> {
+                    rollbackAnswerVote(answerId, original)
+                    _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                        (answer.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
                     ))
                 }
-                state.copy(answers = updated)
             }
-            when (answerRepository.toggleAnswerVote(answerId, currentAccountId)) {
-                is Result.Error -> {
-                    val qId = currentQuestionId ?: return@launch
-                    loadAnswers(qId)
-                }
-                is Result.Success -> { }
-            }
+        }
+    }
+
+    private fun rollbackAnswerVote(answerId: Int, original: AnswerUiModel) {
+        _uiState.update { state ->
+            val idx = state.answers.indexOfFirst { it.answerId == answerId }
+            if (idx == -1) return@update state
+            state.copy(answers = state.answers.toMutableList().apply { set(idx, original) })
         }
     }
 
@@ -202,6 +275,7 @@ class QuestionDetailsViewModel @Inject constructor(
             )
             when (val result = answerRepository.insert(answer)) {
                 is Result.Success -> {
+                    val insertedAnswer = result.data
                     val currentCount = _uiState.value.question?.answersCount ?: 0
                     _uiState.update { it.copy(answerText = "", isPosting = false) }
                     questionRepository.incrementAnswerCount(questionId, currentCount)
@@ -209,6 +283,21 @@ class QuestionDetailsViewModel @Inject constructor(
                         it.copy(question = it.question?.copy(answersCount = currentCount + 1))
                     }
                     loadAnswers(questionId)
+                    if (currentAccountId != questionOwnerAccountId) {
+                        notificationRepository.insert(
+                            Notification(
+                                id = 0,
+                                userId = questionOwnerAccountId,
+                                actorId = currentAccountId,
+                                questionId = questionId,
+                                answerId = insertedAnswer.id,
+                                type = "answer",
+                                message = "answered your question",
+                                isRead = false,
+                                createdAt = "",
+                            )
+                        )
+                    }
                     onSuccess()
                 }
                 is Result.Error -> {
@@ -216,5 +305,83 @@ class QuestionDetailsViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun acceptAnswer(answerId: Int) {
+        if (currentAccountId == 0 || currentAccountId != questionOwnerAccountId) return
+
+        val originalAnswers = _uiState.value.answers
+        val newAnswerIndex = originalAnswers.indexOfFirst { it.answerId == answerId }
+        if (newAnswerIndex == -1) return
+        if (originalAnswers[newAnswerIndex].isAccepted) return
+
+        val prevAcceptedIndex = originalAnswers.indexOfFirst { it.isAccepted }
+
+        _uiState.update { state ->
+            val mutableAnswers = state.answers.toMutableList()
+            if (prevAcceptedIndex != -1)
+                mutableAnswers[prevAcceptedIndex] = mutableAnswers[prevAcceptedIndex].copy(isAccepted = false)
+            mutableAnswers[newAnswerIndex] = mutableAnswers[newAnswerIndex].copy(isAccepted = true)
+            state.copy(answers = mutableAnswers)
+        }
+
+        viewModelScope.launch {
+            if (prevAcceptedIndex != -1) {
+                val oldAnswerId = originalAnswers[prevAcceptedIndex].answerId
+                when (val oldResult = answerRepository.getById(oldAnswerId)) {
+                    is Result.Success -> {
+                        when (val result = answerRepository.update(oldResult.data.copy(accepted = false))) {
+                            is Result.Error -> {
+                                rollbackAcceptAnswer(originalAnswers)
+                                _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                                    (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                                ))
+                                return@launch
+                            }
+                            is Result.Success -> Unit
+                        }
+                    }
+                    is Result.Error -> {
+                        rollbackAcceptAnswer(originalAnswers)
+                        _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                            (oldResult.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                        ))
+                        return@launch
+                    }
+                }
+            }
+
+            when (val newResult = answerRepository.getById(answerId)) {
+                is Result.Error -> {
+                    if (prevAcceptedIndex != -1) {
+                        val res = answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
+                        if (res is Result.Success) answerRepository.update(res.data.copy(accepted = true))
+                    }
+                    rollbackAcceptAnswer(originalAnswers)
+                    _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                        (newResult.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                    ))
+                }
+                is Result.Success -> {
+                    when (val result = answerRepository.update(newResult.data.copy(accepted = true))) {
+                        is Result.Error -> {
+                            if (prevAcceptedIndex != -1) {
+                                val res = answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
+                                if (res is Result.Success) answerRepository.update(res.data.copy(accepted = true))
+                            }
+                            rollbackAcceptAnswer(originalAnswers)
+                            _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
+                                (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
+                            ))
+                        }
+                        is Result.Success -> Unit
+                    }
+                }
+            }
+        }
+    }
+
+    private fun rollbackAcceptAnswer(originalAnswers: List<AnswerUiModel>) {
+        _uiState.update { it.copy(answers = originalAnswers) }
     }
 }

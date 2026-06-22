@@ -120,17 +120,22 @@ fun ProfileScreen(
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
     var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(refreshTrigger) {
-        if (refreshTrigger > 0) {
-            viewModel.onAction(ProfileAction.Refresh)
-        }
-    }
-
     LaunchedEffect(Unit) {
         viewModel.profileEvent.collect { event ->
             when (event) {
                 is ProfileEvent.NavigateToAuth -> onLogout()
             }
+        }
+    }
+    LaunchedEffect(refreshTrigger) {
+        if (refreshTrigger > 0) {
+            viewModel.onAction(ProfileAction.Refresh)
+        }
+    }
+    LaunchedEffect(showImagePreview, showLogoutDialog) {
+        if (!showImagePreview && !showLogoutDialog) {
+            onFullScreenChanged(false)
+            onDialogVisibilityChanged(false)
         }
     }
 

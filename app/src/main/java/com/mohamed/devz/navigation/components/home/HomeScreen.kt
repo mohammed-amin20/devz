@@ -1,4 +1,4 @@
-package com.mohamed.devz.navigation.components
+package com.mohamed.devz.navigation.components.home
 
 import android.graphics.Color.argb
 import androidx.activity.compose.BackHandler
@@ -40,6 +40,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.ui.theme.QSurfaceLow
@@ -54,8 +56,9 @@ fun HomeScreen(
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     profileRefreshCounter: Int = 0,
+    viewModel: HomeViewModel = viewModel()
 ) {
-    var selectedIndex by remember { mutableIntStateOf(0) }
+    val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
     var isFullScreenImage by remember { mutableStateOf(false) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
@@ -72,7 +75,7 @@ fun HomeScreen(
             title = "Home",
             icon = Icons.Rounded.Home,
             index = 0,
-            onClick = { selectedIndex = 0 },
+            onClick = { viewModel.onSelectedIndexChange(0) },
             content = {
                 ViewQuestionsScreen(
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) }
@@ -90,7 +93,7 @@ fun HomeScreen(
             title = "Notifications",
             icon = Icons.Rounded.Notifications,
             index = 2,
-            onClick = { selectedIndex = 2 },
+            onClick = { viewModel.onSelectedIndexChange(2) },
             content = {
                 NotificationsScreen()
             }
@@ -99,7 +102,7 @@ fun HomeScreen(
             title = "Profile",
             icon = Icons.Rounded.Person,
             index = 3,
-            onClick = { selectedIndex = 3 },
+            onClick = { viewModel.onSelectedIndexChange(3) },
             content = {
                 ProfileScreen(
                     onEditProfile = navigateToEditProfile,
@@ -116,7 +119,7 @@ fun HomeScreen(
 
     BackHandler {
         if (selectedIndex != 0) {
-            selectedIndex = 0
+            viewModel.onSelectedIndexChange(0)
         }
     }
 

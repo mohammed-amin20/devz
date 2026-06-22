@@ -46,7 +46,6 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun QuestionCard(
     question: QuestionFeedUiModel,
     onClick: () -> Unit,
-    onBookmark: () -> Unit,
 ) {
     Surface(
         modifier = Modifier
@@ -115,14 +114,6 @@ fun QuestionCard(
                             )
                         }
                     }
-                }
-                IconButton(onClick = onBookmark, modifier = Modifier.size(32.dp)) {
-                    Icon(
-                        imageVector = if (question.isBookmarked) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder,
-                        contentDescription = null,
-                        tint = if (question.isBookmarked) CyanPrimary else TextGray,
-                        modifier = Modifier.size(18.dp)
-                    )
                 }
             }
 

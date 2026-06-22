@@ -4,5 +4,5 @@ enum class NotificationType {
     ACCEPTED,
     UPVOTE,
     LIKE,
-    COMMENT
+    ANSWER
 }

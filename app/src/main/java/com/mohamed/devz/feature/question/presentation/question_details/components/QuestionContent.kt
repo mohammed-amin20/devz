@@ -42,10 +42,12 @@ import com.mohamed.devz.ui.theme.QPrimary
 fun QuestionContent(
     question: QuestionDetailUiModel,
     answers: List<AnswerUiModel>,
+    currentAccountId: Int,
     navigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
     onLikeClick: () -> Unit = {},
     onAnswerVoteClick: (Int) -> Unit = {},
-    modifier: Modifier = Modifier,
+    onAcceptAnswer: (Int) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier
@@ -202,6 +204,9 @@ fun QuestionContent(
             AnswerCard(
                 answer = answers[index],
                 onVoteClick = { onAnswerVoteClick(answers[index].answerId) },
+                isAcceptButtonVisible = currentAccountId == question.authorAccountId
+                        && currentAccountId != answers[index].authorAccountId,
+                onAcceptClick = { onAcceptAnswer(answers[index].answerId) },
             )
             Spacer(Modifier.height(12.dp))
         }

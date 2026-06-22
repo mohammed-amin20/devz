@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.VerifiedUser
 import androidx.compose.material3.Icon
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
@@ -42,6 +44,7 @@ data class AnswerUiModel(
     val answerId: Int,
     val authorName: String,
     val avatarUrl: String,
+    val authorAccountId: Int,
     val body: String,
     val isAccepted: Boolean,
     val likes: Int,
@@ -51,20 +54,22 @@ data class AnswerUiModel(
 @Composable
 fun AnswerCard(
     answer: AnswerUiModel,
+    isAcceptButtonVisible: Boolean,
     onVoteClick: () -> Unit = {},
+    onAcceptClick: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
-                if(answer.isAccepted) QPrimary.copy(alpha = 0.3f) else Color.Transparent
+                if (answer.isAccepted) QPrimary.copy(alpha = 0.3f) else Color.Transparent
             )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(start = if(answer.isAccepted) 3.dp else 0.dp)
+                .padding(start = if (answer.isAccepted) 3.dp else 0.dp)
                 .clip(RoundedCornerShape(16.dp))
                 .background(QSurfaceLow)
                 .padding(18.dp)
@@ -161,7 +166,55 @@ fun AnswerCard(
                         )
                     }
                 }
+
+                if (isAcceptButtonVisible && !answer.isAccepted) {
+                    Surface(
+                        onClick = onAcceptClick,
+                        shape = RoundedCornerShape(10.dp),
+                        color = QPrimary.copy(alpha = 0.15f),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Icon(
+                                Icons.Default.CheckCircle,
+                                contentDescription = "Accept answer",
+                                tint = QPrimary,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Text(
+                                text = "Accept",
+                                color = QPrimary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                        }
+                    }
+                }
             }
         }
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewAnswerCard() {
+    MaterialTheme {
+        AnswerCard(
+            answer = AnswerUiModel(
+                answerId = 0,
+                authorName = "Author",
+                avatarUrl = "",
+                authorAccountId = 0,
+                body = "",
+                isAccepted = true,
+                likes = 10,
+                timeAgo = "1h"
+            ),
+            isAcceptButtonVisible = true
+        )
     }
 }

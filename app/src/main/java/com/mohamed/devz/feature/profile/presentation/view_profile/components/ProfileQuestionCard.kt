@@ -42,11 +42,11 @@ fun ProfileQuestionCard(
     onClick: () -> Unit
 ) {
     Surface(
+        onClick = onClick,
         shape = RoundedCornerShape(14.dp),
         color = Color(0xFF1C1B1B),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             // Header row

@@ -6,4 +6,5 @@ sealed interface QuestionDetailsAction {
     data class PostAnswer(val onSuccess: () -> Unit) : QuestionDetailsAction
     data object ToggleLike : QuestionDetailsAction
     data class ToggleAnswerVote(val answerId: Int) : QuestionDetailsAction
+    data class AcceptAnswer(val answerId: Int) : QuestionDetailsAction
 }

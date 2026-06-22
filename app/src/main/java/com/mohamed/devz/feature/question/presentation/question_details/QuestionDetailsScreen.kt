@@ -15,12 +15,16 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +44,7 @@ data class QuestionDetailUiModel(
     val title: String,
     val authorName: String,
     val authorAvatarUrl: String,
+    val authorAccountId: Int,
     val timeAgo: String,
     val tags: List<String>,
     val body: String,
@@ -59,75 +64,94 @@ fun QuestionDetailScreen(
     viewModel: QuestionDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(questionId) {
         viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(QBg)
-            .then(modifier)
-    ) {
-        TopBar()
-
-        if (uiState.question == null) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .weight(1f),
-                contentAlignment = Alignment.Center
-            ) {
-                if (uiState.error != null) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.Center,
-                        modifier = Modifier.padding(horizontal = 32.dp)
-                    ) {
-                        Icon(
-                            Icons.Filled.Warning,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(48.dp)
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = uiState.error!!.asString(),
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center,
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        TextButton(onClick = {
-                            viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
-                        }) {
-                            Text("Retry")
-                        }
-                    }
-                } else {
-                    CircularProgressIndicator(color = CyanPrimary)
+    LaunchedEffect(Unit) {
+        viewModel.questionDetailsEvent.collect { event ->
+            when (event) {
+                is QuestionDetailsViewModel.QuestionDetailsEvent.ShowError -> {
+                    snackbarHostState.showSnackbar(event.message)
                 }
             }
-        } else {
-            QuestionContent(
-                question = uiState.question!!,
-                answers = uiState.answers,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f),
-                navigateUp = navigateUp,
-                onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) },
-                onAnswerVoteClick = { answerId ->
-                    viewModel.onAction(QuestionDetailsAction.ToggleAnswerVote(answerId))
-                },
-            )
+        }
+    }
 
-            AnswerInputBar(
-                answerText = uiState.answerText,
-                onAnswerChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
-                onPost = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) }
-            )
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        modifier = modifier.background(QBg)
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            TopBar()
+
+            if (uiState.question == null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (uiState.error != null) {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                            modifier = Modifier.padding(horizontal = 32.dp)
+                        ) {
+                            Icon(
+                                Icons.Filled.Warning,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.size(48.dp)
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = uiState.error!!.asString(),
+                                color = MaterialTheme.colorScheme.error,
+                                fontSize = 14.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            TextButton(onClick = {
+                                viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
+                            }) {
+                                Text("Retry")
+                            }
+                        }
+                    } else {
+                        CircularProgressIndicator(color = CyanPrimary)
+                    }
+                }
+            } else {
+                QuestionContent(
+                    question = uiState.question!!,
+                    answers = uiState.answers,
+                    currentAccountId = uiState.currentAccountId,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    navigateUp = navigateUp,
+                    onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) },
+                    onAnswerVoteClick = { answerId ->
+                        viewModel.onAction(QuestionDetailsAction.ToggleAnswerVote(answerId))
+                    },
+                    onAcceptAnswer = { answerId ->
+                        viewModel.onAction(QuestionDetailsAction.AcceptAnswer(answerId))
+                    },
+                )
+
+                AnswerInputBar(
+                    answerText = uiState.answerText,
+                    onAnswerChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
+                    onPost = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) }
+                )
+            }
         }
     }
 }

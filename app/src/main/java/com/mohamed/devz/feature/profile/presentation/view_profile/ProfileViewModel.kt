@@ -82,7 +82,7 @@ class ProfileViewModel @Inject constructor(
 
                     val acceptedAnswers = answers.count { it.accepted }
                     val acceptedRate = if (answers.isNotEmpty()) {
-                        "${acceptedAnswers * 100f / answers.size}%"
+                        "${(acceptedAnswers * 100f / answers.size).toInt()}%"
                     } else "0%"
 
                     val questionMap = questions.associateBy { it.id }
@@ -121,7 +121,6 @@ class ProfileViewModel @Inject constructor(
                                     questionTitle = questionMap[a.questionId]?.title ?: "",
                                     preview = a.description,
                                     likes = a.votedIds.split(",").count { id -> id.isNotBlank() },
-                                    comments = 0,
                                     timeAgo = formatRelativeTime(a.createdAt),
                                     isAccepted = a.accepted
                                 )

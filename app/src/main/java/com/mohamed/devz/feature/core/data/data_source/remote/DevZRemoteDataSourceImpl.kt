@@ -2,12 +2,12 @@ package com.mohamed.devz.feature.core.data.data_source.remote
 
 import com.mohamed.devz.feature.core.data.model.Account
 import com.mohamed.devz.feature.core.data.model.Answer
-import com.mohamed.devz.feature.core.data.model.AnswerVote
 import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.Storage
 import kotlinx.serialization.json.buildJsonObject
@@ -15,8 +15,8 @@ import kotlinx.serialization.json.put
 import java.util.stream.IntStream.range
 
 class DevZRemoteDataSourceImpl(
-    private val db : Postgrest,
-    private val storage : Storage
+    private val db: Postgrest,
+    private val storage: Storage,
 ) : DevZRemoteDataSource {
     override val account: DevZRemoteDataSource.AccountTable
         get() = object : DevZRemoteDataSource.AccountTable {
@@ -89,7 +89,7 @@ class DevZRemoteDataSourceImpl(
         }
 
     override val question: DevZRemoteDataSource.QuestionTable
-        get() = object :  DevZRemoteDataSource.QuestionTable {
+        get() = object : DevZRemoteDataSource.QuestionTable {
             private val tableName = "Question"
 
             override suspend fun insertQuestion(question: Question): Question {
@@ -145,7 +145,10 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         range(offset, offset + limit - 1)
-                        order(column = orderBy, order = if (ascending) Order.ASCENDING else Order.DESCENDING)
+                        order(
+                            column = orderBy,
+                            order = if (ascending) Order.ASCENDING else Order.DESCENDING
+                        )
                     }
                     .decodeList()
             }
@@ -178,7 +181,11 @@ class DevZRemoteDataSourceImpl(
                     }
             }
 
-            override suspend fun toggleQuestionLike(id: Int, likedAccountIds: String, likesCount: Int) {
+            override suspend fun toggleQuestionLike(
+                id: Int,
+                likedAccountIds: String,
+                likesCount: Int,
+            ) {
                 db.from(tableName)
                     .update(buildJsonObject {
                         put("like_accounts_ids", likedAccountIds)
@@ -274,39 +281,12 @@ class DevZRemoteDataSourceImpl(
                     }
             }
 
-            private val answerVotesTable = "answer_votes"
-
-            override suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<AnswerVote> {
-                return db.from(answerVotesTable)
-                    .select {
-                        filter { isIn("answer_id", answerIds) }
+            override suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<String> {
+                return db.from(tableName)
+                    .select(columns = Columns.list("voted_ids")) {
+                        filter { isIn("id", answerIds) }
                     }
                     .decodeList()
-            }
-
-            override suspend fun getAnswerVote(userId: Int, answerId: Int): AnswerVote? {
-                return db.from(answerVotesTable)
-                    .select {
-                        filter { eq("user_id", userId) }
-                        filter { eq("answer_id", answerId) }
-                    }
-                    .decodeSingleOrNull()
-            }
-
-            override suspend fun insertAnswerVote(userId: Int, answerId: Int) {
-                db.from(answerVotesTable)
-                    .insert(buildJsonObject {
-                        put("user_id", userId)
-                        put("answer_id", answerId)
-                        put("is_upvote", true)
-                    })
-            }
-
-            override suspend fun deleteAnswerVote(id: Int) {
-                db.from(answerVotesTable)
-                    .delete {
-                        filter { eq("id", id) }
-                    }
             }
         }
 
@@ -316,10 +296,15 @@ class DevZRemoteDataSourceImpl(
 
             override suspend fun insertNotification(notification: Notification): Notification {
                 val json = buildJsonObject {
-                    put("description", notification.description)
-                    put("account_id", notification.accountId)
-                    put("type_id", notification.typeId)
-                    put("seen", notification.seen)
+                    put("user_id", notification.userId)
+                    put("actor_id", notification.actorId)
+                    put("question_id", notification.questionId)
+                    if (notification.answerId != null) {
+                        put("answer_id", notification.answerId)
+                    }
+                    put("type", notification.type)
+                    put("message", notification.message)
+                    put("is_read", notification.isRead)
                 }
 
                 return db.from(tableName)
@@ -332,7 +317,8 @@ class DevZRemoteDataSourceImpl(
             override suspend fun getAllNotificationsByAccountId(accountId: Int): List<Notification> {
                 return db.from(tableName)
                     .select {
-                        filter { eq("account_id", accountId) }
+                        filter { eq("user_id", accountId) }
+                        order(column = "created_at", order = Order.DESCENDING)
                     }
                     .decodeList()
             }

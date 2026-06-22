@@ -48,7 +48,10 @@ fun ProfileAnswerCard(
         color = Color(0xFF1C1B1B),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(
+            modifier = Modifier
+                .padding(16.dp)
+        ) {
             // Title + status badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -109,26 +112,12 @@ fun ProfileAnswerCard(
                 Icon(
                     Icons.Filled.ThumbUp,
                     null,
-                    tint = if(answer.isAccepted) CyanPrimary else TextGray,
-                    modifier = Modifier.size(14.dp)
-                )
-                Spacer(modifier = Modifier.width(4.dp))
-                Text(
-                    answer.likes.toString(),
-                    color = if(answer.isAccepted) CyanPrimary else TextGray,
-                    fontSize = 12.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.width(12.dp))
-                Icon(
-                    Icons.AutoMirrored.Rounded.Chat,
-                    null,
                     tint = TextGray,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    answer.comments.toString(),
+                    answer.likes.toString(),
                     color = TextGray,
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.bodyMedium
@@ -157,7 +146,6 @@ private fun PrevAnswer() {
                 questionTitle = "How do I make a sealed class for UI states?",
                 preview = "I am trying to model loading, success, and error states in my app...",
                 likes = 14,
-                comments = 3,
                 timeAgo = "2 hours ago",
                 isAccepted = true
             ),

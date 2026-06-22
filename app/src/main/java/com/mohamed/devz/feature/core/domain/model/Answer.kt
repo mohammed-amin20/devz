@@ -9,3 +9,12 @@ data class Answer(
     val accountId: Int,
     val createdAt: String?
 )
+
+fun Answer.toggleVote(accountId: Int): Answer {
+    val ids = votedIds.split(",").filter { it.isNotBlank() }
+    return if (ids.contains(accountId.toString())) {
+        copy(votedIds = ids.filterNot { it == accountId.toString() }.joinToString(","))
+    } else {
+        copy(votedIds = (ids + accountId.toString()).joinToString(","))
+    }
+}

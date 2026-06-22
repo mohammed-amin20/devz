@@ -6,7 +6,6 @@ data class ProfileAnswerUiModel(
     val questionTitle: String,
     val preview: String,
     val likes: Int,
-    val comments: Int,
     val timeAgo: String,
     val isAccepted: Boolean
 )

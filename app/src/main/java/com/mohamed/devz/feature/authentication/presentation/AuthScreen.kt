@@ -57,7 +57,9 @@ fun AuthScreen(
         label = "scale"
     )
 
-    LaunchedEffect(Unit) { visible = true }
+    LaunchedEffect(Unit) {
+        visible = true
+    }
 
     Box(
         modifier = Modifier

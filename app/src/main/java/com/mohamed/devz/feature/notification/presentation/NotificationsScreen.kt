@@ -123,7 +123,7 @@ fun NotificationItem(notification: NotificationUiModel) {
                     NotificationType.ACCEPTED -> Icons.Filled.CheckCircle
                     NotificationType.UPVOTE -> Icons.Filled.ArrowUpward
                     NotificationType.LIKE -> Icons.Filled.FavoriteBorder
-                    NotificationType.COMMENT -> Icons.Filled.ChatBubbleOutline
+                    NotificationType.ANSWER -> Icons.Filled.ChatBubbleOutline
                 },
                 contentDescription = null,
                 tint = CyanPrimary,

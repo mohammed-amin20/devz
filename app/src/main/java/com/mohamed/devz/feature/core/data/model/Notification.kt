@@ -6,12 +6,18 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Notification(
     val id: Int,
-    val description: String,
-    @SerialName("account_id")
-    val accountId: Int,
-    @SerialName("type_id")
-    val typeId: Int,
-    val seen: Boolean,
+    @SerialName("user_id")
+    val userId: Int,
+    @SerialName("actor_id")
+    val actorId: Int,
+    @SerialName("question_id")
+    val questionId: Int,
+    @SerialName("answer_id")
+    val answerId: Int? = null,
+    val type: String,
+    val message: String,
+    @SerialName("is_read")
+    val isRead: Boolean = false,
     @SerialName("created_at")
-    val createdAt: String
+    val createdAt: String = "",
 )

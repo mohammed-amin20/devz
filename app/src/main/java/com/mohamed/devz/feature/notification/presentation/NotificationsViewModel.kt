@@ -7,6 +7,7 @@ import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,7 @@ enum class NotificationType {
     ACCEPTED,
     UPVOTE,
     LIKE,
-    COMMENT
+    ANSWER
 }
 
 data class NotificationUiModel(
@@ -81,10 +82,10 @@ class NotificationsViewModel @Inject constructor(
                             id = notification.id.toString(),
                             type = mapTypeString(notification.type),
                             actorName = notification.actorName,
-                            message = notification.description,
+                            message = notification.message,
                             questionTitle = "",
-                            timeAgo = notification.createdAt,
-                            isRead = notification.seen,
+                            timeAgo = formatRelativeTime(notification.createdAt),
+                            isRead = notification.isRead,
                         )
                     }
                     _uiState.update {
@@ -94,12 +95,22 @@ class NotificationsViewModel @Inject constructor(
                             error = null
                         )
                     }
+                    markAllAsRead(result.data)
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
                 }
             }
         }
+    }
+
+    private suspend fun markAllAsRead(notifications: List<com.mohamed.devz.feature.core.domain.model.Notification>) {
+        notifications.forEach { notification ->
+            if (!notification.isRead) {
+                notificationRepository.update(notification.copy(isRead = true))
+            }
+        }
+        _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
     }
 
     private fun markAllRead() {
@@ -109,8 +120,8 @@ class NotificationsViewModel @Inject constructor(
             when (val result = notificationRepository.getAllByAccountId(accountId)) {
                 is Result.Success -> {
                     result.data.forEach { notification ->
-                        if (!notification.seen) {
-                            notificationRepository.update(notification.copy(seen = true))
+                        if (!notification.isRead) {
+                            notificationRepository.update(notification.copy(isRead = true))
                         }
                     }
                     _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
@@ -128,7 +139,7 @@ class NotificationsViewModel @Inject constructor(
             )) {
                 is Result.Success -> {
                     val notification = result.data.find { it.id == intId } ?: return@launch
-                    notificationRepository.update(notification.copy(seen = true))
+                    notificationRepository.update(notification.copy(isRead = true))
                     _uiState.update {
                         it.copy(notifications = it.notifications.map { n ->
                             if (n.id == id) n.copy(isRead = true) else n
@@ -141,11 +152,11 @@ class NotificationsViewModel @Inject constructor(
     }
 
     private fun mapTypeString(type: String): NotificationType {
-        return when (type.uppercase()) {
-            "ACCEPTED" -> NotificationType.ACCEPTED
-            "UPVOTE" -> NotificationType.UPVOTE
-            "LIKE" -> NotificationType.LIKE
-            "COMMENT" -> NotificationType.COMMENT
+        return when (type.lowercase()) {
+            "accepted" -> NotificationType.ACCEPTED
+            "upvote" -> NotificationType.UPVOTE
+            "like" -> NotificationType.LIKE
+            "answer" -> NotificationType.ANSWER
             else -> NotificationType.LIKE
         }
     }

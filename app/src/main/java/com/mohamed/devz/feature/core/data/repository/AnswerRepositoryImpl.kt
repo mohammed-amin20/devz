@@ -4,7 +4,6 @@ import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSourc
 import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
 import com.mohamed.devz.feature.core.domain.model.Answer
-import com.mohamed.devz.feature.core.domain.model.AnswerVote
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
 import com.mohamed.devz.feature.core.domain.util.Error
 import com.mohamed.devz.feature.core.domain.util.Result
@@ -101,42 +100,6 @@ class AnswerRepositoryImpl @Inject constructor(
                 409 -> Result.Error(Error.Conflict)
                 else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
             }
-        } catch (e: IOException) {
-            Result.Error(Error.Network)
-        } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
-        }
-    }
-
-    override suspend fun toggleAnswerVote(answerId: Int, userId: Int): Result<Boolean, Error> {
-        return try {
-            val existing = remoteDataSource.answer.getAnswerVote(userId, answerId)
-            if (existing != null) {
-                remoteDataSource.answer.deleteAnswerVote(existing.id)
-                Result.Success(false)
-            } else {
-                remoteDataSource.answer.insertAnswerVote(userId, answerId)
-                Result.Success(true)
-            }
-        } catch (e: PostgrestRestException) {
-            when (e.statusCode) {
-                409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
-            }
-        } catch (e: IOException) {
-            Result.Error(Error.Network)
-        } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
-        }
-    }
-
-    override suspend fun getVotesForAnswers(answerIds: List<Int>): Result<List<AnswerVote>, Error> {
-        return try {
-            if (answerIds.isEmpty()) return Result.Success(emptyList())
-            val votes = remoteDataSource.answer.getVotesForAnswerIds(answerIds)
-            Result.Success(votes.map { it.toDomain() })
-        } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {

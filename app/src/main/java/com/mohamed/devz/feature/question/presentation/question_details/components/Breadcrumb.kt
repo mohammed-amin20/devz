@@ -68,3 +68,9 @@ fun Breadcrumb(
     }
 }
 
+@Preview
+@Composable
+private fun Prev() {
+    Breadcrumb( questionTitle = "", navigateUp = {})
+}
+
