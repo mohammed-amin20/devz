@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseOutBack
 import androidx.compose.animation.core.animateFloatAsState
@@ -40,6 +41,7 @@ import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.automirrored.filled.Help
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -49,6 +51,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -113,6 +116,7 @@ fun ProfileScreen(
     refreshTrigger: Int = 0,
     onFullScreenChanged: (Boolean) -> Unit = {},
     onDialogVisibilityChanged: (Boolean) -> Unit = {},
+    navigateUp: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -136,6 +140,18 @@ fun ProfileScreen(
         if (!showImagePreview && !showLogoutDialog) {
             onFullScreenChanged(false)
             onDialogVisibilityChanged(false)
+        }
+    }
+
+    BackHandler {
+        if(showImagePreview) {
+            showImagePreview = false
+            onFullScreenChanged(false)
+        } else if(showLogoutDialog) {
+            showLogoutDialog = false
+            onDialogVisibilityChanged(false)
+        } else {
+            navigateUp()
         }
     }
 
@@ -328,6 +344,17 @@ fun ProfileScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
+                                if (!uiState.isOwnProfile && navigateUp != null) {
+                                    IconButton(onClick = navigateUp) {
+                                        Icon(
+                                            Icons.AutoMirrored.Filled.ArrowBack,
+                                            contentDescription = "Back",
+                                            tint = TextWhite,
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                }
                                 Image(
                                     painter = painterResource(R.drawable.logo),
                                     contentDescription = null,
@@ -356,26 +383,27 @@ fun ProfileScreen(
                                     style = MaterialTheme.typography.titleLarge
                                 )
                             }
-                            TextButton(
-                                onClick = {
-                                    showLogoutDialog = true
-                                    onDialogVisibilityChanged(true)
-                                },
-                            ) {
-                                Text(
-                                    text = "Log Out",
-                                    color = QError,
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Icon(
-                                    Icons.AutoMirrored.Filled.Logout,
-                                    contentDescription = null,
-                                    tint = QError,
-                                    modifier = Modifier.size(18.dp)
-                                )
-
+                            if (uiState.isOwnProfile) {
+                                TextButton(
+                                    onClick = {
+                                        showLogoutDialog = true
+                                        onDialogVisibilityChanged(true)
+                                    },
+                                ) {
+                                    Text(
+                                        text = "Log Out",
+                                        color = QError,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.SemiBold
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.Logout,
+                                        contentDescription = null,
+                                        tint = QError,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -510,25 +538,27 @@ fun ProfileScreen(
                     }
 
                     // ── Edit Profile button ───────────────────────────────────────
-                    item {
-                        Button(
-                            onClick = onEditProfile,
-                            modifier = Modifier
-                                .height(40.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = CyanPrimary,
-                                contentColor = Color(0xFF00363E)
-                            )
-                        ) {
-                            Text(
-                                text = "Edit Profile",
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp,
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                    if (uiState.isOwnProfile) {
+                        item {
+                            Button(
+                                onClick = onEditProfile,
+                                modifier = Modifier
+                                    .height(40.dp),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = CyanPrimary,
+                                    contentColor = Color(0xFF00363E)
+                                )
+                            ) {
+                                Text(
+                                    text = "Edit Profile",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
                         }
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     // ── Stats grid ────────────────────────────────────────────────
@@ -975,7 +1005,8 @@ private fun PrevProfile() {
             onEditProfile = {},
             onQuestionClick = { _ -> },
             onAnswerClick = { _ -> },
-            onLogout = {}
+            onLogout = {},
+            navigateUp = {}
         )
     }
 }

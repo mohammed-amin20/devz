@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.question.presentation.question_details.componen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,8 @@ fun QuestionContent(
     onLikeClick: () -> Unit = {},
     onAnswerVoteClick: (Int) -> Unit = {},
     onAcceptAnswer: (Int) -> Unit = {},
+    onQuestionAuthorClick: () -> Unit = {},
+    onAnswerAuthorClick: (Int) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier
@@ -83,7 +86,10 @@ fun QuestionContent(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.clickable(onClick = onQuestionAuthorClick),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AsyncImage(
                         model = question.authorAvatarUrl,
                         contentDescription = null,
@@ -207,6 +213,7 @@ fun QuestionContent(
                 isAcceptButtonVisible = currentAccountId == question.authorAccountId
                         && currentAccountId != answers[index].authorAccountId,
                 onAcceptClick = { onAcceptAnswer(answers[index].answerId) },
+                onAuthorClick = { onAnswerAuthorClick(answers[index].authorAccountId) },
             )
             Spacer(Modifier.height(12.dp))
         }

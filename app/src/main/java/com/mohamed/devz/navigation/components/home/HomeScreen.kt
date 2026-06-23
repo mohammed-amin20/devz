@@ -23,6 +23,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -40,8 +41,8 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.ui.theme.QSurfaceLow
@@ -53,12 +54,22 @@ fun HomeScreen(
     navigateToQuestionDetails: (Int) -> Unit,
     navigateToAddEditQuestion: (Int?) -> Unit,
     navigateToEditProfile: () -> Unit,
+    navigateToProfile: (Int) -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
+    switchToProfileTab: Boolean = false,
     profileRefreshCounter: Int = 0,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = hiltViewModel()
 ) {
     val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
+    val currentAccountId by viewModel.currentAccountId.collectAsStateWithLifecycle()
+
+    LaunchedEffect(switchToProfileTab) {
+        if (switchToProfileTab) {
+            viewModel.onSelectedIndexChange(3)
+        }
+    }
+
     var isFullScreenImage by remember { mutableStateOf(false) }
     var isDialogOpen by remember { mutableStateOf(false) }
 
@@ -78,7 +89,14 @@ fun HomeScreen(
             onClick = { viewModel.onSelectedIndexChange(0) },
             content = {
                 ViewQuestionsScreen(
-                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) }
+                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onAuthorClick = { accountId ->
+                        if (accountId == currentAccountId) {
+                            viewModel.onSelectedIndexChange(3)
+                        } else {
+                            navigateToProfile(accountId)
+                        }
+                    }
                 )
             }
         ),
@@ -112,6 +130,7 @@ fun HomeScreen(
                     refreshTrigger = profileRefreshCounter,
                     onFullScreenChanged = { isFullScreenImage = it },
                     onDialogVisibilityChanged = { isDialogOpen = it },
+                    navigateUp = { viewModel.onSelectedIndexChange(0) }
                 )
             }
         )
@@ -231,6 +250,7 @@ private fun PreviewHomeScreen() {
             navigateToQuestionDetails = { _ -> },
             navigateToAddEditQuestion = { _ -> },
             navigateToEditProfile = {},
+            navigateToProfile = { _ -> },
             onLogout = {}
         )
     }

@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
@@ -30,6 +31,7 @@ sealed interface ProfileEvent {
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val accountRepository: AccountRepository,
     private val questionRepository: QuestionRepository,
     private val answerRepository: AnswerRepository,
@@ -42,11 +44,17 @@ class ProfileViewModel @Inject constructor(
     private val _profileEvent = MutableSharedFlow<ProfileEvent>()
     val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
 
-    init { loadProfile() }
+    init {
+        val targetAccountId = savedStateHandle.get<Int>("accountId")
+        loadProfile(targetAccountId)
+    }
 
     fun onAction(action: ProfileAction) {
         when (action) {
-            is ProfileAction.Refresh -> loadProfile()
+            is ProfileAction.Refresh -> {
+                val targetAccountId = savedStateHandle.get<Int>("accountId")
+                loadProfile(targetAccountId)
+            }
             is ProfileAction.Logout -> logout()
         }
     }
@@ -59,10 +67,11 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
-    private fun loadProfile() {
+    private fun loadProfile(targetAccountId: Int? = null) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
-            val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            val loggedInAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            val accountId = targetAccountId ?: loggedInAccountId
             if (accountId == 0) {
                 _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("User not found")) }
                 return@launch
@@ -86,10 +95,12 @@ class ProfileViewModel @Inject constructor(
                     } else "0%"
 
                     val questionMap = questions.associateBy { it.id }
+                    val isOwnProfile = targetAccountId == null || account.id == loggedInAccountId
 
                     _uiState.update {
                         it.copy(
                             id = account.id,
+                            isOwnProfile = isOwnProfile,
                             profile = ProfileUiModel(
                                 fullName = account.fullName,
                                 username = account.username,

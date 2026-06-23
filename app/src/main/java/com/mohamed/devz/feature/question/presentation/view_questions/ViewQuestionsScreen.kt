@@ -66,6 +66,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun ViewQuestionsScreen(
     onQuestionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
+    onAuthorClick: (Int) -> Unit = {},
     viewModel: ViewQuestionsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -269,6 +270,7 @@ fun ViewQuestionsScreen(
                         QuestionCard(
                             question = question,
                             onClick = { onQuestionClick(question.id) },
+                            onAuthorClick = { onAuthorClick(question.authorAccountId) },
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                     }

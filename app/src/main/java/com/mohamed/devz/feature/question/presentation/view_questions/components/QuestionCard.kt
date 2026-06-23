@@ -46,6 +46,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun QuestionCard(
     question: QuestionFeedUiModel,
     onClick: () -> Unit,
+    onAuthorClick: () -> Unit = {},
 ) {
     Surface(
         modifier = Modifier
@@ -63,7 +64,10 @@ fun QuestionCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.clickable(onClick = onAuthorClick),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
 
                     if (question.authorAvatarUrl.isNotEmpty()) {
                         AsyncImage(

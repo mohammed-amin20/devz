@@ -57,6 +57,7 @@ fun AnswerCard(
     isAcceptButtonVisible: Boolean,
     onVoteClick: () -> Unit = {},
     onAcceptClick: () -> Unit = {},
+    onAuthorClick: () -> Unit = {},
 ) {
     Row(
         modifier = Modifier
@@ -79,7 +80,10 @@ fun AnswerCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.Top
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.clickable(onClick = onAuthorClick),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     AsyncImage(
                         model = answer.avatarUrl,
                         contentDescription = null,

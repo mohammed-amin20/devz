@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter
 
 data class QuestionFeedUiModel(
     val id: Int,
+    val authorAccountId: Int,
     val authorName: String,
     val authorAvatarUrl: String,
     val timeAgo: String,
@@ -44,6 +45,7 @@ fun Question.toFeedUiModel(
     val langType = languageTypeCache[langTypeId]
     return QuestionFeedUiModel(
         id = id,
+        authorAccountId = account?.id ?: 0,
         authorName = account?.fullName ?: "Unknown",
         authorAvatarUrl = account?.imageUrl ?: "",
         timeAgo = formatRelativeTime(createdAt),

@@ -61,6 +61,7 @@ fun QuestionDetailScreen(
     questionId: Int,
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToProfile: (Int) -> Unit = {},
     viewModel: QuestionDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -129,8 +130,9 @@ fun QuestionDetailScreen(
                     }
                 }
             } else {
+                val question = uiState.question!!
                 QuestionContent(
-                    question = uiState.question!!,
+                    question = question,
                     answers = uiState.answers,
                     currentAccountId = uiState.currentAccountId,
                     modifier = Modifier
@@ -144,6 +146,8 @@ fun QuestionDetailScreen(
                     onAcceptAnswer = { answerId ->
                         viewModel.onAction(QuestionDetailsAction.AcceptAnswer(answerId))
                     },
+                    onQuestionAuthorClick = { onNavigateToProfile(question.authorAccountId) },
+                    onAnswerAuthorClick = { accountId -> onNavigateToProfile(accountId) },
                 )
 
                 AnswerInputBar(

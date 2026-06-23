@@ -11,5 +11,6 @@ data class ProfileState(
     val myQuestions: List<ProfileQuestionUiModel> = emptyList(),
     val myAnswers: List<ProfileAnswerUiModel> = emptyList(),
     val isLoading: Boolean = false,
-    val error: UiText? = null
+    val error: UiText? = null,
+    val isOwnProfile: Boolean = true
 )
