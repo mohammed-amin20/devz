@@ -3,6 +3,7 @@ package com.mohamed.devz.feature.notification.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
+import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
@@ -48,6 +49,7 @@ data class NotificationsUiState(
 @HiltViewModel
 class NotificationsViewModel @Inject constructor(
     private val notificationRepository: NotificationRepository,
+    private val questionRepository: QuestionRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
@@ -77,13 +79,21 @@ class NotificationsViewModel @Inject constructor(
 
             when (val result = notificationRepository.getAllByAccountId(accountId)) {
                 is Result.Success -> {
-                    val uiModels = result.data.map { notification ->
+                    val notifications = result.data
+                    val questionIds = notifications.map { it.questionId }.distinct()
+                    val questionTitles = questionIds.associateWith { qId ->
+                        when (val qResult = questionRepository.getById(qId)) {
+                            is Result.Success -> qResult.data.title
+                            is Result.Error -> ""
+                        }
+                    }
+                    val uiModels = notifications.map { notification ->
                         NotificationUiModel(
                             id = notification.id.toString(),
                             type = mapTypeString(notification.type),
                             actorName = notification.actorName,
                             message = notification.message,
-                            questionTitle = "",
+                            questionTitle = questionTitles[notification.questionId] ?: "",
                             timeAgo = formatRelativeTime(notification.createdAt),
                             isRead = notification.isRead,
                         )
@@ -95,7 +105,7 @@ class NotificationsViewModel @Inject constructor(
                             error = null
                         )
                     }
-                    markAllAsRead(result.data)
+                    markAllAsRead(notifications)
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }

@@ -6,6 +6,8 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class Notification(
     val id: Int,
+    @SerialName("type_id")
+    val typeId: Int,
     @SerialName("user_id")
     val userId: Int,
     @SerialName("actor_id")

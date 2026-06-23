@@ -23,7 +23,7 @@ class NotificationRepositoryImpl @Inject constructor(
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown(e.message ?: "Unknown error"))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)
@@ -47,7 +47,7 @@ class NotificationRepositoryImpl @Inject constructor(
             }
             Result.Success(domains)
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown(e.message ?: "Database error"))
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
@@ -63,7 +63,7 @@ class NotificationRepositoryImpl @Inject constructor(
             when (e.statusCode) {
                 404 -> Result.Error(Error.NotFound)
                 409 -> Result.Error(Error.Conflict)
-                else -> Result.Error(Error.Unknown(e.message ?: "Database error"))
+                else -> Result.Error(Error.Unknown(e.message ?: "Unknown error"))
             }
         } catch (e: IOException) {
             Result.Error(Error.Network)

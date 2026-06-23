@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.core.domain.model
 
 data class Notification(
     val id: Int,
+    val typeId: Int,
     val userId: Int,
     val actorId: Int,
     val questionId: Int,

@@ -297,6 +297,7 @@ class DevZRemoteDataSourceImpl(
 
             override suspend fun insertNotification(notification: Notification): Notification {
                 val json = buildJsonObject {
+                    put("type_id", notification.typeId)
                     put("user_id", notification.userId)
                     put("actor_id", notification.actorId)
                     put("question_id", notification.questionId)

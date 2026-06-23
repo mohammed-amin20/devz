@@ -8,6 +8,7 @@ fun DataNotification.toDomain(
     actorAvatarUrl: String? = null,
 ): DomainNotification = DomainNotification(
     id = id,
+    typeId = typeId,
     userId = userId,
     actorId = actorId,
     questionId = questionId,
@@ -22,6 +23,7 @@ fun DataNotification.toDomain(
 
 fun DomainNotification.toData(): DataNotification = DataNotification(
     id = id,
+    typeId = typeId,
     userId = userId,
     actorId = actorId,
     questionId = questionId,

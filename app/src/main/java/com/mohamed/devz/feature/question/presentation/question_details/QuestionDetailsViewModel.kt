@@ -44,7 +44,8 @@ class QuestionDetailsViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     private val _questionDetailsEvent = MutableSharedFlow<QuestionDetailsEvent>()
-    val questionDetailsEvent: SharedFlow<QuestionDetailsEvent> = _questionDetailsEvent.asSharedFlow()
+    val questionDetailsEvent: SharedFlow<QuestionDetailsEvent> =
+        _questionDetailsEvent.asSharedFlow()
 
     private var currentQuestionId: Int? = null
     private var currentAccountId: Int = 0
@@ -110,31 +111,29 @@ class QuestionDetailsViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is Result.Success -> {
                     if (!wasLiked && currentAccountId != questionOwnerAccountId) {
-                        kotlin.runCatching {
-                            notificationRepository.insert(
-                                Notification(
-                                    id = 0,
-                                    userId = questionOwnerAccountId,
-                                    actorId = currentAccountId,
-                                    questionId = questionId,
-                                    answerId = null,
-                                    type = "like",
-                                    message = "liked your question",
-                                    isRead = false,
-                                    createdAt = "",
-                                )
+                        notificationRepository.insert(
+                            Notification(
+                                id = 0,
+                                typeId = 2,
+                                userId = questionOwnerAccountId,
+                                actorId = currentAccountId,
+                                questionId = questionId,
+                                answerId = null,
+                                type = "like",
+                                message = "liked your question",
+                                isRead = false,
+                                createdAt = "",
                             )
-                        }
+                        )
                     }
                     if (currentAccountId != questionOwnerAccountId) {
-                        kotlin.runCatching {
-                            accountRepository.addPoints(
-                                questionOwnerAccountId,
-                                if (!wasLiked) 1 else -1
-                            )
-                        }
+                        accountRepository.addPoints(
+                            questionOwnerAccountId,
+                            if (!wasLiked) 1 else -1
+                        )
                     }
                 }
             }
@@ -174,11 +173,23 @@ class QuestionDetailsViewModel @Inject constructor(
                         isLiked = isLiked,
                         likedAccountIds = q.likedAccountIds,
                     )
-                    _uiState.update { it.copy(question = detailUiModel, isLoading = false, error = null ) }
+                    _uiState.update {
+                        it.copy(
+                            question = detailUiModel,
+                            isLoading = false,
+                            error = null
+                        )
+                    }
                     loadAnswers(questionId)
                 }
+
                 is Result.Error -> {
-                    _uiState.update { it.copy(error = questionResult.error.toUIText(), isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            error = questionResult.error.toUIText(),
+                            isLoading = false
+                        )
+                    }
                 }
             }
         }
@@ -190,7 +201,8 @@ class QuestionDetailsViewModel @Inject constructor(
                 val answers = result.data
                 val answerUiModels = answers.map { answer ->
                     val votes = answer.votedIds.split(",").filter { it.isNotBlank() }
-                    val author = (accountRepository.getById(answer.accountId) as? Result.Success)?.data
+                    val author =
+                        (accountRepository.getById(answer.accountId) as? Result.Success)?.data
                     AnswerUiModel(
                         answerId = answer.id,
                         authorName = author?.fullName ?: "Unknown",
@@ -205,10 +217,14 @@ class QuestionDetailsViewModel @Inject constructor(
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }
             }
+
             is Result.Error -> {
-                _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                    (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                ))
+                _questionDetailsEvent.emit(
+                    QuestionDetailsEvent.ShowError(
+                        (result.error.toUIText() as? UiText.DynamicString)?.value
+                            ?: "An error occurred"
+                    )
+                )
             }
         }
     }
@@ -226,17 +242,20 @@ class QuestionDetailsViewModel @Inject constructor(
             if (idx == -1) return@update state
             val current = state.answers[idx]
             state.copy(answers = state.answers.toMutableList().apply {
-                set(idx, current.copy(
-                    likes = if (current.isLiked) current.likes - 1 else current.likes + 1,
-                    isLiked = !current.isLiked
-                ))
+                set(
+                    idx, current.copy(
+                        likes = if (current.isLiked) current.likes - 1 else current.likes + 1,
+                        isLiked = !current.isLiked
+                    )
+                )
             })
         }
 
         viewModelScope.launch {
             when (val answer = answerRepository.getById(answerId)) {
                 is Result.Success -> {
-                    when (val result = answerRepository.update(answer.data.toggleVote(currentAccountId))) {
+                    when (val result =
+                        answerRepository.update(answer.data.toggleVote(currentAccountId))) {
                         is Result.Success -> {
                             if (currentAccountId != original.authorAccountId) {
                                 kotlin.runCatching {
@@ -246,20 +265,44 @@ class QuestionDetailsViewModel @Inject constructor(
                                     )
                                 }
                             }
+                            if (!original.isLiked && currentAccountId != original.authorAccountId) {
+                                notificationRepository.insert(
+                                    Notification(
+                                        id = 0,
+                                        typeId = 4,
+                                        userId = original.authorAccountId,
+                                        actorId = currentAccountId,
+                                        questionId = currentQuestionId ?: return@launch,
+                                        answerId = answerId,
+                                        type = "upvote",
+                                        message = "upvoted your answer",
+                                        isRead = false,
+                                        createdAt = "",
+                                    )
+                                )
+                            }
                         }
+
                         is Result.Error -> {
                             rollbackAnswerVote(answerId, original)
-                            _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                                (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                            ))
+                            _questionDetailsEvent.emit(
+                                QuestionDetailsEvent.ShowError(
+                                    (result.error.toUIText() as? UiText.DynamicString)?.value
+                                        ?: "An error occurred"
+                                )
+                            )
                         }
                     }
                 }
+
                 is Result.Error -> {
                     rollbackAnswerVote(answerId, original)
-                    _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                        (answer.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                    ))
+                    _questionDetailsEvent.emit(
+                        QuestionDetailsEvent.ShowError(
+                            (answer.error.toUIText() as? UiText.DynamicString)?.value
+                                ?: "An error occurred"
+                        )
+                    )
                 }
             }
         }
@@ -304,6 +347,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         notificationRepository.insert(
                             Notification(
                                 id = 0,
+                                typeId = 3,
                                 userId = questionOwnerAccountId,
                                 actorId = currentAccountId,
                                 questionId = questionId,
@@ -314,12 +358,11 @@ class QuestionDetailsViewModel @Inject constructor(
                                 createdAt = "",
                             )
                         )
-                        kotlin.runCatching {
-                            accountRepository.addPoints(questionOwnerAccountId, 1)
-                        }
+                        accountRepository.addPoints(questionOwnerAccountId, 1)
                     }
                     onSuccess()
                 }
+
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isPosting = false) }
                 }
@@ -340,7 +383,8 @@ class QuestionDetailsViewModel @Inject constructor(
         _uiState.update { state ->
             val mutableAnswers = state.answers.toMutableList()
             if (prevAcceptedIndex != -1)
-                mutableAnswers[prevAcceptedIndex] = mutableAnswers[prevAcceptedIndex].copy(isAccepted = false)
+                mutableAnswers[prevAcceptedIndex] =
+                    mutableAnswers[prevAcceptedIndex].copy(isAccepted = false)
             mutableAnswers[newAnswerIndex] = mutableAnswers[newAnswerIndex].copy(isAccepted = true)
             state.copy(answers = mutableAnswers)
         }
@@ -350,22 +394,31 @@ class QuestionDetailsViewModel @Inject constructor(
                 val oldAnswerId = originalAnswers[prevAcceptedIndex].answerId
                 when (val oldResult = answerRepository.getById(oldAnswerId)) {
                     is Result.Success -> {
-                        when (val result = answerRepository.update(oldResult.data.copy(accepted = false))) {
+                        when (val result =
+                            answerRepository.update(oldResult.data.copy(accepted = false))) {
                             is Result.Error -> {
                                 rollbackAcceptAnswer(originalAnswers)
-                                _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                                    (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                                ))
+                                _questionDetailsEvent.emit(
+                                    QuestionDetailsEvent.ShowError(
+                                        (result.error.toUIText() as? UiText.DynamicString)?.value
+                                            ?: "An error occurred"
+                                    )
+                                )
                                 return@launch
                             }
+
                             is Result.Success -> Unit
                         }
                     }
+
                     is Result.Error -> {
                         rollbackAcceptAnswer(originalAnswers)
-                        _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                            (oldResult.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                        ))
+                        _questionDetailsEvent.emit(
+                            QuestionDetailsEvent.ShowError(
+                                (oldResult.error.toUIText() as? UiText.DynamicString)?.value
+                                    ?: "An error occurred"
+                            )
+                        )
                         return@launch
                     }
                 }
@@ -374,26 +427,41 @@ class QuestionDetailsViewModel @Inject constructor(
             when (val newResult = answerRepository.getById(answerId)) {
                 is Result.Error -> {
                     if (prevAcceptedIndex != -1) {
-                        val res = answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
+                        val res =
+                            answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
                         if (res is Result.Success) answerRepository.update(res.data.copy(accepted = true))
                     }
                     rollbackAcceptAnswer(originalAnswers)
-                    _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                        (newResult.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                    ))
+                    _questionDetailsEvent.emit(
+                        QuestionDetailsEvent.ShowError(
+                            (newResult.error.toUIText() as? UiText.DynamicString)?.value
+                                ?: "An error occurred"
+                        )
+                    )
                 }
+
                 is Result.Success -> {
-                    when (val result = answerRepository.update(newResult.data.copy(accepted = true))) {
+                    when (val result =
+                        answerRepository.update(newResult.data.copy(accepted = true))) {
                         is Result.Error -> {
                             if (prevAcceptedIndex != -1) {
-                                val res = answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
-                                if (res is Result.Success) answerRepository.update(res.data.copy(accepted = true))
+                                val res =
+                                    answerRepository.getById(originalAnswers[prevAcceptedIndex].answerId)
+                                if (res is Result.Success) answerRepository.update(
+                                    res.data.copy(
+                                        accepted = true
+                                    )
+                                )
                             }
                             rollbackAcceptAnswer(originalAnswers)
-                            _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
-                                (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
-                            ))
+                            _questionDetailsEvent.emit(
+                                QuestionDetailsEvent.ShowError(
+                                    (result.error.toUIText() as? UiText.DynamicString)?.value
+                                        ?: "An error occurred"
+                                )
+                            )
                         }
+
                         is Result.Success -> {
                             val newAnswerAuthorId = originalAnswers[newAnswerIndex].authorAccountId
                             if (currentAccountId != newAnswerAuthorId) {
@@ -401,8 +469,25 @@ class QuestionDetailsViewModel @Inject constructor(
                                     accountRepository.addPoints(newAnswerAuthorId, 5)
                                 }
                             }
+                            if (currentAccountId != newAnswerAuthorId) {
+                                notificationRepository.insert(
+                                    Notification(
+                                        id = 0,
+                                        typeId = 1,
+                                        userId = newAnswerAuthorId,
+                                        actorId = currentAccountId,
+                                        questionId = currentQuestionId ?: return@launch,
+                                        answerId = answerId,
+                                        type = "accepted",
+                                        message = "accepted your answer",
+                                        isRead = false,
+                                        createdAt = "",
+                                    )
+                                )
+                            }
                             if (prevAcceptedIndex != -1) {
-                                val oldAnswerAuthorId = originalAnswers[prevAcceptedIndex].authorAccountId
+                                val oldAnswerAuthorId =
+                                    originalAnswers[prevAcceptedIndex].authorAccountId
                                 if (currentAccountId != oldAnswerAuthorId) {
                                     kotlin.runCatching {
                                         accountRepository.addPoints(oldAnswerAuthorId, -5)
