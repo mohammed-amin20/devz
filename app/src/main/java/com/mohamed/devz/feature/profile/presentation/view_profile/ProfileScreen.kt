@@ -312,7 +312,10 @@ fun ProfileScreen(
 
             else -> {
                 var selectedTab by remember { mutableIntStateOf(0) }
-                val tabs = listOf("MY QUESTIONS", "MY ANSWERS")
+                val tabs = listOf(
+                    "${if(uiState.isOwnProfile) "MY" else "THEIR"} QUESTIONS",
+                    "${if (uiState.isOwnProfile) "MY" else "THEIR"} ANSWERS"
+                )
 
                 val pullRefreshState = rememberPullToRefreshState()
                 PullToRefreshBox(
@@ -344,7 +347,7 @@ fun ProfileScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                if (!uiState.isOwnProfile && navigateUp != null) {
+                                if (!uiState.isOwnProfile) {
                                     IconButton(onClick = navigateUp) {
                                         Icon(
                                             Icons.AutoMirrored.Filled.ArrowBack,
