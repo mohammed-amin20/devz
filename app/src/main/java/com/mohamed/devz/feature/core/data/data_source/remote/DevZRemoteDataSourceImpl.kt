@@ -42,6 +42,7 @@ class DevZRemoteDataSourceImpl(
                     put("github_url", account.githubUrl)
                     put("linkedin_url", account.linkedInUrl)
                     put("website_url", account.websiteUrl)
+                    put("points", account.points)
                 }
 
                 return db.from(tableName)

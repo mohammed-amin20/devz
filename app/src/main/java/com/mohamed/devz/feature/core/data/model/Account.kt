@@ -21,5 +21,7 @@ data class Account(
     @SerialName("linkedin_url")
     val linkedInUrl: String,
     @SerialName("website_url")
-    val websiteUrl: String
+    val websiteUrl: String,
+    @SerialName("points")
+    val points: Int = 0,
 )

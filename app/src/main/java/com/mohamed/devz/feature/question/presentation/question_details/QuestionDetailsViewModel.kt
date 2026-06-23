@@ -128,6 +128,14 @@ class QuestionDetailsViewModel @Inject constructor(
                             )
                         }
                     }
+                    if (currentAccountId != questionOwnerAccountId) {
+                        kotlin.runCatching {
+                            accountRepository.addPoints(
+                                questionOwnerAccountId,
+                                if (!wasLiked) 1 else -1
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -229,7 +237,16 @@ class QuestionDetailsViewModel @Inject constructor(
             when (val answer = answerRepository.getById(answerId)) {
                 is Result.Success -> {
                     when (val result = answerRepository.update(answer.data.toggleVote(currentAccountId))) {
-                        is Result.Success -> Unit
+                        is Result.Success -> {
+                            if (currentAccountId != original.authorAccountId) {
+                                kotlin.runCatching {
+                                    accountRepository.addPoints(
+                                        original.authorAccountId,
+                                        if (!original.isLiked) 2 else -2
+                                    )
+                                }
+                            }
+                        }
                         is Result.Error -> {
                             rollbackAnswerVote(answerId, original)
                             _questionDetailsEvent.emit(QuestionDetailsEvent.ShowError(
@@ -297,6 +314,9 @@ class QuestionDetailsViewModel @Inject constructor(
                                 createdAt = "",
                             )
                         )
+                        kotlin.runCatching {
+                            accountRepository.addPoints(questionOwnerAccountId, 1)
+                        }
                     }
                     onSuccess()
                 }
@@ -374,7 +394,22 @@ class QuestionDetailsViewModel @Inject constructor(
                                 (result.error.toUIText() as? UiText.DynamicString)?.value ?: "An error occurred"
                             ))
                         }
-                        is Result.Success -> Unit
+                        is Result.Success -> {
+                            val newAnswerAuthorId = originalAnswers[newAnswerIndex].authorAccountId
+                            if (currentAccountId != newAnswerAuthorId) {
+                                kotlin.runCatching {
+                                    accountRepository.addPoints(newAnswerAuthorId, 5)
+                                }
+                            }
+                            if (prevAcceptedIndex != -1) {
+                                val oldAnswerAuthorId = originalAnswers[prevAcceptedIndex].authorAccountId
+                                if (currentAccountId != oldAnswerAuthorId) {
+                                    kotlin.runCatching {
+                                        accountRepository.addPoints(oldAnswerAuthorId, -5)
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

@@ -15,6 +15,7 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     githubUrl = githubUrl,
     linkedInUrl = linkedInUrl,
     websiteUrl = websiteUrl,
+    points = points,
 )
 
 fun DomainAccount.toData(): DataAccount = DataAccount(
@@ -29,4 +30,5 @@ fun DomainAccount.toData(): DataAccount = DataAccount(
     githubUrl = githubUrl,
     linkedInUrl = linkedInUrl,
     websiteUrl = websiteUrl,
+    points = points,
 )

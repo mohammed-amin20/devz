@@ -11,5 +11,6 @@ data class Account(
     val techStack: String,
     val githubUrl: String,
     val linkedInUrl: String,
-    val websiteUrl: String
+    val websiteUrl: String,
+    val points: Int = 0,
 )

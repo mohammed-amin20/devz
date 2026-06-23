@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.repository
 
+import android.util.Log
 import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSource
 import com.mohamed.devz.feature.core.data.mapper.toData
 import com.mohamed.devz.feature.core.data.mapper.toDomain
@@ -10,10 +11,16 @@ import com.mohamed.devz.feature.core.domain.util.Result
 import io.github.jan.supabase.postgrest.exception.PostgrestRestException
 import jakarta.inject.Inject
 import java.io.IOException
+import java.security.MessageDigest
 
 class AccountRepositoryImpl @Inject constructor(
     private val remoteDataSource: DevZRemoteDataSource,
 ) : AccountRepository {
+
+    private fun String.sha256(): String {
+        val digest = MessageDigest.getInstance("SHA-256")
+        return digest.digest(toByteArray()).joinToString("") { "%02x".format(it) }
+    }
 
     override suspend fun getById(id: Int): Result<Account, Error> {
         return try {
@@ -25,10 +32,10 @@ class AccountRepositoryImpl @Inject constructor(
                 in 401..403 -> Result.Error(Error.Unauthorized)
                 else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
-        } catch (e: IOException) {
+        } catch (_: IOException) {
             Result.Error(Error.Network)
-        } catch (e: Exception) {
-            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        } catch (_: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
         }
     }
 
@@ -50,7 +57,8 @@ class AccountRepositoryImpl @Inject constructor(
         password: String,
     ): Result<Account?, Error> {
         return try {
-            val account = remoteDataSource.account.getAccountByUsernameAndPassword(username, password)
+            val hashedPassword = password.sha256()
+            val account = remoteDataSource.account.getAccountByUsernameAndPassword(username, hashedPassword)
             Result.Success(account?.toDomain())
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
@@ -66,7 +74,8 @@ class AccountRepositoryImpl @Inject constructor(
 
     override suspend fun insert(account: Account): Result<Account, Error> {
         return try {
-            val inserted = remoteDataSource.account.insertAccount(account.toData())
+            val hashedAccount = account.copy(password = account.password.sha256())
+            val inserted = remoteDataSource.account.insertAccount(hashedAccount.toData())
             Result.Success(inserted.toDomain())
         } catch (e: PostgrestRestException) {
             when (e.statusCode) {
@@ -91,6 +100,27 @@ class AccountRepositoryImpl @Inject constructor(
                 else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
             }
         } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
+    override suspend fun addPoints(accountId: Int, delta: Int): Result<Unit, Error> {
+        return try {
+            when (val accountResult = getById(accountId)) {
+                is Result.Success -> {
+                    val updated = accountResult.data.copy(points = accountResult.data.points + delta)
+                    update(updated)
+                }
+                is Result.Error -> Result.Error(accountResult.error, null)
+            }
+        } catch (e: PostgrestRestException) {
+            when (e.statusCode) {
+                404 -> Result.Error(Error.NotFound)
+                else -> Result.Error(Error.Unknown("Unknown error. Try again later."))
+            }
+        } catch (_: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
             Result.Error(Error.Unknown(e.message ?: "Unknown error"))

@@ -106,7 +106,7 @@ class ProfileViewModel @Inject constructor(
                                 username = account.username,
                                 imageUrl = account.imageUrl,
                                 bio = account.bio,
-                                points = "0",
+                                points = account.points.toString(),
                                 answerCount = answers.size,
                                 questionCount = questions.size,
                                 acceptedRate = acceptedRate,
