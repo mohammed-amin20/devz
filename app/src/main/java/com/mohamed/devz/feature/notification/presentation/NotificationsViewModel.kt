@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.notification.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.domain.model.Notification as DomainNotification
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
@@ -35,6 +36,7 @@ data class NotificationUiModel(
     val type: NotificationType,
     val actorName: String?,
     val message: String,
+    val questionId: Int,
     val questionTitle: String,
     val timeAgo: String,
     val isRead: Boolean = false,
@@ -55,6 +57,8 @@ class NotificationsViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(NotificationsUiState())
     val uiState = _uiState.asStateFlow()
+
+    private var rawNotifications: Map<Int, DomainNotification> = emptyMap()
 
     init {
         loadNotifications()
@@ -87,12 +91,14 @@ class NotificationsViewModel @Inject constructor(
                             is Result.Error -> ""
                         }
                     }
+                    rawNotifications = notifications.associateBy { it.id }
                     val uiModels = notifications.map { notification ->
                         NotificationUiModel(
                             id = notification.id.toString(),
                             type = mapTypeString(notification.type),
                             actorName = notification.actorName,
                             message = notification.message,
+                            questionId = notification.questionId,
                             questionTitle = questionTitles[notification.questionId] ?: "",
                             timeAgo = formatRelativeTime(notification.createdAt),
                             isRead = notification.isRead,
@@ -105,7 +111,6 @@ class NotificationsViewModel @Inject constructor(
                             error = null
                         )
                     }
-                    markAllAsRead(notifications)
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
@@ -114,49 +119,30 @@ class NotificationsViewModel @Inject constructor(
         }
     }
 
-    private suspend fun markAllAsRead(notifications: List<com.mohamed.devz.feature.core.domain.model.Notification>) {
-        notifications.forEach { notification ->
-            if (!notification.isRead) {
-                notificationRepository.update(notification.copy(isRead = true))
-            }
-        }
-        _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
-    }
-
     private fun markAllRead() {
         viewModelScope.launch {
-            val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
-            if (accountId == 0) return@launch
-            when (val result = notificationRepository.getAllByAccountId(accountId)) {
-                is Result.Success -> {
-                    result.data.forEach { notification ->
-                        if (!notification.isRead) {
-                            notificationRepository.update(notification.copy(isRead = true))
-                        }
-                    }
-                    _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
-                }
-                is Result.Error -> { }
+            val unreadIds = rawNotifications.filter { !it.value.isRead }.keys
+            if (unreadIds.isEmpty()) return@launch
+
+            unreadIds.forEach { id ->
+                val raw = rawNotifications[id] ?: return@forEach
+                notificationRepository.update(raw.copy(isRead = true))
             }
+            rawNotifications = rawNotifications.mapValues { it.value.copy(isRead = true) }
+            _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
         }
     }
 
     private fun markRead(id: String) {
         viewModelScope.launch {
             val intId = id.toIntOrNull() ?: return@launch
-            when (val result = notificationRepository.getAllByAccountId(
-                userPreferencesRepository.observeCurrentAccountId().first() ?: return@launch
-            )) {
-                is Result.Success -> {
-                    val notification = result.data.find { it.id == intId } ?: return@launch
-                    notificationRepository.update(notification.copy(isRead = true))
-                    _uiState.update {
-                        it.copy(notifications = it.notifications.map { n ->
-                            if (n.id == id) n.copy(isRead = true) else n
-                        })
-                    }
-                }
-                is Result.Error -> { }
+            val raw = rawNotifications[intId] ?: return@launch
+            notificationRepository.update(raw.copy(isRead = true))
+            rawNotifications = rawNotifications + (intId to raw.copy(isRead = true))
+            _uiState.update {
+                it.copy(notifications = it.notifications.map { n ->
+                    if (n.id == id) n.copy(isRead = true) else n
+                })
             }
         }
     }

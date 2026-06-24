@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,12 +41,15 @@ import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
+import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -63,6 +68,7 @@ fun HomeScreen(
 ) {
     val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
     val currentAccountId by viewModel.currentAccountId.collectAsStateWithLifecycle()
+    val unreadCount by viewModel.unreadCount.collectAsStateWithLifecycle()
 
     LaunchedEffect(switchToProfileTab) {
         if (switchToProfileTab) {
@@ -113,7 +119,9 @@ fun HomeScreen(
             index = 2,
             onClick = { viewModel.onSelectedIndexChange(2) },
             content = {
-                NotificationsScreen()
+                NotificationsScreen(
+                    onNotificationClick = navigateToQuestionDetails
+                )
             }
         ),
         NavigationItem(
@@ -174,7 +182,8 @@ fun HomeScreen(
                             NavIconButton(
                                 icon = item.icon,
                                 isSelected = index == selectedIndex,
-                                onClick = item.onClick
+                                onClick = item.onClick,
+                                badgeCount = if (index == 2) unreadCount else 0,
                             )
                         }
                     }
@@ -201,6 +210,7 @@ private fun NavIconButton(
     icon: ImageVector,
     isSelected: Boolean,
     isAccent: Boolean = false,
+    badgeCount: Int = 0,
     onClick: () -> Unit,
 ) {
     val tint = when {
@@ -239,6 +249,24 @@ private fun NavIconButton(
             modifier = Modifier
                 .size(if (isAccent && isSelected) 30.dp else 26.dp)
         )
+
+        if (badgeCount > 0) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopEnd)
+                    .size(20.dp)
+                    .clip(CircleShape)
+                    .background(CyanPrimary),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = if (badgeCount > 9) "9+" else badgeCount.toString(),
+                    color = Color.Black,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
     }
 }
 

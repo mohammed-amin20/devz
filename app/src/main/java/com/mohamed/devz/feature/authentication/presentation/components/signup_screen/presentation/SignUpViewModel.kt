@@ -5,8 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
-import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.core.domain.util.FcmTokenUtil
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -60,6 +61,7 @@ class SignUpViewModel @Inject constructor(
                     _uiState.update { it.copy(isLoading = false) }
                     userPreferencesRepository.setLoggedIn()
                     userPreferencesRepository.setAccountId(result.data.id)
+                    FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
                     onSuccess()
                 }
                 is com.mohamed.devz.feature.core.domain.util.Result.Error -> {

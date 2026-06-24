@@ -2,9 +2,11 @@ package com.mohamed.devz.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -25,10 +27,12 @@ import com.mohamed.devz.navigation.components.home.HomeViewModel
 
 @Composable
 fun DevzNavHost(
+    pendingQuestionId: Int? = null,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
     var profileRefreshCounter by remember { mutableIntStateOf(0) }
+    var handledDeepLink by remember { mutableStateOf(false) }
 
     NavHost(
         navController = navController,
@@ -83,6 +87,13 @@ fun DevzNavHost(
                 .savedStateHandle
                 .getStateFlow("switchToProfileTab", false)
                 .collectAsState()
+
+            LaunchedEffect(pendingQuestionId) {
+                if (!handledDeepLink && pendingQuestionId != null) {
+                    handledDeepLink = true
+                    navController.navigate(Route.QuestionDetails(pendingQuestionId))
+                }
+            }
 
             HomeScreen(
                 navigateToQuestionDetails = { id ->

@@ -24,4 +24,6 @@ data class Account(
     val websiteUrl: String,
     @SerialName("points")
     val points: Int = 0,
+    @SerialName("fcm_token")
+    val fcmToken: String = "",
 )

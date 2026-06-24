@@ -13,4 +13,5 @@ data class Account(
     val linkedInUrl: String,
     val websiteUrl: String,
     val points: Int = 0,
+    val fcmToken: String = "",
 )

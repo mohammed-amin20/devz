@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.question.presentation.question_details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
 import com.mohamed.devz.feature.core.domain.model.Answer
 import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.domain.model.toggleVote
@@ -34,6 +35,7 @@ class QuestionDetailsViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val notificationRepository: NotificationRepository,
+    private val fcmPushSender: FcmPushSender,
 ) : ViewModel() {
 
     sealed interface QuestionDetailsEvent {
@@ -128,6 +130,19 @@ class QuestionDetailsViewModel @Inject constructor(
                                 createdAt = "",
                             )
                         )
+                        kotlin.runCatching {
+                            val actor = (accountRepository.getById(currentAccountId) as? Result.Success)?.data
+                            val recipient = (accountRepository.getById(questionOwnerAccountId) as? Result.Success)?.data
+                            if (actor != null && recipient != null && recipient.fcmToken.isNotBlank()) {
+                                fcmPushSender.sendPush(
+                                    fcmToken = recipient.fcmToken,
+                                    title = "New like",
+                                    body = "${actor.fullName} liked your question",
+                                    questionId = questionId,
+                                    type = "like",
+                                )
+                            }
+                        }
                     }
                     if (currentAccountId != questionOwnerAccountId) {
                         accountRepository.addPoints(
@@ -280,6 +295,19 @@ class QuestionDetailsViewModel @Inject constructor(
                                         createdAt = "",
                                     )
                                 )
+                                kotlin.runCatching {
+                                    val actor = (accountRepository.getById(currentAccountId) as? Result.Success)?.data
+                                    val recipient = (accountRepository.getById(original.authorAccountId) as? Result.Success)?.data
+                                    if (actor != null && recipient != null && recipient.fcmToken.isNotBlank()) {
+                                        fcmPushSender.sendPush(
+                                            fcmToken = recipient.fcmToken,
+                                            title = "New upvote",
+                                            body = "${actor.fullName} upvoted your answer",
+                                            questionId = currentQuestionId ?: return@runCatching,
+                                            type = "upvote",
+                                        )
+                                    }
+                                }
                             }
                         }
 
@@ -358,6 +386,19 @@ class QuestionDetailsViewModel @Inject constructor(
                                 createdAt = "",
                             )
                         )
+                        kotlin.runCatching {
+                            val actor = (accountRepository.getById(currentAccountId) as? Result.Success)?.data
+                            val recipient = (accountRepository.getById(questionOwnerAccountId) as? Result.Success)?.data
+                            if (actor != null && recipient != null && recipient.fcmToken.isNotBlank()) {
+                                fcmPushSender.sendPush(
+                                    fcmToken = recipient.fcmToken,
+                                    title = "New answer",
+                                    body = "${actor.fullName} answered your question",
+                                    questionId = questionId,
+                                    type = "answer",
+                                )
+                            }
+                        }
                         accountRepository.addPoints(questionOwnerAccountId, 1)
                     }
                     onSuccess()
@@ -484,6 +525,19 @@ class QuestionDetailsViewModel @Inject constructor(
                                         createdAt = "",
                                     )
                                 )
+                                kotlin.runCatching {
+                                    val actor = (accountRepository.getById(currentAccountId) as? Result.Success)?.data
+                                    val recipient = (accountRepository.getById(newAnswerAuthorId) as? Result.Success)?.data
+                                    if (actor != null && recipient != null && recipient.fcmToken.isNotBlank()) {
+                                        fcmPushSender.sendPush(
+                                            fcmToken = recipient.fcmToken,
+                                            title = "Answer accepted",
+                                            body = "${actor.fullName} accepted your answer",
+                                            questionId = currentQuestionId ?: return@runCatching,
+                                            type = "accepted",
+                                        )
+                                    }
+                                }
                             }
                             if (prevAcceptedIndex != -1) {
                                 val oldAnswerAuthorId =

@@ -4,8 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
-import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.core.domain.util.FcmTokenUtil
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,6 +41,7 @@ class LoginViewModel @Inject constructor(
                     if (result.data != null) {
                         userPreferencesRepository.setLoggedIn()
                         userPreferencesRepository.setAccountId(result.data.id)
+                        FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
                         onSuccess()
                     } else {
                         _uiState.update { it.copy(error = UiText.DynamicString("Invalid credentials"), isLoading = false) }

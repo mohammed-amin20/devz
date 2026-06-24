@@ -19,6 +19,7 @@ import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationTypeRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
+import com.mohamed.devz.BuildConfig
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -39,8 +40,8 @@ object CoreModule {
     @Singleton
     fun provideDevZSupabase(): SupabaseClient {
         return createSupabaseClient(
-            supabaseUrl = "https://djmcmaiqrmrqwnwicqbp.supabase.co",
-            supabaseKey = "sb_publishable_gVJgOxCgGV0TcycEw5DFtw_93cfObjd"
+            supabaseUrl = BuildConfig.SUPABASE_URL,
+            supabaseKey = BuildConfig.SUPABASE_ANON_KEY
         ) {
             install(Postgrest)
             install(Storage)

@@ -43,6 +43,7 @@ class DevZRemoteDataSourceImpl(
                     put("linkedin_url", account.linkedInUrl)
                     put("website_url", account.websiteUrl)
                     put("points", account.points)
+                    put("fcm_token", account.fcmToken)
                 }
 
                 return db.from(tableName)

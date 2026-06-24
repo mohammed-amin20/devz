@@ -18,6 +18,8 @@ ksp = "2.3.7"
 roomKtx = "2.8.4"
 material3 = "1.4.0"
 datastorePreferences = "1.2.1"
+googleGmsGoogleServices = "4.5.0"
+firebaseMessaging = "25.1.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -48,6 +50,7 @@ androidx-compose-material3 = { group = "androidx.compose.material3", name = "mat
 ktor-client-android = { module = "io.ktor:ktor-client-android", version.ref = "ktorClientAndroid" }
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "bom" }
+firebase-messaging = { group = "com.google.firebase", name = "firebase-messaging", version.ref = "firebaseMessaging" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -55,3 +58,4 @@ kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "ko
 hilt = { id = "com.google.dagger.hilt.android", version.ref = "hiltAndroid" }
 ksp = {id= "com.google.devtools.ksp", version.ref = "ksp"}
 kotlinx-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServices" }

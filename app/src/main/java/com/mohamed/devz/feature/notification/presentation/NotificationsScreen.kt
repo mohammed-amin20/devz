@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.notification.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -20,12 +21,18 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -48,11 +56,19 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun NotificationsScreen(
+    onNotificationClick: (questionId: Int) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: NotificationsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val notifications = uiState.notifications
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.isLoading) {
+        if (!uiState.isLoading) {
+            isRefreshing = false
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -77,26 +93,86 @@ fun NotificationsScreen(
                 )
             }
 
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(6.dp)
+            PullToRefreshBox(
+                isRefreshing = isRefreshing,
+                onRefresh = {
+                    isRefreshing = true
+                    viewModel.onAction(NotificationsAction.Refresh)
+                },
+                modifier = Modifier.fillMaxSize()
             ) {
-                item { Spacer(modifier = Modifier.height(8.dp)) }
+                when {
+                    uiState.isLoading && notifications.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator(color = CyanPrimary)
+                        }
+                    }
 
-                items(notifications, key = { it.id }) { notification ->
-                    NotificationItem(notification = notification)
+                    uiState.error != null && notifications.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = uiState.error!!.asString(),
+                                color = TextGray,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center,
+                                modifier = Modifier.padding(32.dp)
+                            )
+                        }
+                    }
+
+                    !uiState.isLoading && notifications.isEmpty() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "No notifications yet",
+                                color = TextGray,
+                                fontSize = 16.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+
+                    else -> {
+                        LazyColumn(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(horizontal = 12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            item { Spacer(modifier = Modifier.height(8.dp)) }
+
+                            items(notifications, key = { it.id }) { notification ->
+                                NotificationItem(
+                                    notification = notification,
+                                    onClick = {
+                                        viewModel.onAction(NotificationsAction.MarkRead(notification.id))
+                                        onNotificationClick(notification.questionId)
+                                    }
+                                )
+                            }
+
+                            item { Spacer(modifier = Modifier.height(80.dp)) }
+                        }
+                    }
                 }
-
-                item { Spacer(modifier = Modifier.height(80.dp)) }
             }
         }
     }
 }
 
 @Composable
-fun NotificationItem(notification: NotificationUiModel) {
+fun NotificationItem(
+    notification: NotificationUiModel,
+    onClick: () -> Unit = {},
+) {
     val isUnread = !notification.isRead
 
     Row(
@@ -104,6 +180,7 @@ fun NotificationItem(notification: NotificationUiModel) {
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
             .background(if (isUnread) Color(0xFF1A2424) else Color(0xFF141E1E))
+            .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(14.dp)
