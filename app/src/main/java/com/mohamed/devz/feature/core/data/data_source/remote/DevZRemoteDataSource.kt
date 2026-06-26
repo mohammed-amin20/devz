@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
+import com.mohamed.devz.feature.core.data.model.SearchHistory
 
 interface DevZRemoteDataSource {
 
@@ -15,6 +16,7 @@ interface DevZRemoteDataSource {
     val answer: AnswerTable
     val notification: NotificationTable
     val notificationType: NotificationTypeTable
+    val searchHistory: SearchHistoryTable
 
     interface AccountTable {
         suspend fun uploadImage(imageBytes: ByteArray, fileName: String): String
@@ -37,6 +39,11 @@ interface DevZRemoteDataSource {
         suspend fun getQuestionById(id: Int): Question
         suspend fun getQuestionsByAccountId(accountId: Int): List<Question>
         suspend fun getQuestionsByTag(tag: String): List<Question>
+        suspend fun getQuestionsByTags(
+            tags: List<String>,
+            offset: Int,
+            limit: Int,
+        ): List<Question>
         suspend fun getAllQuestions(
             offset: Int,
             limit: Int,
@@ -87,5 +94,11 @@ interface DevZRemoteDataSource {
 
     interface NotificationTypeTable {
         suspend fun getAllNotificationTypes(): List<NotificationType>
+    }
+
+    interface SearchHistoryTable {
+        suspend fun getRecentByAccountId(accountId: Int, limit: Int = 10): List<SearchHistory>
+        suspend fun insert(query: String, accountId: Int): SearchHistory
+        suspend fun clearAll(accountId: Int)
     }
 }

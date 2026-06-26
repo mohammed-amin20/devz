@@ -8,6 +8,11 @@ interface QuestionRepository {
     suspend fun getById(id: Int): Result<Question, Error>
     suspend fun getByAccountId(accountId: Int): Result<List<Question>, Error>
     suspend fun getByTag(tag: String): Result<List<Question>, Error>
+    suspend fun getByTags(
+        tags: List<String>,
+        offset: Int,
+        limit: Int,
+    ): Result<List<Question>, Error>
     suspend fun getAll(
         offset: Int,
         limit: Int,

@@ -102,7 +102,8 @@ fun HomeScreen(
                         } else {
                             navigateToProfile(accountId)
                         }
-                    }
+                    },
+                    onNavigateToEditProfile = navigateToEditProfile,
                 )
             }
         ),

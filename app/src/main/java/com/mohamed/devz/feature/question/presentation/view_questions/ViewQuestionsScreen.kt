@@ -20,6 +20,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -67,6 +69,7 @@ fun ViewQuestionsScreen(
     onQuestionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     onAuthorClick: (Int) -> Unit = {},
+    onNavigateToEditProfile: () -> Unit = {},
     viewModel: ViewQuestionsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -244,25 +247,61 @@ fun ViewQuestionsScreen(
                                 .padding(vertical = 48.dp),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Forum,
-                                contentDescription = null,
-                                tint = Color(0xFF3A4A4A),
-                                modifier = Modifier.size(56.dp)
-                            )
-                            Spacer(modifier = Modifier.height(16.dp))
-                            Text(
-                                text = "No questions yet",
-                                color = TextGray,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Medium
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Questions will appear here once they are posted.",
-                                color = TextGray.copy(alpha = 0.5f),
-                                fontSize = 13.sp
-                            )
+                            if (!uiState.hasPersonalizedFeed) {
+                                Icon(
+                                    imageVector = Icons.Filled.Forum,
+                                    contentDescription = null,
+                                    tint = Color(0xFF3A4A4A),
+                                    modifier = Modifier.size(56.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "Set your skills to get started",
+                                    color = TextGray,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "Add your tech stack to your profile so we can personalize your feed.",
+                                    color = TextGray.copy(alpha = 0.5f),
+                                    fontSize = 13.sp
+                                )
+                                Spacer(modifier = Modifier.height(24.dp))
+                                Button(
+                                    onClick = onNavigateToEditProfile,
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = CyanPrimary,
+                                        contentColor = Color.Black,
+                                    ),
+                                    shape = RoundedCornerShape(12.dp),
+                                ) {
+                                    Text(
+                                        text = "Set up your skills",
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                }
+                            } else {
+                                Icon(
+                                    imageVector = Icons.Filled.Forum,
+                                    contentDescription = null,
+                                    tint = Color(0xFF3A4A4A),
+                                    modifier = Modifier.size(56.dp)
+                                )
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(
+                                    text = "No matching questions",
+                                    color = TextGray,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(8.dp))
+                                Text(
+                                    text = "No questions match your interests yet. Try searching for something or broaden your skills.",
+                                    color = TextGray.copy(alpha = 0.5f),
+                                    fontSize = 13.sp
+                                )
+                            }
                         }
                     }
                 } else {

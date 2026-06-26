@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
+import com.mohamed.devz.feature.core.data.model.SearchHistory
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -134,6 +135,26 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         filter { like("tags", "%$tag%") }
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getQuestionsByTags(
+                tags: List<String>,
+                offset: Int,
+                limit: Int,
+            ): List<Question> {
+                return db.from(tableName)
+                    .select {
+                        range(offset, offset + limit - 1)
+                        order(column = "created_at", order = Order.DESCENDING)
+                        filter {
+                            or {
+                                tags.forEach { tag ->
+                                    like("tags", "%$tag%")
+                                }
+                            }
+                        }
                     }
                     .decodeList()
             }
@@ -342,6 +363,43 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select()
                     .decodeList()
+            }
+        }
+
+    override val searchHistory: DevZRemoteDataSource.SearchHistoryTable
+        get() = object : DevZRemoteDataSource.SearchHistoryTable {
+            private val tableName = "SearchHistory"
+
+            override suspend fun getRecentByAccountId(
+                accountId: Int,
+                limit: Int,
+            ): List<SearchHistory> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("account_id", accountId) }
+                        order(column = "created_at", order = Order.DESCENDING)
+                        limit(limit.toLong())
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun insert(query: String, accountId: Int): SearchHistory {
+                val json = buildJsonObject {
+                    put("query", query)
+                    put("account_id", accountId)
+                }
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun clearAll(accountId: Int) {
+                db.from(tableName)
+                    .delete {
+                        filter { eq("account_id", accountId) }
+                    }
             }
         }
 
