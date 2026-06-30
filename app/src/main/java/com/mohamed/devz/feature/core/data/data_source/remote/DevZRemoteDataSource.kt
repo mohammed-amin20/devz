@@ -39,6 +39,11 @@ interface DevZRemoteDataSource {
         suspend fun getQuestionById(id: Int): Question
         suspend fun getQuestionsByAccountId(accountId: Int): List<Question>
         suspend fun getQuestionsByTag(tag: String): List<Question>
+        suspend fun getQuestionsByAccountIds(
+            accountIds: List<Int>,
+            offset: Int,
+            limit: Int,
+        ): List<Question>
         suspend fun getQuestionsByTags(
             tags: List<String>,
             offset: Int,

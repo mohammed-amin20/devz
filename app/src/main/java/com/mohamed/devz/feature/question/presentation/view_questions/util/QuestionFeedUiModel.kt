@@ -25,10 +25,8 @@ data class QuestionFeedUiModel(
     val isBookmarked: Boolean = false,
 )
 
-private val accountCache = mutableMapOf<Int, Account>()
+val accountCache = mutableMapOf<Int, Account>()
 private var languageTypeCache: Map<Int, LanguageType> = emptyMap()
-
-fun getCachedAccountIds(): Set<Int> = accountCache.keys.toSet()
 
 fun updateAccountCache(accounts: List<Account>) {
     accountCache.putAll(accounts.associateBy { it.id })

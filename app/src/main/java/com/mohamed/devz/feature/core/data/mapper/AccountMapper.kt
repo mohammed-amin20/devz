@@ -17,6 +17,8 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     websiteUrl = websiteUrl,
     points = points,
     fcmToken = fcmToken,
+    followerIds = followerIds,
+    followingIds = followingIds,
 )
 
 fun DomainAccount.toData(): DataAccount = DataAccount(
@@ -33,4 +35,6 @@ fun DomainAccount.toData(): DataAccount = DataAccount(
     websiteUrl = websiteUrl,
     points = points,
     fcmToken = fcmToken,
+    followerIds = followerIds,
+    followingIds = followingIds,
 )

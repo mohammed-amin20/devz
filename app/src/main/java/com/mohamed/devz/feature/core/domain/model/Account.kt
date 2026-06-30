@@ -14,4 +14,6 @@ data class Account(
     val websiteUrl: String,
     val points: Int = 0,
     val fcmToken: String = "",
+    val followerIds: String = "",
+    val followingIds: String = "",
 )

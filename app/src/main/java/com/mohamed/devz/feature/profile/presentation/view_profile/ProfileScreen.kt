@@ -10,6 +10,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import coil3.compose.AsyncImage
@@ -48,6 +49,7 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -540,28 +542,112 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    // ── Edit Profile button ───────────────────────────────────────
-                    if (uiState.isOwnProfile) {
-                        item {
-                            Button(
-                                onClick = onEditProfile,
-                                modifier = Modifier
-                                    .height(40.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = CyanPrimary,
-                                    contentColor = Color(0xFF00363E)
-                                )
-                            ) {
-                                Text(
-                                    text = "Edit Profile",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 15.sp,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
+                    // ── Action button + Followers/Following row ──────────────────
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            if (uiState.isOwnProfile) {
+                                Button(
+                                    onClick = onEditProfile,
+                                    modifier = Modifier.weight(1f).height(40.dp),
+                                    shape = RoundedCornerShape(16.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = CyanPrimary,
+                                        contentColor = Color(0xFF00363E)
+                                    )
+                                ) {
+                                    Text(
+                                        text = "Edit Profile",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 15.sp,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            } else {
+                                val isFollowing = uiState.isFollowing
+                                if (isFollowing) {
+                                    OutlinedButton(
+                                        onClick = { viewModel.onAction(ProfileAction.ToggleFollow(uiState.id)) },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.outlinedButtonColors(
+                                            contentColor = TextWhite,
+                                        ),
+                                        border = androidx.compose.foundation.BorderStroke(1.dp, TextGray),
+                                    ) {
+                                        Text(
+                                            text = "Following",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { viewModel.onAction(ProfileAction.ToggleFollow(uiState.id)) },
+                                        modifier = Modifier.weight(1f).height(40.dp),
+                                        shape = RoundedCornerShape(16.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = CyanPrimary,
+                                            contentColor = Color(0xFF00363E)
+                                        )
+                                    ) {
+                                        Text(
+                                            text = "Follow",
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 15.sp,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
                             }
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.1f))
+                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.followersCount}",
+                                        color = CyanPrimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = "Followers",
+                                        color = TextGray,
+                                        fontSize = 11.sp,
+                                    )
+                                }
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.1f))
+                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                    Text(
+                                        text = "${uiState.followingCount}",
+                                        color = CyanPrimary,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = "Following",
+                                        color = TextGray,
+                                        fontSize = 11.sp,
+                                    )
+                                }
+                            }
                         }
+                        Spacer(modifier = Modifier.height(8.dp))
                     }
 
                     // ── Stats grid ────────────────────────────────────────────────

@@ -10,7 +10,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -27,8 +27,8 @@ import com.mohamed.devz.navigation.components.home.HomeViewModel
 
 @Composable
 fun DevzNavHost(
-    pendingQuestionId: Int? = null,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    pendingQuestionId: Int? = null
 ) {
     val navController = rememberNavController()
     var profileRefreshCounter by remember { mutableIntStateOf(0) }
@@ -135,10 +135,8 @@ fun DevzNavHost(
                 navigateUp = { navController.navigateUp() },
                 onNavigateToProfile = { targetId ->
                     if (targetId == currentAccountId && currentAccountId != 0) {
-                        navController.previousBackStackEntry
-                            ?.savedStateHandle
-                            ?.set("switchToProfileTab", true)
-                        navController.popBackStack()
+                        homeEntry.savedStateHandle["switchToProfileTab"] = true
+                        navController.popBackStack(route = Route.Home, inclusive = false)
                     } else {
                         navController.navigate(Route.Profile(targetId))
                     }

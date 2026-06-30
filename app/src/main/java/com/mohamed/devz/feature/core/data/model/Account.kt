@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.model
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -26,4 +27,10 @@ data class Account(
     val points: Int = 0,
     @SerialName("fcm_token")
     val fcmToken: String = "",
+    @SerialName("follower_ids")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val followerIds: String = "",
+    @SerialName("following_ids")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val followingIds: String = "",
 )

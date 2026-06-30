@@ -56,6 +56,7 @@ class ProfileViewModel @Inject constructor(
                 loadProfile(targetAccountId)
             }
             is ProfileAction.Logout -> logout()
+            is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
         }
     }
 
@@ -64,6 +65,39 @@ class ProfileViewModel @Inject constructor(
             userPreferencesRepository.setLoggedOut()
             userPreferencesRepository.clearAccountId()
             _profileEvent.emit(ProfileEvent.NavigateToAuth)
+        }
+    }
+
+    private fun toggleFollow(targetAccountId: Int) {
+        viewModelScope.launch {
+            val currentId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            if (currentId == 0 || targetAccountId == currentId) return@launch
+
+            val currentState = _uiState.value
+            val newIsFollowing = !currentState.isFollowing
+
+            _uiState.update {
+                it.copy(
+                    isFollowing = newIsFollowing,
+                    followersCount = if (newIsFollowing) it.followersCount + 1 else (it.followersCount - 1).coerceAtLeast(0),
+                )
+            }
+
+            val result = if (newIsFollowing) {
+                accountRepository.follow(currentId, targetAccountId)
+            } else {
+                accountRepository.unfollow(currentId, targetAccountId)
+            }
+
+            if (result is Result.Error) {
+                _uiState.update {
+                    it.copy(
+                        error = result.error.toUIText(),
+                        isFollowing = currentState.isFollowing,
+                        followersCount = currentState.followersCount,
+                    )
+                }
+            }
         }
     }
 
@@ -97,10 +131,20 @@ class ProfileViewModel @Inject constructor(
                     val questionMap = questions.associateBy { it.id }
                     val isOwnProfile = targetAccountId == null || account.id == loggedInAccountId
 
+                    val followersCount = account.followerIds
+                        .split(",").count { it.isNotBlank() }
+                    val followingCount = account.followingIds
+                        .split(",").count { it.isNotBlank() }
+                    val isFollowing = !isOwnProfile && loggedInAccountId != 0 &&
+                        account.followerIds.split(",").any { it.trim() == loggedInAccountId.toString() }
+
                     _uiState.update {
                         it.copy(
                             id = account.id,
                             isOwnProfile = isOwnProfile,
+                            followersCount = followersCount,
+                            followingCount = followingCount,
+                            isFollowing = isFollowing,
                             profile = ProfileUiModel(
                                 fullName = account.fullName,
                                 username = account.username,
@@ -114,6 +158,8 @@ class ProfileViewModel @Inject constructor(
                                 githubUrl = account.githubUrl,
                                 linkedInUrl = account.linkedInUrl,
                                 websiteUrl = account.websiteUrl,
+                                followersCount = followersCount,
+                                followingCount = followingCount,
                             ),
                             myQuestions = questions.map { q ->
                                 ProfileQuestionUiModel(

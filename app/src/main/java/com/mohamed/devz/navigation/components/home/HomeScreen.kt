@@ -1,4 +1,4 @@
-package com.mohamed.devz.navigation.components.home
+﻿package com.mohamed.devz.navigation.components.home
 
 import android.graphics.Color.argb
 import androidx.activity.compose.BackHandler
@@ -27,7 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -45,7 +44,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
@@ -103,7 +102,6 @@ fun HomeScreen(
                             navigateToProfile(accountId)
                         }
                     },
-                    onNavigateToEditProfile = navigateToEditProfile,
                 )
             }
         ),
@@ -145,10 +143,8 @@ fun HomeScreen(
         )
     )
 
-    BackHandler {
-        if (selectedIndex != 0) {
-            viewModel.onSelectedIndexChange(0)
-        }
+    BackHandler(enabled = selectedIndex != 0) {
+        viewModel.onSelectedIndexChange(0)
     }
 
     Scaffold(

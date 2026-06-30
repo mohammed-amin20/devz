@@ -12,4 +12,6 @@ interface AccountRepository {
     suspend fun update(account: Account): Result<Unit, Error>
     suspend fun addPoints(accountId: Int, delta: Int): Result<Unit, Error>
     suspend fun uploadImage(imageBytes: ByteArray, fileName: String): Result<String, Error>
+    suspend fun follow(currentId: Int, targetId: Int): Result<Unit, Error>
+    suspend fun unfollow(currentId: Int, targetId: Int): Result<Unit, Error>
 }

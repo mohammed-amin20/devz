@@ -16,12 +16,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -40,12 +43,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
@@ -69,7 +76,6 @@ fun ViewQuestionsScreen(
     onQuestionClick: (Int) -> Unit,
     modifier: Modifier = Modifier,
     onAuthorClick: (Int) -> Unit = {},
-    onNavigateToEditProfile: () -> Unit = {},
     viewModel: ViewQuestionsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -202,7 +208,6 @@ fun ViewQuestionsScreen(
                 OutlinedTextField(
                     value = uiState.searchQuery,
                     onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
-                    modifier = Modifier.fillMaxWidth(),
                     placeholder = {
                         Text(
                             "Query the collective intelligence...",
@@ -212,6 +217,8 @@ fun ViewQuestionsScreen(
                         )
                     },
                     leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
+                    modifier = Modifier
+                        .fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
@@ -227,7 +234,7 @@ fun ViewQuestionsScreen(
                 Spacer(modifier = Modifier.height(20.dp))
             }
 
-            if (uiState.isLoading) {
+            if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
                 item {
                     Box(
                         modifier = Modifier
@@ -238,102 +245,154 @@ fun ViewQuestionsScreen(
                         CircularProgressIndicator(color = CyanPrimary)
                     }
                 }
-            } else {
-                if (uiState.questions.isEmpty()) {
-                    item {
+            } else if (uiState.questions.isEmpty() && uiState.isNotFollowingAnyone) {
+                item {
+                    val animAlpha by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseInOut),
+                    )
+                    val animScale by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFF0D3333),
+                                        Color(0xFF0A1A1A),
+                                        Color(0xFF060D0D)
+                                    ),
+                                    center = Offset(0.5f, 0.4f),
+                                    radius = 1200f
+                                )
+                            )
+                            .padding(vertical = 56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 48.dp),
+                                .alpha(animAlpha)
+                                .scale(animScale),
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            if (!uiState.hasPersonalizedFeed) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 Icon(
-                                    imageVector = Icons.Filled.Forum,
-                                    contentDescription = null,
-                                    tint = Color(0xFF3A4A4A),
-                                    modifier = Modifier.size(56.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "Set your skills to get started",
-                                    color = TextGray,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "Add your tech stack to your profile so we can personalize your feed.",
-                                    color = TextGray.copy(alpha = 0.5f),
-                                    fontSize = 13.sp
-                                )
-                                Spacer(modifier = Modifier.height(24.dp))
-                                Button(
-                                    onClick = onNavigateToEditProfile,
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = CyanPrimary,
-                                        contentColor = Color.Black,
-                                    ),
-                                    shape = RoundedCornerShape(12.dp),
-                                ) {
-                                    Text(
-                                        text = "Set up your skills",
-                                        fontWeight = FontWeight.SemiBold,
-                                    )
-                                }
-                            } else {
-                                Icon(
-                                    imageVector = Icons.Filled.Forum,
-                                    contentDescription = null,
-                                    tint = Color(0xFF3A4A4A),
-                                    modifier = Modifier.size(56.dp)
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                Text(
-                                    text = "No matching questions",
-                                    color = TextGray,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.Medium
-                                )
-                                Spacer(modifier = Modifier.height(8.dp))
-                                Text(
-                                    text = "No questions match your interests yet. Try searching for something or broaden your skills.",
-                                    color = TextGray.copy(alpha = 0.5f),
-                                    fontSize = 13.sp
+                                    Icons.Filled.PersonSearch,
+                                    null,
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(36.dp)
                                 )
                             }
-                        }
-                    }
-                } else {
-                    items(uiState.questions, key = { it.id }) { question ->
-                        QuestionCard(
-                            question = question,
-                            onClick = { onQuestionClick(question.id) },
-                            onAuthorClick = { onAuthorClick(question.authorAccountId) },
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                    }
-                }
-
-                if (uiState.isLoadingMore) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator(
-                                color = CyanPrimary,
-                                modifier = Modifier.size(24.dp),
-                                strokeWidth = 2.dp
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                "Your feed is empty",
+                                color = TextWhite,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Follow developers to see their questions here.\nSearch for people or browse questions to find\ndevelopers who share your interests.",
+                                color = TextGray,
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center,
                             )
                         }
                     }
                 }
-
-                item { Spacer(modifier = Modifier.height(80.dp)) }
+            } else if (uiState.questions.isEmpty() && !uiState.isNotFollowingAnyone) {
+                item {
+                    val animAlpha by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseInOut),
+                    )
+                    val animScale by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .alpha(animAlpha)
+                                .scale(animScale),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Filled.Forum,
+                                    null,
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                "No questions yet",
+                                color = TextWhite,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Questions from developers you follow\nwill appear here.",
+                                color = TextGray,
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
+                    }
+                }
+            } else {
+                items(uiState.questions) { question ->
+                    QuestionCard(
+                        question = question,
+                        onClick = { onQuestionClick(question.id) },
+                        onAuthorClick = { onAuthorClick(question.authorAccountId) },
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                }
             }
+
+            if (uiState.isLoadingMore) {
+                item {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 16.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator(
+                            color = CyanPrimary,
+                            modifier = Modifier.size(24.dp),
+                            strokeWidth = 2.dp
+                        )
+                    }
+                }
+            }
+
+            item { Spacer(modifier = Modifier.height(80.dp)) }
         }
     }
 }

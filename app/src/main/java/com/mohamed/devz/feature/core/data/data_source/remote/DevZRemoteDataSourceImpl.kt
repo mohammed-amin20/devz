@@ -45,6 +45,8 @@ class DevZRemoteDataSourceImpl(
                     put("website_url", account.websiteUrl)
                     put("points", account.points)
                     put("fcm_token", account.fcmToken)
+                    put("follower_ids", account.followerIds)
+                    put("following_ids", account.followingIds)
                 }
 
                 return db.from(tableName)
@@ -135,6 +137,20 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         filter { like("tags", "%$tag%") }
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getQuestionsByAccountIds(
+                accountIds: List<Int>,
+                offset: Int,
+                limit: Int,
+            ): List<Question> {
+                return db.from(tableName)
+                    .select {
+                        range(offset, offset + limit - 1)
+                        order(column = "created_at", order = Order.DESCENDING)
+                        filter { isIn("account_id", accountIds) }
                     }
                     .decodeList()
             }

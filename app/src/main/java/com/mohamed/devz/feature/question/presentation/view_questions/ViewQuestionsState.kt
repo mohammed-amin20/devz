@@ -14,6 +14,5 @@ data class ViewQuestionsState(
     val searchQuery: String = "",
     val bookmarkedIds: Set<Int> = emptySet(),
     val error: UiText? = null,
-    val hasPersonalizedFeed: Boolean = false,
-    val personalizationTags: List<String> = emptyList(),
+    val isNotFollowingAnyone: Boolean = false,
 )

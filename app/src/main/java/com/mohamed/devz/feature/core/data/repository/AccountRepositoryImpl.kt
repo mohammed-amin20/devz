@@ -127,6 +127,74 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun follow(currentId: Int, targetId: Int): Result<Unit, Error> {
+        return try {
+            val currentResult = getById(currentId)
+            if (currentResult is Result.Error) return Result.Error(currentResult.error)
+            val targetResult = getById(targetId)
+            if (targetResult is Result.Error) return Result.Error(targetResult.error)
+
+            val currentAccount = (currentResult as Result.Success).data
+            val targetAccount = (targetResult as Result.Success).data
+
+            val updatedFollowing = appendToCsv(currentAccount.followingIds, targetId)
+            val updatedFollowers = appendToCsv(targetAccount.followerIds, currentId)
+
+            val updateCurrent = update(currentAccount.copy(followingIds = updatedFollowing))
+            if (updateCurrent is Result.Error) return updateCurrent
+            val updateTarget = update(targetAccount.copy(followerIds = updatedFollowers))
+            if (updateTarget is Result.Error) return updateTarget
+
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (_: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
+    override suspend fun unfollow(currentId: Int, targetId: Int): Result<Unit, Error> {
+        return try {
+            val currentResult = getById(currentId)
+            if (currentResult is Result.Error) return Result.Error(currentResult.error)
+            val targetResult = getById(targetId)
+            if (targetResult is Result.Error) return Result.Error(targetResult.error)
+
+            val currentAccount = (currentResult as Result.Success).data
+            val targetAccount = (targetResult as Result.Success).data
+
+            val updatedFollowing = removeFromCsv(currentAccount.followingIds, targetId)
+            val updatedFollowers = removeFromCsv(targetAccount.followerIds, currentId)
+
+            val updateCurrent = update(currentAccount.copy(followingIds = updatedFollowing))
+            if (updateCurrent is Result.Error) return updateCurrent
+            val updateTarget = update(targetAccount.copy(followerIds = updatedFollowers))
+            if (updateTarget is Result.Error) return updateTarget
+
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (_: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
+    private fun appendToCsv(csv: String, id: Int): String {
+        val ids = csv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableSet()
+        if (!ids.add(id.toString())) return csv
+        return ids.joinToString(",")
+    }
+
+    private fun removeFromCsv(csv: String, id: Int): String {
+        val ids = csv.split(",").map { it.trim() }.filter { it.isNotEmpty() }.toMutableList()
+        if (!ids.remove(id.toString())) return csv
+        return ids.joinToString(",")
+    }
+
     override suspend fun uploadImage(imageBytes: ByteArray, fileName: String): Result<String, Error> {
         return try {
             val url = remoteDataSource.account.uploadImage(imageBytes, fileName)

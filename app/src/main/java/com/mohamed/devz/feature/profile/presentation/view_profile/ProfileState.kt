@@ -12,5 +12,8 @@ data class ProfileState(
     val myAnswers: List<ProfileAnswerUiModel> = emptyList(),
     val isLoading: Boolean = false,
     val error: UiText? = null,
-    val isOwnProfile: Boolean = true
+    val isOwnProfile: Boolean = true,
+    val followersCount: Int = 0,
+    val followingCount: Int = 0,
+    val isFollowing: Boolean = false,
 )

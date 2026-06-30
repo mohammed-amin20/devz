@@ -98,6 +98,7 @@ class QuestionDetailsViewModel @Inject constructor(
                     question = it.question?.copy(
                         likes = newCount,
                         isLiked = !wasLiked,
+                        likedAccountIds = currentLikedIds,
                     ),
                     isLiking = false,
                 )
@@ -109,6 +110,7 @@ class QuestionDetailsViewModel @Inject constructor(
                             question = it.question?.copy(
                                 likes = originalLikes,
                                 isLiked = wasLiked,
+                                likedAccountIds = originalLikedIds,
                             ),
                         )
                     }
