@@ -168,6 +168,7 @@ fun DevzNavHost(
                 onQuestionClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
                 onAnswerClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
                 onLogout = {},
+                onProfileClick = { id -> navController.navigate(Route.Profile(id)) },
                 navigateUp = { navController.navigateUp() },
                 modifier = modifier
             )

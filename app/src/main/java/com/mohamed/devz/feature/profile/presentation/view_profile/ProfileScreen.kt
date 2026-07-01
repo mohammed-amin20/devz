@@ -94,6 +94,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.EmptyTabContent
+import com.mohamed.devz.feature.profile.presentation.view_profile.components.FollowListDialog
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileAnswerCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileQuestionCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
@@ -118,6 +119,7 @@ fun ProfileScreen(
     refreshTrigger: Int = 0,
     onFullScreenChanged: (Boolean) -> Unit = {},
     onDialogVisibilityChanged: (Boolean) -> Unit = {},
+    onProfileClick: (Int) -> Unit = {},
     navigateUp: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -138,8 +140,8 @@ fun ProfileScreen(
             viewModel.onAction(ProfileAction.Refresh)
         }
     }
-    LaunchedEffect(showImagePreview, showLogoutDialog) {
-        if (!showImagePreview && !showLogoutDialog) {
+    LaunchedEffect(showImagePreview, showLogoutDialog, uiState.showFollowersDialog, uiState.showFollowingDialog) {
+        if (!showImagePreview && !showLogoutDialog && !uiState.showFollowersDialog && !uiState.showFollowingDialog) {
             onFullScreenChanged(false)
             onDialogVisibilityChanged(false)
         }
@@ -152,6 +154,8 @@ fun ProfileScreen(
         } else if(showLogoutDialog) {
             showLogoutDialog = false
             onDialogVisibilityChanged(false)
+        } else if (uiState.showFollowersDialog || uiState.showFollowingDialog) {
+            viewModel.onAction(ProfileAction.DismissDialog)
         } else {
             navigateUp()
         }
@@ -608,6 +612,7 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(CyanPrimary.copy(alpha = 0.1f))
+                                    .clickable { viewModel.onAction(ProfileAction.ShowFollowers) }
                                     .padding(horizontal = 14.dp, vertical = 6.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -629,6 +634,7 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .clip(RoundedCornerShape(12.dp))
                                     .background(CyanPrimary.copy(alpha = 0.1f))
+                                    .clickable { viewModel.onAction(ProfileAction.ShowFollowing) }
                                     .padding(horizontal = 14.dp, vertical = 6.dp),
                                 contentAlignment = Alignment.Center
                             ) {
@@ -1083,6 +1089,24 @@ fun ProfileScreen(
                 }
             }
         }
+
+        FollowListDialog(
+            visible = uiState.showFollowersDialog,
+            title = "Followers",
+            accounts = uiState.followerAccounts,
+            isLoading = uiState.isLoadingDialog,
+            onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
+            onProfileClick = onProfileClick,
+        )
+
+        FollowListDialog(
+            visible = uiState.showFollowingDialog,
+            title = "Following",
+            accounts = uiState.followingAccounts,
+            isLoading = uiState.isLoadingDialog,
+            onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
+            onProfileClick = onProfileClick,
+        )
     }
 }
 

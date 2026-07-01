@@ -64,6 +64,14 @@ class DevZRemoteDataSourceImpl(
                     .decodeSingle()
             }
 
+            override suspend fun getAccountsByIds(ids: List<Int>): List<Account> {
+                return db.from(tableName)
+                    .select {
+                        filter { isIn("id", ids) }
+                    }
+                    .decodeList()
+            }
+
             override suspend fun getAllAccounts(): List<Account> {
                 return db.from(tableName)
                     .select()

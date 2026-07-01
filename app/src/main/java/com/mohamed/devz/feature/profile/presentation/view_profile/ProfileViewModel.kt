@@ -12,6 +12,7 @@ import com.mohamed.devz.feature.core.domain.util.toUIText
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileFollowerUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +45,9 @@ class ProfileViewModel @Inject constructor(
     private val _profileEvent = MutableSharedFlow<ProfileEvent>()
     val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
 
+    private var _followerIds: String = ""
+    private var _followingIds: String = ""
+
     init {
         val targetAccountId = savedStateHandle.get<Int>("accountId")
         loadProfile(targetAccountId)
@@ -57,6 +61,9 @@ class ProfileViewModel @Inject constructor(
             }
             is ProfileAction.Logout -> logout()
             is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
+            is ProfileAction.ShowFollowers -> showFollowers()
+            is ProfileAction.ShowFollowing -> showFollowing()
+            is ProfileAction.DismissDialog -> dismissDialog()
         }
     }
 
@@ -101,6 +108,86 @@ class ProfileViewModel @Inject constructor(
         }
     }
 
+    private fun showFollowers() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingDialog = true, showFollowersDialog = true) }
+            val ids = _followerIds.split(",").mapNotNull { it.trim().toIntOrNull() }
+            if (ids.isEmpty()) {
+                _uiState.update { it.copy(isLoadingDialog = false, followerAccounts = emptyList()) }
+                return@launch
+            }
+            when (val result = accountRepository.getByIds(ids)) {
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoadingDialog = false,
+                            followerAccounts = result.data.map { account ->
+                                ProfileFollowerUiModel(
+                                    id = account.id,
+                                    username = account.username,
+                                    fullName = account.fullName,
+                                    imageUrl = account.imageUrl,
+                                    bio = account.bio,
+                                )
+                            }
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(isLoadingDialog = false, error = result.error.toUIText())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun showFollowing() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingDialog = true, showFollowingDialog = true) }
+            val ids = _followingIds.split(",").mapNotNull { it.trim().toIntOrNull() }
+            if (ids.isEmpty()) {
+                _uiState.update { it.copy(isLoadingDialog = false, followingAccounts = emptyList()) }
+                return@launch
+            }
+            when (val result = accountRepository.getByIds(ids)) {
+                is Result.Success -> {
+                    _uiState.update {
+                        it.copy(
+                            isLoadingDialog = false,
+                            followingAccounts = result.data.map { account ->
+                                ProfileFollowerUiModel(
+                                    id = account.id,
+                                    username = account.username,
+                                    fullName = account.fullName,
+                                    imageUrl = account.imageUrl,
+                                    bio = account.bio,
+                                )
+                            }
+                        )
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update {
+                        it.copy(isLoadingDialog = false, error = result.error.toUIText())
+                    }
+                }
+            }
+        }
+    }
+
+    private fun dismissDialog() {
+        _uiState.update {
+            it.copy(
+                showFollowersDialog = false,
+                showFollowingDialog = false,
+                followerAccounts = emptyList(),
+                followingAccounts = emptyList(),
+                isLoadingDialog = false,
+            )
+        }
+    }
+
     private fun loadProfile(targetAccountId: Int? = null) {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
@@ -137,6 +224,9 @@ class ProfileViewModel @Inject constructor(
                         .split(",").count { it.isNotBlank() }
                     val isFollowing = !isOwnProfile && loggedInAccountId != 0 &&
                         account.followerIds.split(",").any { it.trim() == loggedInAccountId.toString() }
+
+                    _followerIds = account.followerIds
+                    _followingIds = account.followingIds
 
                     _uiState.update {
                         it.copy(

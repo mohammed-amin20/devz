@@ -24,6 +24,7 @@ interface DevZRemoteDataSource {
         suspend fun insertAccount(account: Account): Account
 
         suspend fun getAccountById(id: Int): Account
+        suspend fun getAccountsByIds(ids: List<Int>): List<Account>
         suspend fun getAllAccounts(): List<Account>
         suspend fun getAccountByUsernameAndPassword(
             username: String,

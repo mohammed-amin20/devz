@@ -39,6 +39,19 @@ class AccountRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getByIds(ids: List<Int>): Result<List<Account>, Error> {
+        return try {
+            val accounts = remoteDataSource.account.getAccountsByIds(ids)
+            Result.Success(accounts.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Unknown error. Try again later."))
+        } catch (_: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
     override suspend fun getAll(): Result<List<Account>, Error> {
         return try {
             val accounts = remoteDataSource.account.getAllAccounts()

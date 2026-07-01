@@ -137,6 +137,13 @@ fun HomeScreen(
                     refreshTrigger = profileRefreshCounter,
                     onFullScreenChanged = { isFullScreenImage = it },
                     onDialogVisibilityChanged = { isDialogOpen = it },
+                    onProfileClick = { accountId ->
+                        if (accountId == currentAccountId) {
+                            viewModel.onSelectedIndexChange(3)
+                        } else {
+                            navigateToProfile(accountId)
+                        }
+                    },
                     navigateUp = { viewModel.onSelectedIndexChange(0) }
                 )
             }

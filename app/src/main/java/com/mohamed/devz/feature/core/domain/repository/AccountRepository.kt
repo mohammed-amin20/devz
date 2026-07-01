@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.core.domain.util.Result
 
 interface AccountRepository {
     suspend fun getById(id: Int): Result<Account, Error>
+    suspend fun getByIds(ids: List<Int>): Result<List<Account>, Error>
     suspend fun getAll(): Result<List<Account>, Error>
     suspend fun getByUsernameAndPassword(username: String, password: String): Result<Account?, Error>
     suspend fun insert(account: Account): Result<Account, Error>
