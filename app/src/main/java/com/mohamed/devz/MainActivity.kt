@@ -39,6 +39,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val pendingQuestionId = intent?.getIntExtra("questionId", 0)?.takeIf { it > 0 }
+        val pendingActorId = intent?.getIntExtra("actorId", 0)?.takeIf { it > 0 }
 
         if (intent?.getBooleanExtra(DevzFirebaseMessagingService.EXTRA_REQUEST_PERMISSION, false) == true) {
             requestNotificationPermission()
@@ -52,6 +53,7 @@ class MainActivity : ComponentActivity() {
                 ) { innerPadding ->
                     DevzNavHost(
                         pendingQuestionId = pendingQuestionId,
+                        pendingActorId = pendingActorId,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
@@ -87,10 +89,12 @@ class MainActivity : ComponentActivity() {
         val body = intent?.getStringExtra(DevzFirebaseMessagingService.EXTRA_NOTIFICATION_BODY)
             ?: return
         val questionId = intent?.getIntExtra("questionId", 0)?.takeIf { it > 0 }
+        val actorId = intent?.getIntExtra("actorId", 0)?.takeIf { it > 0 }
 
         val tapIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             questionId?.let { putExtra("questionId", it) }
+            actorId?.let { putExtra("actorId", it) }
         }
 
         val pendingIntent = PendingIntent.getActivity(

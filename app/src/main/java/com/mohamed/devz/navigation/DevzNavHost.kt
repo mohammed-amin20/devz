@@ -28,7 +28,8 @@ import com.mohamed.devz.navigation.components.home.HomeViewModel
 @Composable
 fun DevzNavHost(
     modifier: Modifier = Modifier,
-    pendingQuestionId: Int? = null
+    pendingQuestionId: Int? = null,
+    pendingActorId: Int? = null,
 ) {
     val navController = rememberNavController()
     var profileRefreshCounter by remember { mutableIntStateOf(0) }
@@ -88,10 +89,18 @@ fun DevzNavHost(
                 .getStateFlow("switchToProfileTab", false)
                 .collectAsState()
 
-            LaunchedEffect(pendingQuestionId) {
-                if (!handledDeepLink && pendingQuestionId != null) {
-                    handledDeepLink = true
-                    navController.navigate(Route.QuestionDetails(pendingQuestionId))
+            LaunchedEffect(pendingQuestionId, pendingActorId) {
+                if (!handledDeepLink) {
+                    when {
+                        pendingActorId != null -> {
+                            handledDeepLink = true
+                            navController.navigate(Route.Profile(pendingActorId))
+                        }
+                        pendingQuestionId != null -> {
+                            handledDeepLink = true
+                            navController.navigate(Route.QuestionDetails(pendingQuestionId))
+                        }
+                    }
                 }
             }
 

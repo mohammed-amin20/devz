@@ -24,6 +24,7 @@ import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -64,7 +65,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun NotificationsScreen(
-    onNotificationClick: (questionId: Int) -> Unit = {},
+    onNotificationClick: (notification: NotificationUiModel) -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: NotificationsViewModel = hiltViewModel(),
 ) {
@@ -211,7 +212,7 @@ fun NotificationsScreen(
                                     notification = notification,
                                     onClick = {
                                         viewModel.onAction(NotificationsAction.MarkRead(notification.id))
-                                        onNotificationClick(notification.questionId)
+                                        onNotificationClick(notification)
                                     }
                                 )
                             }
@@ -258,6 +259,7 @@ fun NotificationItem(
                     NotificationType.UPVOTE -> Icons.Filled.ArrowUpward
                     NotificationType.LIKE -> Icons.Filled.FavoriteBorder
                     NotificationType.ANSWER -> Icons.Filled.ChatBubbleOutline
+                    NotificationType.FOLLOWER -> Icons.Filled.Person
                 },
                 contentDescription = null,
                 tint = CyanPrimary,
@@ -268,17 +270,27 @@ fun NotificationItem(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = buildAnnotatedString {
-                    if (notification.actorName == null) {
+                    if (notification.type == NotificationType.FOLLOWER) {
+                        withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
+                            append(notification.actorName ?: "Someone")
+                        }
+                        withStyle(SpanStyle(color = TextGray)) {
+                            append(" ${notification.message}")
+                        }
+                    } else if (notification.actorName == null) {
                         withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
                             append("Congrats! ")
+                        }
+                        withStyle(SpanStyle(color = TextGray)) {
+                            append("${notification.message} ${notification.questionTitle}")
                         }
                     } else {
                         withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
                             append("${notification.actorName} ")
                         }
-                    }
-                    withStyle(SpanStyle(color = TextGray)) {
-                        append("${notification.message} ${notification.questionTitle}")
+                        withStyle(SpanStyle(color = TextGray)) {
+                            append("${notification.message} ${notification.questionTitle}")
+                        }
                     }
                 },
                 fontSize = 14.sp,

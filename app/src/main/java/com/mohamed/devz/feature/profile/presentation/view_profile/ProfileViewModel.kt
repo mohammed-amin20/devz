@@ -3,8 +3,11 @@ package com.mohamed.devz.feature.profile.presentation.view_profile
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
+import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
+import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
@@ -37,6 +40,8 @@ class ProfileViewModel @Inject constructor(
     private val questionRepository: QuestionRepository,
     private val answerRepository: AnswerRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val notificationRepository: NotificationRepository,
+    private val fcmPushSender: FcmPushSender,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ProfileState())
@@ -103,6 +108,35 @@ class ProfileViewModel @Inject constructor(
                         isFollowing = currentState.isFollowing,
                         followersCount = currentState.followersCount,
                     )
+                }
+            } else if (newIsFollowing) {
+                notificationRepository.insert(
+                    Notification(
+                        id = 0,
+                        typeId = 5,
+                        userId = targetAccountId,
+                        actorId = currentId,
+                        questionId = 0,
+                        answerId = null,
+                        type = "follower",
+                        message = "started following you",
+                        isRead = false,
+                        createdAt = "",
+                    )
+                )
+                kotlin.runCatching {
+                    val actor = (accountRepository.getById(currentId) as? Result.Success)?.data
+                    val recipient = (accountRepository.getById(targetAccountId) as? Result.Success)?.data
+                    if (actor != null && recipient != null && recipient.fcmToken.isNotBlank()) {
+                        fcmPushSender.sendPush(
+                            fcmToken = recipient.fcmToken,
+                            title = "New follower",
+                            body = "${actor.fullName} started following you",
+                            questionId = 0,
+                            type = "follower",
+                            actorId = currentId,
+                        )
+                    }
                 }
             }
         }

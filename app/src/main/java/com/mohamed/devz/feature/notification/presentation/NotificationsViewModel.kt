@@ -28,7 +28,8 @@ enum class NotificationType {
     ACCEPTED,
     UPVOTE,
     LIKE,
-    ANSWER
+    ANSWER,
+    FOLLOWER
 }
 
 data class NotificationUiModel(
@@ -37,6 +38,7 @@ data class NotificationUiModel(
     val actorName: String?,
     val message: String,
     val questionId: Int,
+    val actorId: Int = 0,
     val questionTitle: String,
     val timeAgo: String,
     val isRead: Boolean = false,
@@ -99,7 +101,8 @@ class NotificationsViewModel @Inject constructor(
                             actorName = notification.actorName,
                             message = notification.message,
                             questionId = notification.questionId,
-                            questionTitle = questionTitles[notification.questionId] ?: "",
+                            actorId = notification.actorId,
+                            questionTitle = if (notification.type == "follower") "" else questionTitles[notification.questionId] ?: "",
                             timeAgo = formatRelativeTime(notification.createdAt),
                             isRead = notification.isRead,
                         )
@@ -153,6 +156,7 @@ class NotificationsViewModel @Inject constructor(
             "upvote" -> NotificationType.UPVOTE
             "like" -> NotificationType.LIKE
             "answer" -> NotificationType.ANSWER
+            "follower" -> NotificationType.FOLLOWER
             else -> NotificationType.LIKE
         }
     }

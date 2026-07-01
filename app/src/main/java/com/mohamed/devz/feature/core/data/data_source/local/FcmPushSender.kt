@@ -71,6 +71,7 @@ class FcmPushSender @Inject constructor(
         body: String,
         questionId: Int?,
         type: String,
+        actorId: Int? = null,
     ) = withContext(Dispatchers.IO) {
         try {
             val accessToken = getAccessToken()
@@ -84,8 +85,12 @@ class FcmPushSender @Inject constructor(
                         put("body", body)
                     }
                     putJsonObject("data") {
-                        put("questionId", questionId?.toString() ?: "")
                         put("type", type)
+                        if (type == "follower" && actorId != null) {
+                            put("actorId", actorId.toString())
+                        } else {
+                            put("questionId", questionId?.toString() ?: "")
+                        }
                     }
                 }
             }

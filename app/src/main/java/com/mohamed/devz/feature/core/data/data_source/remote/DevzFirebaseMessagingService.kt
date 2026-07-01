@@ -40,8 +40,9 @@ class DevzFirebaseMessagingService : FirebaseMessagingService() {
         val title = message.notification?.title ?: data["title"] ?: "DevZ"
         val body = message.notification?.body ?: data["body"] ?: data["message"] ?: ""
         val questionId = data["questionId"]?.toIntOrNull()
+        val actorId = data["actorId"]?.toIntOrNull()
 
-        showNotification(title, body, questionId)
+        showNotification(title, body, questionId, actorId)
     }
 
     private fun saveToken(token: String) {
@@ -62,7 +63,7 @@ class DevzFirebaseMessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun showNotification(title: String, body: String, questionId: Int?) {
+    private fun showNotification(title: String, body: String, questionId: Int?, actorId: Int?) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
             ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
             != PackageManager.PERMISSION_GRANTED
@@ -73,6 +74,7 @@ class DevzFirebaseMessagingService : FirebaseMessagingService() {
                 putExtra(EXTRA_NOTIFICATION_TITLE, title)
                 putExtra(EXTRA_NOTIFICATION_BODY, body)
                 questionId?.let { putExtra("questionId", it) }
+                actorId?.let { putExtra("actorId", it) }
             }
             startActivity(intent)
             return
@@ -81,6 +83,7 @@ class DevzFirebaseMessagingService : FirebaseMessagingService() {
         val intent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
             questionId?.let { putExtra("questionId", it) }
+            actorId?.let { putExtra("actorId", it) }
         }
 
         val pendingIntentFlags =

@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohamed.devz.feature.notification.presentation.NotificationType
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
@@ -119,7 +120,13 @@ fun HomeScreen(
             onClick = { viewModel.onSelectedIndexChange(2) },
             content = {
                 NotificationsScreen(
-                    onNotificationClick = navigateToQuestionDetails
+                    onNotificationClick = { notification ->
+                        if (notification.type == NotificationType.FOLLOWER) {
+                            navigateToProfile(notification.actorId)
+                        } else {
+                            navigateToQuestionDetails(notification.questionId)
+                        }
+                    }
                 )
             }
         ),
