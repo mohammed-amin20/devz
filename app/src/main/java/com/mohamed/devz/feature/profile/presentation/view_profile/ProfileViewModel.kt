@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile
 
+
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -124,6 +125,7 @@ class ProfileViewModel @Inject constructor(
                         createdAt = "",
                     )
                 )
+                accountRepository.addPoints(targetAccountId, 1)
                 kotlin.runCatching {
                     val actor = (accountRepository.getById(currentId) as? Result.Success)?.data
                     val recipient = (accountRepository.getById(targetAccountId) as? Result.Success)?.data
@@ -138,6 +140,8 @@ class ProfileViewModel @Inject constructor(
                         )
                     }
                 }
+            } else {
+                accountRepository.addPoints(targetAccountId, -1)
             }
         }
     }
@@ -228,7 +232,12 @@ class ProfileViewModel @Inject constructor(
             val loggedInAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
             val accountId = targetAccountId ?: loggedInAccountId
             if (accountId == 0) {
-                _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("User not found")) }
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = UiText.DynamicString("User not found")
+                    )
+                }
                 return@launch
             }
 
@@ -257,7 +266,8 @@ class ProfileViewModel @Inject constructor(
                     val followingCount = account.followingIds
                         .split(",").count { it.isNotBlank() }
                     val isFollowing = !isOwnProfile && loggedInAccountId != 0 &&
-                        account.followerIds.split(",").any { it.trim() == loggedInAccountId.toString() }
+                            account.followerIds.split(",")
+                                .any { it.trim() == loggedInAccountId.toString() }
 
                     _followerIds = account.followerIds
                     _followingIds = account.followingIds
@@ -278,7 +288,8 @@ class ProfileViewModel @Inject constructor(
                                 answerCount = answers.size,
                                 questionCount = questions.size,
                                 acceptedRate = acceptedRate,
-                                skills = account.techStack.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() },
+                                skills = account.techStack.split(",").map { s -> s.trim() }
+                                    .filter { s -> s.isNotEmpty() },
                                 githubUrl = account.githubUrl,
                                 linkedInUrl = account.linkedInUrl,
                                 websiteUrl = account.websiteUrl,
@@ -292,7 +303,8 @@ class ProfileViewModel @Inject constructor(
                                     timeAgo = formatRelativeTime(q.createdAt),
                                     votes = q.likesCount,
                                     answerCount = q.answersCount,
-                                    tags = q.tags.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() }
+                                    tags = q.tags.split(",").map { s -> s.trim() }
+                                        .filter { s -> s.isNotEmpty() }
                                 )
                             },
                             myAnswers = answers.map { a ->
@@ -311,8 +323,14 @@ class ProfileViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is Result.Error -> {
-                    _uiState.update { it.copy(error = accountResult.error.toUIText(), isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            error = accountResult.error.toUIText(),
+                            isLoading = false
+                        )
+                    }
                 }
             }
         }

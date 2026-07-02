@@ -32,7 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.platform.LocalContext
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -41,10 +44,12 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.tokenize
 import com.mohamed.devz.ui.theme.DevzTheme
 import kotlinx.coroutines.delay
+
 
 @Composable
 fun CodeBlock(
@@ -55,7 +60,7 @@ fun CodeBlock(
     showTrafficLights: Boolean = true,
     maxLines: Int = Int.MAX_VALUE,
 ) {
-    val clipboardManager = LocalClipboard.current
+    val context = LocalContext.current
     var copied by remember { mutableStateOf(false) }
 
     val annotatedCode = remember(code, language) {
@@ -116,7 +121,9 @@ fun CodeBlock(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
                             .clickable {
-
+                                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                                clipboard.setPrimaryClip(ClipData.newPlainText("code", code))
+                                Toast.makeText(context, "Code copied!", Toast.LENGTH_SHORT).show()
                                 copied = true
                             }
                             .padding(horizontal = 8.dp, vertical = 12.dp),
