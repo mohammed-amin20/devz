@@ -1,6 +1,5 @@
 package com.mohamed.devz.feature.question.presentation.add_edit_question
 
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -48,7 +47,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -78,7 +76,6 @@ fun AddEditQuestionScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null
-    val context = LocalContext.current
 
     var selectedLanguage by remember { mutableStateOf(SyntaxLanguage.KOTLIN) }
 
