@@ -105,7 +105,7 @@ class MainActivity : ComponentActivity() {
         )
 
         val notification = NotificationCompat.Builder(this, DevzFirebaseMessagingService.NOTIFICATION_CHANNEL_ID)
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setSmallIcon(R.mipmap.ic_launcher_foreground)
             .setContentTitle(title)
             .setContentText(body)
             .setPriority(NotificationCompat.PRIORITY_HIGH)

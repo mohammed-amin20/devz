@@ -31,6 +31,8 @@ interface DevZRemoteDataSource {
             password: String,
         ): Account?
 
+        suspend fun searchAccounts(query: String): List<Account>
+
         suspend fun updateAccount(account: Account)
     }
 

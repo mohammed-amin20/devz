@@ -214,12 +214,24 @@ class ViewQuestionsViewModel @Inject constructor(
                     error = null,
                 )
             }
-            when (val result = questionRepository.search(query, offset, PAGE_SIZE)) {
+
+            val questionResult = questionRepository.search(query, offset, PAGE_SIZE)
+            val accountResult = accountRepository.searchAccounts(query)
+            val accountIds = (accountResult as? Result.Success)?.data?.map { it.id } ?: emptyList()
+
+            val accountQuestions = if (accountIds.isNotEmpty()) {
+                val result = questionRepository.getByAccountIds(accountIds, 0, PAGE_SIZE)
+                (result as? Result.Success)?.data ?: emptyList()
+            } else emptyList()
+
+            when (val qResult = questionResult) {
                 is Result.Success -> {
-                    val questions = result.data
-                    val needAuthorIds = questions.map { it.accountId }.distinct()
-                    val cachedIds = accountCache.keys
-                    val missingIds = needAuthorIds - cachedIds
+                    val allQuestions = (qResult.data + accountQuestions)
+                        .distinctBy { it.id }
+                        .sortedByDescending { it.createdAt }
+
+                    val needAuthorIds = allQuestions.map { it.accountId }.distinct()
+                    val missingIds = needAuthorIds - accountCache.keys
                     if (missingIds.isNotEmpty()) {
                         missingIds.forEach { id ->
                             when (val author = accountRepository.getById(id)) {
@@ -228,24 +240,48 @@ class ViewQuestionsViewModel @Inject constructor(
                             }
                         }
                     }
-                    val uiModels = questions.map { it.toFeedUiModel(_uiState.value.bookmarkedIds) }
+
+                    val uiModels = allQuestions.map { it.toFeedUiModel(_uiState.value.bookmarkedIds) }
                     _uiState.update {
                         it.copy(
                             questions = if (page == 0) uiModels else it.questions + uiModels,
                             currentPage = page,
-                            hasMore = questions.size == PAGE_SIZE,
+                            hasMore = allQuestions.size == PAGE_SIZE,
                             isLoading = false,
                             isLoadingMore = false,
                         )
                     }
                 }
                 is Result.Error -> {
-                    _uiState.update {
-                        it.copy(
-                            error = result.error.toUIText(),
-                            isLoading = false,
-                            isLoadingMore = false,
-                        )
+                    if (accountQuestions.isNotEmpty()) {
+                        val needAuthorIds = accountQuestions.map { it.accountId }.distinct()
+                        val missingIds = needAuthorIds - accountCache.keys
+                        if (missingIds.isNotEmpty()) {
+                            missingIds.forEach { id ->
+                                when (val author = accountRepository.getById(id)) {
+                                    is Result.Success -> updateAccountCache(listOf(author.data))
+                                    is Result.Error -> {}
+                                }
+                            }
+                        }
+                        val uiModels = accountQuestions.map { it.toFeedUiModel(_uiState.value.bookmarkedIds) }
+                        _uiState.update {
+                            it.copy(
+                                questions = if (page == 0) uiModels else it.questions + uiModels,
+                                currentPage = page,
+                                hasMore = false,
+                                isLoading = false,
+                                isLoadingMore = false,
+                            )
+                        }
+                    } else {
+                        _uiState.update {
+                            it.copy(
+                                error = qResult.error.toUIText(),
+                                isLoading = false,
+                                isLoadingMore = false,
+                            )
+                        }
                     }
                 }
             }

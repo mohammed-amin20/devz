@@ -32,9 +32,9 @@ class LoginViewModel @Inject constructor(
     }
 
     private fun login(onSuccess: () -> Unit) {
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        val state = _uiState.value
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            val state = _uiState.value
             when (val result = accountRepository.getByUsernameAndPassword(state.username, state.password)) {
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }

@@ -12,6 +12,7 @@ interface AccountRepository {
     suspend fun insert(account: Account): Result<Account, Error>
     suspend fun update(account: Account): Result<Unit, Error>
     suspend fun addPoints(accountId: Int, delta: Int): Result<Unit, Error>
+    suspend fun searchAccounts(query: String): Result<List<Account>, Error>
     suspend fun uploadImage(imageBytes: ByteArray, fileName: String): Result<String, Error>
     suspend fun follow(currentId: Int, targetId: Int): Result<Unit, Error>
     suspend fun unfollow(currentId: Int, targetId: Int): Result<Unit, Error>

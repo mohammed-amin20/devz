@@ -40,22 +40,22 @@ class SignUpViewModel @Inject constructor(
             _uiState.update { it.copy(error = UiText.DynamicString("Passwords do not match")) }
             return
         }
+        _uiState.update { it.copy(isLoading = true, error = null) }
+        val state = _uiState.value
+        val account = Account(
+            id = 0,
+            username = state.username,
+            fullName = state.fullName,
+            email = state.email,
+            password = state.password,
+            imageUrl = "",
+            bio = "",
+            techStack = "",
+            githubUrl = "",
+            linkedInUrl = "",
+            websiteUrl = "",
+        )
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
-            val state = _uiState.value
-            val account = Account(
-                id = 0,
-                username = state.username,
-                fullName = state.fullName,
-                email = state.email,
-                password = state.password,
-                imageUrl = "",
-                bio = "",
-                techStack = "",
-                githubUrl = "",
-                linkedInUrl = "",
-                websiteUrl = "",
-            )
             when (val result = accountRepository.insert(account)) {
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }

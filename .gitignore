@@ -17,3 +17,7 @@ local.properties
 assets/to-do.txt
 app/google-services.json
 app/src/main/res/raw/fcm_service_account.json
+AGENTS.md
+PROJECT.md
+README.md
+SCREEN_WALKTHROUGH.md

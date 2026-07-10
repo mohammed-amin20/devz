@@ -208,6 +208,19 @@ class AccountRepositoryImpl @Inject constructor(
         return ids.joinToString(",")
     }
 
+    override suspend fun searchAccounts(query: String): Result<List<Account>, Error> {
+        return try {
+            val accounts = remoteDataSource.account.searchAccounts(query)
+            Result.Success(accounts.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (_: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
     override suspend fun uploadImage(imageBytes: ByteArray, fileName: String): Result<String, Error> {
         return try {
             val url = remoteDataSource.account.uploadImage(imageBytes, fileName)

@@ -93,6 +93,19 @@ class DevZRemoteDataSourceImpl(
                     .decodeSingleOrNull()
             }
 
+            override suspend fun searchAccounts(query: String): List<Account> {
+                return db.from(tableName)
+                    .select {
+                        filter {
+                            or {
+                                like("username", "%$query%")
+                                like("full_name", "%$query%")
+                            }
+                        }
+                    }
+                    .decodeList()
+            }
+
             override suspend fun updateAccount(account: Account) {
                 db.from(tableName)
                     .update(account) {
