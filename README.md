@@ -25,7 +25,7 @@
 
 ### Splash & Onboarding
 | Splash | Onboarding 1 | Onboarding 2 | Onboarding 3 |
-|--------|-------------|-------------|-------------|
+|--------|--------------|--------------|--------------|
 | <img src="assets/screenshots/0_splash.jpg" width="180"/> | <img src="assets/screenshots/1.1_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.2_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.3_onboarding.jpg" width="180"/> |
 
 ### Authentication
@@ -33,20 +33,23 @@
 |-------|---------|
 | <img src="assets/screenshots/2.1_Login.jpg" width="180"/> | <img src="assets/screenshots/2.2_SignUp.jpg" width="180"/> |
 
-### Question Feed & Details
-| Feed | Search | Question Details | Code Block |
-|------|--------|-----------------|------------|
-| <img src="assets/screenshots/feed.jpg" width="180"/> | <img src="assets/screenshots/search.jpg" width="180"/> | <img src="assets/screenshots/question_details.jpg" width="180"/> | <img src="assets/screenshots/code_block.jpg" width="180"/> |
+### View Question & Details
+| View Questions | Add Question | Question Details |
+|----------------|--------------|------------------|
+| <img src="assets/screenshots/3.1_viewQuestion.jpeg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> |
 
 ### Profile & Notifications
-| View Profile | Edit Profile | Notifications | Add Question |
-|-------------|-------------|---------------|-------------|
-| <img src="assets/screenshots/profile.jpg" width="180"/> | <img src="assets/screenshots/edit_profile.jpg" width="180"/> | <img src="assets/screenshots/notifications.jpg" width="180"/> | <img src="assets/screenshots/add_question.jpg" width="180"/> |
+| View Profile | Edit Profile | Notifications |
+|--------------|--------------|---------------|
+| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/5_notification.jpg" width="180"/> 
+
+### Other
+| Code Block | Gamefication |
+|------------|--------------|
+| <img src="assets/screenshots/3.4_code_block.jpg" width="180"/> | <img src="assets/screenshots/6_gamefication.jpg" width="180"/> |
 
 </div>
 
-> 📌 **To add screenshots:** Create a folder called `assets/screenshots/` in the repo root and upload your screen captures with the matching filenames above.  
-> Onboarding files: `onboarding_1.jpg`, `onboarding_2.jpg`, `onboarding_3.jpg`
 
 ---
 
