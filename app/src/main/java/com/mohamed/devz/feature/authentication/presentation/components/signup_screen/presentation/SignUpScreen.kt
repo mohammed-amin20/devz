@@ -189,7 +189,9 @@ fun SignUpScreen(
                                     tint = TextSubtle,
                                     modifier = Modifier.size(20.dp)
                                 )
-                            }
+                            },
+                            isError = uiState.fullNameError != null,
+                            errorMessage = uiState.fullNameError?.asString()
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -207,7 +209,9 @@ fun SignUpScreen(
                                     tint = TextSubtle,
                                     modifier = Modifier.size(20.dp)
                                 )
-                            }
+                            },
+                            isError = uiState.usernameError != null,
+                            errorMessage = uiState.usernameError?.asString()
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -226,7 +230,9 @@ fun SignUpScreen(
                                     tint = TextSubtle,
                                     modifier = Modifier.size(20.dp)
                                 )
-                            }
+                            },
+                            isError = uiState.emailError != null,
+                            errorMessage = uiState.emailError?.asString()
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -248,7 +254,9 @@ fun SignUpScreen(
                                     tint = TextSubtle,
                                     modifier = Modifier.size(20.dp)
                                 )
-                            }
+                            },
+                            isError = uiState.passwordError != null,
+                            errorMessage = uiState.passwordError?.asString()
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -276,7 +284,9 @@ fun SignUpScreen(
                                     tint = TextSubtle,
                                     modifier = Modifier.size(20.dp)
                                 )
-                            }
+                            },
+                            isError = uiState.confirmPasswordError != null,
+                            errorMessage = uiState.confirmPasswordError?.asString()
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -401,6 +411,8 @@ fun DevzTextField(
     passwordVisible: Boolean = false,
     onTogglePassword: (() -> Unit)? = null,
     leadingIcon: @Composable (() -> Unit)? = null,
+    isError: Boolean = false,
+    errorMessage: String? = null,
 ) {
     OutlinedTextField(
         value = value,
@@ -423,15 +435,22 @@ fun DevzTextField(
         visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         singleLine = true,
+        isError = isError,
+        supportingText = if (isError && errorMessage != null) {
+            { Text(text = errorMessage, fontSize = 12.sp) }
+        } else null,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = CyanPrimary,
             unfocusedBorderColor = Color(0xFF2A3A3A),
+            errorBorderColor = MaterialTheme.colorScheme.error,
             focusedTextColor = TextWhite,
             unfocusedTextColor = TextWhite,
+            errorTextColor = TextWhite,
             cursorColor = CyanPrimary,
             focusedContainerColor = DevzInput,
-            unfocusedContainerColor = DevzInput
+            unfocusedContainerColor = DevzInput,
+            errorContainerColor = DevzInput,
         ),
         textStyle = MaterialTheme.typography.bodyMedium
     )

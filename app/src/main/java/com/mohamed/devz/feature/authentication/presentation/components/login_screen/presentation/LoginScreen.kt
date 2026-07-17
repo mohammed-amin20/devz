@@ -181,15 +181,22 @@ fun LoginScreen(
                         },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
                         singleLine = true,
+                        isError = uiState.usernameError != null,
+                        supportingText = uiState.usernameError?.let {
+                            { Text(text = it.asString(), fontSize = 12.sp) }
+                        },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = CyanPrimary,
                             unfocusedBorderColor = Color(0xFF2A3A3A),
+                            errorBorderColor = MaterialTheme.colorScheme.error,
                             focusedTextColor = TextWhite,
                             unfocusedTextColor = TextWhite,
+                            errorTextColor = TextWhite,
                             cursorColor = CyanPrimary,
                             focusedContainerColor = DevzInput,
-                            unfocusedContainerColor = DevzInput
+                            unfocusedContainerColor = DevzInput,
+                            errorContainerColor = DevzInput,
                         ),
                         textStyle = MaterialTheme.typography.bodyMedium
                     )
@@ -231,15 +238,22 @@ fun LoginScreen(
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                         singleLine = true,
+                        isError = uiState.passwordError != null,
+                        supportingText = uiState.passwordError?.let {
+                            { Text(text = it.asString(), fontSize = 12.sp) }
+                        },
                         shape = RoundedCornerShape(12.dp),
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = CyanPrimary,
                             unfocusedBorderColor = Color(0xFF2A3A3A),
+                            errorBorderColor = MaterialTheme.colorScheme.error,
                             focusedTextColor = TextWhite,
                             unfocusedTextColor = TextWhite,
+                            errorTextColor = TextWhite,
                             cursorColor = CyanPrimary,
                             focusedContainerColor = DevzInput,
-                            unfocusedContainerColor = DevzInput
+                            unfocusedContainerColor = DevzInput,
+                            errorContainerColor = DevzInput,
                         ),
                         textStyle = MaterialTheme.typography.bodyMedium
                     )

@@ -25,15 +25,24 @@ class LoginViewModel @Inject constructor(
 
     fun onAction(action: LoginAction) {
         when (action) {
-            is LoginAction.UsernameChanged -> _uiState.update { it.copy(username = action.value) }
-            is LoginAction.PasswordChanged -> _uiState.update { it.copy(password = action.value) }
+            is LoginAction.UsernameChanged -> _uiState.update { it.copy(username = action.value, usernameError = null) }
+            is LoginAction.PasswordChanged -> _uiState.update { it.copy(password = action.value, passwordError = null) }
             is LoginAction.LoginClicked -> login(action.onSuccess)
         }
     }
 
     private fun login(onSuccess: () -> Unit) {
-        _uiState.update { it.copy(isLoading = true, error = null) }
         val state = _uiState.value
+
+        val usernameError = if (state.username.isBlank()) UiText.DynamicString("Username is required") else null
+        val passwordError = if (state.password.isBlank()) UiText.DynamicString("Password is required") else null
+
+        if (usernameError != null || passwordError != null) {
+            _uiState.update { it.copy(usernameError = usernameError, passwordError = passwordError) }
+            return
+        }
+
+        _uiState.update { it.copy(isLoading = true, error = null) }
         viewModelScope.launch {
             when (val result = accountRepository.getByUsernameAndPassword(state.username, state.password)) {
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
