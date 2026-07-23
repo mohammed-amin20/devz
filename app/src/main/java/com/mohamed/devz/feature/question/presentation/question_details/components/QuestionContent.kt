@@ -3,6 +3,8 @@ package com.mohamed.devz.feature.question.presentation.question_details.componen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,6 +39,7 @@ import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.QOutline
 import com.mohamed.devz.ui.theme.QPrimary
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun QuestionContent(
     question: QuestionDetailUiModel,
@@ -49,6 +52,7 @@ fun QuestionContent(
     onAcceptAnswer: (Int) -> Unit = {},
     onQuestionAuthorClick: () -> Unit = {},
     onAnswerAuthorClick: (Int) -> Unit = {},
+    onCodeLongPress: (String) -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier
@@ -138,10 +142,19 @@ fun QuestionContent(
         }
 
         item {
-            CodeBlock(
-                code = question.code,
-                language = question.language
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .combinedClickable(
+                        onClick = {},
+                        onLongClick = { onCodeLongPress(question.code) }
+                    )
+            ) {
+                CodeBlock(
+                    code = question.code,
+                    language = question.language
+                )
+            }
             Spacer(Modifier.height(22.dp))
         }
 

@@ -7,7 +7,8 @@ data class Answer(
     val votedIds: String,
     val questionId: Int,
     val accountId: Int,
-    val createdAt: String?
+    val createdAt: String?,
+    val code: String? = null,
 )
 
 fun Answer.toggleVote(accountId: Int): Answer {

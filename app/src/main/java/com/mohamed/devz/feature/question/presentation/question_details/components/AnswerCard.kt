@@ -39,6 +39,7 @@ import com.mohamed.devz.ui.theme.QOutline
 import com.mohamed.devz.ui.theme.QPrimary
 import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.QSurfaceLow
+import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 
 data class AnswerUiModel(
     val answerId: Int,
@@ -50,6 +51,8 @@ data class AnswerUiModel(
     val likes: Int,
     val timeAgo: String,
     val isLiked: Boolean = false,
+    val code: String? = null,
+    val language: SyntaxLanguage = SyntaxLanguage.GENERIC,
 )
 @Composable
 fun AnswerCard(
@@ -141,6 +144,11 @@ fun AnswerCard(
                 lineHeight = 23.sp,
                 style = MaterialTheme.typography.bodyMedium
             )
+
+            if (!answer.code.isNullOrBlank()) {
+                Spacer(Modifier.height(12.dp))
+                CodeBlock(code = answer.code, language = answer.language)
+            }
 
             Spacer(Modifier.height(16.dp))
 

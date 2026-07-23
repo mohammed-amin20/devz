@@ -11,6 +11,7 @@ fun DataAnswer.toDomain(): DomainAnswer = DomainAnswer(
     questionId = questionId,
     accountId = accountId,
     createdAt = createdAt,
+    code = code,
 )
 
 fun DomainAnswer.toData(): DataAnswer = DataAnswer(
@@ -21,4 +22,5 @@ fun DomainAnswer.toData(): DataAnswer = DataAnswer(
     questionId = questionId,
     accountId = accountId,
     createdAt = createdAt,
+    code = code,
 )

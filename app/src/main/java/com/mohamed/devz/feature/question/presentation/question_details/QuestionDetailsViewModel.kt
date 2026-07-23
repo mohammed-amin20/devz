@@ -64,6 +64,10 @@ class QuestionDetailsViewModel @Inject constructor(
         when (action) {
             is QuestionDetailsAction.LoadQuestion -> loadQuestion(action.questionId)
             is QuestionDetailsAction.AnswerTextChanged -> _uiState.update { it.copy(answerText = action.value) }
+            is QuestionDetailsAction.AnswerCodeChanged -> _uiState.update { it.copy(answerCode = action.value) }
+            is QuestionDetailsAction.ShowCodeEditor -> _uiState.update { it.copy(showCodeEditor = true) }
+            is QuestionDetailsAction.HideCodeEditor -> _uiState.update { it.copy(showCodeEditor = false) }
+            is QuestionDetailsAction.PrefillAnswerCode -> _uiState.update { it.copy(answerCode = action.code, showCodeEditor = true) }
             is QuestionDetailsAction.PostAnswer -> postAnswer(action.onSuccess)
             is QuestionDetailsAction.ToggleLike -> toggleLike()
             is QuestionDetailsAction.ToggleAnswerVote -> toggleAnswerVote(action.answerId)
@@ -230,6 +234,8 @@ class QuestionDetailsViewModel @Inject constructor(
                         likes = votes.size,
                         isLiked = if (currentAccountId != 0) votes.any { it == currentAccountId.toString() } else false,
                         timeAgo = formatRelativeTime(answer.createdAt),
+                        code = answer.code,
+                        language = _uiState.value.question?.language ?: SyntaxLanguage.GENERIC,
                     )
                 }
                 _uiState.update { it.copy(answers = answerUiModels) }
@@ -362,12 +368,13 @@ class QuestionDetailsViewModel @Inject constructor(
                 questionId = questionId,
                 accountId = currentAccountId,
                 createdAt = null,
+                code = _uiState.value.answerCode,
             )
             when (val result = answerRepository.insert(answer)) {
                 is Result.Success -> {
                     val insertedAnswer = result.data
                     val currentCount = _uiState.value.question?.answersCount ?: 0
-                    _uiState.update { it.copy(answerText = "", isPosting = false) }
+                    _uiState.update { it.copy(answerText = "", answerCode = null, showCodeEditor = false, isPosting = false) }
                     questionRepository.incrementAnswerCount(questionId, currentCount)
                     _uiState.update {
                         it.copy(question = it.question?.copy(answersCount = currentCount + 1))

@@ -294,6 +294,7 @@ class DevZRemoteDataSourceImpl(
                     put("voted_ids", answer.votedIds)
                     put("question_id", answer.questionId)
                     put("account_id", answer.accountId)
+                    answer.code?.let { put("code", it) }
                 }
 
                 return db.from(tableName)
