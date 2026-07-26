@@ -19,6 +19,8 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     fcmToken = fcmToken,
     followerIds = followerIds,
     followingIds = followingIds,
+    isBanned = isBanned,
+    isAdmin = isAdmin,
 )
 
 fun DomainAccount.toData(): DataAccount = DataAccount(
@@ -37,4 +39,6 @@ fun DomainAccount.toData(): DataAccount = DataAccount(
     fcmToken = fcmToken,
     followerIds = followerIds,
     followingIds = followingIds,
+    isBanned = isBanned,
+    isAdmin = isAdmin,
 )

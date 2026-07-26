@@ -33,5 +33,6 @@ interface QuestionRepository {
     suspend fun update(question: Question): Result<Unit, Error>
     suspend fun toggleLike(id: Int, likedAccountIds: String, likesCount: Int): Result<Unit, Error>
     suspend fun incrementAnswerCount(questionId: Int, answersCount: Int): Result<Unit, Error>
+    suspend fun decrementAnswerCount(questionId: Int, answersCount: Int): Result<Unit, Error>
     suspend fun delete(id: Int): Result<Unit, Error>
 }

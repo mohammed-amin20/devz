@@ -85,6 +85,8 @@ class EditProfileViewModel @Inject constructor(
                             website = a.websiteUrl,
                             skills = a.techStack.split(",").map { s -> s.trim() }.filter { s -> s.isNotEmpty() },
                             imageUrl = a.imageUrl,
+                            followerIds = a.followerIds,
+                            followingIds = a.followingIds,
                             isLoading = false,
                         )
                     }
@@ -127,6 +129,8 @@ class EditProfileViewModel @Inject constructor(
                     githubUrl = state.github,
                     linkedInUrl = state.linkedin,
                     websiteUrl = state.website,
+                    followerIds = state.followerIds,
+                    followingIds = state.followingIds,
                 )
             )
             when (result) {

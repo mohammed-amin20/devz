@@ -30,6 +30,7 @@ import com.mohamed.devz.feature.authentication.presentation.components.signup_sc
 fun AuthScreen(
     onLoginSuccess: () -> Unit,
     onRegisterSuccess: () -> Unit,
+    onBanned: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     var index by remember { mutableIntStateOf(0) }
@@ -82,7 +83,8 @@ fun AuthScreen(
         when(index) {
             0 -> LoginScreen(
                 onNavigateToRegister = { index = 1 },
-                onLoginSuccess = onLoginSuccess
+                onLoginSuccess = onLoginSuccess,
+                onBanned = onBanned
             )
 
             1 -> SignUpScreen(
@@ -98,6 +100,7 @@ fun AuthScreen(
 private fun PrevAuth() {
     AuthScreen(
         onLoginSuccess = {},
-        onRegisterSuccess = {}
+        onRegisterSuccess = {},
+        onBanned = {}
     )
 }

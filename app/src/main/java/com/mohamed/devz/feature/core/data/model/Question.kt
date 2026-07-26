@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.core.data.model
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -22,4 +23,7 @@ data class Question(
     val createdAt: String?,
     @SerialName("like_accounts_ids")
     val likedAccountIds: String = "",
+    @SerialName("is_hidden")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val isHidden: Boolean = false,
 )

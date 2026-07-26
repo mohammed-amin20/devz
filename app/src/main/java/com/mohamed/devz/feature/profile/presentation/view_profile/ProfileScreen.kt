@@ -119,6 +119,7 @@ fun ProfileScreen(
     onFullScreenChanged: (Boolean) -> Unit = {},
     onDialogVisibilityChanged: (Boolean) -> Unit = {},
     onProfileClick: (Int) -> Unit = {},
+    onAdminPanelClick: () -> Unit = {},
     navigateUp: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -653,6 +654,29 @@ fun ProfileScreen(
                             }
                         }
                         Spacer(modifier = Modifier.height(8.dp))
+                    }
+
+                    // -- Admin Panel button -----------------------------------------
+                    if (uiState.isOwnProfile && uiState.profile?.isAdmin == true) {
+                        item {
+                            OutlinedButton(
+                                onClick = onAdminPanelClick,
+                                modifier = Modifier.fillMaxWidth().height(44.dp),
+                                shape = RoundedCornerShape(14.dp),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    contentColor = CyanPrimary,
+                                ),
+                                border = androidx.compose.foundation.BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.5f)),
+                            ) {
+                                Text(
+                                    text = "\uD83D\uDEE0\uFE0F Admin Panel",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 15.sp,
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
                     }
 
                     // ── Stats grid ────────────────────────────────────────────────

@@ -16,4 +16,6 @@ data class Account(
     val fcmToken: String = "",
     val followerIds: String = "",
     val followingIds: String = "",
+    val isBanned: Boolean = false,
+    val isAdmin: Boolean = false,
 )

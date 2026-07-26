@@ -189,6 +189,19 @@ class QuestionRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun decrementAnswerCount(questionId: Int, answersCount: Int): Result<Unit, Error> {
+        return try {
+            remoteDataSource.question.decrementAnswerCount(questionId, answersCount)
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
     override suspend fun delete(id: Int): Result<Unit, Error> {
         return try {
             remoteDataSource.question.deleteQuestion(id)

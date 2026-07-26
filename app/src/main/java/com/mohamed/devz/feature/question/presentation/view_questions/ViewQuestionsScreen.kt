@@ -23,6 +23,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Forum
+import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -32,6 +33,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
+import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -231,7 +236,38 @@ fun ViewQuestionsScreen(
                         unfocusedContainerColor = DevzCard
                     )
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
+
+                val tabs = listOf("For You", "Following")
+                TabRow(
+                    selectedTabIndex = uiState.selectedTab,
+                    containerColor = Color.Transparent,
+                    contentColor = CyanPrimary,
+                    indicator = { tabPositions ->
+                        TabRowDefaults.PrimaryIndicator(
+                            modifier = Modifier.tabIndicatorOffset(tabPositions[uiState.selectedTab]),
+                            color = CyanPrimary,
+                        )
+                    },
+                    divider = {},
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    tabs.forEachIndexed { index, title ->
+                        Tab(
+                            selected = uiState.selectedTab == index,
+                            onClick = { viewModel.onAction(ViewQuestionsAction.TabSelected(index)) },
+                            text = {
+                                Text(
+                                    text = title,
+                                    fontSize = 14.sp,
+                                    fontWeight = if (uiState.selectedTab == index) FontWeight.Bold else FontWeight.Normal,
+                                    color = if (uiState.selectedTab == index) CyanPrimary else TextSubtle,
+                                )
+                            },
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
@@ -243,6 +279,71 @@ fun ViewQuestionsScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(color = CyanPrimary)
+                    }
+                }
+            } else if (uiState.questions.isEmpty() && uiState.noTechMatches) {
+                item {
+                    val animAlpha by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseInOut),
+                    )
+                    val animScale by animateFloatAsState(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(
+                                Brush.radialGradient(
+                                    colors = listOf(
+                                        Color(0xFF0D3333),
+                                        Color(0xFF0A1A1A),
+                                        Color(0xFF060D0D)
+                                    ),
+                                    center = Offset(0.5f, 0.4f),
+                                    radius = 1200f
+                                )
+                            )
+                            .padding(vertical = 56.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .alpha(animAlpha)
+                                .scale(animScale),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(72.dp)
+                                    .clip(RoundedCornerShape(20.dp))
+                                    .background(CyanPrimary.copy(alpha = 0.12f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    Icons.Filled.Lightbulb,
+                                    null,
+                                    tint = CyanPrimary,
+                                    modifier = Modifier.size(36.dp)
+                                )
+                            }
+                            Spacer(modifier = Modifier.height(20.dp))
+                            Text(
+                                "No matching questions",
+                                color = TextWhite,
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                "Add technologies to your profile so we can\nshow you relevant questions.",
+                                color = TextGray,
+                                fontSize = 14.sp,
+                                lineHeight = 20.sp,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
                     }
                 }
             } else if (uiState.questions.isEmpty() && uiState.isNotFollowingAnyone) {

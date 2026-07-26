@@ -2,7 +2,9 @@ package com.mohamed.devz.feature.splash.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
+import com.mohamed.devz.feature.core.domain.util.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -14,12 +16,14 @@ import jakarta.inject.Inject
 @HiltViewModel
 class SplashViewModel @Inject constructor(
     private val userPreferencesRepository: UserPreferencesRepository,
+    private val accountRepository: AccountRepository,
 ) : ViewModel() {
 
     sealed interface SplashEvent {
         data object NavigateToOnboarding : SplashEvent
         data object NavigateToAuth : SplashEvent
         data object NavigateToHome : SplashEvent
+        data object NavigateToBanned : SplashEvent
     }
 
     private val _splashEvent = MutableSharedFlow<SplashEvent>()
@@ -39,7 +43,14 @@ class SplashViewModel @Inject constructor(
                 when {
                     isFirstTime -> SplashEvent.NavigateToOnboarding
                     !isLoggedIn -> SplashEvent.NavigateToAuth
-                    else -> SplashEvent.NavigateToHome
+                    else -> {
+                        val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+                        if (accountId == 0) SplashEvent.NavigateToAuth
+                        else when (val result = accountRepository.getById(accountId)) {
+                            is Result.Success -> if (result.data.isBanned) SplashEvent.NavigateToBanned else SplashEvent.NavigateToHome
+                            else -> SplashEvent.NavigateToHome
+                        }
+                    }
                 }
             )
         }

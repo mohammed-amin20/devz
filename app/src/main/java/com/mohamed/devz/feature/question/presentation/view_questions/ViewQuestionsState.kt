@@ -15,4 +15,5 @@ data class ViewQuestionsState(
     val bookmarkedIds: Set<Int> = emptySet(),
     val error: UiText? = null,
     val isNotFollowingAnyone: Boolean = false,
+    val noTechMatches: Boolean = false,
 )

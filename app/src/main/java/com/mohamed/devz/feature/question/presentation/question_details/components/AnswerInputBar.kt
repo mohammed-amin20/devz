@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -35,7 +34,6 @@ import com.mohamed.devz.ui.theme.QOutline
 import com.mohamed.devz.ui.theme.QPrimary
 import com.mohamed.devz.ui.theme.QPrimaryContainer
 import com.mohamed.devz.ui.theme.QSurfaceHigh
-
 @Composable
 fun AnswerInputBar(
     answerText: String,
@@ -97,8 +95,8 @@ fun AnswerInputBar(
             TextField(
                 value = answerText,
                 onValueChange = onAnswerChange,
-                modifier = Modifier.weight(1f)
-                    .heightIn(min = 50.dp, max = 150.dp),
+                modifier = Modifier.weight(1f),
+                maxLines = 5,
                 placeholder = {
                     Text(
                         text = "Write your answer...",

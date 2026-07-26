@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
+import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
 
 interface DevZRemoteDataSource {
@@ -17,6 +18,7 @@ interface DevZRemoteDataSource {
     val notification: NotificationTable
     val notificationType: NotificationTypeTable
     val searchHistory: SearchHistoryTable
+    val announcement: AnnouncementTable
 
     interface AccountTable {
         suspend fun uploadImage(imageBytes: ByteArray, fileName: String): String
@@ -71,6 +73,8 @@ interface DevZRemoteDataSource {
 
         suspend fun incrementAnswerCount(questionId: Int, answersCount: Int)
 
+        suspend fun decrementAnswerCount(questionId: Int, answersCount: Int)
+
         suspend fun deleteQuestion(id: Int)
     }
 
@@ -84,6 +88,7 @@ interface DevZRemoteDataSource {
         suspend fun getAnswerById(id: Int): Answer
         suspend fun getAnswersByQuestionId(questionId: Int): List<Answer>
         suspend fun getAnswersByAccountId(accountId: Int): List<Answer>
+        suspend fun getAllAnswers(): List<Answer>
 
         suspend fun updateAnswer(answer: Answer)
 
@@ -108,5 +113,11 @@ interface DevZRemoteDataSource {
         suspend fun getRecentByAccountId(accountId: Int, limit: Int = 10): List<SearchHistory>
         suspend fun insert(query: String, accountId: Int): SearchHistory
         suspend fun clearAll(accountId: Int)
+    }
+
+    interface AnnouncementTable {
+        suspend fun getAllAnnouncements(): List<Announcement>
+        suspend fun insertAnnouncement(announcement: Announcement): Announcement
+        suspend fun deleteAnnouncement(id: Int)
     }
 }

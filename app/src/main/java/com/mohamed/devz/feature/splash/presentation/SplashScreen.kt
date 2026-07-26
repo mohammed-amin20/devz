@@ -54,6 +54,7 @@ fun SplashScreen(
     navigateToOnboarding: () -> Unit,
     navigateToAuth: () -> Unit,
     navigateToHome: () -> Unit,
+    navigateToBanned: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
@@ -87,6 +88,7 @@ fun SplashScreen(
                 SplashEvent.NavigateToOnboarding -> navigateToOnboarding()
                 SplashEvent.NavigateToAuth -> navigateToAuth()
                 SplashEvent.NavigateToHome -> navigateToHome()
+                SplashEvent.NavigateToBanned -> navigateToBanned()
             }
         }
     }

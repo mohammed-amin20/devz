@@ -57,6 +57,19 @@ class AnswerRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAll(): Result<List<Answer>, Error> {
+        return try {
+            val answers = remoteDataSource.answer.getAllAnswers()
+            Result.Success(answers.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown(e.message ?: "Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
     override suspend fun insert(answer: Answer): Result<Answer, Error> {
         return try {
             val inserted = remoteDataSource.answer.insertAnswer(answer.toData())

@@ -8,6 +8,8 @@ import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -118,10 +120,14 @@ fun QuestionContent(
                         )
                     }
                 }
-
-                Spacer(Modifier.weight(1f))
-
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            }
+            Spacer(Modifier.height(10.dp))
+            if (question.tags.isNotEmpty()) {
+                @OptIn(ExperimentalLayoutApi::class)
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
                     question.tags.forEach { tag ->
                         TagChip(text = tag)
                     }

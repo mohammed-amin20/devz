@@ -15,4 +15,5 @@ data class ProfileUiModel(
     val websiteUrl: String,
     val followersCount: Int = 0,
     val followingCount: Int = 0,
+    val isAdmin: Boolean = false,
 )

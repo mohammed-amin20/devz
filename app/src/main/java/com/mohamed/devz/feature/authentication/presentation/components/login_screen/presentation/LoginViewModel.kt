@@ -27,11 +27,11 @@ class LoginViewModel @Inject constructor(
         when (action) {
             is LoginAction.UsernameChanged -> _uiState.update { it.copy(username = action.value, usernameError = null) }
             is LoginAction.PasswordChanged -> _uiState.update { it.copy(password = action.value, passwordError = null) }
-            is LoginAction.LoginClicked -> login(action.onSuccess)
+            is LoginAction.LoginClicked -> login(action.onSuccess, action.onBanned)
         }
     }
 
-    private fun login(onSuccess: () -> Unit) {
+    private fun login(onSuccess: () -> Unit, onBanned: () -> Unit) {
         val state = _uiState.value
 
         val usernameError = if (state.username.isBlank()) UiText.DynamicString("Username is required") else null
@@ -48,10 +48,15 @@ class LoginViewModel @Inject constructor(
                 is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     if (result.data != null) {
-                        userPreferencesRepository.setLoggedIn()
-                        userPreferencesRepository.setAccountId(result.data.id)
-                        FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
-                        onSuccess()
+                        if (result.data.isBanned) {
+                            _uiState.update { it.copy(isLoading = false) }
+                            onBanned()
+                        } else {
+                            userPreferencesRepository.setLoggedIn()
+                            userPreferencesRepository.setAccountId(result.data.id)
+                            FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
+                            onSuccess()
+                        }
                     } else {
                         _uiState.update { it.copy(error = UiText.DynamicString("Invalid credentials"), isLoading = false) }
                     }

@@ -70,6 +70,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun LoginScreen(
     onNavigateToRegister: () -> Unit,
     onLoginSuccess: () -> Unit,
+    onBanned: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
@@ -262,7 +263,7 @@ fun LoginScreen(
 
                     Button(
                         onClick = {
-                            viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess))
+                            viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess, onBanned))
                         },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -335,7 +336,8 @@ private fun PreviewLoginScreen() {
     DevzTheme {
         LoginScreen(
             onLoginSuccess = {},
-            onNavigateToRegister = {}
+            onNavigateToRegister = {},
+            onBanned = {}
         )
     }
 }

@@ -12,4 +12,5 @@ data class Question(
     val accountId: Int,
     val createdAt: String?,
     val likedAccountIds: String = "",
+    val isHidden: Boolean = false,
 )

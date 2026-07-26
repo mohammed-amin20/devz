@@ -15,6 +15,7 @@ fun DataQuestion.toDomain(): DomainQuestion = DomainQuestion(
     accountId = accountId,
     createdAt = createdAt,
     likedAccountIds = likedAccountIds,
+    isHidden = isHidden,
 )
 
 fun DomainQuestion.toData(): DataQuestion = DataQuestion(
@@ -29,4 +30,5 @@ fun DomainQuestion.toData(): DataQuestion = DataQuestion(
     accountId = accountId,
     createdAt = createdAt,
     likedAccountIds = likedAccountIds,
+    isHidden = isHidden,
 )

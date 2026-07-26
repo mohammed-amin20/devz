@@ -33,4 +33,10 @@ data class Account(
     @SerialName("following_ids")
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val followingIds: String = "",
+    @SerialName("is_banned")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val isBanned: Boolean = false,
+    @SerialName("is_admin")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val isAdmin: Boolean = false,
 )

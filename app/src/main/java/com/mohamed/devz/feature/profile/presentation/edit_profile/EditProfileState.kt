@@ -21,5 +21,7 @@ data class EditProfileState(
     val displayEmail: Boolean = false,
     val isLoading: Boolean = false,
     val isUploadingImage: Boolean = false,
-    val error: UiText? = null
+    val error: UiText? = null,
+    val followerIds: String = "",
+    val followingIds: String = "",
 )

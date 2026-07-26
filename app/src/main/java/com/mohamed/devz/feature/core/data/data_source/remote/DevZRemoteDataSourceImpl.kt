@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
+import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
@@ -171,7 +172,10 @@ class DevZRemoteDataSourceImpl(
                     .select {
                         range(offset, offset + limit - 1)
                         order(column = "created_at", order = Order.DESCENDING)
-                        filter { isIn("account_id", accountIds) }
+                        filter {
+                            isIn("account_id", accountIds)
+                            eq("is_hidden", false)
+                        }
                     }
                     .decodeList()
             }
@@ -186,6 +190,7 @@ class DevZRemoteDataSourceImpl(
                         range(offset, offset + limit - 1)
                         order(column = "created_at", order = Order.DESCENDING)
                         filter {
+                            eq("is_hidden", false)
                             or {
                                 tags.forEach { tag ->
                                     like("tags", "%$tag%")
@@ -223,6 +228,7 @@ class DevZRemoteDataSourceImpl(
                         range(offset, offset + limit - 1)
                         order(column = "created_at", order = Order.DESCENDING)
                         filter {
+                            eq("is_hidden", false)
                             or {
                                 like("title", "%$query%")
                                 like("description", "%$query%")
@@ -259,6 +265,15 @@ class DevZRemoteDataSourceImpl(
                 db.from(tableName)
                     .update(buildJsonObject {
                         put("answers_count", answersCount + 1)
+                    }) {
+                        filter { eq("id", questionId) }
+                    }
+            }
+
+            override suspend fun decrementAnswerCount(questionId: Int, answersCount: Int) {
+                db.from(tableName)
+                    .update(buildJsonObject {
+                        put("answers_count", maxOf(0, answersCount - 1))
                     }) {
                         filter { eq("id", questionId) }
                     }
@@ -325,6 +340,12 @@ class DevZRemoteDataSourceImpl(
                     .select {
                         filter { eq("account_id", accountId) }
                     }
+                    .decodeList()
+            }
+
+            override suspend fun getAllAnswers(): List<Answer> {
+                return db.from(tableName)
+                    .select()
                     .decodeList()
             }
 
@@ -437,6 +458,39 @@ class DevZRemoteDataSourceImpl(
                 db.from(tableName)
                     .delete {
                         filter { eq("account_id", accountId) }
+                    }
+            }
+        }
+
+    override val announcement: DevZRemoteDataSource.AnnouncementTable
+        get() = object : DevZRemoteDataSource.AnnouncementTable {
+            private val tableName = "Announcement"
+
+            override suspend fun getAllAnnouncements(): List<Announcement> {
+                return db.from(tableName)
+                    .select {
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun insertAnnouncement(announcement: Announcement): Announcement {
+                val json = buildJsonObject {
+                    put("title", announcement.title)
+                    put("message", announcement.message)
+                }
+
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun deleteAnnouncement(id: Int) {
+                db.from(tableName)
+                    .delete {
+                        filter { eq("id", id) }
                     }
             }
         }

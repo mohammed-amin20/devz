@@ -22,6 +22,12 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.feature.question.presentation.add_edit_question.AddEditQuestionScreen
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
 import com.mohamed.devz.feature.splash.presentation.SplashScreen
+import com.mohamed.devz.feature.admin.presentation.admin_dashboard.AdminDashboardScreen
+import com.mohamed.devz.feature.admin.presentation.manage_users.ManageUsersScreen
+import com.mohamed.devz.feature.admin.presentation.manage_questions.ManageQuestionsScreen
+import com.mohamed.devz.feature.admin.presentation.manage_answers.ManageAnswersScreen
+import com.mohamed.devz.feature.admin.presentation.manage_announcements.ManageAnnouncementsScreen
+import com.mohamed.devz.feature.authentication.presentation.BannedScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
 import com.mohamed.devz.navigation.components.home.HomeViewModel
 
@@ -52,6 +58,9 @@ fun DevzNavHost(
                 navigateToHome = {
                     navController.apply { popBackStack(); navigate(Route.Home) }
                 },
+                navigateToBanned = {
+                    navController.apply { popBackStack(); navigate(Route.Banned) }
+                },
                 modifier = modifier
             )
         }
@@ -78,6 +87,12 @@ fun DevzNavHost(
                     navController.apply {
                         popBackStack()
                         navigate(Route.Home)
+                    }
+                },
+                onBanned = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Banned)
                     }
                 },
                 modifier = modifier
@@ -125,6 +140,9 @@ fun DevzNavHost(
                 },
                 switchToProfileTab = switchToProfileTab,
                 profileRefreshCounter = profileRefreshCounter,
+                navigateToAdminDashboard = {
+                    navController.navigate(Route.AdminDashboard)
+                },
                 modifier = modifier
             )
             if (switchToProfileTab) {
@@ -181,6 +199,41 @@ fun DevzNavHost(
                 navigateUp = { navController.navigateUp() },
                 modifier = modifier
             )
+        }
+        composable<Route.AdminDashboard> {
+            AdminDashboardScreen(
+                onNavigateToUsers = { navController.navigate(Route.ManageUsers) },
+                onNavigateToQuestions = { navController.navigate(Route.ManageQuestions) },
+                onNavigateToAnswers = { navController.navigate(Route.ManageAnswers) },
+                onNavigateToAnnouncements = { navController.navigate(Route.ManageAnnouncements) },
+                onNavigateUp = { navController.navigateUp() },
+            )
+        }
+        composable<Route.ManageUsers> {
+            ManageUsersScreen(
+                onNavigateUp = { navController.navigateUp() },
+                onUserClick = { navController.navigate(Route.Profile(it)) },
+            )
+        }
+        composable<Route.ManageQuestions> {
+            ManageQuestionsScreen(
+                onNavigateUp = { navController.navigateUp() },
+                onQuestionClick = { navController.navigate(Route.QuestionDetails(it)) },
+            )
+        }
+        composable<Route.ManageAnswers> {
+            ManageAnswersScreen(
+                onNavigateUp = { navController.navigateUp() },
+                onAnswerClick = { navController.navigate(Route.QuestionDetails(it)) },
+            )
+        }
+        composable<Route.ManageAnnouncements> {
+            ManageAnnouncementsScreen(
+                onNavigateUp = { navController.navigateUp() },
+            )
+        }
+        composable<Route.Banned> {
+            BannedScreen()
         }
     }
 }

@@ -64,6 +64,7 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     switchToProfileTab: Boolean = false,
     profileRefreshCounter: Int = 0,
+    navigateToAdminDashboard: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
@@ -144,6 +145,7 @@ fun HomeScreen(
                     refreshTrigger = profileRefreshCounter,
                     onFullScreenChanged = { isFullScreenImage = it },
                     onDialogVisibilityChanged = { isDialogOpen = it },
+                    onAdminPanelClick = navigateToAdminDashboard,
                     onProfileClick = { accountId ->
                         if (accountId == currentAccountId) {
                             viewModel.onSelectedIndexChange(3)

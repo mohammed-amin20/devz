@@ -295,6 +295,7 @@ class ProfileViewModel @Inject constructor(
                                 websiteUrl = account.websiteUrl,
                                 followersCount = followersCount,
                                 followingCount = followingCount,
+                                isAdmin = account.isAdmin,
                             ),
                             myQuestions = questions.map { q ->
                                 ProfileQuestionUiModel(

@@ -33,4 +33,22 @@ sealed interface Route {
     data class Profile(
         val accountId: Int
     ) : Route
+
+    @Serializable
+    data object AdminDashboard : Route
+
+    @Serializable
+    data object ManageUsers : Route
+
+    @Serializable
+    data object ManageQuestions : Route
+
+    @Serializable
+    data object ManageAnswers : Route
+
+    @Serializable
+    data object ManageAnnouncements : Route
+
+    @Serializable
+    data object Banned : Route
 }
