@@ -19,10 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Block
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -53,7 +51,6 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun BannedScreen(
-    onNavigateToAuth: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val uriHandler = LocalUriHandler.current
@@ -89,19 +86,6 @@ fun BannedScreen(
                 )
             )
     ) {
-        IconButton(
-            onClick = onNavigateToAuth,
-            modifier = Modifier
-                .align(Alignment.TopStart)
-                .padding(16.dp)
-        ) {
-            Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                contentDescription = "Back",
-                tint = TextWhite,
-                modifier = Modifier.size(24.dp)
-            )
-        }
         Column(
             modifier = Modifier
                 .align(Alignment.Center)
