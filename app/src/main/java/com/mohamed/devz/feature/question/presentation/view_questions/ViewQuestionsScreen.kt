@@ -56,7 +56,6 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextAlign
@@ -192,6 +191,7 @@ fun ViewQuestionsScreen(
                 indicator = {
                     TabRowDefaults.PrimaryIndicator(
                         color = CyanPrimary,
+                        modifier = Modifier.tabIndicatorOffset(pagerState.currentPage)
                     )
                 },
                 divider = {},
@@ -534,7 +534,7 @@ private fun EmptyStateAnimated(
 private fun PreviewViewQuestionsScreen() {
     DevzTheme {
         ViewQuestionsScreen(
-            onQuestionClick = {},
+            onQuestionClick = {}
         )
     }
 }
