@@ -193,7 +193,7 @@ class DevZRemoteDataSourceImpl(
                             eq("is_hidden", false)
                             or {
                                 tags.forEach { tag ->
-                                    like("tags", "%$tag%")
+                                    ilike("tags", "%$tag%")
                                 }
                             }
                         }
