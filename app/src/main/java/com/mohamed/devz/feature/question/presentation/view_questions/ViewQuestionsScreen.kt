@@ -34,9 +34,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -163,7 +162,7 @@ fun ViewQuestionsScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             item {
@@ -206,7 +205,7 @@ fun ViewQuestionsScreen(
                     lineHeight = 20.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(8.dp))
             }
 
             stickyHeader {
@@ -236,16 +235,16 @@ fun ViewQuestionsScreen(
                         unfocusedContainerColor = DevzCard
                     )
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+            }
 
+            item {
                 val tabs = listOf("For You", "Following")
-                TabRow(
+                PrimaryTabRow(
                     selectedTabIndex = uiState.selectedTab,
-                    containerColor = Color.Transparent,
+                    containerColor = DevzCard,
                     contentColor = CyanPrimary,
-                    indicator = { tabPositions ->
+                    indicator = {
                         TabRowDefaults.PrimaryIndicator(
-                            modifier = Modifier.tabIndicatorOffset(tabPositions[uiState.selectedTab]),
                             color = CyanPrimary,
                         )
                     },
@@ -259,7 +258,7 @@ fun ViewQuestionsScreen(
                             text = {
                                 Text(
                                     text = title,
-                                    fontSize = 14.sp,
+                                    fontSize = 15.sp,
                                     fontWeight = if (uiState.selectedTab == index) FontWeight.Bold else FontWeight.Normal,
                                     color = if (uiState.selectedTab == index) CyanPrimary else TextSubtle,
                                 )
@@ -267,7 +266,6 @@ fun ViewQuestionsScreen(
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
             if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
