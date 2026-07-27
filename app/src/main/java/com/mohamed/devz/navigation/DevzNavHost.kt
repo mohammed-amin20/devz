@@ -233,7 +233,11 @@ fun DevzNavHost(
             )
         }
         composable<Route.Banned> {
-            BannedScreen()
+            BannedScreen(
+                onNavigateToAuth = {
+                    navController.apply { popBackStack(); navigate(Route.Auth) }
+                }
+            )
         }
     }
 }
