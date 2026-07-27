@@ -289,46 +289,6 @@ private fun ForYouFeed(
         ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = buildAnnotatedString {
-                        withStyle(
-                            SpanStyle(
-                                color = TextWhite,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp
-                            )
-                        ) { append("Architecting ") }
-                        withStyle(
-                            SpanStyle(
-                                color = CyanPrimary,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp,
-                                shadow = Shadow(
-                                    color = CyanPrimary,
-                                    offset = Offset(0f, 0f),
-                                    blurRadius = 20f
-                                )
-                            )
-                        ) { append("Solutions") }
-                        withStyle(
-                            SpanStyle(
-                                color = TextWhite,
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 28.sp
-                            )
-                        ) { append(".") }
-                    },
-                    style = MaterialTheme.typography.titleLarge
-                )
-                Spacer(modifier = Modifier.height(8.dp))
-                Text(
-                    text = "A premium workspace for developers to exchange\nhigh-level technical logic and editorial-grade code.",
-                    color = TextGray,
-                    fontSize = 13.sp,
-                    lineHeight = 20.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Spacer(modifier = Modifier.height(12.dp))
             }
 
             if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
