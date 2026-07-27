@@ -98,7 +98,8 @@ fun BannedScreen(
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = "Back",
-                tint = TextWhite
+                tint = TextWhite,
+                modifier = Modifier.size(24.dp)
             )
         }
         Column(
