@@ -5,6 +5,7 @@ import com.mohamed.devz.feature.question.presentation.view_questions.util.Questi
 
 data class ViewQuestionsState(
     val questions: List<QuestionFeedUiModel> = emptyList(),
+    val pinnedQuestions: List<QuestionFeedUiModel> = emptyList(),
     val currentPage: Int = 0,
     val hasMore: Boolean = true,
     val isLoading: Boolean = false,
@@ -16,4 +17,5 @@ data class ViewQuestionsState(
     val error: UiText? = null,
     val isNotFollowingAnyone: Boolean = false,
     val noTechMatches: Boolean = false,
+    val isPro: Boolean = false,
 )

@@ -24,6 +24,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ModeComment
 import androidx.compose.material.icons.filled.ThumbUp
+import androidx.compose.material.icons.filled.PushPin
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -55,6 +57,10 @@ fun QuestionContent(
     onQuestionAuthorClick: () -> Unit = {},
     onAnswerAuthorClick: (Int) -> Unit = {},
     onCodeLongPress: (String) -> Unit = {},
+    isPro: Boolean = false,
+    isPinned: Boolean = false,
+    isPinning: Boolean = false,
+    onPinClick: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier
@@ -180,6 +186,15 @@ fun QuestionContent(
                     text = question.answersCount.toString(),
                     active = false,
                 )
+                if (isPro && currentAccountId == question.authorAccountId) {
+                    ActionPill(
+                        icon = Icons.Default.PushPin,
+                        text = if (isPinned) "Pinned" else "Pin",
+                        active = isPinned,
+                        onClick = onPinClick,
+                        enabled = !isPinning,
+                    )
+                }
             }
             Spacer(Modifier.height(16.dp))
         }

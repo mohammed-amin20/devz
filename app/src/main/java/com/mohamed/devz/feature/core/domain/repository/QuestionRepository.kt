@@ -24,6 +24,7 @@ interface QuestionRepository {
         orderBy: String = "created_at",
         ascending: Boolean = false,
     ): Result<List<Question>, Error>
+    suspend fun getPinnedQuestions(): Result<List<Question>, Error>
     suspend fun search(
         query: String,
         offset: Int,

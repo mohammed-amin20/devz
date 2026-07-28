@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +32,7 @@ fun ActionPill(
     text: String,
     active: Boolean,
     onClick: () -> Unit = {},
+    enabled: Boolean = true,
 ) {
     Surface(
         shape = RoundedCornerShape(9999.dp),
@@ -41,7 +44,10 @@ fun ActionPill(
                 if (active) QPrimary.copy(alpha = 0.14f) else Color.Transparent,
                 RoundedCornerShape(9999.dp)
             )
-            .clickable(onClick = onClick)
+            .then(
+                if (enabled) Modifier.clickable(onClick = onClick)
+                else Modifier.semantics { contentDescription = text }
+            )
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 10.dp),

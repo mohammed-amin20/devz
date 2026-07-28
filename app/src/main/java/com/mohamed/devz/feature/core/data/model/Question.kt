@@ -26,4 +26,6 @@ data class Question(
     @SerialName("is_hidden")
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val isHidden: Boolean = false,
+    @SerialName("pinned_until")
+    val pinnedUntil: String? = null,
 )

@@ -23,6 +23,7 @@ data class QuestionFeedUiModel(
     val likes: Int,
     val answers: Int,
     val isBookmarked: Boolean = false,
+    val isPinned: Boolean = false,
 )
 
 val accountCache = mutableMapOf<Int, Account>()
@@ -38,6 +39,7 @@ fun updateLanguageTypeCache(types: List<LanguageType>) {
 
 fun Question.toFeedUiModel(
     bookmarkedIds: Set<Int> = emptySet(),
+    isPinned: Boolean = false,
 ): QuestionFeedUiModel {
     val account = accountCache[accountId]
     val langType = languageTypeCache[langTypeId]
@@ -55,5 +57,6 @@ fun Question.toFeedUiModel(
         likes = likesCount,
         answers = answersCount,
         isBookmarked = id in bookmarkedIds,
+        isPinned = isPinned,
     )
 }

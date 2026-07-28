@@ -134,6 +134,20 @@ fun QuestionCard(
                 style = MaterialTheme.typography.titleLarge
             )
 
+            if (question.isPinned) {
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text("📌", fontSize = 12.sp)
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        "Pinned",
+                        color = CyanPrimary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(

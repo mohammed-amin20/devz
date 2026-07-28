@@ -218,6 +218,17 @@ class DevZRemoteDataSourceImpl(
                     .decodeList()
             }
 
+            override suspend fun getPinnedQuestions(): List<Question> {
+                return db.from(tableName)
+                    .select {
+                        order(column = "pinned_until", order = Order.DESCENDING)
+                        filter {
+                            gt("pinned_until", "now()")
+                        }
+                    }
+                    .decodeList()
+            }
+
             override suspend fun searchQuestions(
                 query: String,
                 offset: Int,

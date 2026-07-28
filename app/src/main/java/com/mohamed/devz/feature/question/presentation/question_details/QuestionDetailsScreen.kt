@@ -68,6 +68,7 @@ data class QuestionDetailUiModel(
     val answersCount: Int,
     val isLiked: Boolean = false,
     val likedAccountIds: String = "",
+    val isPinned: Boolean = false,
 )
 
 @Composable
@@ -162,6 +163,10 @@ fun QuestionDetailScreen(
                         onCodeLongPress = { code ->
                             viewModel.onAction(QuestionDetailsAction.PrefillAnswerCode(code))
                         },
+                        isPro = uiState.isPro,
+                        isPinned = question.isPinned,
+                        isPinning = uiState.isPinning,
+                        onPinClick = { viewModel.onAction(QuestionDetailsAction.PinQuestion) },
                     )
 
                     AnswerInputBar(

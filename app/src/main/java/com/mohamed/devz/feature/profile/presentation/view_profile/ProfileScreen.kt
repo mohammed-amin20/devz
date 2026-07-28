@@ -420,6 +420,7 @@ fun ProfileScreen(
                     // ── Avatar ────────────────────────────────────────────────────
                     item {
                         Spacer(modifier = Modifier.height(16.dp))
+                        val isPro = uiState.profile?.isPro == true
                         Box(
                             modifier = Modifier.clickable {
                                 showImagePreview = true
@@ -429,10 +430,16 @@ fun ProfileScreen(
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(110.dp)
+                                    .size(if (isPro) 118.dp else 110.dp)
                                     .clip(CircleShape)
                                     .background(
-                                        Brush.radialGradient(
+                                        if (isPro) Brush.radialGradient(
+                                            colors = listOf(
+                                                Color(0xFFFFD700).copy(alpha = 0.4f),
+                                                CyanPrimary.copy(alpha = 0.2f),
+                                                Color.Transparent
+                                            )
+                                        ) else Brush.radialGradient(
                                             colors = listOf(
                                                 CyanPrimary.copy(alpha = 0.3f),
                                                 Color.Transparent
@@ -444,13 +451,21 @@ fun ProfileScreen(
                                 modifier = Modifier
                                     .size(100.dp)
                                     .shadow(
-                                        elevation = 24.dp,
-                                        spotColor = CyanPrimary,
+                                        elevation = if (isPro) 32.dp else 24.dp,
+                                        spotColor = if (isPro) Color(0xFFFFD700) else CyanPrimary,
                                         shape = CircleShape
                                     )
                                     .clip(CircleShape)
                                     .background(DevzCard)
-                                    .border(2.dp, CyanPrimary.copy(alpha = 0.6f), CircleShape),
+                                    .then(
+                                        if (isPro) Modifier.border(
+                                            3.dp,
+                                            Brush.sweepGradient(
+                                                listOf(Color(0xFFFFD700), CyanPrimary, Color(0xFFFFD700))
+                                            ),
+                                            CircleShape
+                                        ) else Modifier.border(2.dp, CyanPrimary.copy(alpha = 0.6f), CircleShape)
+                                    ),
                                 contentAlignment = Alignment.Center
                             ) {
                                 val avatarUrl = uiState.profile?.imageUrl
@@ -497,6 +512,24 @@ fun ProfileScreen(
                                     fontSize = 14.sp,
                                     style = MaterialTheme.typography.bodyMedium
                                 )
+                                if (uiState.profile?.isPro == true) {
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(RoundedCornerShape(6.dp))
+                                            .background(Color(0xFFFFD700).copy(alpha = 0.15f))
+                                            .border(1.dp, Color(0xFFFFD700).copy(alpha = 0.5f), RoundedCornerShape(6.dp))
+                                            .padding(horizontal = 8.dp, vertical = 2.dp),
+                                    ) {
+                                        Text(
+                                            text = "⭐ Pro",
+                                            color = Color(0xFFFFD700),
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.typography.bodyMedium
+                                        )
+                                    }
+                                }
                             } else {
                                 Text(
                                     text = "No username",

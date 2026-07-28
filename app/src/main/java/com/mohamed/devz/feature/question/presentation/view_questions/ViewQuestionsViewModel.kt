@@ -97,6 +97,25 @@ class ViewQuestionsViewModel @Inject constructor(
         }
     }
 
+    private fun loadPinnedQuestions() {
+        viewModelScope.launch {
+            when (val result = questionRepository.getPinnedQuestions()) {
+                is Result.Success -> {
+                    val pinned = result.data
+                    cacheAuthors(pinned.map { it.accountId })
+                    _uiState.update {
+                        it.copy(
+                            pinnedQuestions = pinned.map { q ->
+                                q.toFeedUiModel(it.bookmarkedIds, isPinned = true)
+                            }
+                        )
+                    }
+                }
+                is Result.Error -> { /* silent */ }
+            }
+        }
+    }
+
     // ─── Tech-Stack Feed (Tab 0) ─────────────────────────────────────
 
     private fun loadTechStackFeed(isRefresh: Boolean = false) {
@@ -122,11 +141,14 @@ class ViewQuestionsViewModel @Inject constructor(
 
             when (val accountResult = accountRepository.getById(accountId)) {
                 is Result.Success -> {
-                    val techStack = accountResult.data.techStack
+                    val account = accountResult.data
+                    val techStack = account.techStack
                     val tags = techStack.split(",")
                         .map { it.trim() }
                         .filter { it.isNotBlank() }
                     cachedTechStackTags = tags
+
+                    _uiState.update { it.copy(isPro = account.isPro) }
 
                     if (tags.isEmpty()) {
                         _uiState.update {
@@ -136,6 +158,7 @@ class ViewQuestionsViewModel @Inject constructor(
                     }
 
                     loadTechStackPage(0)
+                    loadPinnedQuestions()
                 }
                 is Result.Error -> {
                     _uiState.update {
@@ -219,7 +242,10 @@ class ViewQuestionsViewModel @Inject constructor(
 
             when (val accountResult = accountRepository.getById(accountId)) {
                 is Result.Success -> {
-                    val followingIds = accountResult.data.followingIds
+                    val account = accountResult.data
+                    _uiState.update { it.copy(isPro = account.isPro) }
+
+                    val followingIds = account.followingIds
                         .split(",")
                         .mapNotNull { it.trim().toIntOrNull() }
                         .filter { it > 0 }
@@ -232,6 +258,7 @@ class ViewQuestionsViewModel @Inject constructor(
                     }
 
                     loadFollowingPage(0, followingIds)
+                    loadPinnedQuestions()
                 }
                 is Result.Error -> {
                     _uiState.update {

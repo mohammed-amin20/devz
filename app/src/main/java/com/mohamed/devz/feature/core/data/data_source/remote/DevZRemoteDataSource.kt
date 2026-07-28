@@ -61,6 +61,8 @@ interface DevZRemoteDataSource {
             ascending: Boolean = false,
         ): List<Question>
 
+        suspend fun getPinnedQuestions(): List<Question>
+
         suspend fun searchQuestions(
             query: String,
             offset: Int,

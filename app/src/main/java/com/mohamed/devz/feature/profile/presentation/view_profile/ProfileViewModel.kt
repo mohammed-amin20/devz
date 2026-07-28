@@ -296,6 +296,7 @@ class ProfileViewModel @Inject constructor(
                                 followersCount = followersCount,
                                 followingCount = followingCount,
                                 isAdmin = account.isAdmin,
+                                isPro = account.isPro,
                             ),
                             myQuestions = questions.map { q ->
                                 ProfileQuestionUiModel(

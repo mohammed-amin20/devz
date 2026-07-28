@@ -1,8 +1,12 @@
 package com.mohamed.devz.splash
 
+import com.mohamed.devz.feature.core.domain.model.Account
+import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
+import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.splash.presentation.SplashAction
 import com.mohamed.devz.feature.splash.presentation.SplashViewModel
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
@@ -24,11 +28,13 @@ class SplashViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var userPreferencesRepository: UserPreferencesRepository
+    private lateinit var accountRepository: AccountRepository
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         userPreferencesRepository = mockk()
+        accountRepository = mockk()
     }
 
     @After
@@ -41,7 +47,7 @@ class SplashViewModelTest {
         every { userPreferencesRepository.observeIsFirstTime() } returns MutableStateFlow(true)
         every { userPreferencesRepository.observeIsLoggedIn() } returns MutableStateFlow(false)
 
-        val viewModel = SplashViewModel(userPreferencesRepository)
+        val viewModel = SplashViewModel(userPreferencesRepository, accountRepository)
         val events = mutableListOf<SplashViewModel.SplashEvent>()
         val job = launch { viewModel.splashEvent.collect { events.add(it) } }
 
@@ -58,7 +64,7 @@ class SplashViewModelTest {
         every { userPreferencesRepository.observeIsFirstTime() } returns MutableStateFlow(false)
         every { userPreferencesRepository.observeIsLoggedIn() } returns MutableStateFlow(false)
 
-        val viewModel = SplashViewModel(userPreferencesRepository)
+        val viewModel = SplashViewModel(userPreferencesRepository, accountRepository)
         val events = mutableListOf<SplashViewModel.SplashEvent>()
         val job = launch { viewModel.splashEvent.collect { events.add(it) } }
 
@@ -74,8 +80,12 @@ class SplashViewModelTest {
     fun `logged in user navigates to home`() = runTest(testDispatcher) {
         every { userPreferencesRepository.observeIsFirstTime() } returns MutableStateFlow(false)
         every { userPreferencesRepository.observeIsLoggedIn() } returns MutableStateFlow(true)
+        every { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
+        coEvery { accountRepository.getById(1) } returns Result.Success(
+            Account(1, "user", "User", "", "", "", "", "", "", "", "")
+        )
 
-        val viewModel = SplashViewModel(userPreferencesRepository)
+        val viewModel = SplashViewModel(userPreferencesRepository, accountRepository)
         val events = mutableListOf<SplashViewModel.SplashEvent>()
         val job = launch { viewModel.splashEvent.collect { events.add(it) } }
 

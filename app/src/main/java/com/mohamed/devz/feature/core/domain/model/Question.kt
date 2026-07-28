@@ -13,4 +13,5 @@ data class Question(
     val createdAt: String?,
     val likedAccountIds: String = "",
     val isHidden: Boolean = false,
+    val pinnedUntil: String? = null,
 )

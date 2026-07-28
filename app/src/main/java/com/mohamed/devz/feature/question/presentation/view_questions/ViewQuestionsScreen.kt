@@ -2,6 +2,8 @@ package com.mohamed.devz.feature.question.presentation.view_questions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +36,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
@@ -68,6 +71,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
+import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -76,6 +80,11 @@ import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextSubtle
 import com.mohamed.devz.ui.theme.TextWhite
 import kotlinx.coroutines.launch
+
+sealed class FeedItem {
+    data class QuestionItem(val question: QuestionFeedUiModel) : FeedItem()
+    data object AdBanner : FeedItem()
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -251,6 +260,23 @@ private fun ForYouFeed(
     onQuestionClick: (Int) -> Unit,
     onAuthorClick: (Int) -> Unit,
 ) {
+    val feedItems = remember(uiState.questions, uiState.pinnedQuestions, uiState.isPro) {
+        val pinned = uiState.pinnedQuestions.map { FeedItem.QuestionItem(it) }
+        val regular = if (uiState.isPro) {
+            uiState.questions.map { FeedItem.QuestionItem(it) }
+        } else {
+            buildList<FeedItem> {
+                uiState.questions.forEachIndexed { index, question ->
+                    add(FeedItem.QuestionItem(question))
+                    if ((index + 1) % 5 == 0 && index < uiState.questions.size - 1) {
+                        add(FeedItem.AdBanner)
+                    }
+                }
+            }
+        }
+        pinned + regular
+    }
+
     val listState = rememberLazyListState()
 
     val shouldLoadMore by remember {
@@ -327,13 +353,26 @@ private fun ForYouFeed(
                     )
                 }
             } else {
-                items(uiState.questions, key = { it.id }) { question ->
-                    QuestionCard(
-                        question = question,
-                        onClick = { onQuestionClick(question.id) },
-                        onAuthorClick = { onAuthorClick(question.authorAccountId) },
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                items(feedItems, key = {
+                    when (it) {
+                        is FeedItem.QuestionItem -> "q_${it.question.id}"
+                        is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                    }
+                }) { item ->
+                    when (item) {
+                        is FeedItem.QuestionItem -> {
+                            QuestionCard(
+                                question = item.question,
+                                onClick = { onQuestionClick(item.question.id) },
+                                onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        is FeedItem.AdBanner -> {
+                            AdBannerItem()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
                 }
             }
 
@@ -368,6 +407,21 @@ private fun FollowingFeed(
     onQuestionClick: (Int) -> Unit,
     onAuthorClick: (Int) -> Unit,
 ) {
+    val feedItems = remember(uiState.questions, uiState.isPro) {
+        if (uiState.isPro) {
+            uiState.questions.map { FeedItem.QuestionItem(it) }
+        } else {
+            buildList<FeedItem> {
+                uiState.questions.forEachIndexed { index, question ->
+                    add(FeedItem.QuestionItem(question))
+                    if ((index + 1) % 5 == 0 && index < uiState.questions.size - 1) {
+                        add(FeedItem.AdBanner)
+                    }
+                }
+            }
+        }
+    }
+
     val listState = rememberLazyListState()
 
     val shouldLoadMore by remember {
@@ -432,13 +486,26 @@ private fun FollowingFeed(
                     )
                 }
             } else {
-                items(uiState.questions, key = { it.id }) { question ->
-                    QuestionCard(
-                        question = question,
-                        onClick = { onQuestionClick(question.id) },
-                        onAuthorClick = { onAuthorClick(question.authorAccountId) },
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
+                items(feedItems, key = {
+                    when (it) {
+                        is FeedItem.QuestionItem -> "q_${it.question.id}"
+                        is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                    }
+                }) { item ->
+                    when (item) {
+                        is FeedItem.QuestionItem -> {
+                            QuestionCard(
+                                question = item.question,
+                                onClick = { onQuestionClick(item.question.id) },
+                                onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                            )
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        is FeedItem.AdBanner -> {
+                            AdBannerItem()
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+                    }
                 }
             }
 
@@ -524,6 +591,31 @@ private fun EmptyStateAnimated(
                 fontSize = 14.sp,
                 lineHeight = 20.sp,
                 textAlign = TextAlign.Center,
+            )
+        }
+    }
+}
+
+@Composable
+private fun AdBannerItem() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(120.dp),
+        shape = RoundedCornerShape(16.dp),
+        color = Color(0xFF1E1E1E),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .border(1.dp, Color(0xFF2A3A3A), RoundedCornerShape(16.dp)),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = "📢 Ad space",
+                color = TextGray,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
             )
         }
     }

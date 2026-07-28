@@ -72,6 +72,7 @@ class QuestionDetailsViewModel @Inject constructor(
             is QuestionDetailsAction.ToggleLike -> toggleLike()
             is QuestionDetailsAction.ToggleAnswerVote -> toggleAnswerVote(action.answerId)
             is QuestionDetailsAction.AcceptAnswer -> acceptAnswer(action.answerId)
+            is QuestionDetailsAction.PinQuestion -> pinQuestion()
         }
     }
 
@@ -170,10 +171,13 @@ class QuestionDetailsViewModel @Inject constructor(
                     val q = questionResult.data
                     questionOwnerAccountId = q.accountId
                     val account = (accountRepository.getById(q.accountId) as? Result.Success)?.data
+                    val currentAccount = (accountRepository.getById(currentAccountId) as? Result.Success)?.data
                     val langTypeId = q.langTypeId
                     val isLiked = q.likedAccountIds
                         .split(",")
                         .any { it.trim().toIntOrNull() == currentAccountId }
+                    val isPinned = q.pinnedUntil != null && q.pinnedUntil > "2020-01-01"
+
                     val detailUiModel = QuestionDetailUiModel(
                         title = q.title,
                         authorName = account?.fullName ?: "Unknown",
@@ -193,12 +197,14 @@ class QuestionDetailsViewModel @Inject constructor(
                         answersCount = q.answersCount,
                         isLiked = isLiked,
                         likedAccountIds = q.likedAccountIds,
+                        isPinned = isPinned,
                     )
                     _uiState.update {
                         it.copy(
                             question = detailUiModel,
                             isLoading = false,
-                            error = null
+                            error = null,
+                            isPro = currentAccount?.isPro ?: false,
                         )
                     }
                     loadAnswers(questionId)
@@ -569,6 +575,43 @@ class QuestionDetailsViewModel @Inject constructor(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+
+    private fun pinQuestion() {
+        val questionId = currentQuestionId ?: return
+        val isCurrentlyPinned = _uiState.value.question?.isPinned ?: false
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isPinning = true) }
+
+            val newPinnedUntil = if (isCurrentlyPinned) {
+                null
+            } else {
+                java.time.LocalDateTime.now().plusDays(7).toString()
+            }
+
+            when (val result = questionRepository.getById(questionId)) {
+                is Result.Success -> {
+                    val updatedQuestion = result.data.copy(pinnedUntil = newPinnedUntil)
+                    when (questionRepository.update(updatedQuestion)) {
+                        is Result.Success -> {
+                            _uiState.update {
+                                it.copy(
+                                    question = it.question?.copy(isPinned = !isCurrentlyPinned),
+                                    isPinning = false,
+                                )
+                            }
+                        }
+                        is Result.Error -> {
+                            _uiState.update { it.copy(isPinning = false) }
+                        }
+                    }
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isPinning = false) }
                 }
             }
         }

@@ -26,7 +26,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -53,21 +52,16 @@ class ViewQuestionsViewModelTest {
     }
 
     @Test
-    fun `init loads feed when user follows others`() = runTest(testDispatcher) {
+    fun `init loads tech stack feed when user has tags`() = runTest(testDispatcher) {
         val currentAccount = Account(id = 1, username = "me", fullName = "Me",
-            email = "", password = "", imageUrl = "", bio = "", techStack = "",
-            githubUrl = "", linkedInUrl = "", websiteUrl = "", points = 0, fcmToken = "",
-            followerIds = "", followingIds = "2,3")
-        val author = Account(id = 2, username = "author", fullName = "Author Name",
-            email = "", password = "", imageUrl = "", bio = "", techStack = "",
+            email = "", password = "", imageUrl = "", bio = "", techStack = "Kotlin,Compose",
             githubUrl = "", linkedInUrl = "", websiteUrl = "", points = 0, fcmToken = "",
             followerIds = "", followingIds = "")
 
         coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
         coEvery { accountRepository.getById(1) } returns Result.Success(currentAccount)
-        coEvery { accountRepository.getById(2) } returns Result.Success(author)
-        coEvery { questionRepository.getByAccountIds(listOf(2, 3), 0, 10) } returns Result.Success(
-            listOf(Question(1, "Title", "Body", "", 5, 2, "kotlin", 1, 2, "2024-01-15T10:00:00Z", ""))
+        coEvery { questionRepository.getByTags(listOf("Kotlin", "Compose"), 0, 10) } returns Result.Success(
+            listOf(Question(1, "Title", "Body", "", 5, 2, "kotlin", 1, 1, "2024-01-15T10:00:00Z", ""))
         )
 
         val viewModel = ViewQuestionsViewModel(questionRepository, accountRepository, userPreferencesRepository)
@@ -79,7 +73,7 @@ class ViewQuestionsViewModelTest {
     }
 
     @Test
-    fun `init shows notFollowingAnyone when user follows no one`() = runTest(testDispatcher) {
+    fun `init shows noTechMatches when tech stack is empty`() = runTest(testDispatcher) {
         val currentAccount = Account(id = 1, username = "me", fullName = "Me",
             email = "", password = "", imageUrl = "", bio = "", techStack = "",
             githubUrl = "", linkedInUrl = "", websiteUrl = "", points = 0, fcmToken = "",
@@ -91,7 +85,7 @@ class ViewQuestionsViewModelTest {
         val viewModel = ViewQuestionsViewModel(questionRepository, accountRepository, userPreferencesRepository)
         advanceUntilIdle()
 
-        assertTrue(viewModel.uiState.value.isNotFollowingAnyone)
+        assertTrue(viewModel.uiState.value.noTechMatches)
         assertEquals(false, viewModel.uiState.value.isLoading)
     }
 
@@ -109,8 +103,9 @@ class ViewQuestionsViewModelTest {
     fun `tab selected resets questions and reloads`() = runTest(testDispatcher) {
         coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
         coEvery { accountRepository.getById(1) } returns Result.Success(
-            Account(1, "", "", "", "", "", "", "", "", "", "", followingIds = "2")
+            Account(1, "", "", "", "", "", "Kotlin", "", "", "", "", followingIds = "2")
         )
+        coEvery { questionRepository.getByTags(any(), any(), any()) } returns Result.Success(emptyList())
         coEvery { questionRepository.getByAccountIds(listOf(2), 0, 10) } returns Result.Success(emptyList())
 
         val viewModel = createViewModel()
@@ -135,9 +130,9 @@ class ViewQuestionsViewModelTest {
         coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
         coEvery { accountRepository.getById(1) } returns Result.Success(
             Account(1, "", "", "", "", "",
-                "", "", "", "", "", followingIds = "2")
+                "Kotlin", "", "", "", "", followingIds = "")
         )
-        coEvery { questionRepository.getByAccountIds(any(), any(), any()) } returns Result.Success(emptyList())
+        coEvery { questionRepository.getByTags(any(), any(), any()) } returns Result.Success(emptyList())
         val viewModel = createViewModel()
         advanceUntilIdle()
         viewModel.onAction(ViewQuestionsAction.Refresh)
@@ -158,8 +153,9 @@ class ViewQuestionsViewModelTest {
     private fun createViewModel(): ViewQuestionsViewModel {
         coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
         coEvery { accountRepository.getById(1) } returns Result.Success(
-            Account(1, "", "", "", "", "", "", "", "", "", "", followingIds = "")
+            Account(1, "", "", "", "", "", "Kotlin", "", "", "", "", followingIds = "")
         )
+        coEvery { questionRepository.getByTags(any(), any(), any()) } returns Result.Success(emptyList())
         return ViewQuestionsViewModel(questionRepository, accountRepository, userPreferencesRepository)
     }
 }

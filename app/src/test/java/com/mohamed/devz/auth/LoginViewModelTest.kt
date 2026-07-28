@@ -9,7 +9,6 @@ import com.mohamed.devz.feature.core.domain.util.FcmTokenUtil
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.mockkObject
@@ -76,7 +75,7 @@ class LoginViewModelTest {
 
         viewModel.onAction(LoginAction.UsernameChanged("john"))
         viewModel.onAction(LoginAction.PasswordChanged("pass"))
-        viewModel.onAction(LoginAction.LoginClicked { onSuccessCalled = true })
+        viewModel.onAction(LoginAction.LoginClicked(onSuccess = { onSuccessCalled = true }, onBanned = {}))
         advanceUntilIdle()
 
         assertTrue(onSuccessCalled)
@@ -91,7 +90,7 @@ class LoginViewModelTest {
 
         viewModel.onAction(LoginAction.UsernameChanged("john"))
         viewModel.onAction(LoginAction.PasswordChanged("wrong"))
-        viewModel.onAction(LoginAction.LoginClicked { })
+        viewModel.onAction(LoginAction.LoginClicked(onSuccess = {}, onBanned = {}))
         advanceUntilIdle()
 
         assertEquals(false, viewModel.uiState.value.isLoading)
@@ -109,7 +108,7 @@ class LoginViewModelTest {
 
         viewModel.onAction(LoginAction.UsernameChanged("john"))
         viewModel.onAction(LoginAction.PasswordChanged("pass"))
-        viewModel.onAction(LoginAction.LoginClicked { })
+        viewModel.onAction(LoginAction.LoginClicked(onSuccess = {}, onBanned = {}))
         advanceUntilIdle()
 
         assertEquals(false, viewModel.uiState.value.isLoading)
@@ -124,7 +123,7 @@ class LoginViewModelTest {
 
         viewModel.onAction(LoginAction.UsernameChanged("john"))
         viewModel.onAction(LoginAction.PasswordChanged("pass"))
-        viewModel.onAction(LoginAction.LoginClicked { })
+        viewModel.onAction(LoginAction.LoginClicked(onSuccess = {}, onBanned = {}))
 
         assertEquals(true, viewModel.uiState.value.isLoading)
 
