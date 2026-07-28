@@ -21,6 +21,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.WorkHistory
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +52,7 @@ import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.QSurfaceLow
+import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.ui.theme.DevzTheme
 
@@ -60,6 +62,7 @@ fun HomeScreen(
     navigateToAddEditQuestion: (Int?) -> Unit,
     navigateToEditProfile: () -> Unit,
     navigateToProfile: (Int) -> Unit,
+    navigateToJobDetail: (Int) -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     switchToProfileTab: Boolean = false,
@@ -73,7 +76,7 @@ fun HomeScreen(
 
     LaunchedEffect(switchToProfileTab) {
         if (switchToProfileTab) {
-            viewModel.onSelectedIndexChange(3)
+            viewModel.onSelectedIndexChange(4)
         }
     }
 
@@ -99,7 +102,7 @@ fun HomeScreen(
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
                     onAuthorClick = { accountId ->
                         if (accountId == currentAccountId) {
-                            viewModel.onSelectedIndexChange(3)
+                            viewModel.onSelectedIndexChange(4)
                         } else {
                             navigateToProfile(accountId)
                         }
@@ -132,10 +135,21 @@ fun HomeScreen(
             }
         ),
         NavigationItem(
-            title = "Profile",
-            icon = Icons.Rounded.Person,
+            title = "Jobs",
+            icon = Icons.Rounded.WorkHistory,
             index = 3,
             onClick = { viewModel.onSelectedIndexChange(3) },
+            content = {
+                JobsScreen(
+                    onJobClick = { jobId -> navigateToJobDetail(jobId) }
+                )
+            }
+        ),
+        NavigationItem(
+            title = "Profile",
+            icon = Icons.Rounded.Person,
+            index = 4,
+            onClick = { viewModel.onSelectedIndexChange(4) },
             content = {
                 ProfileScreen(
                     onEditProfile = navigateToEditProfile,
@@ -148,7 +162,7 @@ fun HomeScreen(
                     onAdminPanelClick = navigateToAdminDashboard,
                     onProfileClick = { accountId ->
                         if (accountId == currentAccountId) {
-                            viewModel.onSelectedIndexChange(3)
+                            viewModel.onSelectedIndexChange(4)
                         } else {
                             navigateToProfile(accountId)
                         }
@@ -292,6 +306,7 @@ private fun PreviewHomeScreen() {
             navigateToAddEditQuestion = { _ -> },
             navigateToEditProfile = {},
             navigateToProfile = { _ -> },
+            navigateToJobDetail = { _ -> },
             onLogout = {}
         )
     }

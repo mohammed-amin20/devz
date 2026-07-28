@@ -8,6 +8,8 @@ import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
 import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
+import com.mohamed.devz.feature.core.data.model.JobPosting
+import com.mohamed.devz.feature.core.data.model.JobApplication
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -503,6 +505,57 @@ class DevZRemoteDataSourceImpl(
                     .delete {
                         filter { eq("id", id) }
                     }
+            }
+        }
+
+    override val jobPosting: DevZRemoteDataSource.JobPostingTable
+        get() = object : DevZRemoteDataSource.JobPostingTable {
+            private val tableName = "JobPosting"
+
+            override suspend fun getApprovedJobPostings(): List<JobPosting> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("status", "approved") }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getJobPostingById(id: Int): JobPosting {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("id", id) }
+                    }
+                    .decodeSingle()
+            }
+        }
+
+    override val jobApplication: DevZRemoteDataSource.JobApplicationTable
+        get() = object : DevZRemoteDataSource.JobApplicationTable {
+            private val tableName = "JobApplication"
+
+            override suspend fun insertJobApplication(application: JobApplication): JobApplication {
+                val json = buildJsonObject {
+                    put("job_id", application.jobId)
+                    put("applicant_id", application.applicantId)
+                    put("cover_letter", application.coverLetter)
+                    put("status", application.status)
+                }
+
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun getJobApplicationsByApplicantId(applicantId: Int): List<JobApplication> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("applicant_id", applicantId) }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
             }
         }
 }

@@ -3,6 +3,7 @@ package com.mohamed.devz.feature.profile.presentation.view_profile
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileFollowerUiModel
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 
@@ -22,4 +23,6 @@ data class ProfileState(
     val followerAccounts: List<ProfileFollowerUiModel> = emptyList(),
     val followingAccounts: List<ProfileFollowerUiModel> = emptyList(),
     val isLoadingDialog: Boolean = false,
+    val myApplications: List<ProfileJobApplicationUiModel> = emptyList(),
+    val isLoadingApplications: Boolean = false,
 )

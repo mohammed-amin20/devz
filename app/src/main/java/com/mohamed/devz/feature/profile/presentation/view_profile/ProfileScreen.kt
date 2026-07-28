@@ -97,6 +97,7 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.components.Fol
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileAnswerCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileQuestionCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -737,6 +738,50 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
+                    // ── My Applications ────────────────────────────────────────────
+                    if (uiState.isOwnProfile) {
+                        item {
+                            LaunchedEffect(Unit) {
+                                viewModel.onAction(ProfileAction.LoadApplications)
+                            }
+                        }
+                        item {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                Text(
+                                    text = "MY APPLICATIONS",
+                                    color = TextGray,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 2.sp,
+                                    style = MaterialTheme.typography.titleLarge,
+                                )
+                                Spacer(modifier = Modifier.height(12.dp))
+                                if (uiState.isLoadingApplications) {
+                                    CircularProgressIndicator(
+                                        color = CyanPrimary,
+                                        modifier = Modifier
+                                            .size(24.dp)
+                                            .align(Alignment.CenterHorizontally),
+                                        strokeWidth = 2.dp,
+                                    )
+                                } else if (uiState.myApplications.isEmpty()) {
+                                    Text(
+                                        text = "No applications yet",
+                                        color = TextGray,
+                                        fontSize = 13.sp,
+                                        modifier = Modifier.padding(vertical = 8.dp),
+                                    )
+                                } else {
+                                    uiState.myApplications.forEach { app ->
+                                        ApplicationCard(app)
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
+                        }
+                    }
+
                     // ── Skills & Social Links (collapsible) ────────────────────────
                     item {
                         var sectionsExpanded by remember { mutableStateOf(false) }
@@ -1163,6 +1208,59 @@ fun ProfileScreen(
             onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
             onProfileClick = onProfileClick,
         )
+    }
+}
+
+@Composable
+private fun ApplicationCard(
+    application: ProfileJobApplicationUiModel,
+) {
+    val statusColor = when (application.status) {
+        "accepted" -> Color(0xFF4CAF50)
+        "rejected" -> Color(0xFFEF5350)
+        else -> Color(0xFFFFA726)
+    }
+
+    Surface(
+        shape = RoundedCornerShape(12.dp),
+        color = DevzCard,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(14.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = application.jobTitle,
+                    color = TextWhite,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.typography.titleLarge,
+                )
+                if (application.companyName.isNotBlank()) {
+                    Text(
+                        text = application.companyName,
+                        color = CyanPrimary,
+                        fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
+            Surface(
+                shape = RoundedCornerShape(8.dp),
+                color = statusColor.copy(alpha = 0.15f),
+            ) {
+                Text(
+                    text = application.status.replaceFirstChar { it.uppercase() },
+                    color = statusColor,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
+        }
     }
 }
 

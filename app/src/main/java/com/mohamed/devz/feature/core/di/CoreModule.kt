@@ -14,12 +14,14 @@ import com.mohamed.devz.feature.core.data.repository.NotificationTypeRepositoryI
 import com.mohamed.devz.feature.core.data.repository.QuestionRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.SearchHistoryRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.UserPreferencesRepositoryImpl
+import com.mohamed.devz.feature.core.data.repository.JobRepositoryImpl
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.AnnouncementRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
 import com.mohamed.devz.feature.core.domain.repository.LanguageTypeRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationTypeRepository
+import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.SearchHistoryRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
@@ -154,5 +156,13 @@ object CoreModule {
         userPreferences: UserPreferences,
     ): UserPreferencesRepository {
         return UserPreferencesRepositoryImpl(userPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideJobRepository(
+        remoteDataSource: DevZRemoteDataSource,
+    ): JobRepository {
+        return JobRepositoryImpl(remoteDataSource)
     }
 }

@@ -7,4 +7,5 @@ sealed interface ProfileAction {
     data object ShowFollowers : ProfileAction
     data object ShowFollowing : ProfileAction
     data object DismissDialog : ProfileAction
+    data object LoadApplications : ProfileAction
 }

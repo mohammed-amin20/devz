@@ -35,6 +35,14 @@ sealed interface Route {
     ) : Route
 
     @Serializable
+    data object Jobs : Route
+
+    @Serializable
+    data class JobDetail(
+        val id: Int
+    ) : Route
+
+    @Serializable
     data object AdminDashboard : Route
 
     @Serializable

@@ -8,6 +8,8 @@ import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
 import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
+import com.mohamed.devz.feature.core.data.model.JobPosting
+import com.mohamed.devz.feature.core.data.model.JobApplication
 
 interface DevZRemoteDataSource {
 
@@ -19,6 +21,8 @@ interface DevZRemoteDataSource {
     val notificationType: NotificationTypeTable
     val searchHistory: SearchHistoryTable
     val announcement: AnnouncementTable
+    val jobPosting: JobPostingTable
+    val jobApplication: JobApplicationTable
 
     interface AccountTable {
         suspend fun uploadImage(imageBytes: ByteArray, fileName: String): String
@@ -121,5 +125,15 @@ interface DevZRemoteDataSource {
         suspend fun getAllAnnouncements(): List<Announcement>
         suspend fun insertAnnouncement(announcement: Announcement): Announcement
         suspend fun deleteAnnouncement(id: Int)
+    }
+
+    interface JobPostingTable {
+        suspend fun getApprovedJobPostings(): List<JobPosting>
+        suspend fun getJobPostingById(id: Int): JobPosting
+    }
+
+    interface JobApplicationTable {
+        suspend fun insertJobApplication(application: JobApplication): JobApplication
+        suspend fun getJobApplicationsByApplicantId(applicantId: Int): List<JobApplication>
     }
 }

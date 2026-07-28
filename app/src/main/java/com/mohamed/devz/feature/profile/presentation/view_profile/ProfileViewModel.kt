@@ -8,6 +8,7 @@ import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
 import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
+import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
@@ -17,6 +18,7 @@ import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileFollowerUiModel
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,6 +42,7 @@ class ProfileViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val questionRepository: QuestionRepository,
     private val answerRepository: AnswerRepository,
+    private val jobRepository: JobRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
     private val notificationRepository: NotificationRepository,
     private val fcmPushSender: FcmPushSender,
@@ -57,6 +60,9 @@ class ProfileViewModel @Inject constructor(
     init {
         val targetAccountId = savedStateHandle.get<Int>("accountId")
         loadProfile(targetAccountId)
+        if (targetAccountId == null) {
+            loadApplications()
+        }
     }
 
     fun onAction(action: ProfileAction) {
@@ -64,12 +70,16 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.Refresh -> {
                 val targetAccountId = savedStateHandle.get<Int>("accountId")
                 loadProfile(targetAccountId)
+                if (targetAccountId == null) {
+                    loadApplications()
+                }
             }
             is ProfileAction.Logout -> logout()
             is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
             is ProfileAction.ShowFollowers -> showFollowers()
             is ProfileAction.ShowFollowing -> showFollowing()
             is ProfileAction.DismissDialog -> dismissDialog()
+            is ProfileAction.LoadApplications -> loadApplications()
         }
     }
 
@@ -78,6 +88,33 @@ class ProfileViewModel @Inject constructor(
             userPreferencesRepository.setLoggedOut()
             userPreferencesRepository.clearAccountId()
             _profileEvent.emit(ProfileEvent.NavigateToAuth)
+        }
+    }
+
+    private fun loadApplications() {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoadingApplications = true) }
+            val currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            if (currentAccountId == 0) return@launch
+
+            when (val result = jobRepository.getApplicationsByApplicantId(currentAccountId)) {
+                is Result.Success -> {
+                    val appUiModels = result.data.map { app ->
+                        val job = (jobRepository.getJobPostingById(app.jobId) as? Result.Success)?.data
+                        ProfileJobApplicationUiModel(
+                            id = app.id,
+                            jobTitle = job?.title ?: "Unknown",
+                            companyName = job?.companyName ?: "",
+                            status = app.status,
+                            createdAt = app.createdAt,
+                        )
+                    }
+                    _uiState.update { it.copy(myApplications = appUiModels, isLoadingApplications = false) }
+                }
+                is Result.Error -> {
+                    _uiState.update { it.copy(isLoadingApplications = false) }
+                }
+            }
         }
     }
 

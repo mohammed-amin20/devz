@@ -28,6 +28,8 @@ import com.mohamed.devz.feature.admin.presentation.manage_questions.ManageQuesti
 import com.mohamed.devz.feature.admin.presentation.manage_answers.ManageAnswersScreen
 import com.mohamed.devz.feature.admin.presentation.manage_announcements.ManageAnnouncementsScreen
 import com.mohamed.devz.feature.authentication.presentation.BannedScreen
+import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
+import com.mohamed.devz.feature.job.presentation.job_detail.JobDetailScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
 import com.mohamed.devz.navigation.components.home.HomeViewModel
 
@@ -132,6 +134,9 @@ fun DevzNavHost(
                 navigateToProfile = { accountId ->
                     navController.navigate(Route.Profile(accountId))
                 },
+                navigateToJobDetail = { jobId ->
+                    navController.navigate(Route.JobDetail(jobId))
+                },
                 onLogout = {
                     navController.apply {
                         popBackStack()
@@ -148,6 +153,22 @@ fun DevzNavHost(
             if (switchToProfileTab) {
                 backStackEntry.savedStateHandle.remove<Boolean>("switchToProfileTab")
             }
+        }
+        composable<Route.Jobs> {
+            JobsScreen(
+                onJobClick = { jobId ->
+                    navController.navigate(Route.JobDetail(jobId))
+                },
+                modifier = modifier
+            )
+        }
+        composable<Route.JobDetail> {
+            val id = it.toRoute<Route.JobDetail>().id
+            JobDetailScreen(
+                jobId = id,
+                navigateUp = { navController.navigateUp() },
+                modifier = modifier
+            )
         }
         composable<Route.QuestionDetails> {
             val id = it.toRoute<Route.QuestionDetails>().id
