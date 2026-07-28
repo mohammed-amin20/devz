@@ -29,7 +29,8 @@ enum class NotificationType {
     UPVOTE,
     LIKE,
     ANSWER,
-    FOLLOWER
+    FOLLOWER,
+    SYSTEM
 }
 
 data class NotificationUiModel(
@@ -42,6 +43,7 @@ data class NotificationUiModel(
     val questionTitle: String,
     val timeAgo: String,
     val isRead: Boolean = false,
+    val senderType: String = "user",
 )
 
 data class NotificationsUiState(
@@ -95,6 +97,11 @@ class NotificationsViewModel @Inject constructor(
                     }
                     rawNotifications = notifications.associateBy { it.id }
                     val uiModels = notifications.map { notification ->
+                        val questionTitle = when {
+                            notification.senderType == "system" -> ""
+                            notification.type == "follower" -> ""
+                            else -> questionTitles[notification.questionId] ?: ""
+                        }
                         NotificationUiModel(
                             id = notification.id.toString(),
                             type = mapTypeString(notification.type),
@@ -102,9 +109,10 @@ class NotificationsViewModel @Inject constructor(
                             message = notification.message,
                             questionId = notification.questionId,
                             actorId = notification.actorId,
-                            questionTitle = if (notification.type == "follower") "" else questionTitles[notification.questionId] ?: "",
+                            questionTitle = questionTitle,
                             timeAgo = formatRelativeTime(notification.createdAt),
                             isRead = notification.isRead,
+                            senderType = notification.senderType,
                         )
                     }
                     _uiState.update {
@@ -157,6 +165,7 @@ class NotificationsViewModel @Inject constructor(
             "like" -> NotificationType.LIKE
             "answer" -> NotificationType.ANSWER
             "follower" -> NotificationType.FOLLOWER
+            "system" -> NotificationType.SYSTEM
             else -> NotificationType.LIKE
         }
     }

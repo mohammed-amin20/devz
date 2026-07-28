@@ -27,5 +27,6 @@ object FcmTokenUtil {
                 }
             }
         }
+        FirebaseMessaging.getInstance().subscribeToTopic("announcements")
     }
 }

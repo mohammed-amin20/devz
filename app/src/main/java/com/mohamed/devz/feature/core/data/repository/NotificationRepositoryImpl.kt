@@ -55,6 +55,22 @@ class NotificationRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getSystemNotifications(): Result<List<Notification>, Error> {
+        return try {
+            val dataNotifications = remoteDataSource.notification.getSystemNotifications()
+            val domains = dataNotifications.map { notification ->
+                notification.toDomain(actorName = null, actorAvatarUrl = null)
+            }
+            Result.Success(domains)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
+
     override suspend fun update(notification: Notification): Result<Unit, Error> {
         return try {
             remoteDataSource.notification.updateNotification(notification.toData())

@@ -13,4 +13,6 @@ data class Notification(
     val createdAt: String,
     val actorName: String? = null,
     val actorAvatarUrl: String? = null,
+    val senderType: String = "user",
+    val isGlobal: Boolean = false,
 )

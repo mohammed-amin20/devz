@@ -104,6 +104,38 @@ class FcmPushSender @Inject constructor(
         }
     }
 
+    suspend fun sendPushToTopic(
+        topic: String,
+        title: String,
+        body: String,
+        type: String,
+    ) = withContext(Dispatchers.IO) {
+        try {
+            val accessToken = getAccessToken()
+            val projectId = config.projectId
+
+            val messageBody = buildJsonObject {
+                putJsonObject("message") {
+                    put("topic", topic)
+                    putJsonObject("notification") {
+                        put("title", title)
+                        put("body", body)
+                    }
+                    putJsonObject("data") {
+                        put("type", type)
+                    }
+                }
+            }
+
+            httpClient.post("https://fcm.googleapis.com/v1/projects/$projectId/messages:send") {
+                header("Authorization", "Bearer $accessToken")
+                contentType(ContentType.Application.Json)
+                setBody(messageBody.toString())
+            }
+        } catch (_: Exception) {
+        }
+    }
+
     private suspend fun getAccessToken(): String {
         val now = System.currentTimeMillis() / 1000
         cachedAccessToken?.let { (token, expiresAt) ->

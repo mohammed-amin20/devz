@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.admin.presentation.manage_announcements
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,7 +42,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.mohamed.devz.feature.core.domain.model.Announcement
+import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
@@ -58,7 +59,9 @@ fun ManageAnnouncementsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.showDeleteDialog && uiState.targetDeleteAnnouncement != null) {
+    if (uiState.showDeleteDialog && uiState.targetDeleteNotification != null) {
+        val parts = uiState.targetDeleteNotification!!.message.split("\n", limit = 2)
+        val title = parts.getOrElse(0) { "" }
         AlertDialog(
             onDismissRequest = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) },
             containerColor = DevzCard,
@@ -67,13 +70,13 @@ fun ManageAnnouncementsScreen(
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete \"${uiState.targetDeleteAnnouncement!!.title}\"? This action cannot be undone.",
+                    text = "Are you sure you want to delete \"$title\"? This action cannot be undone.",
                     color = QOnSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageAnnouncementsAction.ConfirmDelete(uiState.targetDeleteAnnouncement!!)) },
+                    onClick = { viewModel.onAction(ManageAnnouncementsAction.ConfirmDelete(uiState.targetDeleteNotification!!)) },
                     colors = ButtonDefaults.buttonColors(containerColor = QError)
                 ) {
                     Text("Delete", color = TextWhite)
@@ -205,10 +208,10 @@ fun ManageAnnouncementsScreen(
                     LazyColumn(
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        items(uiState.announcements, key = { it.id }) { announcement ->
-                            AnnouncementCard(
-                                announcement = announcement,
-                                onDelete = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(announcement)) },
+                        items(uiState.announcements, key = { it.id }) { notification ->
+                            SystemNotificationCard(
+                                notification = notification,
+                                onDelete = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(notification)) },
                             )
                         }
                         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -220,10 +223,14 @@ fun ManageAnnouncementsScreen(
 }
 
 @Composable
-private fun AnnouncementCard(
-    announcement: Announcement,
+private fun SystemNotificationCard(
+    notification: Notification,
     onDelete: () -> Unit,
 ) {
+    val parts = notification.message.split("\n", limit = 2)
+    val title = parts.getOrElse(0) { "" }
+    val body = parts.getOrElse(1) { "" }
+
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -235,7 +242,7 @@ private fun AnnouncementCard(
                 .padding(16.dp),
         ) {
             Text(
-                text = announcement.title,
+                text = title,
                 color = TextWhite,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
@@ -244,17 +251,17 @@ private fun AnnouncementCard(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = announcement.message,
+                text = body,
                 color = QOnSurfaceVariant,
                 fontSize = 14.sp,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
             )
 
-            if (!announcement.createdAt.isNullOrBlank()) {
+            if (notification.createdAt.isNotBlank()) {
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = announcement.createdAt,
+                    text = notification.createdAt,
                     color = TextGray,
                     fontSize = 12.sp,
                 )

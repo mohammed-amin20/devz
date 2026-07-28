@@ -6,7 +6,6 @@ import com.mohamed.devz.feature.core.data.data_source.remote.DevZRemoteDataSourc
 import com.mohamed.devz.feature.core.data.data_source.local.preferences.UserPreferences
 import com.mohamed.devz.feature.core.data.data_source.local.preferences.UserPreferencesImpl
 import com.mohamed.devz.feature.core.data.repository.AccountRepositoryImpl
-import com.mohamed.devz.feature.core.data.repository.AnnouncementRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.AnswerRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.LanguageTypeRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.NotificationRepositoryImpl
@@ -17,7 +16,6 @@ import com.mohamed.devz.feature.core.data.repository.UserPreferencesRepositoryIm
 import com.mohamed.devz.feature.core.data.repository.JobRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.CompanyProfileRepositoryImpl
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
-import com.mohamed.devz.feature.core.domain.repository.AnnouncementRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
 import com.mohamed.devz.feature.core.domain.repository.LanguageTypeRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
@@ -134,14 +132,6 @@ object CoreModule {
         remoteDataSource: DevZRemoteDataSource,
     ): SearchHistoryRepository {
         return SearchHistoryRepositoryImpl(remoteDataSource)
-    }
-
-    @Provides
-    @Singleton
-    fun provideAnnouncementRepository(
-        remoteDataSource: DevZRemoteDataSource,
-    ): AnnouncementRepository {
-        return AnnouncementRepositoryImpl(remoteDataSource)
     }
 
     @Provides

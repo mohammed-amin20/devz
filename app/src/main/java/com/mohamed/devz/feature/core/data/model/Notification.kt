@@ -22,4 +22,8 @@ data class Notification(
     val isRead: Boolean = false,
     @SerialName("created_at")
     val createdAt: String = "",
+    @SerialName("sender_type")
+    val senderType: String = "user",
+    @SerialName("is_global")
+    val isGlobal: Boolean = false,
 )

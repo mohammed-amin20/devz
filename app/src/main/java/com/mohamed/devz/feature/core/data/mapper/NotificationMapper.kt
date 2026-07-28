@@ -19,6 +19,8 @@ fun DataNotification.toDomain(
     createdAt = createdAt,
     actorName = actorName,
     actorAvatarUrl = actorAvatarUrl,
+    senderType = senderType,
+    isGlobal = isGlobal,
 )
 
 fun DomainNotification.toData(): DataNotification = DataNotification(
@@ -32,4 +34,6 @@ fun DomainNotification.toData(): DataNotification = DataNotification(
     message = message,
     isRead = isRead,
     createdAt = createdAt,
+    senderType = senderType,
+    isGlobal = isGlobal,
 )

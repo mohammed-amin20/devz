@@ -7,5 +7,6 @@ import com.mohamed.devz.feature.core.domain.util.Result
 interface NotificationRepository {
     suspend fun insert(notification: Notification): Result<Notification, Error>
     suspend fun getAllByAccountId(accountId: Int): Result<List<Notification>, Error>
+    suspend fun getSystemNotifications(): Result<List<Notification>, Error>
     suspend fun update(notification: Notification): Result<Unit, Error>
 }

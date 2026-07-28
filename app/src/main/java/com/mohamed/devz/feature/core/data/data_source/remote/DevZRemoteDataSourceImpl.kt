@@ -6,7 +6,6 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
-import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
@@ -402,6 +401,8 @@ class DevZRemoteDataSourceImpl(
                     put("type", notification.type)
                     put("message", notification.message)
                     put("is_read", notification.isRead)
+                    put("sender_type", notification.senderType)
+                    put("is_global", notification.isGlobal)
                 }
 
                 return db.from(tableName)
@@ -414,7 +415,21 @@ class DevZRemoteDataSourceImpl(
             override suspend fun getAllNotificationsByAccountId(accountId: Int): List<Notification> {
                 return db.from(tableName)
                     .select {
-                        filter { eq("user_id", accountId) }
+                        filter {
+                            or {
+                                eq("user_id", accountId)
+                                eq("is_global", true)
+                            }
+                        }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getSystemNotifications(): List<Notification> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("sender_type", "system") }
                         order(column = "created_at", order = Order.DESCENDING)
                     }
                     .decodeList()
@@ -472,39 +487,6 @@ class DevZRemoteDataSourceImpl(
                 db.from(tableName)
                     .delete {
                         filter { eq("account_id", accountId) }
-                    }
-            }
-        }
-
-    override val announcement: DevZRemoteDataSource.AnnouncementTable
-        get() = object : DevZRemoteDataSource.AnnouncementTable {
-            private val tableName = "Announcement"
-
-            override suspend fun getAllAnnouncements(): List<Announcement> {
-                return db.from(tableName)
-                    .select {
-                        order(column = "created_at", order = Order.DESCENDING)
-                    }
-                    .decodeList()
-            }
-
-            override suspend fun insertAnnouncement(announcement: Announcement): Announcement {
-                val json = buildJsonObject {
-                    put("title", announcement.title)
-                    put("message", announcement.message)
-                }
-
-                return db.from(tableName)
-                    .insert(json) {
-                        select()
-                    }
-                    .decodeSingle()
-            }
-
-            override suspend fun deleteAnnouncement(id: Int) {
-                db.from(tableName)
-                    .delete {
-                        filter { eq("id", id) }
                     }
             }
         }

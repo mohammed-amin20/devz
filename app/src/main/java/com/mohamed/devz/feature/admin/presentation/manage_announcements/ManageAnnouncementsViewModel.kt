@@ -3,9 +3,8 @@ package com.mohamed.devz.feature.admin.presentation.manage_announcements
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
-import com.mohamed.devz.feature.core.domain.model.Announcement
-import com.mohamed.devz.feature.core.domain.repository.AccountRepository
-import com.mohamed.devz.feature.core.domain.repository.AnnouncementRepository
+import com.mohamed.devz.feature.core.domain.model.Notification
+import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,8 +16,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ManageAnnouncementsViewModel @Inject constructor(
-    private val announcementRepository: AnnouncementRepository,
-    private val accountRepository: AccountRepository,
+    private val notificationRepository: NotificationRepository,
     private val fcmPushSender: FcmPushSender,
 ) : ViewModel() {
 
@@ -54,16 +52,16 @@ class ManageAnnouncementsViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(
                         showDeleteDialog = true,
-                        targetDeleteAnnouncement = action.announcement
+                        targetDeleteNotification = action.notification
                     )
                 }
             }
             is ManageAnnouncementsAction.ConfirmDelete -> {
-                deleteAnnouncement(action.announcement)
+                deleteAnnouncement(action.notification)
             }
             is ManageAnnouncementsAction.DismissDeleteDialog -> {
                 _uiState.update {
-                    it.copy(showDeleteDialog = false, targetDeleteAnnouncement = null)
+                    it.copy(showDeleteDialog = false, targetDeleteNotification = null)
                 }
             }
             is ManageAnnouncementsAction.Refresh -> loadAnnouncements()
@@ -74,7 +72,7 @@ class ManageAnnouncementsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isLoading = true, error = null) }
 
-            when (val result = announcementRepository.getAll()) {
+            when (val result = notificationRepository.getSystemNotifications()) {
                 is Result.Success -> {
                     val sorted = result.data.sortedByDescending { it.id }
                     _uiState.update {
@@ -100,30 +98,29 @@ class ManageAnnouncementsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(showCreateDialog = false) }
 
-            when (val result = announcementRepository.insert(
-                Announcement(id = 0, title = state.createTitle, message = state.createMessage)
-            )) {
+            val notification = Notification(
+                id = 0,
+                typeId = 0,
+                userId = 0,
+                actorId = 0,
+                questionId = 0,
+                answerId = null,
+                type = "system",
+                message = "${state.createTitle}\n${state.createMessage}",
+                isRead = false,
+                createdAt = "",
+                senderType = "system",
+                isGlobal = true,
+            )
+
+            when (val result = notificationRepository.insert(notification)) {
                 is Result.Success -> {
-                    val title = state.createTitle
-                    val message = state.createMessage
-                    launch {
-                        when (val accountsResult = accountRepository.getAll()) {
-                            is Result.Success -> {
-                                accountsResult.data
-                                    .filter { it.fcmToken.isNotBlank() }
-                                    .forEach { account ->
-                                        fcmPushSender.sendPush(
-                                            fcmToken = account.fcmToken,
-                                            title = title,
-                                            body = message,
-                                            questionId = null,
-                                            type = "announcement",
-                                        )
-                                    }
-                            }
-                            is Result.Error -> {}
-                        }
-                    }
+                    fcmPushSender.sendPushToTopic(
+                        topic = "announcements",
+                        title = state.createTitle,
+                        body = state.createMessage,
+                        type = "system",
+                    )
                     loadAnnouncements()
                 }
                 is Result.Error -> {
@@ -133,11 +130,12 @@ class ManageAnnouncementsViewModel @Inject constructor(
         }
     }
 
-    private fun deleteAnnouncement(announcement: Announcement) {
+    private fun deleteAnnouncement(notification: Notification) {
         viewModelScope.launch {
-            _uiState.update { it.copy(showDeleteDialog = false, targetDeleteAnnouncement = null) }
+            _uiState.update { it.copy(showDeleteDialog = false, targetDeleteNotification = null) }
 
-            when (val result = announcementRepository.delete(announcement.id)) {
+            val deleted = notification.copy(isRead = true)
+            when (val result = notificationRepository.update(deleted)) {
                 is Result.Success -> loadAnnouncements()
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText()) }

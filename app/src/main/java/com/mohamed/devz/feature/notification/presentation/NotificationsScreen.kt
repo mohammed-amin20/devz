@@ -21,6 +21,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
@@ -232,12 +233,19 @@ fun NotificationItem(
     onClick: () -> Unit = {},
 ) {
     val isUnread = !notification.isRead
+    val isSystem = notification.senderType == "system"
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(14.dp))
-            .background(if (isUnread) Color(0xFF1A2424) else Color(0xFF141E1E))
+            .background(
+                when {
+                    isSystem -> CyanPrimary.copy(alpha = 0.08f)
+                    isUnread -> Color(0xFF1A2424)
+                    else -> Color(0xFF141E1E)
+                }
+            )
             .clickable(onClick = onClick)
             .padding(horizontal = 14.dp, vertical = 14.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -248,70 +256,137 @@ fun NotificationItem(
                 .size(44.dp)
                 .clip(CircleShape)
                 .background(
-                    if (isUnread) CyanPrimary.copy(alpha = 0.15f)
+                    if (isSystem) CyanPrimary.copy(alpha = 0.2f)
+                    else if (isUnread) CyanPrimary.copy(alpha = 0.15f)
                     else Color(0xFF1E2A2A)
                 ),
             contentAlignment = Alignment.Center
         ) {
-            Icon(
-                imageVector = when (notification.type) {
-                    NotificationType.ACCEPTED -> Icons.Filled.CheckCircle
-                    NotificationType.UPVOTE -> Icons.Filled.ArrowUpward
-                    NotificationType.LIKE -> Icons.Filled.FavoriteBorder
-                    NotificationType.ANSWER -> Icons.Filled.ChatBubbleOutline
-                    NotificationType.FOLLOWER -> Icons.Filled.Person
-                },
-                contentDescription = null,
-                tint = CyanPrimary,
-                modifier = Modifier.size(22.dp)
-            )
+            if (isSystem) {
+                Text(
+                    text = "📢",
+                    fontSize = 20.sp
+                )
+            } else {
+                Icon(
+                    imageVector = when (notification.type) {
+                        NotificationType.ACCEPTED -> Icons.Filled.CheckCircle
+                        NotificationType.UPVOTE -> Icons.Filled.ArrowUpward
+                        NotificationType.LIKE -> Icons.Filled.FavoriteBorder
+                        NotificationType.ANSWER -> Icons.Filled.ChatBubbleOutline
+                        NotificationType.FOLLOWER -> Icons.Filled.Person
+                        NotificationType.SYSTEM -> Icons.Filled.Campaign
+                    },
+                    contentDescription = null,
+                    tint = CyanPrimary,
+                    modifier = Modifier.size(22.dp)
+                )
+            }
         }
 
         Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = buildAnnotatedString {
-                    if (notification.type == NotificationType.FOLLOWER) {
-                        withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                            append(notification.actorName ?: "Someone")
-                        }
-                        withStyle(SpanStyle(color = TextGray)) {
-                            append(" ${notification.message}")
-                        }
-                    } else if (notification.actorName == null) {
-                        withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                            append("Congrats! ")
-                        }
-                        withStyle(SpanStyle(color = TextGray)) {
-                            append("${notification.message} ${notification.questionTitle}")
-                        }
-                    } else {
-                        withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                            append("${notification.actorName} ")
-                        }
-                        withStyle(SpanStyle(color = TextGray)) {
-                            append("${notification.message} ${notification.questionTitle}")
-                        }
+            if (isSystem) {
+                val parts = notification.message.split("\n", limit = 2)
+                val title = parts.getOrElse(0) { "" }
+                val body = parts.getOrElse(1) { "" }
+                Text(
+                    text = "📢 devZ",
+                    color = CyanPrimary,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+                if (title.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = title,
+                        color = TextWhite,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                if (body.isNotBlank()) {
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = body,
+                        color = TextGray,
+                        fontSize = 13.sp,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+                Spacer(modifier = Modifier.height(6.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(4.dp))
+                            .background(CyanPrimary.copy(alpha = 0.15f))
+                            .padding(horizontal = 6.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = "System",
+                            color = CyanPrimary,
+                            fontSize = 10.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
-                },
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.typography.bodyMedium
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = notification.timeAgo,
-                color = if (isUnread) CyanPrimary else TextGray,
-                fontSize = 12.sp,
-                fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal,
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.End,
-                style = MaterialTheme.typography.bodyMedium
-            )
+                    Text(
+                        text = notification.timeAgo,
+                        color = TextGray,
+                        fontSize = 12.sp,
+                    )
+                }
+            } else {
+                Text(
+                    text = buildAnnotatedString {
+                        if (notification.type == NotificationType.FOLLOWER) {
+                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
+                                append(notification.actorName ?: "Someone")
+                            }
+                            withStyle(SpanStyle(color = TextGray)) {
+                                append(" ${notification.message}")
+                            }
+                        } else if (notification.actorName == null) {
+                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
+                                append("Congrats! ")
+                            }
+                            withStyle(SpanStyle(color = TextGray)) {
+                                append("${notification.message} ${notification.questionTitle}")
+                            }
+                        } else {
+                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
+                                append("${notification.actorName} ")
+                            }
+                            withStyle(SpanStyle(color = TextGray)) {
+                                append("${notification.message} ${notification.questionTitle}")
+                            }
+                        }
+                    },
+                    fontSize = 14.sp,
+                    lineHeight = 20.sp,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = notification.timeAgo,
+                    color = if (isUnread) CyanPrimary else TextGray,
+                    fontSize = 12.sp,
+                    fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal,
+                    modifier = Modifier.fillMaxWidth(),
+                    textAlign = TextAlign.End,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
         }
 
-        if (isUnread) {
+        if (isUnread && !isSystem) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
