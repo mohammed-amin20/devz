@@ -54,6 +54,7 @@ import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
+import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyDashboardScreen
 import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
@@ -63,6 +64,7 @@ fun HomeScreen(
     navigateToEditProfile: () -> Unit,
     navigateToProfile: (Int) -> Unit,
     navigateToJobDetail: (Int) -> Unit,
+    navigateToPostJob: () -> Unit = {},
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     switchToProfileTab: Boolean = false,
@@ -72,6 +74,7 @@ fun HomeScreen(
 ) {
     val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
     val currentAccountId by viewModel.currentAccountId.collectAsStateWithLifecycle()
+    val accountType by viewModel.accountType.collectAsStateWithLifecycle()
     val unreadCount by viewModel.unreadCount.collectAsStateWithLifecycle()
 
     LaunchedEffect(switchToProfileTab) {
@@ -150,25 +153,33 @@ fun HomeScreen(
             icon = Icons.Rounded.Person,
             index = 4,
             onClick = { viewModel.onSelectedIndexChange(4) },
-            content = {
-                ProfileScreen(
-                    onEditProfile = navigateToEditProfile,
-                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onLogout = onLogout,
-                    refreshTrigger = profileRefreshCounter,
-                    onFullScreenChanged = { isFullScreenImage = it },
-                    onDialogVisibilityChanged = { isDialogOpen = it },
-                    onAdminPanelClick = navigateToAdminDashboard,
-                    onProfileClick = { accountId ->
-                        if (accountId == currentAccountId) {
-                            viewModel.onSelectedIndexChange(4)
-                        } else {
-                            navigateToProfile(accountId)
-                        }
-                    },
-                    navigateUp = { viewModel.onSelectedIndexChange(0) }
-                )
+            content = if (accountType == "company") {
+                {
+                    CompanyDashboardScreen(
+                        onPostJob = navigateToPostJob,
+                    )
+                }
+            } else {
+                {
+                    ProfileScreen(
+                        onEditProfile = navigateToEditProfile,
+                        onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
+                        onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
+                        onLogout = onLogout,
+                        refreshTrigger = profileRefreshCounter,
+                        onFullScreenChanged = { isFullScreenImage = it },
+                        onDialogVisibilityChanged = { isDialogOpen = it },
+                        onAdminPanelClick = navigateToAdminDashboard,
+                        onProfileClick = { accountId ->
+                            if (accountId == currentAccountId) {
+                                viewModel.onSelectedIndexChange(4)
+                            } else {
+                                navigateToProfile(accountId)
+                            }
+                        },
+                        navigateUp = { viewModel.onSelectedIndexChange(0) }
+                    )
+                }
             }
         )
     )

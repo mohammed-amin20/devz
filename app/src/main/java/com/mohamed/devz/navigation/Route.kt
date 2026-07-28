@@ -58,5 +58,17 @@ sealed interface Route {
     data object ManageAnnouncements : Route
 
     @Serializable
+    data object PendingApproval : Route
+
+    @Serializable
+    data object PostJob : Route
+
+    @Serializable
+    data object ManageJobs : Route
+
+    @Serializable
+    data object ManageCompanies : Route
+
+    @Serializable
     data object Banned : Route
 }

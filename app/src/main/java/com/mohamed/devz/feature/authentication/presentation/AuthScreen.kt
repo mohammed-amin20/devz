@@ -30,6 +30,7 @@ import com.mohamed.devz.feature.authentication.presentation.components.signup_sc
 fun AuthScreen(
     onLoginSuccess: () -> Unit,
     onRegisterSuccess: () -> Unit,
+    onCompanyRegisterSuccess: () -> Unit = onRegisterSuccess,
     onBanned: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -89,7 +90,8 @@ fun AuthScreen(
 
             1 -> SignUpScreen(
                 onNavigateToLogin = { index = 0 },
-                onRegisterSuccess = onRegisterSuccess
+                onRegisterSuccess = onRegisterSuccess,
+                onCompanyRegisterSuccess = onCompanyRegisterSuccess,
             )
         }
     }

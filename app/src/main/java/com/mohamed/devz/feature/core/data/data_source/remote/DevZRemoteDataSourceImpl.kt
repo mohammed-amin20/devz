@@ -10,6 +10,7 @@ import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
+import com.mohamed.devz.feature.core.data.model.CompanyProfile
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -527,6 +528,91 @@ class DevZRemoteDataSourceImpl(
                         filter { eq("id", id) }
                     }
                     .decodeSingle()
+            }
+
+            override suspend fun getAllJobPostings(): List<JobPosting> {
+                return db.from(tableName)
+                    .select {
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getJobPostingsByAccountId(accountId: Int): List<JobPosting> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("account_id", accountId) }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun insertJobPosting(posting: JobPosting): JobPosting {
+                val json = buildJsonObject {
+                    put("company_name", posting.companyName)
+                    put("title", posting.title)
+                    put("description", posting.description)
+                    put("salary_range", posting.salaryRange)
+                    put("job_type", posting.jobType)
+                    put("status", posting.status)
+                    put("account_id", posting.accountId)
+                }
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun updateJobPosting(posting: JobPosting) {
+                db.from(tableName)
+                    .update(posting) {
+                        filter { eq("id", posting.id) }
+                    }
+            }
+        }
+
+    override val companyProfile: DevZRemoteDataSource.CompanyProfileTable
+        get() = object : DevZRemoteDataSource.CompanyProfileTable {
+            private val tableName = "CompanyProfile"
+
+            override suspend fun getByAccountId(accountId: Int): CompanyProfile? {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("user_id", accountId) }
+                        limit(1)
+                    }
+                    .decodeSingleOrNull()
+            }
+
+            override suspend fun insert(profile: CompanyProfile): CompanyProfile {
+                val json = buildJsonObject {
+                    put("user_id", profile.userId)
+                    put("company_name", profile.companyName)
+                    put("logo_url", profile.logoUrl)
+                    put("website", profile.website)
+                    put("description", profile.description)
+                    put("subscription_status", profile.subscriptionStatus)
+                    put("subscription_expiry", profile.subscriptionExpiry)
+                }
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun update(profile: CompanyProfile) {
+                db.from(tableName)
+                    .update(profile) {
+                        filter { eq("id", profile.id) }
+                    }
+            }
+
+            override suspend fun getAll(): List<CompanyProfile> {
+                return db.from(tableName)
+                    .select()
+                    .decodeList()
             }
         }
 

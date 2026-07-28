@@ -30,6 +30,10 @@ import com.mohamed.devz.feature.admin.presentation.manage_announcements.ManageAn
 import com.mohamed.devz.feature.authentication.presentation.BannedScreen
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.job.presentation.job_detail.JobDetailScreen
+import com.mohamed.devz.feature.job.presentation.post_job.PostJobScreen
+import com.mohamed.devz.feature.company.presentation.PendingApprovalScreen
+import com.mohamed.devz.feature.admin.presentation.manage_jobs.ManageJobsScreen
+import com.mohamed.devz.feature.admin.presentation.manage_companies.ManageCompaniesScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
 import com.mohamed.devz.navigation.components.home.HomeViewModel
 
@@ -91,6 +95,12 @@ fun DevzNavHost(
                         navigate(Route.Home)
                     }
                 },
+                onCompanyRegisterSuccess = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.PendingApproval)
+                    }
+                },
                 onBanned = {
                     navController.apply {
                         popBackStack()
@@ -136,6 +146,9 @@ fun DevzNavHost(
                 },
                 navigateToJobDetail = { jobId ->
                     navController.navigate(Route.JobDetail(jobId))
+                },
+                navigateToPostJob = {
+                    navController.navigate(Route.PostJob)
                 },
                 onLogout = {
                     navController.apply {
@@ -227,6 +240,8 @@ fun DevzNavHost(
                 onNavigateToQuestions = { navController.navigate(Route.ManageQuestions) },
                 onNavigateToAnswers = { navController.navigate(Route.ManageAnswers) },
                 onNavigateToAnnouncements = { navController.navigate(Route.ManageAnnouncements) },
+                onNavigateToJobs = { navController.navigate(Route.ManageJobs) },
+                onNavigateToCompanies = { navController.navigate(Route.ManageCompanies) },
                 onNavigateUp = { navController.navigateUp() },
             )
         }
@@ -250,6 +265,34 @@ fun DevzNavHost(
         }
         composable<Route.ManageAnnouncements> {
             ManageAnnouncementsScreen(
+                onNavigateUp = { navController.navigateUp() },
+            )
+        }
+        composable<Route.PendingApproval> {
+            PendingApprovalScreen(
+                onGoToHome = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Home)
+                    }
+                },
+                modifier = modifier,
+            )
+        }
+        composable<Route.PostJob> {
+            PostJobScreen(
+                navigateUp = { navController.navigateUp() },
+                onPostSuccess = { navController.navigateUp() },
+                modifier = modifier,
+            )
+        }
+        composable<Route.ManageJobs> {
+            ManageJobsScreen(
+                onNavigateUp = { navController.navigateUp() },
+            )
+        }
+        composable<Route.ManageCompanies> {
+            ManageCompaniesScreen(
                 onNavigateUp = { navController.navigateUp() },
             )
         }

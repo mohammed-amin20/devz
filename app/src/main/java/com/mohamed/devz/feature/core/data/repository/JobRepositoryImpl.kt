@@ -42,6 +42,58 @@ class JobRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getAllJobPostings(): Result<List<JobPosting>, Error> {
+        return try {
+            val data = remoteDataSource.jobPosting.getAllJobPostings()
+            Result.Success(data.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun getJobPostingsByAccountId(accountId: Int): Result<List<JobPosting>, Error> {
+        return try {
+            val data = remoteDataSource.jobPosting.getJobPostingsByAccountId(accountId)
+            Result.Success(data.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun insertJobPosting(posting: JobPosting): Result<JobPosting, Error> {
+        return try {
+            val data = remoteDataSource.jobPosting.insertJobPosting(posting.toData())
+            Result.Success(data.toDomain())
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun updateJobPosting(posting: JobPosting): Result<Unit, Error> {
+        return try {
+            remoteDataSource.jobPosting.updateJobPosting(posting.toData())
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
     override suspend fun insertApplication(application: JobApplication): Result<JobApplication, Error> {
         return try {
             val data = remoteDataSource.jobApplication.insertJobApplication(application.toData())

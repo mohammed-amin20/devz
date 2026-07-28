@@ -28,6 +28,9 @@ class HomeViewModel @Inject constructor(
     private val _currentAccountId = MutableStateFlow(0)
     val currentAccountId = _currentAccountId.asStateFlow()
 
+    private val _accountType = MutableStateFlow("developer")
+    val accountType = _accountType.asStateFlow()
+
     private val _unreadCount = MutableStateFlow(0)
     val unreadCount = _unreadCount.asStateFlow()
 
@@ -38,6 +41,10 @@ class HomeViewModel @Inject constructor(
             loadUnreadCount(id)
             if (id != 0) {
                 FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
+                val accountResult = accountRepository.getById(id)
+                if (accountResult is Result.Success) {
+                    _accountType.value = accountResult.data.accountType
+                }
             }
         }
     }

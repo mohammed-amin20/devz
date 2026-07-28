@@ -8,6 +8,8 @@ data class SignUpState(
     val email: String = "",
     val password: String = "",
     val confirmPassword: String = "",
+    val isCompany: Boolean = false,
+    val companyName: String = "",
     val isLoading: Boolean = false,
     val error: UiText? = null,
     val fullNameError: UiText? = null,
@@ -15,4 +17,5 @@ data class SignUpState(
     val emailError: UiText? = null,
     val passwordError: UiText? = null,
     val confirmPasswordError: UiText? = null,
+    val companyNameError: UiText? = null,
 )

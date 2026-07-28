@@ -10,6 +10,7 @@ import com.mohamed.devz.feature.core.data.model.Announcement
 import com.mohamed.devz.feature.core.data.model.SearchHistory
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
+import com.mohamed.devz.feature.core.data.model.CompanyProfile
 
 interface DevZRemoteDataSource {
 
@@ -23,6 +24,7 @@ interface DevZRemoteDataSource {
     val announcement: AnnouncementTable
     val jobPosting: JobPostingTable
     val jobApplication: JobApplicationTable
+    val companyProfile: CompanyProfileTable
 
     interface AccountTable {
         suspend fun uploadImage(imageBytes: ByteArray, fileName: String): String
@@ -130,10 +132,21 @@ interface DevZRemoteDataSource {
     interface JobPostingTable {
         suspend fun getApprovedJobPostings(): List<JobPosting>
         suspend fun getJobPostingById(id: Int): JobPosting
+        suspend fun getAllJobPostings(): List<JobPosting>
+        suspend fun getJobPostingsByAccountId(accountId: Int): List<JobPosting>
+        suspend fun insertJobPosting(posting: JobPosting): JobPosting
+        suspend fun updateJobPosting(posting: JobPosting)
     }
 
     interface JobApplicationTable {
         suspend fun insertJobApplication(application: JobApplication): JobApplication
         suspend fun getJobApplicationsByApplicantId(applicantId: Int): List<JobApplication>
+    }
+
+    interface CompanyProfileTable {
+        suspend fun getByAccountId(accountId: Int): CompanyProfile?
+        suspend fun insert(profile: CompanyProfile): CompanyProfile
+        suspend fun update(profile: CompanyProfile)
+        suspend fun getAll(): List<CompanyProfile>
     }
 }

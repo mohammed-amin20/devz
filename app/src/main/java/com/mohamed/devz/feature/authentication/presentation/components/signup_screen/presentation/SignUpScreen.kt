@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -76,6 +78,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun SignUpScreen(
     onNavigateToLogin: () -> Unit,
     onRegisterSuccess: () -> Unit,
+    onCompanyRegisterSuccess: () -> Unit = onRegisterSuccess,
     modifier: Modifier = Modifier,
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
@@ -164,7 +167,33 @@ fun SignUpScreen(
                     lineHeight = 22.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
-                Spacer(modifier = Modifier.height(36.dp))
+                Spacer(modifier = Modifier.height(24.dp))
+            }
+
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (uiState.isCompany) "Register as Company" else "Register as Developer",
+                        color = TextWhite,
+                        fontSize = 14.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Switch(
+                        checked = uiState.isCompany,
+                        onCheckedChange = { viewModel.onAction(SignUpAction.IsCompanyToggled(it)) },
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = CyanPrimary,
+                            checkedTrackColor = CyanPrimary.copy(alpha = 0.3f),
+                            uncheckedThumbColor = TextGray,
+                            uncheckedTrackColor = Color(0xFF2A3A3A),
+                        ),
+                    )
+                }
+                Spacer(modifier = Modifier.height(12.dp))
             }
 
             item {
@@ -176,23 +205,43 @@ fun SignUpScreen(
                     color = DevzCard
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        AuthFieldLabel("FULL NAME")
-                        Spacer(modifier = Modifier.height(8.dp))
-                        DevzTextField(
-                            value = uiState.fullName,
-                            onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
-                            placeholder = "John Doe",
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Person,
-                                    null,
-                                    tint = TextSubtle,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            },
-                            isError = uiState.fullNameError != null,
-                            errorMessage = uiState.fullNameError?.asString()
-                        )
+                        if (uiState.isCompany) {
+                            AuthFieldLabel("COMPANY NAME")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            DevzTextField(
+                                value = uiState.companyName,
+                                onValueChange = { viewModel.onAction(SignUpAction.CompanyNameChanged(it)) },
+                                placeholder = "Acme Inc.",
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.Person,
+                                        null,
+                                        tint = TextSubtle,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                },
+                                isError = uiState.companyNameError != null,
+                                errorMessage = uiState.companyNameError?.asString()
+                            )
+                        } else {
+                            AuthFieldLabel("FULL NAME")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            DevzTextField(
+                                value = uiState.fullName,
+                                onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
+                                placeholder = "John Doe",
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Filled.Person,
+                                        null,
+                                        tint = TextSubtle,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                },
+                                isError = uiState.fullNameError != null,
+                                errorMessage = uiState.fullNameError?.asString()
+                            )
+                        }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
@@ -321,7 +370,8 @@ fun SignUpScreen(
                             onClick = {
                                 viewModel.onAction(
                                     SignUpAction.RegisterClicked(
-                                        onRegisterSuccess
+                                        onSuccess = onRegisterSuccess,
+                                        onCompanySuccess = onCompanyRegisterSuccess,
                                     )
                                 )
                             },
@@ -343,7 +393,7 @@ fun SignUpScreen(
                                 )
                             } else {
                                 Text(
-                                    text = "Sign Up →",
+                                    text = if (uiState.isCompany) "Register Company →" else "Sign Up →",
                                     fontSize = 17.sp,
                                     fontWeight = FontWeight.Bold,
                                     style = MaterialTheme.typography.bodyMedium

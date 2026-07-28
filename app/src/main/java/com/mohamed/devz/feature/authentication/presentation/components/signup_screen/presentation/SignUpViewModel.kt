@@ -4,9 +4,12 @@ import android.util.Patterns
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.Account
+import com.mohamed.devz.feature.core.domain.model.CompanyProfile
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
+import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.FcmTokenUtil
+import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SignUpViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
+    private val companyProfileRepository: CompanyProfileRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
@@ -32,14 +36,17 @@ class SignUpViewModel @Inject constructor(
             is SignUpAction.EmailChanged -> _uiState.update { it.copy(email = action.value, emailError = null) }
             is SignUpAction.PasswordChanged -> _uiState.update { it.copy(password = action.value, passwordError = null) }
             is SignUpAction.ConfirmPasswordChanged -> _uiState.update { it.copy(confirmPassword = action.value, confirmPasswordError = null) }
-            is SignUpAction.RegisterClicked -> register(action.onSuccess)
+            is SignUpAction.IsCompanyToggled -> _uiState.update { it.copy(isCompany = action.isCompany, companyName = "", companyNameError = null) }
+            is SignUpAction.CompanyNameChanged -> _uiState.update { it.copy(companyName = action.value, companyNameError = null) }
+            is SignUpAction.RegisterClicked -> register(action.onSuccess, action.onCompanySuccess)
         }
     }
 
-    private fun register(onSuccess: () -> Unit) {
+    private fun register(onSuccess: () -> Unit, onCompanySuccess: () -> Unit) {
         val state = _uiState.value
 
-        val fullNameError = if (state.fullName.isBlank()) UiText.DynamicString("Full name is required") else null
+        val fullNameError = if (!state.isCompany && state.fullName.isBlank()) UiText.DynamicString("Full name is required") else null
+        val companyNameError = if (state.isCompany && state.companyName.isBlank()) UiText.DynamicString("Company name is required") else null
         val usernameError = if (state.username.isBlank()) UiText.DynamicString("Username is required") else null
         val emailError = when {
             state.email.isBlank() -> UiText.DynamicString("Email is required")
@@ -57,10 +64,11 @@ class SignUpViewModel @Inject constructor(
             else -> null
         }
 
-        if (fullNameError != null || usernameError != null || emailError != null || passwordError != null || confirmPasswordError != null) {
+        if (fullNameError != null || companyNameError != null || usernameError != null || emailError != null || passwordError != null || confirmPasswordError != null) {
             _uiState.update {
                 it.copy(
                     fullNameError = fullNameError,
+                    companyNameError = companyNameError,
                     usernameError = usernameError,
                     emailError = emailError,
                     passwordError = passwordError,
@@ -74,7 +82,7 @@ class SignUpViewModel @Inject constructor(
         val account = Account(
             id = 0,
             username = state.username,
-            fullName = state.fullName,
+            fullName = if (state.isCompany) state.companyName else state.fullName,
             email = state.email,
             password = state.password,
             imageUrl = "",
@@ -83,17 +91,32 @@ class SignUpViewModel @Inject constructor(
             githubUrl = "",
             linkedInUrl = "",
             websiteUrl = "",
+            accountType = if (state.isCompany) "company" else "developer",
         )
         viewModelScope.launch {
             when (val result = accountRepository.insert(account)) {
-                is com.mohamed.devz.feature.core.domain.util.Result.Success -> {
+                is Result.Success -> {
+                    val insertedAccount = result.data
+                    if (state.isCompany) {
+                        companyProfileRepository.insert(
+                            CompanyProfile(
+                                userId = insertedAccount.id,
+                                companyName = state.companyName,
+                                subscriptionStatus = "pending",
+                            )
+                        )
+                    }
                     _uiState.update { it.copy(isLoading = false) }
                     userPreferencesRepository.setLoggedIn()
-                    userPreferencesRepository.setAccountId(result.data.id)
+                    userPreferencesRepository.setAccountId(insertedAccount.id)
                     FcmTokenUtil.saveCurrentToken(accountRepository, userPreferencesRepository)
-                    onSuccess()
+                    if (state.isCompany) {
+                        onCompanySuccess()
+                    } else {
+                        onSuccess()
+                    }
                 }
-                is com.mohamed.devz.feature.core.domain.util.Result.Error -> {
+                is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
                 }
             }
