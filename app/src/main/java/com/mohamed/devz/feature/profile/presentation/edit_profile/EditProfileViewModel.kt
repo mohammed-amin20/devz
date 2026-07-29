@@ -87,6 +87,8 @@ class EditProfileViewModel @Inject constructor(
                             imageUrl = a.imageUrl,
                             followerIds = a.followerIds,
                             followingIds = a.followingIds,
+                            isPro = a.isPro,
+                            isMainAdmin = a.isMainAdmin,
                             isLoading = false,
                         )
                     }
@@ -131,6 +133,8 @@ class EditProfileViewModel @Inject constructor(
                     websiteUrl = state.website,
                     followerIds = state.followerIds,
                     followingIds = state.followingIds,
+                    isPro = state.isPro,
+                    isMainAdmin = state.isMainAdmin,
                 )
             )
             when (result) {

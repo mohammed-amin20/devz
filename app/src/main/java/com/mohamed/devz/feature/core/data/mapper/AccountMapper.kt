@@ -21,6 +21,7 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     followingIds = followingIds,
     isBanned = isBanned,
     isAdmin = isAdmin,
+    isMainAdmin = isMainAdmin,
     isPro = isPro,
     accountType = accountType,
 )
@@ -43,6 +44,7 @@ fun DomainAccount.toData(): DataAccount = DataAccount(
     followingIds = followingIds,
     isBanned = isBanned,
     isAdmin = isAdmin,
+    isMainAdmin = isMainAdmin,
     isPro = isPro,
     accountType = accountType,
 )

@@ -18,6 +18,7 @@ data class Account(
     val followingIds: String = "",
     val isBanned: Boolean = false,
     val isAdmin: Boolean = false,
+    val isMainAdmin: Boolean = false,
     val isPro: Boolean = false,
     val accountType: String = "developer",
 )

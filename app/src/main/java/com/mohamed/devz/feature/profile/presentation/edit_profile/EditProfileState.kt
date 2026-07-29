@@ -24,4 +24,6 @@ data class EditProfileState(
     val error: UiText? = null,
     val followerIds: String = "",
     val followingIds: String = "",
+    val isPro: Boolean = false,
+    val isMainAdmin: Boolean = false,
 )

@@ -39,6 +39,9 @@ data class Account(
     @SerialName("is_admin")
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val isAdmin: Boolean = false,
+    @SerialName("is_main_admin")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val isMainAdmin: Boolean = false,
     @SerialName("is_pro")
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val isPro: Boolean = false,

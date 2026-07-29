@@ -31,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedButton
@@ -96,6 +97,84 @@ fun ManageUsersScreen(
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissBanDialog) }) {
+                    Text("Cancel", color = TextGray)
+                }
+            },
+        )
+    }
+
+    if (uiState.showProDialog && uiState.targetProAccount != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onAction(ManageUsersAction.DismissProDialog) },
+            containerColor = DevzCard,
+            title = {
+                Text(
+                    if (uiState.targetProAccount!!.isPro) "Remove Pro" else "Make Pro",
+                    color = TextWhite,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
+            text = {
+                Text(
+                    text = if (uiState.targetProAccount!!.isPro)
+                        "Are you sure you want to remove Pro from @${uiState.targetProAccount!!.username}?"
+                    else
+                        "Are you sure you want to make @${uiState.targetProAccount!!.username} a Pro member?",
+                    color = QOnSurfaceVariant,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.onAction(ManageUsersAction.ConfirmPro(uiState.targetProAccount!!)) },
+                    colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary)
+                ) {
+                    Text(
+                        if (uiState.targetProAccount!!.isPro) "Remove" else "Make Pro",
+                        color = TextWhite,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissProDialog) }) {
+                    Text("Cancel", color = TextGray)
+                }
+            },
+        )
+    }
+
+    if (uiState.showAdminDialog && uiState.targetAdminAccount != null) {
+        AlertDialog(
+            onDismissRequest = { viewModel.onAction(ManageUsersAction.DismissAdminDialog) },
+            containerColor = DevzCard,
+            title = {
+                Text(
+                    if (uiState.targetAdminAccount!!.isAdmin) "Remove Admin" else "Make Admin",
+                    color = TextWhite,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
+            text = {
+                Text(
+                    text = if (uiState.targetAdminAccount!!.isAdmin)
+                        "Are you sure you want to remove admin privileges from @${uiState.targetAdminAccount!!.username}?"
+                    else
+                        "Are you sure you want to make @${uiState.targetAdminAccount!!.username} an admin?",
+                    color = QOnSurfaceVariant,
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { viewModel.onAction(ManageUsersAction.ConfirmAdmin(uiState.targetAdminAccount!!)) },
+                    colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary)
+                ) {
+                    Text(
+                        if (uiState.targetAdminAccount!!.isAdmin) "Remove" else "Make Admin",
+                        color = TextWhite,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissAdminDialog) }) {
                     Text("Cancel", color = TextGray)
                 }
             },
@@ -189,6 +268,40 @@ fun ManageUsersScreen(
                         selected = uiState.selectedFilter == 1,
                     ),
                 )
+                FilterChip(
+                    selected = uiState.selectedFilter == 2,
+                    onClick = { viewModel.onAction(ManageUsersAction.FilterPro) },
+                    label = { Text("Pro", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = CyanPrimary.copy(alpha = 0.2f),
+                        selectedLabelColor = CyanPrimary,
+                        containerColor = DevzCard,
+                        labelColor = TextGray,
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        borderColor = Color(0xFF2A3A3A),
+                        selectedBorderColor = CyanPrimary.copy(alpha = 0.5f),
+                        enabled = true,
+                        selected = uiState.selectedFilter == 2,
+                    ),
+                )
+                FilterChip(
+                    selected = uiState.selectedFilter == 3,
+                    onClick = { viewModel.onAction(ManageUsersAction.FilterAdmin) },
+                    label = { Text("Admin", fontSize = 13.sp) },
+                    colors = FilterChipDefaults.filterChipColors(
+                        selectedContainerColor = CyanPrimary.copy(alpha = 0.2f),
+                        selectedLabelColor = CyanPrimary,
+                        containerColor = DevzCard,
+                        labelColor = TextGray,
+                    ),
+                    border = FilterChipDefaults.filterChipBorder(
+                        borderColor = Color(0xFF2A3A3A),
+                        selectedBorderColor = CyanPrimary.copy(alpha = 0.5f),
+                        enabled = true,
+                        selected = uiState.selectedFilter == 3,
+                    ),
+                )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -212,14 +325,17 @@ fun ManageUsersScreen(
                 }
                 else -> {
                     LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
                     ) {
                         items(uiState.filteredAccounts, key = { it.id }) { account ->
                             UserCard(
                                 account = account,
+                                isMainAdmin = uiState.currentAccountIsMainAdmin,
                                 onUserClick = { onUserClick(account.id) },
                                 onBan = { viewModel.onAction(ManageUsersAction.BanUser(account)) },
                                 onUnban = { viewModel.onAction(ManageUsersAction.UnbanUser(account)) },
+                                onShowProDialog = { viewModel.onAction(ManageUsersAction.ShowProDialog(account)) },
+                                onShowAdminDialog = { viewModel.onAction(ManageUsersAction.ShowAdminDialog(account)) },
                             )
                         }
                         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -233,9 +349,12 @@ fun ManageUsersScreen(
 @Composable
 private fun UserCard(
     account: Account,
+    isMainAdmin: Boolean,
     onUserClick: () -> Unit,
     onBan: () -> Unit,
     onUnban: () -> Unit,
+    onShowProDialog: () -> Unit,
+    onShowAdminDialog: () -> Unit,
 ) {
     Surface(
         modifier = Modifier
@@ -244,103 +363,238 @@ private fun UserCard(
         shape = RoundedCornerShape(16.dp),
         color = DevzCard,
     ) {
-        Row(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
+                .padding(16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(CyanPrimary.copy(alpha = 0.15f))
-                    .border(1.dp, CyanPrimary.copy(alpha = 0.3f), CircleShape),
-                contentAlignment = Alignment.Center,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                if (account.imageUrl.isNotBlank()) {
-                    AsyncImage(
-                        model = account.imageUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop,
-                    )
-                } else {
-                    Icon(
-                        Icons.Filled.Person,
-                        contentDescription = null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.width(14.dp))
-
-            Column(modifier = Modifier.weight(1f)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text(
-                        text = account.fullName,
-                        color = TextWhite,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                    if (account.isBanned) {
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "BANNED",
-                            color = QError,
-                            fontSize = 10.sp,
-                            fontWeight = FontWeight.Bold,
+                Box(
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(CircleShape)
+                        .background(CyanPrimary.copy(alpha = 0.15f))
+                        .border(1.dp, CyanPrimary.copy(alpha = 0.3f), CircleShape),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (account.imageUrl.isNotBlank()) {
+                        AsyncImage(
+                            model = account.imageUrl,
+                            contentDescription = null,
                             modifier = Modifier
-                                .background(QError.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
-                                .padding(horizontal = 6.dp, vertical = 2.dp)
+                                .size(56.dp)
+                                .clip(CircleShape),
+                            contentScale = ContentScale.Crop,
+                        )
+                    } else {
+                        Icon(
+                            Icons.Filled.Person,
+                            contentDescription = null,
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(28.dp)
                         )
                     }
                 }
-                Spacer(modifier = Modifier.height(2.dp))
-                Text(
-                    text = "@${account.username}",
-                    color = TextGray,
-                    fontSize = 13.sp,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        Icons.Filled.Star,
-                        contentDescription = null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(12.dp)
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Column(modifier = Modifier.weight(1f)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = account.fullName,
+                            color = TextWhite,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        if (account.isPro) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "PRO",
+                                color = CyanPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(CyanPrimary.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                        if (account.isAdmin) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "ADMIN",
+                                color = CyanPrimary,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(CyanPrimary.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                        if (account.isBanned) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "BANNED",
+                                color = QError,
+                                fontSize = 10.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .background(QError.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
+                                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                    Spacer(modifier = Modifier.height(2.dp))
                     Text(
-                        text = "${account.points} pts",
-                        color = CyanPrimary,
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold,
+                        text = "@${account.username}",
+                        color = TextGray,
+                        fontSize = 13.sp,
                     )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Icon(
+                            Icons.Filled.Star,
+                            contentDescription = null,
+                            tint = CyanPrimary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
+                        Text(
+                            text = "${account.points} pts",
+                            color = CyanPrimary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
                 }
             }
 
-            if (account.isBanned) {
-                OutlinedButton(
-                    onClick = onUnban,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary),
-                    border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.5f)),
+            Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = Color(0xFF2A3A3A), thickness = 1.dp)
+            Spacer(modifier = Modifier.height(12.dp))
+
+            if (isMainAdmin) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("Unban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    OutlinedButton(
+                        onClick = onShowAdminDialog,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = if (account.isAdmin) CyanPrimary else TextGray
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            if (account.isAdmin) CyanPrimary.copy(alpha = 0.5f) else Color(0xFF2A3A3A)
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                    ) {
+                        Text(
+                            if (account.isAdmin) "Admin" else "Not Admin",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    OutlinedButton(
+                        onClick = onShowProDialog,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = if (account.isPro) CyanPrimary else TextGray
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            if (account.isPro) CyanPrimary.copy(alpha = 0.5f) else Color(0xFF2A3A3A)
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                    ) {
+                        Text(
+                            if (account.isPro) "Pro" else "Not Pro",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    if (account.isBanned) {
+                        OutlinedButton(
+                            onClick = onUnban,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary),
+                            border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.5f)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(36.dp),
+                        ) {
+                            Text("Unban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onBan,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = QError),
+                            border = BorderStroke(1.dp, QError.copy(alpha = 0.5f)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(36.dp),
+                        ) {
+                            Text("Ban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             } else {
-                OutlinedButton(
-                    onClick = onBan,
-                    shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = QError),
-                    border = BorderStroke(1.dp, QError.copy(alpha = 0.5f)),
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Text("Ban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    OutlinedButton(
+                        onClick = onShowProDialog,
+                        shape = RoundedCornerShape(10.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(
+                            contentColor = if (account.isPro) CyanPrimary else TextGray
+                        ),
+                        border = BorderStroke(
+                            1.dp,
+                            if (account.isPro) CyanPrimary.copy(alpha = 0.5f) else Color(0xFF2A3A3A)
+                        ),
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(36.dp),
+                    ) {
+                        Text(
+                            if (account.isPro) "Pro" else "Not Pro",
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                    if (account.isBanned) {
+                        OutlinedButton(
+                            onClick = onUnban,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary),
+                            border = BorderStroke(1.dp, CyanPrimary.copy(alpha = 0.5f)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(36.dp),
+                        ) {
+                            Text("Unban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    } else {
+                        OutlinedButton(
+                            onClick = onBan,
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = QError),
+                            border = BorderStroke(1.dp, QError.copy(alpha = 0.5f)),
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(36.dp),
+                        ) {
+                            Text("Ban", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                    }
                 }
             }
         }

@@ -10,6 +10,11 @@ data class ManageUsersState(
     val selectedFilter: Int = 0,
     val showBanDialog: Boolean = false,
     val targetBanAccount: Account? = null,
+    val showProDialog: Boolean = false,
+    val targetProAccount: Account? = null,
+    val showAdminDialog: Boolean = false,
+    val targetAdminAccount: Account? = null,
+    val currentAccountIsMainAdmin: Boolean = false,
     val isLoading: Boolean = true,
     val error: UiText? = null,
 )
