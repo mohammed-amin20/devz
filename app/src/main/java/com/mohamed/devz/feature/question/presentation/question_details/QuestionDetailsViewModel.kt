@@ -587,31 +587,64 @@ class QuestionDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(isPinning = true) }
 
-            val newPinnedUntil = if (isCurrentlyPinned) {
-                null
-            } else {
-                java.time.LocalDateTime.now().plusDays(7).toString()
-            }
-
-            when (val result = questionRepository.getById(questionId)) {
-                is Result.Success -> {
-                    val updatedQuestion = result.data.copy(pinnedUntil = newPinnedUntil)
-                    when (questionRepository.update(updatedQuestion)) {
-                        is Result.Success -> {
-                            _uiState.update {
-                                it.copy(
-                                    question = it.question?.copy(isPinned = !isCurrentlyPinned),
-                                    isPinning = false,
-                                )
+            if (isCurrentlyPinned) {
+                when (val result = questionRepository.getById(questionId)) {
+                    is Result.Success -> {
+                        val updatedQuestion = result.data.copy(pinnedUntil = null)
+                        when (questionRepository.update(updatedQuestion)) {
+                            is Result.Success -> {
+                                _uiState.update {
+                                    it.copy(
+                                        question = it.question?.copy(isPinned = false),
+                                        isPinning = false,
+                                    )
+                                }
+                            }
+                            is Result.Error -> {
+                                _uiState.update { it.copy(isPinning = false) }
                             }
                         }
-                        is Result.Error -> {
-                            _uiState.update { it.copy(isPinning = false) }
-                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update { it.copy(isPinning = false) }
                     }
                 }
-                is Result.Error -> {
-                    _uiState.update { it.copy(isPinning = false) }
+            } else {
+                when (val pinnedResult = questionRepository.getPinnedQuestions()) {
+                    is Result.Success -> {
+                        val existingPin = pinnedResult.data.find { it.accountId == currentAccountId }
+                        val newPinnedUntil = if (existingPin != null) {
+                            questionRepository.update(existingPin.copy(pinnedUntil = null))
+                            existingPin.pinnedUntil
+                        } else {
+                            java.time.LocalDateTime.now().plusHours(24).toString()
+                        }
+
+                        when (val result = questionRepository.getById(questionId)) {
+                            is Result.Success -> {
+                                val updatedQuestion = result.data.copy(pinnedUntil = newPinnedUntil)
+                                when (questionRepository.update(updatedQuestion)) {
+                                    is Result.Success -> {
+                                        _uiState.update {
+                                            it.copy(
+                                                question = it.question?.copy(isPinned = true),
+                                                isPinning = false,
+                                            )
+                                        }
+                                    }
+                                    is Result.Error -> {
+                                        _uiState.update { it.copy(isPinning = false) }
+                                    }
+                                }
+                            }
+                            is Result.Error -> {
+                                _uiState.update { it.copy(isPinning = false) }
+                            }
+                        }
+                    }
+                    is Result.Error -> {
+                        _uiState.update { it.copy(isPinning = false) }
+                    }
                 }
             }
         }
