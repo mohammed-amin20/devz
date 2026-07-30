@@ -612,13 +612,14 @@ class QuestionDetailsViewModel @Inject constructor(
             } else {
                 when (val pinnedResult = questionRepository.getPinnedQuestions()) {
                     is Result.Success -> {
-                        val existingPin = pinnedResult.data.find { it.accountId == currentAccountId }
-                        val newPinnedUntil = if (existingPin != null) {
+                        val now = java.time.LocalDateTime.now().toString()
+                        val existingPin = pinnedResult.data
+                            .filter { it.pinnedUntil != null && it.pinnedUntil >= now }
+                            .find { it.accountId == currentAccountId }
+                        if (existingPin != null) {
                             questionRepository.update(existingPin.copy(pinnedUntil = null))
-                            existingPin.pinnedUntil
-                        } else {
-                            java.time.LocalDateTime.now().plusHours(24).toString()
                         }
+                        val newPinnedUntil = java.time.LocalDateTime.now().plusHours(24).toString()
 
                         when (val result = questionRepository.getById(questionId)) {
                             is Result.Success -> {

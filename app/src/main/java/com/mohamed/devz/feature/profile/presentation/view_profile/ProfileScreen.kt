@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Link
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.automirrored.filled.Help
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -98,6 +99,7 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.components.Pro
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileQuestionCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
+import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -121,6 +123,7 @@ fun ProfileScreen(
     onDialogVisibilityChanged: (Boolean) -> Unit = {},
     onProfileClick: (Int) -> Unit = {},
     onAdminPanelClick: () -> Unit = {},
+    onJobClick: (Int) -> Unit = {},
     navigateUp: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -319,10 +322,11 @@ fun ProfileScreen(
 
             else -> {
                 var selectedTab by remember { mutableIntStateOf(0) }
-                val tabs = listOf(
-                    "${if(uiState.isOwnProfile) "MY" else "THEIR"} QUESTIONS",
-                    "${if (uiState.isOwnProfile) "MY" else "THEIR"} ANSWERS"
-                )
+                val tabs = buildList {
+                    add("${if(uiState.isOwnProfile) "MY" else "THEIR"} QUESTIONS")
+                    add("${if (uiState.isOwnProfile) "MY" else "THEIR"} ANSWERS")
+                    if (uiState.isOwnProfile) add("APPLICATIONS")
+                }
 
                 val pullRefreshState = rememberPullToRefreshState()
                 PullToRefreshBox(
@@ -738,50 +742,6 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                     }
 
-                    // ── My Applications ────────────────────────────────────────────
-                    if (uiState.isOwnProfile) {
-                        item {
-                            LaunchedEffect(Unit) {
-                                viewModel.onAction(ProfileAction.LoadApplications)
-                            }
-                        }
-                        item {
-                            Column(modifier = Modifier.fillMaxWidth()) {
-                                Text(
-                                    text = "MY APPLICATIONS",
-                                    color = TextGray,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 2.sp,
-                                    style = MaterialTheme.typography.titleLarge,
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                if (uiState.isLoadingApplications) {
-                                    CircularProgressIndicator(
-                                        color = CyanPrimary,
-                                        modifier = Modifier
-                                            .size(24.dp)
-                                            .align(Alignment.CenterHorizontally),
-                                        strokeWidth = 2.dp,
-                                    )
-                                } else if (uiState.myApplications.isEmpty()) {
-                                    Text(
-                                        text = "No applications yet",
-                                        color = TextGray,
-                                        fontSize = 13.sp,
-                                        modifier = Modifier.padding(vertical = 8.dp),
-                                    )
-                                } else {
-                                    uiState.myApplications.forEach { app ->
-                                        ApplicationCard(app)
-                                        Spacer(modifier = Modifier.height(8.dp))
-                                    }
-                                }
-                                Spacer(modifier = Modifier.height(16.dp))
-                            }
-                        }
-                    }
-
                     // ── Skills & Social Links (collapsible) ────────────────────────
                     item {
                         var sectionsExpanded by remember { mutableStateOf(false) }
@@ -1011,40 +971,67 @@ fun ProfileScreen(
                     }
 
                     // ── Tab content ───────────────────────────────────────────────
-                    if (selectedTab == 0) {
-                        if (uiState.myQuestions.isEmpty()) {
-                            item {
-                                EmptyTabContent(
-                                    icon = Icons.AutoMirrored.Filled.Help,
-                                    title = "No questions yet",
-                                    subtitle = "Your questions will appear here"
-                                )
-                            }
-                        } else {
-                            items(uiState.myQuestions, key = { it.id }) { question ->
-                                ProfileQuestionCard(
-                                    question = question,
-                                    onClick = { onQuestionClick(question.id) }
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
+                    when (selectedTab) {
+                        0 -> {
+                            if (uiState.myQuestions.isEmpty()) {
+                                item {
+                                    EmptyTabContent(
+                                        icon = Icons.AutoMirrored.Filled.Help,
+                                        title = "No questions yet",
+                                        subtitle = "Your questions will appear here"
+                                    )
+                                }
+                            } else {
+                                items(uiState.myQuestions, key = { it.id }) { question ->
+                                    ProfileQuestionCard(
+                                        question = question,
+                                        onClick = { onQuestionClick(question.id) }
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
                             }
                         }
-                    } else {
-                        if (uiState.myAnswers.isEmpty()) {
-                            item {
-                                EmptyTabContent(
-                                    icon = Icons.Filled.Forum,
-                                    title = "No answers yet",
-                                    subtitle = "Your answers will appear here"
-                                )
+                        1 -> {
+                            if (uiState.myAnswers.isEmpty()) {
+                                item {
+                                    EmptyTabContent(
+                                        icon = Icons.Filled.Forum,
+                                        title = "No answers yet",
+                                        subtitle = "Your answers will appear here"
+                                    )
+                                }
+                            } else {
+                                items(uiState.myAnswers, key = { it.id }) { answer ->
+                                    ProfileAnswerCard(
+                                        answer = answer,
+                                        onClick = { onAnswerClick(answer.questionId) }
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
                             }
-                        } else {
-                            items(uiState.myAnswers, key = { it.id }) { answer ->
-                                ProfileAnswerCard(
-                                    answer = answer,
-                                    onClick = { onAnswerClick(answer.questionId) }
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
+                        }
+                        2 -> {
+                            item {
+                                LaunchedEffect(Unit) {
+                                    viewModel.onAction(ProfileAction.LoadApplications)
+                                }
+                            }
+                            if (uiState.myApplications.isEmpty()) {
+                                item {
+                                    EmptyTabContent(
+                                        icon = Icons.Filled.Business,
+                                        title = "No applications yet",
+                                        subtitle = "Your job applications will appear here"
+                                    )
+                                }
+                            } else {
+                                items(uiState.myApplications, key = { it.id }) { app ->
+                                    ApplicationCard(
+                                        application = app,
+                                        onClick = { onJobClick(app.jobId) },
+                                    )
+                                    Spacer(modifier = Modifier.height(12.dp))
+                                }
                             }
                         }
                     }
@@ -1214,6 +1201,7 @@ fun ProfileScreen(
 @Composable
 private fun ApplicationCard(
     application: ProfileJobApplicationUiModel,
+    onClick: () -> Unit = {},
 ) {
     val statusColor = when (application.status) {
         "accepted" -> Color(0xFF4CAF50)
@@ -1224,7 +1212,9 @@ private fun ApplicationCard(
     Surface(
         shape = RoundedCornerShape(12.dp),
         color = DevzCard,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
     ) {
         Row(
             modifier = Modifier.padding(14.dp),
@@ -1243,6 +1233,14 @@ private fun ApplicationCard(
                         text = application.companyName,
                         color = CyanPrimary,
                         fontSize = 12.sp,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+                if (application.createdAt.isNotBlank()) {
+                    Text(
+                        text = formatTimestamp(application.createdAt),
+                        color = TextGray,
+                        fontSize = 11.sp,
                         style = MaterialTheme.typography.bodyMedium,
                     )
                 }

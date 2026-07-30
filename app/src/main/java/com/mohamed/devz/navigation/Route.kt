@@ -71,4 +71,9 @@ sealed interface Route {
 
     @Serializable
     data object Banned : Route
+
+    @Serializable
+    data class CompanyJobDetail(
+        val id: Int
+    ) : Route
 }

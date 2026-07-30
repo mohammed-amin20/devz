@@ -73,11 +73,11 @@ class JobRepositoryImpl @Inject constructor(
             val data = remoteDataSource.jobPosting.insertJobPosting(posting.toData())
             Result.Success(data.toDomain())
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown("Database error"))
+            Result.Error(Error.Unknown(e.message ?: "Database error"))
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {
-            Result.Error(Error.Unknown("Unknown error"))
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
         }
     }
 
@@ -111,6 +111,32 @@ class JobRepositoryImpl @Inject constructor(
         return try {
             val data = remoteDataSource.jobApplication.getJobApplicationsByApplicantId(applicantId)
             Result.Success(data.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun getApplicationsByJobId(jobId: Int): Result<List<JobApplication>, Error> {
+        return try {
+            val data = remoteDataSource.jobApplication.getJobApplicationsByJobId(jobId)
+            Result.Success(data.map { it.toDomain() })
+        } catch (e: PostgrestRestException) {
+            Result.Error(Error.Unknown("Database error"))
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown("Unknown error"))
+        }
+    }
+
+    override suspend fun updateApplicationStatus(applicationId: Int, status: String): Result<Unit, Error> {
+        return try {
+            remoteDataSource.jobApplication.updateJobApplicationStatus(applicationId, status)
+            Result.Success(Unit)
         } catch (e: PostgrestRestException) {
             Result.Error(Error.Unknown("Database error"))
         } catch (e: IOException) {

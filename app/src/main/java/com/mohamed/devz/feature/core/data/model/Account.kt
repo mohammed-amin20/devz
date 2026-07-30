@@ -48,4 +48,7 @@ data class Account(
     @SerialName("account_type")
     @EncodeDefault(EncodeDefault.Mode.ALWAYS)
     val accountType: String = "developer",
+    @SerialName("phone_number")
+    @EncodeDefault(EncodeDefault.Mode.ALWAYS)
+    val phoneNumber: String = "",
 )

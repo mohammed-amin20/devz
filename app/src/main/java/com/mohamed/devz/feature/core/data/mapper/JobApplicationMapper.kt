@@ -10,6 +10,8 @@ fun DataJobApplication.toDomain(): DomainJobApplication = DomainJobApplication(
     coverLetter = coverLetter,
     status = status,
     createdAt = createdAt,
+    email = email,
+    whatsapp = whatsapp,
 )
 
 fun DomainJobApplication.toData(): DataJobApplication = DataJobApplication(
@@ -19,4 +21,6 @@ fun DomainJobApplication.toData(): DataJobApplication = DataJobApplication(
     coverLetter = coverLetter,
     status = status,
     createdAt = createdAt,
+    email = email,
+    whatsapp = whatsapp,
 )

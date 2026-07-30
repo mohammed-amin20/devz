@@ -11,4 +11,6 @@ data class JobApplication(
     @SerialName("cover_letter") val coverLetter: String = "",
     val status: String = "pending",
     @SerialName("created_at") val createdAt: String = "",
+    val email: String = "",
+    val whatsapp: String = "",
 )

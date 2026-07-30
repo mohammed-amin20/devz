@@ -69,13 +69,14 @@ class PostJobViewModel @Inject constructor(
                 accountId = accountId,
             )
 
-            when (jobRepository.insertJobPosting(posting)) {
+            val result = jobRepository.insertJobPosting(posting)
+            when (result) {
                 is Result.Success -> {
                     _uiState.update { it.copy(isLoading = false) }
                     onSuccess()
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("Failed to post job")) }
+                    _uiState.update { it.copy(isLoading = false, error = result.error.toUIText()) }
                 }
             }
         }

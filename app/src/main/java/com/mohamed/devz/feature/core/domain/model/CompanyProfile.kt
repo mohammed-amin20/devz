@@ -8,5 +8,6 @@ data class CompanyProfile(
     val website: String = "",
     val description: String = "",
     val subscriptionStatus: String = "pending",
-    val subscriptionExpiry: String = "",
+    val subscriptionExpiry: String? = null,
+    val createdAt: String = "",
 )

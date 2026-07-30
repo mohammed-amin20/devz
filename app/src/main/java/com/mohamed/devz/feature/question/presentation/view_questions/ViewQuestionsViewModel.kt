@@ -101,7 +101,8 @@ class ViewQuestionsViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = questionRepository.getPinnedQuestions()) {
                 is Result.Success -> {
-                    val pinned = result.data
+                    val now = java.time.LocalDateTime.now().toString()
+                    val pinned = result.data.filter { it.pinnedUntil != null && it.pinnedUntil >= now }
                     cacheAuthors(pinned.map { it.accountId })
                     _uiState.update {
                         it.copy(

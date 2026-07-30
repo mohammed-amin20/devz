@@ -28,6 +28,7 @@ import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 
 @Composable
 fun JobCard(
@@ -90,7 +91,7 @@ fun JobCard(
                     }
                     if (job.createdAt.isNotBlank()) {
                         Text(
-                            text = job.createdAt.take(10),
+                            text = formatTimestamp(job.createdAt),
                             color = TextGray,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.bodyMedium,

@@ -57,6 +57,7 @@ import com.mohamed.devz.ui.theme.QPrimary
 import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -213,27 +214,55 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Posted ${job.createdAt.take(10)}",
+                        text = "Posted ${formatTimestamp(job.createdAt)}",
                         color = TextGray,
                         fontSize = 12.sp,
                         style = MaterialTheme.typography.bodyMedium,
                     )
 
-                    Spacer(modifier = Modifier.height(32.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = "${job.applicantCount} applicant(s)",
+                            color = QOnSurfaceVariant,
+                            fontSize = 14.sp,
+                        )
+                        Spacer(modifier = Modifier.width(12.dp))
+                        val statusColor = if (job.status == "filled") Color(0xFFFFA726) else Color(0xFF4CAF50)
+                        val statusLabel = if (job.status == "filled") "Reserved" else "Offered"
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = statusColor.copy(alpha = 0.15f),
+                        ) {
+                            Text(
+                                text = statusLabel,
+                                color = statusColor,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     Button(
                         onClick = { viewModel.showApplySheet() },
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
+                        enabled = job.status != "filled",
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CyanPrimary,
                             contentColor = Color(0xFF00363E),
+                            disabledContainerColor = TextGray.copy(alpha = 0.3f),
+                            disabledContentColor = TextGray,
                         ),
                     ) {
                         Text(
-                            text = "\u2709\uFE0F Apply",
+                            text = if (job.status == "filled") "Reserved" else "\u2709\uFE0F Apply",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                         )
@@ -269,14 +298,54 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     TextField(
+                        value = uiState.email,
+                        onValueChange = { viewModel.onAction(JobDetailAction.EmailChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Email address", color = TextGray) },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = QSurfaceHigh,
+                            unfocusedContainerColor = QSurfaceHigh,
+                            focusedIndicatorColor = CyanPrimary,
+                            unfocusedIndicatorColor = QOutline,
+                            cursorColor = CyanPrimary,
+                            focusedTextColor = QOnSurface,
+                            unfocusedTextColor = QOnSurface,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    TextField(
+                        value = uiState.whatsapp,
+                        onValueChange = { viewModel.onAction(JobDetailAction.WhatsAppChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("WhatsApp number", color = TextGray) },
+                        singleLine = true,
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = QSurfaceHigh,
+                            unfocusedContainerColor = QSurfaceHigh,
+                            focusedIndicatorColor = CyanPrimary,
+                            unfocusedIndicatorColor = QOutline,
+                            cursorColor = CyanPrimary,
+                            focusedTextColor = QOnSurface,
+                            unfocusedTextColor = QOnSurface,
+                        ),
+                        shape = RoundedCornerShape(12.dp),
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    TextField(
                         value = uiState.coverLetter,
                         onValueChange = { viewModel.onAction(JobDetailAction.CoverLetterChanged(it)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(200.dp),
+                            .height(160.dp),
                         placeholder = {
                             Text(
-                                "Write your cover letter...",
+                                "Write your proposal...",
                                 color = TextGray,
                             )
                         },
@@ -316,7 +385,7 @@ fun JobDetailScreen(
                             )
                         } else {
                             Text(
-                                text = "Submit Application",
+                                text = "Save",
                                 fontSize = 15.sp,
                                 fontWeight = FontWeight.Bold,
                             )

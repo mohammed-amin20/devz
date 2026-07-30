@@ -6,6 +6,7 @@ data class CompanyJobUiModel(
     val id: Int,
     val title: String,
     val status: String,
+    val createdAt: String = "",
 )
 
 data class CompanyDashboardState(
@@ -13,7 +14,9 @@ data class CompanyDashboardState(
     val website: String = "",
     val description: String = "",
     val subscriptionStatus: String = "pending",
-    val jobPostings: List<CompanyJobUiModel> = emptyList(),
+    val offeredJobs: List<CompanyJobUiModel> = emptyList(),
+    val reservedJobs: List<CompanyJobUiModel> = emptyList(),
+    val selectedTab: Int = 0,
     val isLoading: Boolean = true,
     val error: UiText? = null,
 )

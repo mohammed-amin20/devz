@@ -64,6 +64,7 @@ fun HomeScreen(
     navigateToEditProfile: () -> Unit,
     navigateToProfile: (Int) -> Unit,
     navigateToJobDetail: (Int) -> Unit,
+    navigateToCompanyJobDetail: (Int) -> Unit = {},
     navigateToPostJob: () -> Unit = {},
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
@@ -153,36 +154,38 @@ fun HomeScreen(
             icon = Icons.Rounded.Person,
             index = 4,
             onClick = { viewModel.onSelectedIndexChange(4) },
-            content = if (accountType == "company") {
-                {
-                    CompanyDashboardScreen(
-                        onPostJob = navigateToPostJob,
-                    )
-                }
-            } else {
-                {
-                    ProfileScreen(
-                        onEditProfile = navigateToEditProfile,
-                        onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
-                        onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
-                        onLogout = onLogout,
-                        refreshTrigger = profileRefreshCounter,
-                        onFullScreenChanged = { isFullScreenImage = it },
-                        onDialogVisibilityChanged = { isDialogOpen = it },
-                        onAdminPanelClick = navigateToAdminDashboard,
-                        onProfileClick = { accountId ->
-                            if (accountId == currentAccountId) {
-                                viewModel.onSelectedIndexChange(4)
-                            } else {
-                                navigateToProfile(accountId)
-                            }
-                        },
-                        navigateUp = { viewModel.onSelectedIndexChange(0) }
-                    )
-                }
+            content = {
+                ProfileScreen(
+                    onEditProfile = navigateToEditProfile,
+                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onLogout = onLogout,
+                    refreshTrigger = profileRefreshCounter,
+                    onFullScreenChanged = { isFullScreenImage = it },
+                    onDialogVisibilityChanged = { isDialogOpen = it },
+                    onAdminPanelClick = navigateToAdminDashboard,
+                    onProfileClick = { accountId ->
+                        if (accountId == currentAccountId) {
+                            viewModel.onSelectedIndexChange(4)
+                        } else {
+                            navigateToProfile(accountId)
+                        }
+                    },
+                    navigateUp = { viewModel.onSelectedIndexChange(0) }
+                )
             }
         )
     )
+
+    if (accountType == "company") {
+        CompanyDashboardScreen(
+            onPostJob = navigateToPostJob,
+            onJobClick = navigateToCompanyJobDetail,
+            onLogout = onLogout,
+            modifier = modifier,
+        )
+        return
+    }
 
     BackHandler(enabled = selectedIndex != 0) {
         viewModel.onSelectedIndexChange(0)

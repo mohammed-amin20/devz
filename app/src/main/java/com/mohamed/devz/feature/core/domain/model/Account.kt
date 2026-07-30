@@ -21,4 +21,5 @@ data class Account(
     val isMainAdmin: Boolean = false,
     val isPro: Boolean = false,
     val accountType: String = "developer",
+    val phoneNumber: String = "",
 )

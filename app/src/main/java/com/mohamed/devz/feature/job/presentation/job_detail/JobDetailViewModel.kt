@@ -27,6 +27,8 @@ class JobDetailViewModel @Inject constructor(
     fun onAction(action: JobDetailAction) {
         when (action) {
             is JobDetailAction.LoadJob -> loadJob(action.jobId)
+            is JobDetailAction.EmailChanged -> _uiState.update { it.copy(email = action.value) }
+            is JobDetailAction.WhatsAppChanged -> _uiState.update { it.copy(whatsapp = action.value) }
             is JobDetailAction.CoverLetterChanged -> _uiState.update { it.copy(coverLetter = action.value) }
             is JobDetailAction.SubmitApplication -> submitApplication(action.onSuccess)
             is JobDetailAction.DismissError -> _uiState.update { it.copy(error = null) }
@@ -40,6 +42,8 @@ class JobDetailViewModel @Inject constructor(
             when (val result = jobRepository.getJobPostingById(jobId)) {
                 is Result.Success -> {
                     val job = result.data
+                    val appsResult = jobRepository.getApplicationsByJobId(jobId)
+                    val applicantCount = (appsResult as? Result.Success)?.data?.size ?: 0
                     _uiState.update {
                         it.copy(
                             job = JobDetailUiModel(
@@ -50,6 +54,8 @@ class JobDetailViewModel @Inject constructor(
                                 salaryRange = job.salaryRange,
                                 jobType = job.jobType,
                                 createdAt = job.createdAt,
+                                status = job.status,
+                                applicantCount = applicantCount,
                             ),
                             isLoading = false,
                         )
@@ -91,6 +97,8 @@ class JobDetailViewModel @Inject constructor(
                 coverLetter = coverLetter,
                 status = "pending",
                 createdAt = "",
+                email = state.email.trim(),
+                whatsapp = state.whatsapp.trim(),
             )
 
             when (val result = jobRepository.insertApplication(application)) {
@@ -100,6 +108,8 @@ class JobDetailViewModel @Inject constructor(
                             isSubmitting = false,
                             showApplySheet = false,
                             applicationSuccess = true,
+                            email = "",
+                            whatsapp = "",
                             coverLetter = "",
                         )
                     }

@@ -4,6 +4,8 @@ import com.mohamed.devz.feature.core.presentation.util.UiText
 
 data class JobDetailState(
     val job: JobDetailUiModel? = null,
+    val email: String = "",
+    val whatsapp: String = "",
     val coverLetter: String = "",
     val isLoading: Boolean = false,
     val isSubmitting: Boolean = false,
@@ -20,4 +22,6 @@ data class JobDetailUiModel(
     val salaryRange: String,
     val jobType: String,
     val createdAt: String,
+    val status: String = "approved",
+    val applicantCount: Int = 0,
 )

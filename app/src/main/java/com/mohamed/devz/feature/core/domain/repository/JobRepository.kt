@@ -14,4 +14,6 @@ interface JobRepository {
     suspend fun updateJobPosting(posting: JobPosting): Result<Unit, Error>
     suspend fun insertApplication(application: JobApplication): Result<JobApplication, Error>
     suspend fun getApplicationsByApplicantId(applicantId: Int): Result<List<JobApplication>, Error>
+    suspend fun getApplicationsByJobId(jobId: Int): Result<List<JobApplication>, Error>
+    suspend fun updateApplicationStatus(applicationId: Int, status: String): Result<Unit, Error>
 }

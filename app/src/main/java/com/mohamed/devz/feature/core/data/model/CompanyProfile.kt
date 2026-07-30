@@ -17,5 +17,7 @@ data class CompanyProfile(
     @SerialName("subscription_status")
     val subscriptionStatus: String = "pending",
     @SerialName("subscription_expiry")
-    val subscriptionExpiry: String = "",
+    val subscriptionExpiry: String? = null,
+    @SerialName("created_at")
+    val createdAt: String = "",
 )

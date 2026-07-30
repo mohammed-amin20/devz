@@ -94,7 +94,7 @@ fun ManageCompaniesScreen(
                         CompanyCard(
                             company = company,
                             onToggle = { activate ->
-                                viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.id, activate))
+                                viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
                             },
                         )
                     }

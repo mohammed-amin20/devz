@@ -32,6 +32,7 @@ import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.job.presentation.job_detail.JobDetailScreen
 import com.mohamed.devz.feature.job.presentation.post_job.PostJobScreen
 import com.mohamed.devz.feature.company.presentation.PendingApprovalScreen
+import com.mohamed.devz.feature.company.presentation.company_job_detail.CompanyJobDetailScreen
 import com.mohamed.devz.feature.admin.presentation.manage_jobs.ManageJobsScreen
 import com.mohamed.devz.feature.admin.presentation.manage_companies.ManageCompaniesScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
@@ -42,6 +43,7 @@ fun DevzNavHost(
     modifier: Modifier = Modifier,
     pendingQuestionId: Int? = null,
     pendingActorId: Int? = null,
+    pendingJobId: Int? = null,
 ) {
     val navController = rememberNavController()
     var profileRefreshCounter by remember { mutableIntStateOf(0) }
@@ -116,7 +118,7 @@ fun DevzNavHost(
                 .getStateFlow("switchToProfileTab", false)
                 .collectAsState()
 
-            LaunchedEffect(pendingQuestionId, pendingActorId) {
+            LaunchedEffect(pendingQuestionId, pendingActorId, pendingJobId) {
                 if (!handledDeepLink) {
                     when {
                         pendingActorId != null -> {
@@ -126,6 +128,10 @@ fun DevzNavHost(
                         pendingQuestionId != null -> {
                             handledDeepLink = true
                             navController.navigate(Route.QuestionDetails(pendingQuestionId))
+                        }
+                        pendingJobId != null -> {
+                            handledDeepLink = true
+                            navController.navigate(Route.JobDetail(pendingJobId))
                         }
                     }
                 }
@@ -146,6 +152,9 @@ fun DevzNavHost(
                 },
                 navigateToJobDetail = { jobId ->
                     navController.navigate(Route.JobDetail(jobId))
+                },
+                navigateToCompanyJobDetail = { jobId ->
+                    navController.navigate(Route.CompanyJobDetail(jobId))
                 },
                 navigateToPostJob = {
                     navController.navigate(Route.PostJob)
@@ -230,6 +239,7 @@ fun DevzNavHost(
                 onAnswerClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
                 onLogout = {},
                 onProfileClick = { id -> navController.navigate(Route.Profile(id)) },
+                onJobClick = { id -> navController.navigate(Route.JobDetail(id)) },
                 navigateUp = { navController.navigateUp() },
                 modifier = modifier
             )
@@ -294,6 +304,17 @@ fun DevzNavHost(
         composable<Route.ManageCompanies> {
             ManageCompaniesScreen(
                 onNavigateUp = { navController.navigateUp() },
+            )
+        }
+        composable<Route.CompanyJobDetail> {
+            val id = it.toRoute<Route.CompanyJobDetail>().id
+            CompanyJobDetailScreen(
+                jobId = id,
+                navigateUp = { navController.navigateUp() },
+                onProfileClick = { accountId ->
+                    navController.navigate(Route.Profile(accountId))
+                },
+                modifier = modifier,
             )
         }
         composable<Route.Banned> {

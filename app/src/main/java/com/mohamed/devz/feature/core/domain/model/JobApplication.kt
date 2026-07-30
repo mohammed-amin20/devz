@@ -7,4 +7,6 @@ data class JobApplication(
     val coverLetter: String = "",
     val status: String = "pending",
     val createdAt: String = "",
+    val email: String = "",
+    val whatsapp: String = "",
 )

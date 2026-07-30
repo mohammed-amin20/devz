@@ -24,6 +24,7 @@ fun DataAccount.toDomain(): DomainAccount = DomainAccount(
     isMainAdmin = isMainAdmin,
     isPro = isPro,
     accountType = accountType,
+    phoneNumber = phoneNumber,
 )
 
 fun DomainAccount.toData(): DataAccount = DataAccount(
@@ -47,4 +48,5 @@ fun DomainAccount.toData(): DataAccount = DataAccount(
     isMainAdmin = isMainAdmin,
     isPro = isPro,
     accountType = accountType,
+    phoneNumber = phoneNumber,
 )

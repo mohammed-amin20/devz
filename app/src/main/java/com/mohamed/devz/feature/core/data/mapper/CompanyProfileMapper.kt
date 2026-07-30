@@ -12,6 +12,7 @@ fun DataCompanyProfile.toDomain(): DomainCompanyProfile = DomainCompanyProfile(
     description = description,
     subscriptionStatus = subscriptionStatus,
     subscriptionExpiry = subscriptionExpiry,
+    createdAt = createdAt,
 )
 
 fun DomainCompanyProfile.toData(): DataCompanyProfile = DataCompanyProfile(
@@ -23,4 +24,5 @@ fun DomainCompanyProfile.toData(): DataCompanyProfile = DataCompanyProfile(
     description = description,
     subscriptionStatus = subscriptionStatus,
     subscriptionExpiry = subscriptionExpiry,
+    createdAt = createdAt,
 )

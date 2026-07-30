@@ -50,6 +50,8 @@ class DevZRemoteDataSourceImpl(
                     put("fcm_token", account.fcmToken)
                     put("follower_ids", account.followerIds)
                     put("following_ids", account.followingIds)
+                    put("account_type", account.accountType)
+                    put("phone_number", account.phoneNumber)
                 }
 
                 return db.from(tableName)
@@ -224,9 +226,6 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         order(column = "pinned_until", order = Order.DESCENDING)
-                        filter {
-                            gt("pinned_until", "now()")
-                        }
                     }
                     .decodeList()
             }
@@ -547,8 +546,17 @@ class DevZRemoteDataSourceImpl(
             }
 
             override suspend fun updateJobPosting(posting: JobPosting) {
+                val json = buildJsonObject {
+                    put("company_name", posting.companyName)
+                    put("title", posting.title)
+                    put("description", posting.description)
+                    put("salary_range", posting.salaryRange)
+                    put("job_type", posting.jobType)
+                    put("status", posting.status)
+                    put("account_id", posting.accountId)
+                }
                 db.from(tableName)
-                    .update(posting) {
+                    .update(json) {
                         filter { eq("id", posting.id) }
                     }
             }
@@ -575,7 +583,9 @@ class DevZRemoteDataSourceImpl(
                     put("website", profile.website)
                     put("description", profile.description)
                     put("subscription_status", profile.subscriptionStatus)
-                    put("subscription_expiry", profile.subscriptionExpiry)
+                    if (profile.subscriptionExpiry != null) {
+                        put("subscription_expiry", profile.subscriptionExpiry)
+                    }
                 }
                 return db.from(tableName)
                     .insert(json) {
@@ -608,6 +618,8 @@ class DevZRemoteDataSourceImpl(
                     put("applicant_id", application.applicantId)
                     put("cover_letter", application.coverLetter)
                     put("status", application.status)
+                    put("email", application.email)
+                    put("whatsapp", application.whatsapp)
                 }
 
                 return db.from(tableName)
@@ -624,6 +636,22 @@ class DevZRemoteDataSourceImpl(
                         order(column = "created_at", order = Order.DESCENDING)
                     }
                     .decodeList()
+            }
+
+            override suspend fun getJobApplicationsByJobId(jobId: Int): List<JobApplication> {
+                return db.from(tableName)
+                    .select {
+                        filter { eq("job_id", jobId) }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun updateJobApplicationStatus(id: Int, status: String) {
+                db.from(tableName)
+                    .update(buildJsonObject { put("status", status) }) {
+                        filter { eq("id", id) }
+                    }
             }
         }
 }

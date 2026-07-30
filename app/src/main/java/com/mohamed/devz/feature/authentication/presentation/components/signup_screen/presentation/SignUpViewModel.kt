@@ -98,13 +98,22 @@ class SignUpViewModel @Inject constructor(
                 is Result.Success -> {
                     val insertedAccount = result.data
                     if (state.isCompany) {
-                        companyProfileRepository.insert(
+                        when (companyProfileRepository.insert(
                             CompanyProfile(
                                 userId = insertedAccount.id,
                                 companyName = state.companyName,
                                 subscriptionStatus = "pending",
                             )
-                        )
+                        )) {
+                            is Result.Error -> {
+                                _uiState.update { it.copy(
+                                    error = UiText.DynamicString("Account created but failed to create company profile. Please contact support."),
+                                    isLoading = false,
+                                ) }
+                                return@launch
+                            }
+                            is Result.Success -> { /* proceed */ }
+                        }
                     }
                     _uiState.update { it.copy(isLoading = false) }
                     userPreferencesRepository.setLoggedIn()

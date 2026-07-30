@@ -33,6 +33,17 @@ class CompanyDashboardViewModel @Inject constructor(
     fun onAction(action: CompanyDashboardAction) {
         when (action) {
             CompanyDashboardAction.Refresh -> load()
+            is CompanyDashboardAction.SelectTab -> {
+                _uiState.update { it.copy(selectedTab = action.index) }
+            }
+            CompanyDashboardAction.Logout -> logout()
+        }
+    }
+
+    fun logout() {
+        viewModelScope.launch {
+            userPreferencesRepository.setLoggedOut()
+            userPreferencesRepository.clearAccountId()
         }
     }
 
@@ -52,15 +63,17 @@ class CompanyDashboardViewModel @Inject constructor(
                         val jobsResult = jobRepository.getJobPostingsByAccountId(accountId)
                         val jobs = (jobsResult as? Result.Success)?.data ?: emptyList()
 
+                        val allJobs = jobs.map { j ->
+                            CompanyJobUiModel(id = j.id, title = j.title, status = j.status, createdAt = j.createdAt)
+                        }
                         _uiState.update {
                             it.copy(
                                 companyName = profile.companyName,
                                 website = profile.website,
                                 description = profile.description,
                                 subscriptionStatus = profile.subscriptionStatus,
-                                jobPostings = jobs.map { j ->
-                                    CompanyJobUiModel(id = j.id, title = j.title, status = j.status)
-                                },
+                                offeredJobs = allJobs.filter { j -> j.status == "approved" || j.status == "active" },
+                                reservedJobs = allJobs.filter { j -> j.status == "filled" },
                                 isLoading = false,
                             )
                         }

@@ -2,7 +2,6 @@ package com.mohamed.devz.feature.question.presentation.view_questions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -262,11 +261,12 @@ private fun ForYouFeed(
 ) {
     val feedItems = remember(uiState.questions, uiState.pinnedQuestions, uiState.isPro) {
         val pinned = uiState.pinnedQuestions.map { FeedItem.QuestionItem(it) }
+        val pinnedIds = uiState.pinnedQuestions.map { it.id }.toSet()
         val regular = if (uiState.isPro) {
-            uiState.questions.map { FeedItem.QuestionItem(it) }
+            uiState.questions.filter { it.id !in pinnedIds }.map { FeedItem.QuestionItem(it) }
         } else {
             buildList<FeedItem> {
-                uiState.questions.forEachIndexed { index, question ->
+                uiState.questions.filter { it.id !in pinnedIds }.forEachIndexed { index, question ->
                     add(FeedItem.QuestionItem(question))
                     if ((index + 1) % 5 == 0 && index < uiState.questions.size - 1) {
                         add(FeedItem.AdBanner)
@@ -407,12 +407,13 @@ private fun FollowingFeed(
     onQuestionClick: (Int) -> Unit,
     onAuthorClick: (Int) -> Unit,
 ) {
-    val feedItems = remember(uiState.questions, uiState.isPro) {
+    val feedItems = remember(uiState.questions, uiState.pinnedQuestions, uiState.isPro) {
+        val pinnedIds = uiState.pinnedQuestions.map { it.id }.toSet()
         if (uiState.isPro) {
-            uiState.questions.map { FeedItem.QuestionItem(it) }
+            uiState.questions.filter { it.id !in pinnedIds }.map { FeedItem.QuestionItem(it) }
         } else {
             buildList<FeedItem> {
-                uiState.questions.forEachIndexed { index, question ->
+                uiState.questions.filter { it.id !in pinnedIds }.forEachIndexed { index, question ->
                     add(FeedItem.QuestionItem(question))
                     if ((index + 1) % 5 == 0 && index < uiState.questions.size - 1) {
                         add(FeedItem.AdBanner)

@@ -103,6 +103,7 @@ class ProfileViewModel @Inject constructor(
                         val job = (jobRepository.getJobPostingById(app.jobId) as? Result.Success)?.data
                         ProfileJobApplicationUiModel(
                             id = app.id,
+                            jobId = app.jobId,
                             jobTitle = job?.title ?: "Unknown",
                             companyName = job?.companyName ?: "",
                             status = app.status,

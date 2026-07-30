@@ -135,6 +135,8 @@ interface DevZRemoteDataSource {
     interface JobApplicationTable {
         suspend fun insertJobApplication(application: JobApplication): JobApplication
         suspend fun getJobApplicationsByApplicantId(applicantId: Int): List<JobApplication>
+        suspend fun getJobApplicationsByJobId(jobId: Int): List<JobApplication>
+        suspend fun updateJobApplicationStatus(id: Int, status: String)
     }
 
     interface CompanyProfileTable {

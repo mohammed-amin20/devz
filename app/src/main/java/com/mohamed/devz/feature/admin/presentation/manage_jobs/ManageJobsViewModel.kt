@@ -48,11 +48,12 @@ class ManageJobsViewModel @Inject constructor(
 
     fun confirmApprove() {
         val job = _uiState.value.targetJob ?: return
-        _uiState.update { it.copy(isApproving = true) }
+        _uiState.update { it.copy(showConfirmDialog = false, targetJob = null, isApproving = true) }
         viewModelScope.launch {
             val updated = job.copy(status = "approved")
             when (jobRepository.updateJobPosting(updated)) {
                 is Result.Success -> {
+                    _uiState.update { it.copy(isApproving = false) }
                     sendPushNotification(job.accountId, "Job Approved", "Your job \"${job.title}\" has been approved!")
                     load()
                 }
@@ -61,7 +62,6 @@ class ManageJobsViewModel @Inject constructor(
                 }
             }
         }
-        _uiState.update { it.copy(showConfirmDialog = false, targetJob = null, isApproving = false) }
     }
 
     private fun rejectJob(job: JobPosting) {
