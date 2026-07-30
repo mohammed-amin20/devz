@@ -27,6 +27,8 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
@@ -34,6 +36,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +50,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
+import com.mohamed.devz.ui.theme.QError
 import com.mohamed.devz.ui.theme.QOnSurface
 import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.QOutline
@@ -52,6 +58,11 @@ import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun CompanyDashboardScreen(
@@ -62,6 +73,7 @@ fun CompanyDashboardScreen(
     viewModel: CompanyDashboardViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize().background(QBg)) {
         Column(
@@ -88,10 +100,7 @@ fun CompanyDashboardScreen(
                         Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = TextGray)
                     }
                     IconButton(
-                        onClick = {
-                            viewModel.onAction(CompanyDashboardAction.Logout)
-                            onLogout()
-                        }
+                        onClick = { showLogoutDialog = true }
                     ) {
                         Icon(
                             Icons.AutoMirrored.Filled.ExitToApp,
@@ -301,6 +310,83 @@ fun CompanyDashboardScreen(
                     .padding(16.dp),
             ) {
                 Icon(Icons.Filled.Add, contentDescription = "Post New Job")
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showLogoutDialog,
+            enter = fadeIn(tween(300)),
+            exit = fadeOut(tween(250))
+        ) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.7f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 32.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    color = DevzCard,
+                    tonalElevation = 8.dp
+                ) {
+                    Column(
+                        modifier = Modifier.padding(24.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Log out",
+                            color = TextWhite,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = "Are you sure you want to log out?",
+                            color = TextGray,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center
+                        )
+                        Spacer(modifier = Modifier.height(24.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            Button(
+                                onClick = { showLogoutDialog = false },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = Color(0xFF2A2A2A),
+                                    contentColor = TextWhite
+                                )
+                            ) {
+                                Text("Cancel", fontWeight = FontWeight.SemiBold)
+                            }
+                            Button(
+                                onClick = {
+                                    viewModel.onAction(CompanyDashboardAction.Logout)
+                                    onLogout()
+                                    showLogoutDialog = false
+                                },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .height(48.dp),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = QError,
+                                    contentColor = Color.White
+                                )
+                            ) {
+                                Text("Log out", fontWeight = FontWeight.SemiBold)
+                            }
+                        }
+                    }
+                }
             }
         }
     }
