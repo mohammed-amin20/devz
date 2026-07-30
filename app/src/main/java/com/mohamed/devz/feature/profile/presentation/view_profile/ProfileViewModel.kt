@@ -60,9 +60,7 @@ class ProfileViewModel @Inject constructor(
     init {
         val targetAccountId = savedStateHandle.get<Int>("accountId")
         loadProfile(targetAccountId)
-        if (targetAccountId == null) {
-            loadApplications()
-        }
+        loadApplications()
     }
 
     fun onAction(action: ProfileAction) {
@@ -70,9 +68,7 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.Refresh -> {
                 val targetAccountId = savedStateHandle.get<Int>("accountId")
                 loadProfile(targetAccountId)
-                if (targetAccountId == null) {
-                    loadApplications()
-                }
+                loadApplications()
             }
             is ProfileAction.Logout -> logout()
             is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
@@ -94,10 +90,12 @@ class ProfileViewModel @Inject constructor(
     private fun loadApplications() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingApplications = true) }
-            val currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
-            if (currentAccountId == 0) return@launch
+            val targetAccountId = savedStateHandle.get<Int>("accountId")
+            val accountId = targetAccountId
+                ?: (userPreferencesRepository.observeCurrentAccountId().first() ?: return@launch)
+            if (accountId == 0) return@launch
 
-            when (val result = jobRepository.getApplicationsByApplicantId(currentAccountId)) {
+            when (val result = jobRepository.getApplicationsByApplicantId(accountId)) {
                 is Result.Success -> {
                     val appUiModels = result.data.map { app ->
                         val job = (jobRepository.getJobPostingById(app.jobId) as? Result.Success)?.data

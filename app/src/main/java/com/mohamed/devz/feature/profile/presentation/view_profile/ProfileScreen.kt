@@ -325,7 +325,7 @@ fun ProfileScreen(
                 val tabs = buildList {
                     add("${if(uiState.isOwnProfile) "MY" else "THEIR"} QUESTIONS")
                     add("${if (uiState.isOwnProfile) "MY" else "THEIR"} ANSWERS")
-                    if (uiState.isOwnProfile) add("APPLICATIONS")
+                    add("APPLICATIONS")
                 }
 
                 val pullRefreshState = rememberPullToRefreshState()
@@ -1021,7 +1021,7 @@ fun ProfileScreen(
                                     EmptyTabContent(
                                         icon = Icons.Filled.Business,
                                         title = "No applications yet",
-                                        subtitle = "Your job applications will appear here"
+                                        subtitle = "No job applications yet"
                                     )
                                 }
                             } else {
