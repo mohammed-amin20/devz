@@ -1016,7 +1016,16 @@ fun ProfileScreen(
                                     viewModel.onAction(ProfileAction.LoadApplications)
                                 }
                             }
-                            if (uiState.myApplications.isEmpty()) {
+                            if (uiState.isLoadingApplications) {
+                                item {
+                                    Box(
+                                        modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        CircularProgressIndicator(color = CyanPrimary)
+                                    }
+                                }
+                            } else if (uiState.myApplications.isEmpty()) {
                                 item {
                                     EmptyTabContent(
                                         icon = Icons.Filled.Business,

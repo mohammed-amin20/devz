@@ -60,7 +60,6 @@ class ProfileViewModel @Inject constructor(
     init {
         val targetAccountId = savedStateHandle.get<Int>("accountId")
         loadProfile(targetAccountId)
-        loadApplications()
     }
 
     fun onAction(action: ProfileAction) {
@@ -68,7 +67,6 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.Refresh -> {
                 val targetAccountId = savedStateHandle.get<Int>("accountId")
                 loadProfile(targetAccountId)
-                loadApplications()
             }
             is ProfileAction.Logout -> logout()
             is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
