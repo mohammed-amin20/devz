@@ -20,9 +20,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobListingUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
@@ -47,17 +50,28 @@ fun JobCard(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Surface(
-                shape = RoundedCornerShape(12.dp),
-                color = CyanPrimary.copy(alpha = 0.1f),
-                modifier = Modifier.size(48.dp),
-            ) {
-                Icon(
-                    Icons.Filled.Business,
+            if (job.logoUrl.isNotBlank()) {
+                AsyncImage(
+                    model = job.logoUrl,
                     contentDescription = null,
-                    tint = CyanPrimary,
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(RoundedCornerShape(12.dp)),
+                    contentScale = ContentScale.Crop,
                 )
+            } else {
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = CyanPrimary.copy(alpha = 0.1f),
+                    modifier = Modifier.size(48.dp),
+                ) {
+                    Icon(
+                        Icons.Filled.Business,
+                        contentDescription = null,
+                        tint = CyanPrimary,
+                        modifier = Modifier.padding(10.dp),
+                    )
+                }
             }
             Spacer(modifier = Modifier.width(14.dp))
             Column(modifier = Modifier.weight(1f)) {

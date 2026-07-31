@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.job.presentation.jobs_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
@@ -15,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class JobsViewModel @Inject constructor(
     private val jobRepository: JobRepository,
+    private val companyProfileRepository: CompanyProfileRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(JobsState())
@@ -37,10 +39,15 @@ class JobsViewModel @Inject constructor(
 
             when (val result = jobRepository.getApprovedJobPostings()) {
                 is Result.Success -> {
+                    val logosResult = companyProfileRepository.getAll()
+                    val logoUrls = (logosResult as? Result.Success)?.data
+                        ?.associate { it.userId to it.logoUrl }
+                        .orEmpty()
                     val uiModels = result.data.map { job ->
                         JobListingUiModel(
                             id = job.id,
                             companyName = job.companyName,
+                            logoUrl = logoUrls[job.accountId] ?: "",
                             title = job.title,
                             salaryRange = job.salaryRange,
                             jobType = job.jobType,

@@ -14,9 +14,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Business
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -40,12 +42,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
@@ -138,6 +143,7 @@ fun ManageJobsScreen(
                     items(uiState.jobs, key = { it.id }) { job ->
                         JobCard(
                             job = job,
+                            logoUrl = uiState.companyLogos[job.accountId] ?: "",
                             onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
                             onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
                         )
@@ -152,6 +158,7 @@ fun ManageJobsScreen(
 @Composable
 private fun JobCard(
     job: com.mohamed.devz.feature.core.domain.model.JobPosting,
+    logoUrl: String,
     onApprove: () -> Unit,
     onReject: () -> Unit,
 ) {
@@ -179,11 +186,31 @@ private fun JobCard(
 
             Spacer(modifier = Modifier.height(4.dp))
 
-            Text(
-                text = "${job.companyName} \u2022 ${job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() }}",
-                color = TextGray,
-                fontSize = 13.sp,
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (logoUrl.isNotBlank()) {
+                    AsyncImage(
+                        model = logoUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp)
+                            .clip(CircleShape),
+                        contentScale = ContentScale.Crop,
+                    )
+                } else {
+                    Icon(
+                        Icons.Filled.Business,
+                        contentDescription = null,
+                        tint = TextGray,
+                        modifier = Modifier.size(16.dp),
+                    )
+                }
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(
+                    text = "${job.companyName} \u2022 ${job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() }}",
+                    color = TextGray,
+                    fontSize = 13.sp,
+                )
+            }
 
             if (job.salaryRange.isNotBlank()) {
                 Text(

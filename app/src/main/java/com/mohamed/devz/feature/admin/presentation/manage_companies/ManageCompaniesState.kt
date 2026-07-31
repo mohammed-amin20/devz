@@ -5,6 +5,7 @@ import com.mohamed.devz.feature.core.presentation.util.UiText
 data class CompanyUiModel(
     val id: Int,
     val companyName: String,
+    val logoUrl: String = "",
     val website: String,
     val subscriptionStatus: String,
     val accountId: Int,

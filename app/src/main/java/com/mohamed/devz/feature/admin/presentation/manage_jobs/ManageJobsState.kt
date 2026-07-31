@@ -5,6 +5,7 @@ import com.mohamed.devz.feature.core.presentation.util.UiText
 
 data class ManageJobsState(
     val jobs: List<JobPosting> = emptyList(),
+    val companyLogos: Map<Int, String> = emptyMap(),
     val isLoading: Boolean = true,
     val error: UiText? = null,
     val showConfirmDialog: Boolean = false,

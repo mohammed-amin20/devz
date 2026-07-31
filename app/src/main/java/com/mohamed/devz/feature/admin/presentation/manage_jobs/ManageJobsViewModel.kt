@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
 import com.mohamed.devz.feature.core.domain.model.JobPosting
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
+import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
@@ -19,6 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ManageJobsViewModel @Inject constructor(
     private val jobRepository: JobRepository,
+    private val companyProfileRepository: CompanyProfileRepository,
     private val accountRepository: AccountRepository,
     private val fcmPushSender: FcmPushSender,
 ) : ViewModel() {
@@ -98,7 +100,13 @@ class ManageJobsViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
             when (val result = jobRepository.getAllJobPostings()) {
                 is Result.Success -> {
-                    _uiState.update { it.copy(jobs = result.data, isLoading = false) }
+                    val logosResult = companyProfileRepository.getAll()
+                    val companyLogos = (logosResult as? Result.Success)?.data
+                        ?.associate { it.userId to it.logoUrl }
+                        .orEmpty()
+                    _uiState.update {
+                        it.copy(jobs = result.data, companyLogos = companyLogos, isLoading = false)
+                    }
                 }
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }

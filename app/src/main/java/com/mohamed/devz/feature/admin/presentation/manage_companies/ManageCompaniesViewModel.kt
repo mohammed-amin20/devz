@@ -47,6 +47,7 @@ class ManageCompaniesViewModel @Inject constructor(
                                 CompanyUiModel(
                                     id = profile.id,
                                     companyName = profile.companyName,
+                                    logoUrl = profile.logoUrl,
                                     website = profile.website,
                                     subscriptionStatus = profile.subscriptionStatus,
                                     accountId = profile.userId,

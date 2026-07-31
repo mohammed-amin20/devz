@@ -3,6 +3,7 @@ package com.mohamed.devz.feature.job.presentation.job_detail
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.model.JobApplication
+import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class JobDetailViewModel @Inject constructor(
     private val jobRepository: JobRepository,
+    private val companyProfileRepository: CompanyProfileRepository,
     private val userPreferencesRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
@@ -44,11 +46,14 @@ class JobDetailViewModel @Inject constructor(
                     val job = result.data
                     val appsResult = jobRepository.getApplicationsByJobId(jobId)
                     val applicantCount = (appsResult as? Result.Success)?.data?.size ?: 0
+                    val profileResult = companyProfileRepository.getByAccountId(job.accountId)
+                    val logoUrl = (profileResult as? Result.Success)?.data?.logoUrl ?: ""
                     _uiState.update {
                         it.copy(
                             job = JobDetailUiModel(
                                 id = job.id,
                                 companyName = job.companyName,
+                                logoUrl = logoUrl,
                                 title = job.title,
                                 description = job.description,
                                 salaryRange = job.salaryRange,

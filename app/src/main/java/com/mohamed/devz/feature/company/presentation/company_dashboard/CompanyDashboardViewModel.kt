@@ -69,6 +69,7 @@ class CompanyDashboardViewModel @Inject constructor(
                         _uiState.update {
                             it.copy(
                                 companyName = profile.companyName,
+                                logoUrl = profile.logoUrl,
                                 website = profile.website,
                                 description = profile.description,
                                 subscriptionStatus = profile.subscriptionStatus,

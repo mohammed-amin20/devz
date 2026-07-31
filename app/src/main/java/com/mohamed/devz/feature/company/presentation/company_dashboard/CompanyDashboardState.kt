@@ -11,6 +11,7 @@ data class CompanyJobUiModel(
 
 data class CompanyDashboardState(
     val companyName: String = "",
+    val logoUrl: String = "",
     val website: String = "",
     val description: String = "",
     val subscriptionStatus: String = "pending",

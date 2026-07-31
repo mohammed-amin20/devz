@@ -17,6 +17,7 @@ data class JobDetailState(
 data class JobDetailUiModel(
     val id: Int,
     val companyName: String,
+    val logoUrl: String = "",
     val title: String,
     val description: String,
     val salaryRange: String,
