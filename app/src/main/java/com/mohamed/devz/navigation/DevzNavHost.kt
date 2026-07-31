@@ -233,7 +233,9 @@ fun DevzNavHost(
             )
         }
         composable<Route.Profile> {
+            val accountId = it.toRoute<Route.Profile>().accountId
             ProfileScreen(
+                navAccountId = accountId,
                 onEditProfile = {},
                 onQuestionClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
                 onAnswerClick = { id -> navController.navigate(Route.QuestionDetails(id)) },

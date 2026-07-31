@@ -8,4 +8,5 @@ sealed interface ProfileAction {
     data object ShowFollowing : ProfileAction
     data object DismissDialog : ProfileAction
     data object LoadApplications : ProfileAction
+    data class SetTargetAccountId(val accountId: Int?) : ProfileAction
 }

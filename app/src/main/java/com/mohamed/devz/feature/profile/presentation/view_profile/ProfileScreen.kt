@@ -124,6 +124,7 @@ fun ProfileScreen(
     onProfileClick: (Int) -> Unit = {},
     onAdminPanelClick: () -> Unit = {},
     onJobClick: (Int) -> Unit = {},
+    navAccountId: Int? = null,
     navigateUp: () -> Unit,
     viewModel: ProfileViewModel = hiltViewModel(),
 ) {
@@ -143,6 +144,10 @@ fun ProfileScreen(
         if (refreshTrigger > 0) {
             viewModel.onAction(ProfileAction.Refresh)
         }
+    }
+    LaunchedEffect(navAccountId) {
+        viewModel.onAction(ProfileAction.SetTargetAccountId(navAccountId))
+        viewModel.onAction(ProfileAction.LoadApplications)
     }
     LaunchedEffect(showImagePreview, showLogoutDialog, uiState.showFollowersDialog, uiState.showFollowingDialog) {
         if (!showImagePreview && !showLogoutDialog && !uiState.showFollowersDialog && !uiState.showFollowingDialog) {
@@ -1011,11 +1016,6 @@ fun ProfileScreen(
                             }
                         }
                         2 -> {
-                            item {
-                                LaunchedEffect(Unit) {
-                                    viewModel.onAction(ProfileAction.LoadApplications)
-                                }
-                            }
                             if (uiState.isLoadingApplications) {
                                 item {
                                     Box(

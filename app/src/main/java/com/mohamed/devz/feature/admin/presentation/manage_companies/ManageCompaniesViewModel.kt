@@ -3,7 +3,6 @@ package com.mohamed.devz.feature.admin.presentation.manage_companies
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
-import com.mohamed.devz.feature.core.domain.model.CompanyProfile
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.util.Result

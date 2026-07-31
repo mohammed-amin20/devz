@@ -28,11 +28,12 @@ import com.mohamed.devz.feature.authentication.presentation.components.signup_sc
 
 @Composable
 fun AuthScreen(
+    modifier: Modifier = Modifier,
     onLoginSuccess: () -> Unit,
     onRegisterSuccess: () -> Unit,
     onCompanyRegisterSuccess: () -> Unit = onRegisterSuccess,
-    onBanned: () -> Unit,
-    modifier: Modifier = Modifier
+    onBanned: () -> Unit
+
 ) {
     var index by remember { mutableIntStateOf(0) }
 

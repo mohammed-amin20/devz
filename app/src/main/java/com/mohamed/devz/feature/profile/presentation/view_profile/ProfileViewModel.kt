@@ -56,16 +56,16 @@ class ProfileViewModel @Inject constructor(
 
     private var _followerIds: String = ""
     private var _followingIds: String = ""
+    private var targetAccountId: Int? = null
 
     init {
-        val targetAccountId = savedStateHandle.get<Int>("accountId")
+        targetAccountId = savedStateHandle.get<Int>("accountId")
         loadProfile(targetAccountId)
     }
 
     fun onAction(action: ProfileAction) {
         when (action) {
             is ProfileAction.Refresh -> {
-                val targetAccountId = savedStateHandle.get<Int>("accountId")
                 loadProfile(targetAccountId)
             }
             is ProfileAction.Logout -> logout()
@@ -74,6 +74,10 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.ShowFollowing -> showFollowing()
             is ProfileAction.DismissDialog -> dismissDialog()
             is ProfileAction.LoadApplications -> loadApplications()
+            is ProfileAction.SetTargetAccountId -> {
+                targetAccountId = action.accountId
+                loadProfile(targetAccountId)
+            }
         }
     }
 
@@ -88,7 +92,6 @@ class ProfileViewModel @Inject constructor(
     private fun loadApplications() {
         viewModelScope.launch {
             _uiState.update { it.copy(isLoadingApplications = true) }
-            val targetAccountId = savedStateHandle.get<Int>("accountId")
             val accountId = targetAccountId
                 ?: (userPreferencesRepository.observeCurrentAccountId().first() ?: return@launch)
             if (accountId == 0) return@launch
