@@ -31,9 +31,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -204,16 +208,32 @@ fun ManageAnnouncementsScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        items(uiState.announcements, key = { it.id }) { notification ->
-                            SystemNotificationCard(
-                                notification = notification,
-                                onDelete = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(notification)) },
+                    val pullRefreshState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.onAction(ManageAnnouncementsAction.Refresh) },
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize(),
+                        indicator = {
+                            PullToRefreshDefaults.Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = uiState.isRefreshing,
+                                state = pullRefreshState,
+                                color = CyanPrimary,
                             )
+                        },
+                    ) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            items(uiState.announcements, key = { it.id }) { notification ->
+                                SystemNotificationCard(
+                                    notification = notification,
+                                    onDelete = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(notification)) },
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
                         }
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
                 }
             }

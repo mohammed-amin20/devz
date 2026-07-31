@@ -14,5 +14,6 @@ data class CompanyUiModel(
 data class ManageCompaniesState(
     val companies: List<CompanyUiModel> = emptyList(),
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
 )

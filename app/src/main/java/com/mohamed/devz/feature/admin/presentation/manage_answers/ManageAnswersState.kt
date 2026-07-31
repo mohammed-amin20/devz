@@ -10,6 +10,7 @@ data class ManageAnswersState(
     val showDeleteDialog: Boolean = false,
     val targetDeleteAnswer: Answer? = null,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
     val authorNames: Map<Int, String> = emptyMap(),
     val questionTitles: Map<Int, String> = emptyMap(),

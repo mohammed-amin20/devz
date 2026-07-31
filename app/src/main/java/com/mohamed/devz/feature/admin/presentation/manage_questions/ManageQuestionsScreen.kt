@@ -40,9 +40,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -206,19 +210,35 @@ fun ManageQuestionsScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        items(uiState.filteredQuestions, key = { it.id }) { question ->
-                            QuestionCard(
-                                question = question,
-                                authorName = uiState.authorNames[question.accountId] ?: "Unknown",
-                                onQuestionClick = { onQuestionClick(question.id) },
-                                onHide = { viewModel.onAction(ManageQuestionsAction.HideQuestion(question)) },
-                                onUnhide = { viewModel.onAction(ManageQuestionsAction.UnhideQuestion(question)) },
+                    val pullRefreshState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.onAction(ManageQuestionsAction.Refresh) },
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize(),
+                        indicator = {
+                            PullToRefreshDefaults.Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = uiState.isRefreshing,
+                                state = pullRefreshState,
+                                color = CyanPrimary,
                             )
+                        },
+                    ) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            items(uiState.filteredQuestions, key = { it.id }) { question ->
+                                QuestionCard(
+                                    question = question,
+                                    authorName = uiState.authorNames[question.accountId] ?: "Unknown",
+                                    onQuestionClick = { onQuestionClick(question.id) },
+                                    onHide = { viewModel.onAction(ManageQuestionsAction.HideQuestion(question)) },
+                                    onUnhide = { viewModel.onAction(ManageQuestionsAction.UnhideQuestion(question)) },
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
                         }
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
                 }
             }

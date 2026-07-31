@@ -17,11 +17,16 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,6 +49,7 @@ private val FILTER_OPTIONS = listOf(
     "remote" to "Remote",
 )
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun JobsScreen(
     onJobClick: (Int) -> Unit,
@@ -129,15 +135,31 @@ fun JobsScreen(
             }
 
             else -> {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                    contentPadding = PaddingValues(bottom = 16.dp),
-                ) {
-                    items(uiState.filteredJobs, key = { it.id }) { job ->
-                        JobCard(
-                            job = job,
-                            onClick = { onJobClick(job.id) },
+                val pullRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.onAction(JobsAction.Refresh) },
+                    state = pullRefreshState,
+                    modifier = Modifier.fillMaxSize(),
+                    indicator = {
+                        PullToRefreshDefaults.Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = uiState.isRefreshing,
+                            state = pullRefreshState,
+                            color = CyanPrimary,
                         )
+                    },
+                ) {
+                    LazyColumn(
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                        contentPadding = PaddingValues(bottom = 16.dp),
+                    ) {
+                        items(uiState.filteredJobs, key = { it.id }) { job ->
+                            JobCard(
+                                job = job,
+                                onClick = { onJobClick(job.id) },
+                            )
+                        }
                     }
                 }
             }

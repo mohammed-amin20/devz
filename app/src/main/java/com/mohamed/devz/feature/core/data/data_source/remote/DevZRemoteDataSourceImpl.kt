@@ -595,8 +595,25 @@ class DevZRemoteDataSourceImpl(
             }
 
             override suspend fun update(profile: CompanyProfile) {
+                val json = buildJsonObject {
+                    put("user_id", profile.userId)
+                    put("company_name", profile.companyName)
+                    put("logo_url", profile.logoUrl)
+                    put("website", profile.website)
+                    put("description", profile.description)
+                    put("subscription_status", profile.subscriptionStatus)
+                    if (profile.subscriptionExpiry != null) {
+                        put("subscription_expiry", profile.subscriptionExpiry)
+                    }
+                    put("company_bio", profile.bio)
+                    put("location", profile.location)
+                    put("industry", profile.industry)
+                    put("twitter_url", profile.twitterUrl)
+                    put("rating", profile.rating)
+                    put("is_verified", profile.isVerified)
+                }
                 db.from(tableName)
-                    .update(profile) {
+                    .update(json) {
                         filter { eq("id", profile.id) }
                     }
             }

@@ -35,6 +35,7 @@ class ManageJobsViewModel @Inject constructor(
     fun onAction(action: ManageJobsAction) {
         when (action) {
             ManageJobsAction.LoadJobs -> load()
+            ManageJobsAction.Refresh -> load(isRefresh = true)
             is ManageJobsAction.ApproveJob -> {
                 _uiState.update { it.copy(showConfirmDialog = true, targetJob = action.job) }
             }
@@ -95,9 +96,11 @@ class ManageJobsViewModel @Inject constructor(
         }
     }
 
-    private fun load() {
+    private fun load(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
             when (val result = jobRepository.getAllJobPostings()) {
                 is Result.Success -> {
                     val logosResult = companyProfileRepository.getAll()
@@ -105,11 +108,22 @@ class ManageJobsViewModel @Inject constructor(
                         ?.associate { it.userId to it.logoUrl }
                         .orEmpty()
                     _uiState.update {
-                        it.copy(jobs = result.data, companyLogos = companyLogos, isLoading = false)
+                        it.copy(
+                            jobs = result.data,
+                            companyLogos = companyLogos,
+                            isLoading = false,
+                            isRefreshing = false,
+                        )
                     }
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            error = result.error.toUIText(),
+                            isLoading = false,
+                            isRefreshing = false,
+                        )
+                    }
                 }
             }
         }

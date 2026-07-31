@@ -92,7 +92,7 @@ class ManageUsersViewModel @Inject constructor(
                     it.copy(showAdminDialog = false, targetAdminAccount = null)
                 }
             }
-            is ManageUsersAction.Refresh -> loadUsers()
+            is ManageUsersAction.Refresh -> loadUsers(isRefresh = true)
         }
     }
 
@@ -115,9 +115,11 @@ class ManageUsersViewModel @Inject constructor(
         }
     }
 
-    private fun loadUsers() {
+    private fun loadUsers(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
 
             when (val result = accountRepository.getAll()) {
                 is Result.Success -> {
@@ -127,12 +129,13 @@ class ManageUsersViewModel @Inject constructor(
                         it.copy(allAccounts = withoutMainAdmins)
                     }
                     applyFilters()
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.error.toUIText(),
                         )
                     }

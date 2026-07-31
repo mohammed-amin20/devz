@@ -16,5 +16,6 @@ data class ManageUsersState(
     val targetAdminAccount: Account? = null,
     val currentAccountIsMainAdmin: Boolean = false,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
 )

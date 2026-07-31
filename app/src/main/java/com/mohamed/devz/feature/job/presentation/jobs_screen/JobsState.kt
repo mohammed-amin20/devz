@@ -7,6 +7,7 @@ data class JobsState(
     val filteredJobs: List<JobListingUiModel> = emptyList(),
     val selectedFilter: String? = null,
     val isLoading: Boolean = false,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
 )
 

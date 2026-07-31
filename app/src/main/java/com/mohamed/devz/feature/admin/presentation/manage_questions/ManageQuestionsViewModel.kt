@@ -57,13 +57,15 @@ class ManageQuestionsViewModel @Inject constructor(
             is ManageQuestionsAction.UnhideQuestion -> {
                 unhideQuestion(action.question)
             }
-            is ManageQuestionsAction.Refresh -> loadQuestions()
+            is ManageQuestionsAction.Refresh -> loadQuestions(isRefresh = true)
         }
     }
 
-    private fun loadQuestions() {
+    private fun loadQuestions(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
 
             when (val result = questionRepository.getAll(0, 999999)) {
                 is Result.Success -> {
@@ -83,12 +85,13 @@ class ManageQuestionsViewModel @Inject constructor(
                         it.copy(allQuestions = sorted, authorNames = names)
                     }
                     applyFilters()
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.error.toUIText(),
                         )
                     }

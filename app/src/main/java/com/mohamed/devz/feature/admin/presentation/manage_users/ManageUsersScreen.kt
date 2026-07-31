@@ -43,9 +43,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -324,21 +328,37 @@ fun ManageUsersScreen(
                     }
                 }
                 else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        items(uiState.filteredAccounts, key = { it.id }) { account ->
-                            UserCard(
-                                account = account,
-                                isMainAdmin = uiState.currentAccountIsMainAdmin,
-                                onUserClick = { onUserClick(account.id) },
-                                onBan = { viewModel.onAction(ManageUsersAction.BanUser(account)) },
-                                onUnban = { viewModel.onAction(ManageUsersAction.UnbanUser(account)) },
-                                onShowProDialog = { viewModel.onAction(ManageUsersAction.ShowProDialog(account)) },
-                                onShowAdminDialog = { viewModel.onAction(ManageUsersAction.ShowAdminDialog(account)) },
+                    val pullRefreshState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.onAction(ManageUsersAction.Refresh) },
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize(),
+                        indicator = {
+                            PullToRefreshDefaults.Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = uiState.isRefreshing,
+                                state = pullRefreshState,
+                                color = CyanPrimary,
                             )
+                        },
+                    ) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            items(uiState.filteredAccounts, key = { it.id }) { account ->
+                                UserCard(
+                                    account = account,
+                                    isMainAdmin = uiState.currentAccountIsMainAdmin,
+                                    onUserClick = { onUserClick(account.id) },
+                                    onBan = { viewModel.onAction(ManageUsersAction.BanUser(account)) },
+                                    onUnban = { viewModel.onAction(ManageUsersAction.UnbanUser(account)) },
+                                    onShowProDialog = { viewModel.onAction(ManageUsersAction.ShowProDialog(account)) },
+                                    onShowAdminDialog = { viewModel.onAction(ManageUsersAction.ShowAdminDialog(account)) },
+                                )
+                            }
+                            item { Spacer(modifier = Modifier.height(16.dp)) }
                         }
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
                 }
             }

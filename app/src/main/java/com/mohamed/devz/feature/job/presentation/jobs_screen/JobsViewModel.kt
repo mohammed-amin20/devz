@@ -29,13 +29,16 @@ class JobsViewModel @Inject constructor(
     fun onAction(action: JobsAction) {
         when (action) {
             is JobsAction.LoadJobs -> loadJobs()
+            JobsAction.Refresh -> loadJobs(isRefresh = true)
             is JobsAction.FilterByType -> filterByType(action.type)
         }
     }
 
-    private fun loadJobs() {
+    private fun loadJobs(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
 
             when (val result = jobRepository.getApprovedJobPostings()) {
                 is Result.Success -> {
@@ -59,13 +62,18 @@ class JobsViewModel @Inject constructor(
                             jobs = uiModels,
                             filteredJobs = uiModels,
                             isLoading = false,
+                            isRefreshing = false,
                         )
                     }
                 }
 
                 is Result.Error -> {
                     _uiState.update {
-                        it.copy(error = result.error.toUIText(), isLoading = false)
+                        it.copy(
+                            error = result.error.toUIText(),
+                            isLoading = false,
+                            isRefreshing = false,
+                        )
                     }
                 }
             }

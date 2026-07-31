@@ -64,25 +64,32 @@ class ManageAnnouncementsViewModel @Inject constructor(
                     it.copy(showDeleteDialog = false, targetDeleteNotification = null)
                 }
             }
-            is ManageAnnouncementsAction.Refresh -> loadAnnouncements()
+            is ManageAnnouncementsAction.Refresh -> loadAnnouncements(isRefresh = true)
         }
     }
 
-    private fun loadAnnouncements() {
+    private fun loadAnnouncements(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
 
             when (val result = notificationRepository.getSystemNotifications()) {
                 is Result.Success -> {
                     val sorted = result.data.sortedByDescending { it.id }
                     _uiState.update {
-                        it.copy(announcements = sorted, isLoading = false)
+                        it.copy(
+                            announcements = sorted,
+                            isLoading = false,
+                            isRefreshing = false,
+                        )
                     }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.error.toUIText(),
                         )
                     }

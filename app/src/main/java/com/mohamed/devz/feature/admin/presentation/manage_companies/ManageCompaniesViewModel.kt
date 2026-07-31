@@ -32,13 +32,16 @@ class ManageCompaniesViewModel @Inject constructor(
     fun onAction(action: ManageCompaniesAction) {
         when (action) {
             ManageCompaniesAction.Load -> load()
+            ManageCompaniesAction.Refresh -> load(isRefresh = true)
             is ManageCompaniesAction.ToggleSubscription -> toggleSubscription(action.profileId, action.activate)
         }
     }
 
-    private fun load() {
+    private fun load(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
             when (val result = companyProfileRepository.getAll()) {
                 is Result.Success -> {
                     _uiState.update {
@@ -54,11 +57,18 @@ class ManageCompaniesViewModel @Inject constructor(
                                 )
                             },
                             isLoading = false,
+                            isRefreshing = false,
                         )
                     }
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
+                    _uiState.update {
+                        it.copy(
+                            error = result.error.toUIText(),
+                            isLoading = false,
+                            isRefreshing = false,
+                        )
+                    }
                 }
             }
         }

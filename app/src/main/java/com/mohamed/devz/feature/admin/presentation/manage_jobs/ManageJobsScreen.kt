@@ -35,6 +35,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -136,19 +139,35 @@ fun ManageJobsScreen(
                 }
             }
             else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    items(uiState.jobs, key = { it.id }) { job ->
-                        JobCard(
-                            job = job,
-                            logoUrl = uiState.companyLogos[job.accountId] ?: "",
-                            onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
-                            onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
+                val pullRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.onAction(ManageJobsAction.Refresh) },
+                    state = pullRefreshState,
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    indicator = {
+                        PullToRefreshDefaults.Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = uiState.isRefreshing,
+                            state = pullRefreshState,
+                            color = CyanPrimary,
                         )
+                    },
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(uiState.jobs, key = { it.id }) { job ->
+                            JobCard(
+                                job = job,
+                                logoUrl = uiState.companyLogos[job.accountId] ?: "",
+                                onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
+                                onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
+                            )
+                        }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
         }

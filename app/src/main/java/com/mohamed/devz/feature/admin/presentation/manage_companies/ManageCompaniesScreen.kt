@@ -25,13 +25,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -43,6 +50,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
@@ -57,9 +65,19 @@ fun ManageCompaniesScreen(
     viewModel: ManageCompaniesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(uiState.error) {
+        uiState.error?.let { error ->
+            if (error is UiText.DynamicString) {
+                snackbarHostState.showSnackbar(error.value)
+            }
+        }
+    }
 
     Scaffold(
         containerColor = QBg,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = { Text("Manage Companies", color = TextWhite, fontWeight = FontWeight.Bold) },
@@ -90,19 +108,35 @@ fun ManageCompaniesScreen(
                 }
             }
             else -> {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding).padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
-                ) {
-                    items(uiState.companies, key = { it.id }) { company ->
-                        CompanyCard(
-                            company = company,
-                            onToggle = { activate ->
-                                viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
-                            },
+                val pullRefreshState = rememberPullToRefreshState()
+                PullToRefreshBox(
+                    isRefreshing = uiState.isRefreshing,
+                    onRefresh = { viewModel.onAction(ManageCompaniesAction.Refresh) },
+                    state = pullRefreshState,
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                    indicator = {
+                        PullToRefreshDefaults.Indicator(
+                            modifier = Modifier.align(Alignment.TopCenter),
+                            isRefreshing = uiState.isRefreshing,
+                            state = pullRefreshState,
+                            color = CyanPrimary,
                         )
+                    },
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp),
+                    ) {
+                        items(uiState.companies, key = { it.id }) { company ->
+                            CompanyCard(
+                                company = company,
+                                onToggle = { activate ->
+                                    viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
+                                },
+                            )
+                        }
+                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
-                    item { Spacer(modifier = Modifier.height(16.dp)) }
                 }
             }
         }

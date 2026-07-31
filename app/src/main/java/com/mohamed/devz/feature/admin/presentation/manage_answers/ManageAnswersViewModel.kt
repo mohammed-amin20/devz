@@ -48,13 +48,15 @@ class ManageAnswersViewModel @Inject constructor(
                     it.copy(showDeleteDialog = false, targetDeleteAnswer = null)
                 }
             }
-            is ManageAnswersAction.Refresh -> loadAnswers()
+            is ManageAnswersAction.Refresh -> loadAnswers(isRefresh = true)
         }
     }
 
-    private fun loadAnswers() {
+    private fun loadAnswers(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update {
+                it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null)
+            }
 
             when (val result = answerRepository.getAll()) {
                 is Result.Success -> {
@@ -92,12 +94,13 @@ class ManageAnswersViewModel @Inject constructor(
                         )
                     }
                     applyFilters()
-                    _uiState.update { it.copy(isLoading = false) }
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 }
                 is Result.Error -> {
                     _uiState.update {
                         it.copy(
                             isLoading = false,
+                            isRefreshing = false,
                             error = result.error.toUIText(),
                         )
                     }

@@ -11,6 +11,7 @@ data class ManageQuestionsState(
     val showHideDialog: Boolean = false,
     val targetHideQuestion: Question? = null,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
     val authorNames: Map<Int, String> = emptyMap(),
 )
