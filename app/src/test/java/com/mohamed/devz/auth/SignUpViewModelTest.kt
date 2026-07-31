@@ -4,6 +4,7 @@ import com.mohamed.devz.feature.authentication.presentation.components.signup_sc
 import com.mohamed.devz.feature.authentication.presentation.components.signup_screen.presentation.SignUpViewModel
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
+import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.FcmTokenUtil
 import com.mohamed.devz.feature.core.domain.util.Result
@@ -30,12 +31,14 @@ class SignUpViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var accountRepository: AccountRepository
+    private lateinit var companyProfileRepository: CompanyProfileRepository
     private lateinit var userPreferencesRepository: UserPreferencesRepository
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         accountRepository = mockk()
+        companyProfileRepository = mockk()
         userPreferencesRepository = mockk()
         mockkObject(FcmTokenUtil)
         every { FcmTokenUtil.saveCurrentToken(any(), any()) } returns Unit
@@ -48,7 +51,7 @@ class SignUpViewModelTest {
 
     @Test
     fun `field changes update state`() {
-        val viewModel = SignUpViewModel(accountRepository, userPreferencesRepository)
+        val viewModel = SignUpViewModel(accountRepository, companyProfileRepository, userPreferencesRepository)
         viewModel.onAction(SignUpAction.FullNameChanged("John Doe"))
         viewModel.onAction(SignUpAction.UsernameChanged("johndoe"))
         viewModel.onAction(SignUpAction.EmailChanged("john@test.com"))
@@ -64,10 +67,10 @@ class SignUpViewModelTest {
 
     @Test
     fun `password mismatch shows error and does not register`() {
-        val viewModel = SignUpViewModel(accountRepository, userPreferencesRepository)
+        val viewModel = SignUpViewModel(accountRepository, companyProfileRepository, userPreferencesRepository)
         viewModel.onAction(SignUpAction.PasswordChanged("pass1"))
         viewModel.onAction(SignUpAction.ConfirmPasswordChanged("pass2"))
-        viewModel.onAction(SignUpAction.RegisterClicked { })
+        viewModel.onAction(SignUpAction.RegisterClicked(onSuccess = { }))
 
         assertNotNull(viewModel.uiState.value.error)
         assertEquals(false, viewModel.uiState.value.isLoading)
@@ -83,14 +86,14 @@ class SignUpViewModelTest {
         coEvery { userPreferencesRepository.setAccountId(any()) } returns Result.Success(Unit)
 
         var onSuccessCalled = false
-        val viewModel = SignUpViewModel(accountRepository, userPreferencesRepository)
+        val viewModel = SignUpViewModel(accountRepository, companyProfileRepository, userPreferencesRepository)
 
         viewModel.onAction(SignUpAction.FullNameChanged("John Doe"))
         viewModel.onAction(SignUpAction.UsernameChanged("johndoe"))
         viewModel.onAction(SignUpAction.EmailChanged("john@test.com"))
         viewModel.onAction(SignUpAction.PasswordChanged("pass123"))
         viewModel.onAction(SignUpAction.ConfirmPasswordChanged("pass123"))
-        viewModel.onAction(SignUpAction.RegisterClicked { onSuccessCalled = true })
+        viewModel.onAction(SignUpAction.RegisterClicked(onSuccess = { onSuccessCalled = true }))
         advanceUntilIdle()
 
         assertTrue(onSuccessCalled)
@@ -102,14 +105,14 @@ class SignUpViewModelTest {
         coEvery { accountRepository.insert(any()) } returns
             Result.Error(com.mohamed.devz.feature.core.domain.util.Error.Conflict)
 
-        val viewModel = SignUpViewModel(accountRepository, userPreferencesRepository)
+        val viewModel = SignUpViewModel(accountRepository, companyProfileRepository, userPreferencesRepository)
 
         viewModel.onAction(SignUpAction.FullNameChanged("John Doe"))
         viewModel.onAction(SignUpAction.UsernameChanged("johndoe"))
         viewModel.onAction(SignUpAction.EmailChanged("john@test.com"))
         viewModel.onAction(SignUpAction.PasswordChanged("pass123"))
         viewModel.onAction(SignUpAction.ConfirmPasswordChanged("pass123"))
-        viewModel.onAction(SignUpAction.RegisterClicked { })
+        viewModel.onAction(SignUpAction.RegisterClicked(onSuccess = { }))
         advanceUntilIdle()
 
         assertEquals(false, viewModel.uiState.value.isLoading)
@@ -123,13 +126,13 @@ class SignUpViewModelTest {
         coEvery { userPreferencesRepository.setLoggedIn() } returns Result.Success(Unit)
         coEvery { userPreferencesRepository.setAccountId(any()) } returns Result.Success(Unit)
 
-        val viewModel = SignUpViewModel(accountRepository, userPreferencesRepository)
+        val viewModel = SignUpViewModel(accountRepository, companyProfileRepository, userPreferencesRepository)
         viewModel.onAction(SignUpAction.FullNameChanged("John Doe"))
         viewModel.onAction(SignUpAction.UsernameChanged("johndoe"))
         viewModel.onAction(SignUpAction.EmailChanged("john@test.com"))
         viewModel.onAction(SignUpAction.PasswordChanged("pass123"))
         viewModel.onAction(SignUpAction.ConfirmPasswordChanged("pass123"))
-        viewModel.onAction(SignUpAction.RegisterClicked { })
+        viewModel.onAction(SignUpAction.RegisterClicked(onSuccess = { }))
 
         assertEquals(true, viewModel.uiState.value.isLoading)
 

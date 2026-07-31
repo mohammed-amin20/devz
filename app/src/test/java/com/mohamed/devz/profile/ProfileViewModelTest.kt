@@ -5,6 +5,7 @@ import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
 import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.repository.AnswerRepository
+import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.NotificationRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
@@ -40,6 +41,7 @@ class ProfileViewModelTest {
     private lateinit var accountRepository: AccountRepository
     private lateinit var questionRepository: QuestionRepository
     private lateinit var answerRepository: AnswerRepository
+    private lateinit var jobRepository: JobRepository
     private lateinit var userPreferencesRepository: UserPreferencesRepository
     private lateinit var notificationRepository: NotificationRepository
     private lateinit var fcmPushSender: FcmPushSender
@@ -51,6 +53,7 @@ class ProfileViewModelTest {
         accountRepository = mockk()
         questionRepository = mockk()
         answerRepository = mockk()
+        jobRepository = mockk()
         userPreferencesRepository = mockk()
         notificationRepository = mockk()
         fcmPushSender = mockk()
@@ -75,7 +78,7 @@ class ProfileViewModelTest {
         coEvery { answerRepository.getByAccountId(1) } returns Result.Success(emptyList())
         val viewModel = ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
         advanceUntilIdle()
         val state = viewModel.uiState.value
@@ -98,7 +101,7 @@ class ProfileViewModelTest {
             Result.Error(com.mohamed.devz.feature.core.domain.util.Error.Network)
         val viewModel = ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
         advanceUntilIdle()
         assertNotNull(viewModel.uiState.value.error)
@@ -112,7 +115,7 @@ class ProfileViewModelTest {
 
         val viewModel = ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
         advanceUntilIdle()
 
@@ -133,7 +136,7 @@ class ProfileViewModelTest {
 
         val viewModel = ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
         advanceUntilIdle()
 
@@ -165,7 +168,7 @@ class ProfileViewModelTest {
 
         val viewModel = ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
         advanceUntilIdle()
 
@@ -196,7 +199,7 @@ class ProfileViewModelTest {
         coEvery { answerRepository.getByAccountId(1) } returns Result.Success(emptyList())
         return ProfileViewModel(
             savedStateHandle, accountRepository, questionRepository, answerRepository,
-            userPreferencesRepository, notificationRepository, fcmPushSender
+            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
         )
     }
 }

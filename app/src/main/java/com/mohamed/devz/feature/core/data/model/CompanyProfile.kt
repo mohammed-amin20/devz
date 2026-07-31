@@ -20,4 +20,13 @@ data class CompanyProfile(
     val subscriptionExpiry: String? = null,
     @SerialName("created_at")
     val createdAt: String = "",
+    @SerialName("company_bio")
+    val bio: String = "",
+    val location: String = "",
+    val industry: String = "",
+    @SerialName("twitter_url")
+    val twitterUrl: String = "",
+    val rating: Double = 0.0,
+    @SerialName("is_verified")
+    val isVerified: Boolean = false,
 )

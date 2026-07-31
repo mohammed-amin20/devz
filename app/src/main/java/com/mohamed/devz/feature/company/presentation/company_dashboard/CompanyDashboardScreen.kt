@@ -19,6 +19,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
@@ -58,6 +59,7 @@ import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.company.presentation.edit_company_profile.EditCompanyProfileOverlay
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -74,6 +76,7 @@ fun CompanyDashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
+    var showEditProfileDialog by rememberSaveable { mutableStateOf(false) }
 
     Box(modifier = modifier.fillMaxSize().background(QBg)) {
         Column(
@@ -96,6 +99,9 @@ fun CompanyDashboardScreen(
                     style = MaterialTheme.typography.titleLarge,
                 )
                 Row {
+                    IconButton(onClick = { showEditProfileDialog = true }) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Edit Profile", tint = TextGray)
+                    }
                     IconButton(onClick = { viewModel.onAction(CompanyDashboardAction.Refresh) }) {
                         Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = TextGray)
                     }
@@ -389,5 +395,14 @@ fun CompanyDashboardScreen(
                 }
             }
         }
+
+        EditCompanyProfileOverlay(
+            visible = showEditProfileDialog,
+            onDismiss = { showEditProfileDialog = false },
+            onSaved = {
+                showEditProfileDialog = false
+                viewModel.onAction(CompanyDashboardAction.Refresh)
+            },
+        )
     }
 }

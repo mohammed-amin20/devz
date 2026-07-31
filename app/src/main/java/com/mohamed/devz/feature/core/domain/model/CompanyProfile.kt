@@ -10,4 +10,10 @@ data class CompanyProfile(
     val subscriptionStatus: String = "pending",
     val subscriptionExpiry: String? = null,
     val createdAt: String = "",
+    val bio: String = "",
+    val location: String = "",
+    val industry: String = "",
+    val twitterUrl: String = "",
+    val rating: Double = 0.0,
+    val isVerified: Boolean = false,
 )

@@ -18,7 +18,6 @@ import androidx.navigation.toRoute
 import com.mohamed.devz.feature.authentication.presentation.AuthScreen
 import com.mohamed.devz.feature.onboarding.presentation.OnboardingScreen
 import com.mohamed.devz.feature.profile.presentation.edit_profile.EditProfileScreen
-import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.feature.question.presentation.add_edit_question.AddEditQuestionScreen
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailScreen
 import com.mohamed.devz.feature.splash.presentation.SplashScreen
@@ -33,6 +32,7 @@ import com.mohamed.devz.feature.job.presentation.job_detail.JobDetailScreen
 import com.mohamed.devz.feature.job.presentation.post_job.PostJobScreen
 import com.mohamed.devz.feature.company.presentation.PendingApprovalScreen
 import com.mohamed.devz.feature.company.presentation.company_job_detail.CompanyJobDetailScreen
+import com.mohamed.devz.feature.company.presentation.company_profile.ProfileHostScreen
 import com.mohamed.devz.feature.admin.presentation.manage_jobs.ManageJobsScreen
 import com.mohamed.devz.feature.admin.presentation.manage_companies.ManageCompaniesScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
@@ -234,7 +234,7 @@ fun DevzNavHost(
         }
         composable<Route.Profile> {
             val accountId = it.toRoute<Route.Profile>().accountId
-            ProfileScreen(
+            ProfileHostScreen(
                 navAccountId = accountId,
                 onEditProfile = {},
                 onQuestionClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
@@ -242,6 +242,7 @@ fun DevzNavHost(
                 onLogout = {},
                 onProfileClick = { id -> navController.navigate(Route.Profile(id)) },
                 onJobClick = { id -> navController.navigate(Route.JobDetail(id)) },
+                onPostJob = { navController.navigate(Route.PostJob) },
                 navigateUp = { navController.navigateUp() },
                 modifier = modifier
             )

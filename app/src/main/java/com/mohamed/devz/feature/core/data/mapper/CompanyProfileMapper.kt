@@ -13,6 +13,12 @@ fun DataCompanyProfile.toDomain(): DomainCompanyProfile = DomainCompanyProfile(
     subscriptionStatus = subscriptionStatus,
     subscriptionExpiry = subscriptionExpiry,
     createdAt = createdAt,
+    bio = bio,
+    location = location,
+    industry = industry,
+    twitterUrl = twitterUrl,
+    rating = rating,
+    isVerified = isVerified,
 )
 
 fun DomainCompanyProfile.toData(): DataCompanyProfile = DataCompanyProfile(
@@ -25,4 +31,10 @@ fun DomainCompanyProfile.toData(): DataCompanyProfile = DataCompanyProfile(
     subscriptionStatus = subscriptionStatus,
     subscriptionExpiry = subscriptionExpiry,
     createdAt = createdAt,
+    bio = bio,
+    location = location,
+    industry = industry,
+    twitterUrl = twitterUrl,
+    rating = rating,
+    isVerified = isVerified,
 )
