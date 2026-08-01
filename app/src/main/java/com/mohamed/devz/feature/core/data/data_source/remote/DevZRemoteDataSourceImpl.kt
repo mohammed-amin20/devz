@@ -6,7 +6,6 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
-import com.mohamed.devz.feature.core.data.model.SearchHistory
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
 import com.mohamed.devz.feature.core.data.model.CompanyProfile
@@ -450,43 +449,6 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select()
                     .decodeList()
-            }
-        }
-
-    override val searchHistory: DevZRemoteDataSource.SearchHistoryTable
-        get() = object : DevZRemoteDataSource.SearchHistoryTable {
-            private val tableName = "SearchHistory"
-
-            override suspend fun getRecentByAccountId(
-                accountId: Int,
-                limit: Int,
-            ): List<SearchHistory> {
-                return db.from(tableName)
-                    .select {
-                        filter { eq("account_id", accountId) }
-                        order(column = "created_at", order = Order.DESCENDING)
-                        limit(limit.toLong())
-                    }
-                    .decodeList()
-            }
-
-            override suspend fun insert(query: String, accountId: Int): SearchHistory {
-                val json = buildJsonObject {
-                    put("query", query)
-                    put("account_id", accountId)
-                }
-                return db.from(tableName)
-                    .insert(json) {
-                        select()
-                    }
-                    .decodeSingle()
-            }
-
-            override suspend fun clearAll(accountId: Int) {
-                db.from(tableName)
-                    .delete {
-                        filter { eq("account_id", accountId) }
-                    }
             }
         }
 

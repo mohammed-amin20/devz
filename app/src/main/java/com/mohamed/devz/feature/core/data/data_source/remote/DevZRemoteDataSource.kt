@@ -6,7 +6,6 @@ import com.mohamed.devz.feature.core.data.model.LanguageType
 import com.mohamed.devz.feature.core.data.model.Notification
 import com.mohamed.devz.feature.core.data.model.NotificationType
 import com.mohamed.devz.feature.core.data.model.Question
-import com.mohamed.devz.feature.core.data.model.SearchHistory
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
 import com.mohamed.devz.feature.core.data.model.CompanyProfile
@@ -19,7 +18,6 @@ interface DevZRemoteDataSource {
     val answer: AnswerTable
     val notification: NotificationTable
     val notificationType: NotificationTypeTable
-    val searchHistory: SearchHistoryTable
     val jobPosting: JobPostingTable
     val jobApplication: JobApplicationTable
     val companyProfile: CompanyProfileTable
@@ -115,12 +113,6 @@ interface DevZRemoteDataSource {
 
     interface NotificationTypeTable {
         suspend fun getAllNotificationTypes(): List<NotificationType>
-    }
-
-    interface SearchHistoryTable {
-        suspend fun getRecentByAccountId(accountId: Int, limit: Int = 10): List<SearchHistory>
-        suspend fun insert(query: String, accountId: Int): SearchHistory
-        suspend fun clearAll(accountId: Int)
     }
 
     interface JobPostingTable {

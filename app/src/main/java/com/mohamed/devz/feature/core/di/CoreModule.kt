@@ -11,7 +11,6 @@ import com.mohamed.devz.feature.core.data.repository.LanguageTypeRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.NotificationRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.NotificationTypeRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.QuestionRepositoryImpl
-import com.mohamed.devz.feature.core.data.repository.SearchHistoryRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.UserPreferencesRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.JobRepositoryImpl
 import com.mohamed.devz.feature.core.data.repository.CompanyProfileRepositoryImpl
@@ -23,7 +22,6 @@ import com.mohamed.devz.feature.core.domain.repository.NotificationTypeRepositor
 import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.CompanyProfileRepository
 import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
-import com.mohamed.devz.feature.core.domain.repository.SearchHistoryRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.BuildConfig
 import dagger.Module
@@ -124,14 +122,6 @@ object CoreModule {
         remoteDataSource: DevZRemoteDataSource,
     ): NotificationTypeRepository {
         return NotificationTypeRepositoryImpl(remoteDataSource)
-    }
-
-    @Provides
-    @Singleton
-    fun provideSearchHistoryRepository(
-        remoteDataSource: DevZRemoteDataSource,
-    ): SearchHistoryRepository {
-        return SearchHistoryRepositoryImpl(remoteDataSource)
     }
 
     @Provides
