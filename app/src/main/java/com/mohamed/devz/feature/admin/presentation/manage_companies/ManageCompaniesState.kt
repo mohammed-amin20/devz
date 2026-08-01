@@ -13,6 +13,8 @@ data class CompanyUiModel(
 
 data class ManageCompaniesState(
     val companies: List<CompanyUiModel> = emptyList(),
+    val filteredCompanies: List<CompanyUiModel> = emptyList(),
+    val searchQuery: String = "",
     val isLoading: Boolean = true,
     val isRefreshing: Boolean = false,
     val error: UiText? = null,

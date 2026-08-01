@@ -34,6 +34,10 @@ class ManageCompaniesViewModel @Inject constructor(
             ManageCompaniesAction.Load -> load()
             ManageCompaniesAction.Refresh -> load(isRefresh = true)
             is ManageCompaniesAction.ToggleSubscription -> toggleSubscription(action.profileId, action.activate)
+            is ManageCompaniesAction.SearchQueryChanged -> {
+                _uiState.update { it.copy(searchQuery = action.query) }
+                applyFilter()
+            }
         }
     }
 
@@ -44,22 +48,24 @@ class ManageCompaniesViewModel @Inject constructor(
             }
             when (val result = companyProfileRepository.getAll()) {
                 is Result.Success -> {
+                    val companies = result.data.map { profile ->
+                        CompanyUiModel(
+                            id = profile.id,
+                            companyName = profile.companyName,
+                            logoUrl = profile.logoUrl,
+                            website = profile.website,
+                            subscriptionStatus = profile.subscriptionStatus,
+                            accountId = profile.userId,
+                        )
+                    }
                     _uiState.update {
                         it.copy(
-                            companies = result.data.map { profile ->
-                                CompanyUiModel(
-                                    id = profile.id,
-                                    companyName = profile.companyName,
-                                    logoUrl = profile.logoUrl,
-                                    website = profile.website,
-                                    subscriptionStatus = profile.subscriptionStatus,
-                                    accountId = profile.userId,
-                                )
-                            },
+                            companies = companies,
                             isLoading = false,
                             isRefreshing = false,
                         )
                     }
+                    applyFilter()
                 }
                 is Result.Error -> {
                     _uiState.update {
@@ -72,6 +78,19 @@ class ManageCompaniesViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private fun applyFilter() {
+        val state = _uiState.value
+        val query = state.searchQuery.trim().lowercase()
+        val filtered = if (query.isEmpty()) {
+            state.companies
+        } else {
+            state.companies.filter {
+                it.companyName.lowercase().contains(query)
+            }
+        }
+        _uiState.update { it.copy(filteredCompanies = filtered) }
     }
 
     private fun toggleSubscription(profileId: Int, activate: Boolean) {

@@ -19,12 +19,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -110,35 +113,74 @@ fun ManageCompaniesScreen(
                 }
             }
             else -> {
-                val pullRefreshState = rememberPullToRefreshState()
-                PullToRefreshBox(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefresh = { viewModel.onAction(ManageCompaniesAction.Refresh) },
-                    state = pullRefreshState,
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    indicator = {
-                        PullToRefreshDefaults.Indicator(
-                            modifier = Modifier.align(Alignment.TopCenter),
-                            isRefreshing = uiState.isRefreshing,
-                            state = pullRefreshState,
-                            color = CyanPrimary,
-                        )
-                    },
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 16.dp)
                 ) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(10.dp),
-                    ) {
-                        items(uiState.companies, key = { it.id }) { company ->
-                            CompanyCard(
-                                company = company,
-                                onToggle = { activate ->
-                                    viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
-                                },
-                                onCompanyClick = { onCompanyClick(company.accountId) },
+                    OutlinedTextField(
+                        value = uiState.searchQuery,
+                        onValueChange = { viewModel.onAction(ManageCompaniesAction.SearchQueryChanged(it)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        placeholder = { Text("Search companies...", color = TextGray) },
+                        leadingIcon = {
+                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextGray)
+                        },
+                        shape = RoundedCornerShape(14.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = CyanPrimary,
+                            unfocusedBorderColor = Color(0xFF2A3A3A),
+                            focusedContainerColor = DevzCard,
+                            unfocusedContainerColor = DevzCard,
+                            cursorColor = CyanPrimary,
+                            focusedTextColor = TextWhite,
+                            unfocusedTextColor = TextWhite,
+                        ),
+                        singleLine = true,
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    val pullRefreshState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.onAction(ManageCompaniesAction.Refresh) },
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize(),
+                        indicator = {
+                            PullToRefreshDefaults.Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = uiState.isRefreshing,
+                                state = pullRefreshState,
+                                color = CyanPrimary,
                             )
+                        },
+                    ) {
+                        if (uiState.filteredCompanies.isEmpty()) {
+                            Box(
+                                modifier = Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Text("No companies match your search", color = QOnSurfaceVariant, fontSize = 16.sp)
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
+                            ) {
+                                items(uiState.filteredCompanies, key = { it.id }) { company ->
+                                    CompanyCard(
+                                        company = company,
+                                        onToggle = { activate ->
+                                            viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
+                                        },
+                                        onCompanyClick = { onCompanyClick(company.accountId) },
+                                    )
+                                }
+                                item { Spacer(modifier = Modifier.height(16.dp)) }
+                            }
                         }
-                        item { Spacer(modifier = Modifier.height(16.dp)) }
                     }
                 }
             }

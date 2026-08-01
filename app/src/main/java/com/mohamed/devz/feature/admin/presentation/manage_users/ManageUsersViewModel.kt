@@ -124,7 +124,7 @@ class ManageUsersViewModel @Inject constructor(
             when (val result = accountRepository.getAll()) {
                 is Result.Success -> {
                     val sorted = result.data.sortedByDescending { it.id }
-                    val withoutMainAdmins = sorted.filter { !it.isMainAdmin }
+                    val withoutMainAdmins = sorted.filter { !it.isMainAdmin && it.accountType != "company" }
                     _uiState.update {
                         it.copy(allAccounts = withoutMainAdmins)
                     }
