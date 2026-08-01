@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.admin.presentation.manage_jobs
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -66,6 +67,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 @Composable
 fun ManageJobsScreen(
     onNavigateUp: () -> Unit,
+    onCompanyClick: (Int) -> Unit = {},
     viewModel: ManageJobsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -164,6 +166,7 @@ fun ManageJobsScreen(
                                 logoUrl = uiState.companyLogos[job.accountId] ?: "",
                                 onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
                                 onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
+                                onCompanyClick = { onCompanyClick(job.accountId) },
                             )
                         }
                         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -180,6 +183,7 @@ private fun JobCard(
     logoUrl: String,
     onApprove: () -> Unit,
     onReject: () -> Unit,
+    onCompanyClick: () -> Unit = {},
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -212,7 +216,8 @@ private fun JobCard(
                         contentDescription = null,
                         modifier = Modifier
                             .size(20.dp)
-                            .clip(CircleShape),
+                            .clip(CircleShape)
+                            .clickable(onClick = onCompanyClick),
                         contentScale = ContentScale.Crop,
                     )
                 } else {
@@ -220,7 +225,9 @@ private fun JobCard(
                         Icons.Filled.Business,
                         contentDescription = null,
                         tint = TextGray,
-                        modifier = Modifier.size(16.dp),
+                        modifier = Modifier
+                            .size(16.dp)
+                            .clickable(onClick = onCompanyClick),
                     )
                 }
                 Spacer(modifier = Modifier.width(6.dp))
@@ -228,6 +235,7 @@ private fun JobCard(
                     text = "${job.companyName} \u2022 ${job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() }}",
                     color = TextGray,
                     fontSize = 13.sp,
+                    modifier = Modifier.clickable(onClick = onCompanyClick),
                 )
             }
 

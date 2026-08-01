@@ -7,7 +7,6 @@ import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
-import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.feature.question.presentation.view_questions.util.accountCache
 import com.mohamed.devz.feature.question.presentation.view_questions.util.toFeedUiModel
 import com.mohamed.devz.feature.question.presentation.view_questions.util.updateAccountCache

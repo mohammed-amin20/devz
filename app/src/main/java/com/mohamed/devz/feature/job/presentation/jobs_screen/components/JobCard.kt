@@ -37,6 +37,7 @@ import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 fun JobCard(
     job: JobListingUiModel,
     onClick: () -> Unit,
+    onCompanyClick: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -56,14 +57,17 @@ fun JobCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(48.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onCompanyClick),
                     contentScale = ContentScale.Crop,
                 )
             } else {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = CyanPrimary.copy(alpha = 0.1f),
-                    modifier = Modifier.size(48.dp),
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clickable(onClick = onCompanyClick),
                 ) {
                     Icon(
                         Icons.Filled.Business,
@@ -89,6 +93,7 @@ fun JobCard(
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.clickable(onClick = onCompanyClick),
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 Row(

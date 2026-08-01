@@ -13,6 +13,7 @@ data class JobsState(
 
 data class JobListingUiModel(
     val id: Int,
+    val accountId: Int,
     val companyName: String,
     val logoUrl: String = "",
     val title: String,

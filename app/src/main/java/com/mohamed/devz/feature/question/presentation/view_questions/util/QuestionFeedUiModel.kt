@@ -5,9 +5,6 @@ import com.mohamed.devz.feature.core.domain.model.Account
 import com.mohamed.devz.feature.core.domain.model.LanguageType
 import com.mohamed.devz.feature.core.domain.model.Question
 import com.mohamed.devz.feature.core.presentation.util.formatRelativeTime
-import java.time.Duration
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
 
 data class QuestionFeedUiModel(
     val id: Int,

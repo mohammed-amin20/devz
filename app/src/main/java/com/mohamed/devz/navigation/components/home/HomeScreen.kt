@@ -145,7 +145,8 @@ fun HomeScreen(
             onClick = { viewModel.onSelectedIndexChange(3) },
             content = {
                 JobsScreen(
-                    onJobClick = { jobId -> navigateToJobDetail(jobId) }
+                    onJobClick = { jobId -> navigateToJobDetail(jobId) },
+                    onCompanyClick = { accountId -> navigateToProfile(accountId) },
                 )
             }
         ),

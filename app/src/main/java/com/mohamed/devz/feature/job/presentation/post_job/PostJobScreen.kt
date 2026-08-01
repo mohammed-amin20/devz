@@ -1,9 +1,6 @@
 package com.mohamed.devz.feature.job.presentation.post_job
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -46,9 +43,6 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 

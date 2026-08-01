@@ -49,6 +49,7 @@ class JobsViewModel @Inject constructor(
                     val uiModels = result.data.map { job ->
                         JobListingUiModel(
                             id = job.id,
+                            accountId = job.accountId,
                             companyName = job.companyName,
                             logoUrl = logoUrls[job.accountId] ?: "",
                             title = job.title,

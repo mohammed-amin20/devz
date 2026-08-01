@@ -189,6 +189,9 @@ fun DevzNavHost(
             JobDetailScreen(
                 jobId = id,
                 navigateUp = { navController.navigateUp() },
+                onProfileClick = { accountId ->
+                    navController.navigate(Route.Profile(accountId))
+                },
                 modifier = modifier
             )
         }
@@ -302,11 +305,17 @@ fun DevzNavHost(
         composable<Route.ManageJobs> {
             ManageJobsScreen(
                 onNavigateUp = { navController.navigateUp() },
+                onCompanyClick = { accountId ->
+                    navController.navigate(Route.Profile(accountId))
+                },
             )
         }
         composable<Route.ManageCompanies> {
             ManageCompaniesScreen(
                 onNavigateUp = { navController.navigateUp() },
+                onCompanyClick = { accountId ->
+                    navController.navigate(Route.Profile(accountId))
+                },
             )
         }
         composable<Route.CompanyJobDetail> {

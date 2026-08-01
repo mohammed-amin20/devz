@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.admin.presentation.manage_companies
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 @Composable
 fun ManageCompaniesScreen(
     onNavigateUp: () -> Unit,
+    onCompanyClick: (Int) -> Unit = {},
     viewModel: ManageCompaniesViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -133,6 +135,7 @@ fun ManageCompaniesScreen(
                                 onToggle = { activate ->
                                     viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
                                 },
+                                onCompanyClick = { onCompanyClick(company.accountId) },
                             )
                         }
                         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -147,6 +150,7 @@ fun ManageCompaniesScreen(
 private fun CompanyCard(
     company: CompanyUiModel,
     onToggle: (Boolean) -> Unit,
+    onCompanyClick: () -> Unit = {},
 ) {
     val isActive = company.subscriptionStatus == "active"
 
@@ -165,14 +169,17 @@ private fun CompanyCard(
                     contentDescription = null,
                     modifier = Modifier
                         .size(44.dp)
-                        .clip(RoundedCornerShape(12.dp)),
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClick = onCompanyClick),
                     contentScale = ContentScale.Crop,
                 )
             } else {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
                     color = CyanPrimary.copy(alpha = 0.1f),
-                    modifier = Modifier.size(44.dp),
+                    modifier = Modifier
+                        .size(44.dp)
+                        .clickable(onClick = onCompanyClick),
                 ) {
                     Icon(
                         Icons.Filled.Business,
@@ -191,6 +198,7 @@ private fun CompanyCard(
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.clickable(onClick = onCompanyClick),
                 )
                 if (company.website.isNotBlank()) {
                     Text(

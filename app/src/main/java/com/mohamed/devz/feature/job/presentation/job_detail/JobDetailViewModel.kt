@@ -52,6 +52,7 @@ class JobDetailViewModel @Inject constructor(
                         it.copy(
                             job = JobDetailUiModel(
                                 id = job.id,
+                                accountId = job.accountId,
                                 companyName = job.companyName,
                                 logoUrl = logoUrl,
                                 title = job.title,

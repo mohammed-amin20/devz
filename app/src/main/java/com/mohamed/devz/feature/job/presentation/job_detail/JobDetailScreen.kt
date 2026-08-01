@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.job.presentation.job_detail
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -56,7 +57,6 @@ import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.QOnSurface
 import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
 import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
@@ -69,6 +69,7 @@ fun JobDetailScreen(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: JobDetailViewModel = hiltViewModel(),
+    onProfileClick: (Int) -> Unit = {},
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
@@ -158,7 +159,8 @@ fun JobDetailScreen(
                                     contentDescription = null,
                                     modifier = Modifier
                                         .size(56.dp)
-                                        .clip(RoundedCornerShape(16.dp)),
+                                        .clip(RoundedCornerShape(16.dp))
+                                        .clickable { onProfileClick(job.accountId) },
                                     contentScale = ContentScale.Crop,
                                 )
                             } else {
@@ -169,7 +171,8 @@ fun JobDetailScreen(
                                     modifier = Modifier
                                         .clip(RoundedCornerShape(16.dp))
                                         .background(CyanPrimary.copy(alpha = 0.1f))
-                                        .padding(12.dp),
+                                        .padding(12.dp)
+                                        .clickable { onProfileClick(job.accountId) },
                                 )
                             }
                             Spacer(modifier = Modifier.height(12.dp))
@@ -178,6 +181,7 @@ fun JobDetailScreen(
                                 color = CyanPrimary,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.Medium,
+                                modifier = Modifier.clickable { onProfileClick(job.accountId) },
                             )
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
