@@ -68,6 +68,7 @@ import com.mohamed.devz.ui.theme.TextWhite
 fun ManageJobsScreen(
     onNavigateUp: () -> Unit,
     onCompanyClick: (Int) -> Unit = {},
+    onJobClick: (Int) -> Unit = {},
     viewModel: ManageJobsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -167,6 +168,7 @@ fun ManageJobsScreen(
                                 onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
                                 onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
                                 onCompanyClick = { onCompanyClick(job.accountId) },
+                                onClick = { onJobClick(job.id) },
                             )
                         }
                         item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -184,9 +186,12 @@ private fun JobCard(
     onApprove: () -> Unit,
     onReject: () -> Unit,
     onCompanyClick: () -> Unit = {},
+    onClick: () -> Unit = {},
 ) {
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = DevzCard,
     ) {

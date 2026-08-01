@@ -308,6 +308,9 @@ fun DevzNavHost(
                 onCompanyClick = { accountId ->
                     navController.navigate(Route.Profile(accountId))
                 },
+                onJobClick = { jobId ->
+                    navController.navigate(Route.JobDetail(jobId))
+                },
             )
         }
         composable<Route.ManageCompanies> {
