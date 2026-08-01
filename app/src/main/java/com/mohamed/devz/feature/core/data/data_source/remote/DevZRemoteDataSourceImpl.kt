@@ -413,12 +413,7 @@ class DevZRemoteDataSourceImpl(
             override suspend fun getAllNotificationsByAccountId(accountId: Int): List<Notification> {
                 return db.from(tableName)
                     .select {
-                        filter {
-                            or {
-                                eq("user_id", accountId)
-                                eq("is_global", true)
-                            }
-                        }
+                        filter { eq("user_id", accountId) }
                         order(column = "created_at", order = Order.DESCENDING)
                     }
                     .decodeList()
@@ -427,7 +422,12 @@ class DevZRemoteDataSourceImpl(
             override suspend fun getSystemNotifications(): List<Notification> {
                 return db.from(tableName)
                     .select {
-                        filter { eq("sender_type", "system") }
+                        filter {
+                            and {
+                                eq("sender_type", "system")
+                                eq("is_global", true)
+                            }
+                        }
                         order(column = "created_at", order = Order.DESCENDING)
                     }
                     .decodeList()
