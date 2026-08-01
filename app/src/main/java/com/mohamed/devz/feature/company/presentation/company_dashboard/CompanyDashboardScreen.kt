@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -36,6 +35,9 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -106,9 +108,6 @@ fun CompanyDashboardScreen(
                     IconButton(onClick = { showEditProfileDialog = true }) {
                         Icon(Icons.Filled.Edit, contentDescription = "Edit Profile", tint = TextGray)
                     }
-                    IconButton(onClick = { viewModel.onAction(CompanyDashboardAction.Refresh) }) {
-                        Icon(Icons.Filled.Refresh, contentDescription = "Refresh", tint = TextGray)
-                    }
                     IconButton(
                         onClick = { showLogoutDialog = true }
                     ) {
@@ -143,9 +142,24 @@ fun CompanyDashboardScreen(
                 }
 
                 else -> {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    val pullRefreshState = rememberPullToRefreshState()
+                    PullToRefreshBox(
+                        isRefreshing = uiState.isRefreshing,
+                        onRefresh = { viewModel.onAction(CompanyDashboardAction.Refresh) },
+                        state = pullRefreshState,
+                        modifier = Modifier.fillMaxSize(),
+                        indicator = {
+                            PullToRefreshDefaults.Indicator(
+                                modifier = Modifier.align(Alignment.TopCenter),
+                                isRefreshing = uiState.isRefreshing,
+                                state = pullRefreshState,
+                                color = CyanPrimary,
+                            )
+                        },
                     ) {
+                        LazyColumn(
+                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
                         item {
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
@@ -317,6 +331,7 @@ fun CompanyDashboardScreen(
                         }
 
                         item { Spacer(modifier = Modifier.height(80.dp)) }
+                        }
                     }
                 }
             }

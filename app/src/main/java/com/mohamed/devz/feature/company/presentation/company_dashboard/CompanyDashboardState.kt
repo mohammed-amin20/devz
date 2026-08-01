@@ -19,5 +19,6 @@ data class CompanyDashboardState(
     val reservedJobs: List<CompanyJobUiModel> = emptyList(),
     val selectedTab: Int = 0,
     val isLoading: Boolean = true,
+    val isRefreshing: Boolean = false,
     val error: UiText? = null,
 )

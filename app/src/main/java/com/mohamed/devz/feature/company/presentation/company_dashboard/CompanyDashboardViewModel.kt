@@ -32,7 +32,7 @@ class CompanyDashboardViewModel @Inject constructor(
 
     fun onAction(action: CompanyDashboardAction) {
         when (action) {
-            CompanyDashboardAction.Refresh -> load()
+            CompanyDashboardAction.Refresh -> load(isRefresh = true)
             is CompanyDashboardAction.SelectTab -> {
                 _uiState.update { it.copy(selectedTab = action.index) }
             }
@@ -47,12 +47,12 @@ class CompanyDashboardViewModel @Inject constructor(
         }
     }
 
-    private fun load() {
+    private fun load(isRefresh: Boolean = false) {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoading = true, error = null) }
+            _uiState.update { it.copy(isLoading = !isRefresh, isRefreshing = isRefresh, error = null) }
             val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
             if (accountId == 0) {
-                _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("Not logged in")) }
+                _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = UiText.DynamicString("Not logged in")) }
                 return@launch
             }
 
@@ -76,14 +76,15 @@ class CompanyDashboardViewModel @Inject constructor(
                                 offeredJobs = allJobs.filter { j -> j.status == "approved" || j.status == "active" },
                                 reservedJobs = allJobs.filter { j -> j.status == "filled" },
                                 isLoading = false,
+                                isRefreshing = false,
                             )
                         }
                     } else {
-                        _uiState.update { it.copy(isLoading = false, error = UiText.DynamicString("Company profile not found")) }
+                        _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = UiText.DynamicString("Company profile not found")) }
                     }
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(isLoading = false, error = profileResult.error.toUIText()) }
+                    _uiState.update { it.copy(isLoading = false, isRefreshing = false, error = profileResult.error.toUIText()) }
                 }
             }
         }
