@@ -21,6 +21,7 @@ data class QuestionFeedUiModel(
     val answers: Int,
     val isBookmarked: Boolean = false,
     val isPinned: Boolean = false,
+    val isAuthorPro: Boolean = false,
 )
 
 val accountCache = mutableMapOf<Int, Account>()
@@ -55,5 +56,6 @@ fun Question.toFeedUiModel(
         answers = answersCount,
         isBookmarked = id in bookmarkedIds,
         isPinned = isPinned,
+        isAuthorPro = account?.isPro ?: false,
     )
 }

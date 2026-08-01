@@ -69,6 +69,7 @@ data class QuestionDetailUiModel(
     val isLiked: Boolean = false,
     val likedAccountIds: String = "",
     val isPinned: Boolean = false,
+    val isAuthorPro: Boolean = false,
 )
 
 @Composable

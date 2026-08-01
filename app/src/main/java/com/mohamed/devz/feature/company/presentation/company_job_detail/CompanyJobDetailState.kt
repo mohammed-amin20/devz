@@ -15,6 +15,7 @@ data class ProposalUiModel(
     val status: String,
     val coverLetter: String,
     val createdAt: String = "",
+    val isPro: Boolean = false,
 )
 
 data class CompanyJobDetailState(

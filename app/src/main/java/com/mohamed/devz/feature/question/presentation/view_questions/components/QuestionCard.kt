@@ -35,6 +35,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
@@ -95,13 +96,19 @@ fun QuestionCard(
                     }
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
-                        Text(
-                            question.authorName,
-                            color = TextWhite,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.bodyMedium
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                question.authorName,
+                                color = TextWhite,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.bodyMedium
+                            )
+                            if (question.isAuthorPro) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                ProBadge()
+                            }
+                        }
                         Row {
                             Text(
                                 text = "${question.timeAgo} in ",

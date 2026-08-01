@@ -33,6 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.ui.theme.QOnSurface
 import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.QOutline
@@ -53,6 +54,7 @@ data class AnswerUiModel(
     val isLiked: Boolean = false,
     val code: String? = null,
     val language: SyntaxLanguage = SyntaxLanguage.GENERIC,
+    val isAuthorPro: Boolean = false,
 )
 @Composable
 fun AnswerCard(
@@ -97,13 +99,19 @@ fun AnswerCard(
                     )
                     Spacer(Modifier.width(12.dp))
                     Column {
-                        Text(
-                            text = answer.authorName,
-                            color = QOnSurface,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            style = MaterialTheme.typography.titleLarge
-                        )
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text(
+                                text = answer.authorName,
+                                color = QOnSurface,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                            if (answer.isAuthorPro) {
+                                Spacer(modifier = Modifier.width(6.dp))
+                                ProBadge()
+                            }
+                        }
                         Text(
                             text = answer.timeAgo,
                             color = if (answer.isAccepted) QPrimary else QOutline,

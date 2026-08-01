@@ -198,6 +198,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         isLiked = isLiked,
                         likedAccountIds = q.likedAccountIds,
                         isPinned = isPinned,
+                        isAuthorPro = account?.isPro ?: false,
                     )
                     _uiState.update {
                         it.copy(
@@ -235,6 +236,7 @@ class QuestionDetailsViewModel @Inject constructor(
                         authorName = author?.fullName ?: "Unknown",
                         avatarUrl = author?.imageUrl ?: "",
                         authorAccountId = answer.accountId,
+                        isAuthorPro = author?.isPro ?: false,
                         body = answer.description,
                         isAccepted = answer.accepted,
                         likes = votes.size,

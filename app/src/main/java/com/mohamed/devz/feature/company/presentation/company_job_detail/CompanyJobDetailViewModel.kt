@@ -92,6 +92,7 @@ class CompanyJobDetailViewModel @Inject constructor(
                     status = app.status,
                     coverLetter = app.coverLetter,
                     createdAt = app.createdAt,
+                    isPro = account?.isPro ?: false,
                 )
             )
         }
