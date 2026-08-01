@@ -170,16 +170,18 @@ fun QuestionDetailScreen(
                         onPinClick = { viewModel.onAction(QuestionDetailsAction.PinQuestion) },
                     )
 
-                    AnswerInputBar(
-                        answerText = uiState.answerText,
-                        onAnswerChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
-                        onPost = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) },
-                        answerCode = uiState.answerCode,
-                        onCodeClick = {
-                            viewModel.onAction(QuestionDetailsAction.ShowCodeEditor)
+                    if (!uiState.isCompany) {
+                        AnswerInputBar(
+                            answerText = uiState.answerText,
+                            onAnswerChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
+                            onPost = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) },
+                            answerCode = uiState.answerCode,
+                            onCodeClick = {
+                                viewModel.onAction(QuestionDetailsAction.ShowCodeEditor)
 
-                        }
-                    )
+                            }
+                        )
+                    }
                 }
             }
 

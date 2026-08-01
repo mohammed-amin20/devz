@@ -206,6 +206,7 @@ class QuestionDetailsViewModel @Inject constructor(
                             isLoading = false,
                             error = null,
                             isPro = currentAccount?.isPro ?: false,
+                            isCompany = currentAccount?.accountType == "company",
                         )
                     }
                     loadAnswers(questionId)
@@ -361,6 +362,7 @@ class QuestionDetailsViewModel @Inject constructor(
     }
 
     private fun postAnswer(onSuccess: () -> Unit) {
+        if (_uiState.value.isCompany) return
         val text = _uiState.value.answerText.trim()
         if (text.isEmpty()) return
         val questionId = currentQuestionId ?: return

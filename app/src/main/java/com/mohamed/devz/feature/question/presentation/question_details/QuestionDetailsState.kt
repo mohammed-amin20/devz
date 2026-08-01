@@ -15,5 +15,6 @@ data class QuestionDetailsState(
     val isLiking: Boolean = false,
     val isPinning: Boolean = false,
     val isPro: Boolean = false,
+    val isCompany: Boolean = false,
     val error: UiText? = null,
 )
