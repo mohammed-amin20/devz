@@ -14,6 +14,5 @@ data class CompanyProfile(
     val location: String = "",
     val industry: String = "",
     val twitterUrl: String = "",
-    val rating: Double = 0.0,
     val isVerified: Boolean = false,
 )

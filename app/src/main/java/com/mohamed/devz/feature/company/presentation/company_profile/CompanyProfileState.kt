@@ -12,7 +12,6 @@ data class CompanyProfileUiState(
     val location: String = "",
     val industry: String = "",
     val twitterUrl: String = "",
-    val rating: Double = 0.0,
     val isVerified: Boolean = false,
     val isOwnProfile: Boolean = false,
     val postedJobs: List<CompanyJobUiModel> = emptyList(),

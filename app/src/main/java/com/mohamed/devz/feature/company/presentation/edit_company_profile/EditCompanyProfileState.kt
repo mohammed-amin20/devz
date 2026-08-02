@@ -16,7 +16,6 @@ data class EditCompanyProfileState(
     val subscriptionStatus: String = "pending",
     val subscriptionExpiry: String? = null,
     val createdAt: String = "",
-    val rating: Double = 0.0,
     val isVerified: Boolean = false,
     val isLoading: Boolean = true,
     val isSaving: Boolean = false,

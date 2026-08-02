@@ -26,7 +26,6 @@ import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Language
 import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
@@ -472,11 +471,6 @@ private fun CompanyHeader(
                         value = uiState.filledJobs.size.toString(),
                         label = "Filled",
                     )
-                    StatItem(
-                        value = "%.1f".format(uiState.rating),
-                        label = "Rating",
-                        showStar = true,
-                    )
                 }
             }
 
@@ -489,26 +483,14 @@ private fun CompanyHeader(
 private fun StatItem(
     value: String,
     label: String,
-    showStar: Boolean = false,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            if (showStar) {
-                Icon(
-                    Icons.Filled.Star,
-                    contentDescription = null,
-                    tint = Gold,
-                    modifier = Modifier.size(16.dp),
-                )
-                Spacer(modifier = Modifier.width(2.dp))
-            }
-            Text(
-                text = value,
-                color = TextWhite,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-        }
+        Text(
+            text = value,
+            color = TextWhite,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+        )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,

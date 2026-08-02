@@ -26,7 +26,6 @@ data class CompanyProfile(
     val industry: String = "",
     @SerialName("twitter_url")
     val twitterUrl: String = "",
-    val rating: Double = 0.0,
     @SerialName("is_verified")
     val isVerified: Boolean = false,
 )

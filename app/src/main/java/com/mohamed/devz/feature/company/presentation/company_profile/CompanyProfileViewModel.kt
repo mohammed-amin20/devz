@@ -87,7 +87,6 @@ class CompanyProfileViewModel @Inject constructor(
                                 location = profile.location,
                                 industry = profile.industry,
                                 twitterUrl = profile.twitterUrl,
-                                rating = profile.rating,
                                 isVerified = profile.isVerified,
                                 isOwnProfile = accountId == loggedInAccountId,
                                 postedJobs = postedJobs.map { j ->

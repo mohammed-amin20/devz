@@ -17,7 +17,6 @@ fun DataCompanyProfile.toDomain(): DomainCompanyProfile = DomainCompanyProfile(
     location = location,
     industry = industry,
     twitterUrl = twitterUrl,
-    rating = rating,
     isVerified = isVerified,
 )
 
@@ -35,6 +34,5 @@ fun DomainCompanyProfile.toData(): DataCompanyProfile = DataCompanyProfile(
     location = location,
     industry = industry,
     twitterUrl = twitterUrl,
-    rating = rating,
     isVerified = isVerified,
 )

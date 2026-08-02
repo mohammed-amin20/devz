@@ -71,7 +71,6 @@ class EditCompanyProfileViewModel @Inject constructor(
                                 subscriptionStatus = profile.subscriptionStatus,
                                 subscriptionExpiry = profile.subscriptionExpiry,
                                 createdAt = profile.createdAt,
-                                rating = profile.rating,
                                 isVerified = profile.isVerified,
                                 isLoading = false,
                             )
@@ -122,7 +121,6 @@ class EditCompanyProfileViewModel @Inject constructor(
                     location = s.location,
                     industry = s.industry,
                     twitterUrl = s.twitterUrl,
-                    rating = s.rating,
                     isVerified = s.isVerified,
                 )
             )
