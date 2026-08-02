@@ -7,7 +7,6 @@ import com.mohamed.devz.feature.core.domain.util.Result
 interface QuestionRepository {
     suspend fun getById(id: Int): Result<Question, Error>
     suspend fun getByAccountId(accountId: Int): Result<List<Question>, Error>
-    suspend fun getByTag(tag: String): Result<List<Question>, Error>
     suspend fun getByAccountIds(
         accountIds: List<Int>,
         offset: Int,

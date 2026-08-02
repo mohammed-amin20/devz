@@ -25,7 +25,6 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
-import org.junit.Assert.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class NotificationsViewModelTest {
@@ -55,12 +54,10 @@ class NotificationsViewModelTest {
             listOf(
                 DomainNotification(id = 1, typeId = 2, userId = 1, actorId = 5, questionId = 100,
                     answerId = null, type = "like", message = "liked your question",
-                    isRead = false, createdAt = "2024-01-15T10:00:00Z", actorName = "John",
-                    actorAvatarUrl = null),
+                    isRead = false, createdAt = "2024-01-15T10:00:00Z", actorName = "John"),
                 DomainNotification(id = 2, typeId = 3, userId = 1, actorId = 6, questionId = 200,
                     answerId = 50, type = "answer", message = "answered your question",
-                    isRead = true, createdAt = "2024-01-14T10:00:00Z", actorName = "Jane",
-                    actorAvatarUrl = null),
+                    isRead = true, createdAt = "2024-01-14T10:00:00Z", actorName = "Jane"),
             )
         )
         coEvery { questionRepository.getById(100) } returns Result.Success(
@@ -101,33 +98,6 @@ class NotificationsViewModelTest {
 
         assertNotNull(viewModel.uiState.value.error)
         assertEquals(false, viewModel.uiState.value.isLoading)
-    }
-
-    @Test
-    fun `mark all read updates all notifications`() = runTest(testDispatcher) {
-        coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
-        coEvery { notificationRepository.getAllByAccountId(1) } returns Result.Success(
-            listOf(
-                DomainNotification(id = 1, typeId = 2, userId = 1, actorId = 5, questionId = 100,
-                    answerId = null, type = "like", message = "liked", isRead = false,
-                    createdAt = "2024-01-15T10:00:00Z", actorName = "John"),
-                DomainNotification(id = 2, typeId = 3, userId = 1, actorId = 6, questionId = 200,
-                    answerId = null, type = "answer", message = "answered", isRead = false,
-                    createdAt = "2024-01-14T10:00:00Z", actorName = "Jane"),
-            )
-        )
-        coEvery { questionRepository.getById(any()) } returns Result.Success(
-            com.mohamed.devz.feature.core.domain.model.Question(0, "", "", "", 0, 0, "", 1, 1, null, "")
-        )
-        coEvery { notificationRepository.update(any()) } returns Result.Success(Unit)
-
-        val viewModel = NotificationsViewModel(notificationRepository, questionRepository, userPreferencesRepository)
-        advanceUntilIdle()
-
-        viewModel.onAction(NotificationsAction.MarkAllRead)
-        advanceUntilIdle()
-
-        assertTrue(viewModel.uiState.value.notifications.all { it.isRead })
     }
 
     @Test

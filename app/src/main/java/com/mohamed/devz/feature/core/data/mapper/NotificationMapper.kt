@@ -5,7 +5,6 @@ import com.mohamed.devz.feature.core.domain.model.Notification as DomainNotifica
 
 fun DataNotification.toDomain(
     actorName: String? = null,
-    actorAvatarUrl: String? = null,
 ): DomainNotification = DomainNotification(
     id = id,
     typeId = typeId,
@@ -18,7 +17,6 @@ fun DataNotification.toDomain(
     isRead = isRead,
     createdAt = createdAt,
     actorName = actorName,
-    actorAvatarUrl = actorAvatarUrl,
     senderType = senderType,
     isGlobal = isGlobal,
 )

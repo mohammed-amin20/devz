@@ -47,7 +47,6 @@ interface DevZRemoteDataSource {
 
         suspend fun getQuestionById(id: Int): Question
         suspend fun getQuestionsByAccountId(accountId: Int): List<Question>
-        suspend fun getQuestionsByTag(tag: String): List<Question>
         suspend fun getQuestionsByAccountIds(
             accountIds: List<Int>,
             offset: Int,
@@ -99,8 +98,6 @@ interface DevZRemoteDataSource {
         suspend fun updateAnswer(answer: Answer)
 
         suspend fun deleteAnswer(answer: Answer)
-
-        suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<String>
     }
 
     interface NotificationTable {

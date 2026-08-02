@@ -27,7 +27,6 @@ import com.mohamed.devz.feature.admin.presentation.manage_questions.ManageQuesti
 import com.mohamed.devz.feature.admin.presentation.manage_answers.ManageAnswersScreen
 import com.mohamed.devz.feature.admin.presentation.manage_announcements.ManageAnnouncementsScreen
 import com.mohamed.devz.feature.authentication.presentation.BannedScreen
-import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.job.presentation.job_detail.JobDetailScreen
 import com.mohamed.devz.feature.job.presentation.post_job.PostJobScreen
 import com.mohamed.devz.feature.company.presentation.PendingApprovalScreen
@@ -181,14 +180,6 @@ fun DevzNavHost(
             if (switchToProfileTab) {
                 backStackEntry.savedStateHandle.remove<Boolean>("switchToProfileTab")
             }
-        }
-        composable<Route.Jobs> {
-            JobsScreen(
-                onJobClick = { jobId ->
-                    navController.navigate(Route.JobDetail(jobId))
-                },
-                modifier = modifier
-            )
         }
         composable<Route.JobDetail> {
             val id = it.toRoute<Route.JobDetail>().id

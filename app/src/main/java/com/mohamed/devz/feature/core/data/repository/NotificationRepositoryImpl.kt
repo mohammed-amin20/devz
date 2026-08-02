@@ -40,10 +40,7 @@ class NotificationRepositoryImpl @Inject constructor(
 
             val domains = dataNotifications.map { notification ->
                 val actor = accountMap[notification.actorId]
-                notification.toDomain(
-                    actorName = actor?.username,
-                    actorAvatarUrl = actor?.imageUrl,
-                )
+                notification.toDomain(actorName = actor?.username)
             }
             Result.Success(domains)
         } catch (e: PostgrestRestException) {
@@ -59,7 +56,7 @@ class NotificationRepositoryImpl @Inject constructor(
         return try {
             val dataNotifications = remoteDataSource.notification.getSystemNotifications()
             val domains = dataNotifications.map { notification ->
-                notification.toDomain(actorName = null, actorAvatarUrl = null)
+                notification.toDomain(actorName = null)
             }
             Result.Success(domains)
         } catch (e: PostgrestRestException) {

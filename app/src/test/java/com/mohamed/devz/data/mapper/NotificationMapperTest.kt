@@ -34,7 +34,6 @@ class NotificationMapperTest {
         isRead = false,
         createdAt = "2024-01-15T10:00:00Z",
         actorName = null,
-        actorAvatarUrl = null,
     )
 
     @Test
@@ -51,14 +50,12 @@ class NotificationMapperTest {
         assertEquals(dataNotification.isRead, domain.isRead)
         assertEquals(dataNotification.createdAt, domain.createdAt)
         assertNull(domain.actorName)
-        assertNull(domain.actorAvatarUrl)
     }
 
     @Test
     fun `data to domain with enrichment`() {
-        val domain = dataNotification.toDomain(actorName = "John", actorAvatarUrl = "https://example.com/avatar.jpg")
+        val domain = dataNotification.toDomain(actorName = "John")
         assertEquals("John", domain.actorName)
-        assertEquals("https://example.com/avatar.jpg", domain.actorAvatarUrl)
     }
 
     @Test

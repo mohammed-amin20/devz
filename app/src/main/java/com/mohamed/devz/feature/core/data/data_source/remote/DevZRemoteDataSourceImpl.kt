@@ -11,7 +11,6 @@ import com.mohamed.devz.feature.core.data.model.JobApplication
 import com.mohamed.devz.feature.core.data.model.CompanyProfile
 import com.mohamed.devz.feature.core.data.model.Report
 import io.github.jan.supabase.postgrest.Postgrest
-import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
 import io.github.jan.supabase.storage.Storage
 import kotlinx.serialization.json.buildJsonObject
@@ -155,14 +154,6 @@ class DevZRemoteDataSourceImpl(
                 return db.from(tableName)
                     .select {
                         filter { eq("account_id", accountId) }
-                    }
-                    .decodeList()
-            }
-
-            override suspend fun getQuestionsByTag(tag: String): List<Question> {
-                return db.from(tableName)
-                    .select {
-                        filter { like("tags", "%$tag%") }
                     }
                     .decodeList()
             }
@@ -373,14 +364,6 @@ class DevZRemoteDataSourceImpl(
                     .delete {
                         filter { eq("id", answer.id) }
                     }
-            }
-
-            override suspend fun getVotesForAnswerIds(answerIds: List<Int>): List<String> {
-                return db.from(tableName)
-                    .select(columns = Columns.list("voted_ids")) {
-                        filter { isIn("id", answerIds) }
-                    }
-                    .decodeList()
             }
         }
 
