@@ -330,7 +330,9 @@ fun ProfileScreen(
                 val tabs = buildList {
                     add("${if(uiState.isOwnProfile) "MY" else "THEIR"} QUESTIONS")
                     add("${if (uiState.isOwnProfile) "MY" else "THEIR"} ANSWERS")
-                    add("APPLICATIONS")
+                    if (uiState.isOwnProfile) {
+                        add("APPLICATIONS")
+                    }
                 }
 
                 val pullRefreshState = rememberPullToRefreshState()
@@ -1016,30 +1018,44 @@ fun ProfileScreen(
                             }
                         }
                         2 -> {
-                            if (uiState.isLoadingApplications) {
-                                item {
-                                    Box(
-                                        modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        CircularProgressIndicator(color = CyanPrimary)
+                            when {
+                                uiState.isLoadingApplications -> {
+                                    item {
+                                        Box(
+                                            modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            CircularProgressIndicator(color = CyanPrimary)
+                                        }
                                     }
                                 }
-                            } else if (uiState.myApplications.isEmpty()) {
-                                item {
-                                    EmptyTabContent(
-                                        icon = Icons.Filled.Business,
-                                        title = "No applications yet",
-                                        subtitle = "No job applications yet"
-                                    )
+                                uiState.applicationsError != null -> {
+                                    item {
+                                        EmptyTabContent(
+                                            icon = Icons.Filled.Warning,
+                                            title = "Couldn't load applications",
+                                            subtitle = uiState.applicationsError?.asString()
+                                                ?: "Something went wrong",
+                                        )
+                                    }
                                 }
-                            } else {
-                                items(uiState.myApplications, key = { it.id }) { app ->
-                                    ApplicationCard(
-                                        application = app,
-                                        onClick = { onJobClick(app.jobId) },
-                                    )
-                                    Spacer(modifier = Modifier.height(12.dp))
+                                uiState.myApplications.isEmpty() -> {
+                                    item {
+                                        EmptyTabContent(
+                                            icon = Icons.Filled.Business,
+                                            title = "No applications yet",
+                                            subtitle = "No job applications yet"
+                                        )
+                                    }
+                                }
+                                else -> {
+                                    items(uiState.myApplications, key = { it.id }) { app ->
+                                        ApplicationCard(
+                                            application = app,
+                                            onClick = { onJobClick(app.jobId) },
+                                        )
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                    }
                                 }
                             }
                         }

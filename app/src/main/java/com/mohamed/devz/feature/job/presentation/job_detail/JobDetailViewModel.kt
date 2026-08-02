@@ -8,6 +8,7 @@ import com.mohamed.devz.feature.core.domain.repository.JobRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.core.domain.util.toUIText
+import com.mohamed.devz.feature.core.presentation.util.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -95,6 +96,15 @@ class JobDetailViewModel @Inject constructor(
             _uiState.update { it.copy(isSubmitting = true, error = null) }
 
             val currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            if (currentAccountId == 0) {
+                _uiState.update {
+                    it.copy(
+                        error = UiText.DynamicString("Not logged in. Please sign in to apply."),
+                        isSubmitting = false,
+                    )
+                }
+                return@launch
+            }
 
             val application = JobApplication(
                 id = 0,

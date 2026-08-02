@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.profile.presentation.view_profile
 
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -91,13 +92,23 @@ class ProfileViewModel @Inject constructor(
 
     private fun loadApplications() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingApplications = true) }
+            _uiState.update { it.copy(isLoadingApplications = true, applicationsError = null) }
             val accountId = targetAccountId
-                ?: (userPreferencesRepository.observeCurrentAccountId().first() ?: return@launch)
-            if (accountId == 0) return@launch
+                ?: (userPreferencesRepository.observeCurrentAccountId().first() ?: 0)
+            if (accountId == 0) {
+                Log.d("ProfileViewModel", "loadApplications skipped: no logged-in account")
+                _uiState.update {
+                    it.copy(
+                        isLoadingApplications = false,
+                        applicationsError = UiText.DynamicString("Not logged in. Please sign in to see your applications."),
+                    )
+                }
+                return@launch
+            }
 
             when (val result = jobRepository.getApplicationsByApplicantId(accountId)) {
                 is Result.Success -> {
+                    Log.d("ProfileViewModel", "loadApplications accountId=$accountId -> ${result.data.size} rows")
                     val appUiModels = result.data.map { app ->
                         val job = (jobRepository.getJobPostingById(app.jobId) as? Result.Success)?.data
                         ProfileJobApplicationUiModel(
@@ -112,7 +123,13 @@ class ProfileViewModel @Inject constructor(
                     _uiState.update { it.copy(myApplications = appUiModels, isLoadingApplications = false) }
                 }
                 is Result.Error -> {
-                    _uiState.update { it.copy(isLoadingApplications = false) }
+                    Log.d("ProfileViewModel", "loadApplications accountId=$accountId -> error=${result.error}")
+                    _uiState.update {
+                        it.copy(
+                            isLoadingApplications = false,
+                            applicationsError = result.error.toUIText(),
+                        )
+                    }
                 }
             }
         }

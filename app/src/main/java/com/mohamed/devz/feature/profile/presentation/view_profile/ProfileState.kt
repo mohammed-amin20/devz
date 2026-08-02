@@ -25,4 +25,5 @@ data class ProfileState(
     val isLoadingDialog: Boolean = false,
     val myApplications: List<ProfileJobApplicationUiModel> = emptyList(),
     val isLoadingApplications: Boolean = false,
+    val applicationsError: UiText? = null,
 )
