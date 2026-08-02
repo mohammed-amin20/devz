@@ -270,7 +270,7 @@ fun JobDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        enabled = job.status != "filled",
+                        enabled = job.status != "filled" && !uiState.hasApplied,
                         shape = RoundedCornerShape(16.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CyanPrimary,
@@ -280,7 +280,11 @@ fun JobDetailScreen(
                         ),
                     ) {
                         Text(
-                            text = if (job.status == "filled") "Reserved" else "\u2709\uFE0F Apply",
+                            text = when {
+                                job.status == "filled" -> "Reserved"
+                                uiState.hasApplied -> "Applied"
+                                else -> "\u2709\uFE0F Apply"
+                            },
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                         )

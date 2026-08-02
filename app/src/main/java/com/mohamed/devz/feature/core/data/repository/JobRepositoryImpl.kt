@@ -99,7 +99,10 @@ class JobRepositoryImpl @Inject constructor(
             val data = remoteDataSource.jobApplication.insertJobApplication(application.toData())
             Result.Success(data.toDomain())
         } catch (e: PostgrestRestException) {
-            Result.Error(Error.Unknown("Database error"))
+            when (e.statusCode) {
+                409 -> Result.Error(Error.Unknown("You have already applied for this position."))
+                else -> Result.Error(Error.Unknown("Database error"))
+            }
         } catch (e: IOException) {
             Result.Error(Error.Network)
         } catch (e: Exception) {

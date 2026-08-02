@@ -67,7 +67,7 @@ Each feature follows a uniform MVI contract:
 
 ## Project Structure
 
-All 189 source files live under `app/src/main/java/com/mohamed/devz/`.
+All 199 source files live under `app/src/main/java/com/mohamed/devz/`.
 
 ```
 com.mohamed.devz/
@@ -75,7 +75,7 @@ com.mohamed.devz/
 ├── MainActivity.kt                      # @AndroidEntryPoint, deep link handling
 │
 ├── navigation/
-│   ├── Route.kt                         # @Serializable sealed interface — 18 routes
+│   ├── Route.kt                         # @Serializable sealed interface — 21 routes
 │   ├── DevzNavHost.kt                   # NavHost wiring all routes
 │   └── components/home/
 │       ├── HomeScreen.kt                # Bottom nav shell (Feed/Jobs/Notifications/Profile)
@@ -98,11 +98,10 @@ com.mohamed.devz/
     │
     ├── core/
     │   ├── domain/
-    │   │   ├── model/                   # 10 domain models (Account, Question, Answer,
+    │   │   ├── model/                   # 9 domain models (Account, Question, Answer,
     │   │   │                            #  LanguageType, Notification, NotificationType,
-    │   │   │                            #  SearchHistory, JobPosting, JobApplication,
-    │   │   │                            #  CompanyProfile)
-    │   │   ├── repository/              # 10 repository interfaces
+    │   │   │                            #  JobPosting, JobApplication, CompanyProfile)
+    │   │   ├── repository/              # 9 repository interfaces
     │   │   └── util/                    # Error, Result, FcmTokenUtil
     │   ├── data/
     │   │   ├── data_source/
@@ -110,7 +109,7 @@ com.mohamed.devz/
     │   │   │   └── local/               # UserPreferences (DataStore), FcmPushSender
     │   │   ├── model/                   # @Serializable data models (snake_case mapping)
     │   │   ├── mapper/                  # toDomain() / toData() extensions
-    │   │   └── repository/              # 10 repository impls
+    │   │   └── repository/              # 9 repository impls
     │   ├── presentation/util/           # UiText, TimeFormatter
     │   └── di/CoreModule.kt             # Hilt @Module — provides all singletons
     │
@@ -181,6 +180,7 @@ Splash → Onboarding (if first time) → Auth
 | Profile                 | `data class`                   | `accountId: Int`    |
 | Jobs                    | `data object`                  | —                   |
 | JobDetail               | `data class`                   | `id: Int`           |
+| CompanyJobDetail        | `data class`                   | `id: Int`           |
 | AdminDashboard          | `data object`                  | —                   |
 | ManageUsers             | `data object`                  | —                   |
 | ManageQuestions         | `data object`                  | —                   |
@@ -226,6 +226,7 @@ Splash → Onboarding (if first time) → Auth
 - **Tech-stack filtering** — filter questions by tech-stack tags using `ilike` matching; fixed tab bar with swipe animation.
 - Local-only bookmarking (in-memory `Set<Int>`).
 - Each card shows: title, truncated body, code preview, tags, author avatar, time ago, likes/answers count.
+- **Edited badge** — cards show "✎ Edited · X ago" when the question has an `updated_at` newer than its creation.
 
 ### 5. Question Details
 - Full question content with syntax-highlighted code blocks.
@@ -235,16 +236,18 @@ Splash → Onboarding (if first time) → Auth
 - Like/unlike question.
 - Author profile navigation.
 - Breadcrumb navigation.
+- **Edit button** — shown only to the question's author; navigates to the Add/Edit form.
 
 ### 6. Add / Edit Question
 - Title, description, code fields.
 - Language type dropdown (populated from `LanguageType` table).
 - Tag input (comma-separated, stored as comma-separated string in DB).
 - Create mode (`id = null`) vs. edit mode (`id = non-null`).
+- **Edit mode** — reachable from the author's Edit button on the question details screen; preserves likes/votes (does not reset `likesCount`/`answersCount`) and writes `updated_at`.
 
 ### 7. Profile
 - **View profile** — avatar, name, bio, tech stack, stats (questions, answers, likes, Pro badge).
-- Tabbed display of user's questions and answers.
+- Tabbed display of the user's questions, answers, and (own profile only) job applications.
 - **Edit profile** — all fields editable, photo upload to Supabase Storage, skill chips, social links (GitHub, LinkedIn, website).
 - **Admin panel** button visible when `isAdmin = true`.
 
@@ -256,48 +259,45 @@ Splash → Onboarding (if first time) → Auth
 - Deep link from notification tap → question details.
 - Runtime permission request (Android 13+).
 
-### 9. Search History
-- Recent search queries persisted in `SearchHistory` table.
-- Shown as chips below search bar.
-
-### 10. Syntax Highlighting
+### 9. Syntax Highlighting
 - Custom tokenizer for Kotlin, JavaScript, Python.
 - Brace-based and Python-indent formatting.
 
-### 11. Error Handling
+### 10. Error Handling
 - Unified `Result<D, E>` sealed interface.
 - `Error` sealed interface: `NotFound`, `Conflict`, `Unauthorized`, `Network`, `Storage`, `Unknown(msg)`.
 - `Error.toUIText()` maps each variant to user-friendly `UiText.DynamicString`.
 - All repository impls catch `PostgrestRestException`, `IOException`, generic `Exception`.
 
-### 12. Monetization
-- **Pro badges** — users with `isPro = true` get a Pro badge on their profile and question cards.
+### 11. Monetization
+- **Pro badges** — users with `isPro = true` get a Pro badge on their profile, question cards, and next to Pro authors and job applicants.
 - **Ad banners** — in-feed advertisement placeholders.
 - **Pin-to-top** — Pro users can pin questions to the top of the feed.
 
-### 13. Job Board
+### 12. Job Board
 - **Browse jobs** — approved job postings displayed in a paginated feed with company name, title, salary range, job type badges.
 - **Filter** — filter by job type (full-time, part-time, contract, remote) and search by title/company.
 - **Job detail** — full job description with apply button.
 - **Apply** — submit application with cover letter; stored in `JobApplication` table.
-- **My Applications** — tab showing user's submitted applications with status.
+- **My Applications** — tab on the developer's **own profile** showing their submitted applications with status; load errors surface instead of a silent empty state; tapping an application opens the job detail.
 
-### 14. Company Registration & Dashboard
+### 13. Company Registration & Dashboard
 - **Company sign-up** — toggle in registration form, inserts `Account` with `accountType = "company"` + `CompanyProfile` with `subscriptionStatus = "pending"`.
 - **Pending approval** — after sign-up, company users see a PendingApproval screen before accessing Home.
-- **Company dashboard** — replaces the profile tab for company accounts; shows company info, subscription status badge (pending/active/inactive), and list of their job postings.
+- **Company dashboard** — replaces the profile tab for company accounts; shows company info, subscription status badge (pending/active/inactive), and list of their job postings; swipeable bottom-nav tabs with an animated indicator and pull-to-refresh.
+- **Company accounts cannot answer questions** — the answer input is hidden for company accounts.
 - **Post new job** — button to create a job posting; disabled if subscription is not active; status defaults to "pending" pending admin approval.
 
-### 15. Admin Panel
+### 14. Admin Panel
 - **Dashboard** — stat cards grid showing counts (users, questions, answers, announcements, jobs, companies).
 - **Manage Users** — list all accounts, ban/unban toggle.
 - **Manage Questions** — list all questions, delete inappropriate content.
 - **Manage Answers** — list all answers, delete.
-- **Manage Announcements** — create system announcements that are inserted into the `Notification` table with `senderType = "system"`, `isGlobal = true`; FCM push sent to topic `"announcements"`; delete existing announcements.
+- **Manage Announcements** — create system announcements that are inserted into the `Notification` table with `senderType = "system"`, `isGlobal = true`; FCM push sent to topic `"announcements"`; **delete** removes both the global announcement row and every per-user copy (not just marking them read).
 - **Manage Jobs** — list all job postings, approve/reject with FCM push notification to the posting company.
 - **Manage Companies** — list all company profiles, activate/deactivate subscription with FCM push notification.
 
-### 16. System Announcements
+### 15. System Announcements
 - Admin-published announcements stored in the `Notification` table (no separate table).
 - Notification query fetches `user_id = X OR is_global = true` so system announcements appear in every user's feed.
 - Rendered with distinct styling: cyan background, 📢 megaphone icon, "📢 devZ" header, "System" badge chip.
@@ -313,18 +313,17 @@ Splash → Onboarding (if first time) → Auth
 |                  | linkedInUrl, websiteUrl, points, fcmToken, followerIds, followingIds,                 |                      |
 |                  | isBanned, isAdmin, isPro, accountType                                                  |                      |
 | Question         | id, title, description, code, likesCount, answersCount, tags, langTypeId, accountId,  | Question             |
-|                  | createdAt, isPinned, isProOnly                                                        |                      |
+|                  | createdAt, updatedAt, likedAccountIds, isHidden, pinnedUntil                          |                      |
 | Answer           | id, description, accepted, votedIds, questionId, accountId, createdAt                 | Answer               |
 | LanguageType     | id, type                                                                              | LanguageType         |
 | Notification     | id, typeId, userId, actorId, questionId, answerId, type, message, isRead, createdAt,  | Notification         |
 |                  | senderType, isGlobal                                                                  |                      |
 | NotificationType | id, type                                                                              | NotificationType     |
-| SearchHistory    | id, query, accountId, createdAt                                                       | SearchHistory        |
 | JobPosting       | id, companyName, title, description, salaryRange, jobType, status, createdAt,         | JobPosting           |
 |                  | accountId                                                                             |                      |
-| JobApplication   | id, jobId, applicantId, coverLetter, status, createdAt                                | JobApplication       |
+| JobApplication   | id, jobId, applicantId, coverLetter, status, createdAt, email, whatsapp               | JobApplication       |
 | CompanyProfile   | id, userId, companyName, logoUrl, website, description, subscriptionStatus,           | CompanyProfile       |
-|                  | subscriptionExpiry                                                                    |                      |
+|                  | subscriptionExpiry, createdAt, bio, location, industry, twitterUrl, isVerified        |                      |
 
 - Data models (`@Serializable`) use `@SerialName` for snake_case → camelCase mapping.
 - Domain models are plain Kotlin data classes.
@@ -343,6 +342,9 @@ Splash → Onboarding (if first time) → Auth
 - **Image upload** — uses `images` bucket in Supabase Storage; public URL returned directly.
 - **CompanyProfile DB mapping** — uses `user_id` column (not `account_id`) to reference the Account table.
 - **Account table extras** — includes `fcm_token`, `account_type`, `is_banned`, `is_admin`, `is_pro`, `points`, `follower_ids`, `following_ids` columns beyond the original model.
+- **Database migrations** — the `sql/` folder holds one-off Supabase migrations that must be applied manually:
+  - `001_company_profile_fields.sql` — adds company profile columns (incl. a `rating` column no longer used by the UI).
+  - `002_question_updated_at.sql` — adds `Question.updated_at`; **required** for the edit-question flow (edits serialize the whole row).
 
 ---
 

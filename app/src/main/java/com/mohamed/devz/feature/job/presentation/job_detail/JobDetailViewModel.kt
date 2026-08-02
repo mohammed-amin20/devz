@@ -49,6 +49,9 @@ class JobDetailViewModel @Inject constructor(
                     val applicantCount = (appsResult as? Result.Success)?.data?.size ?: 0
                     val profileResult = companyProfileRepository.getByAccountId(job.accountId)
                     val logoUrl = (profileResult as? Result.Success)?.data?.logoUrl ?: ""
+                    val currentAccountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+                    val myAppsResult = if (currentAccountId == 0) null else jobRepository.getApplicationsByApplicantId(currentAccountId)
+                    val hasApplied = (myAppsResult as? Result.Success)?.data?.any { it.jobId == jobId } ?: false
                     _uiState.update {
                         it.copy(
                             job = JobDetailUiModel(
@@ -64,6 +67,7 @@ class JobDetailViewModel @Inject constructor(
                                 status = job.status,
                                 applicantCount = applicantCount,
                             ),
+                            hasApplied = hasApplied,
                             isLoading = false,
                         )
                     }
@@ -106,6 +110,19 @@ class JobDetailViewModel @Inject constructor(
                 return@launch
             }
 
+            val myAppsResult = jobRepository.getApplicationsByApplicantId(currentAccountId)
+            val alreadyApplied = (myAppsResult as? Result.Success)?.data?.any { it.jobId == jobId } ?: false
+            if (alreadyApplied) {
+                _uiState.update {
+                    it.copy(
+                        error = UiText.DynamicString("You have already applied for this position."),
+                        hasApplied = true,
+                        isSubmitting = false,
+                    )
+                }
+                return@launch
+            }
+
             val application = JobApplication(
                 id = 0,
                 jobId = jobId,
@@ -124,6 +141,7 @@ class JobDetailViewModel @Inject constructor(
                             isSubmitting = false,
                             showApplySheet = false,
                             applicationSuccess = true,
+                            hasApplied = true,
                             email = "",
                             whatsapp = "",
                             coverLetter = "",

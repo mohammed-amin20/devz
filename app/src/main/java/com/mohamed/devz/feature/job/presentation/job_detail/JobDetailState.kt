@@ -12,6 +12,7 @@ data class JobDetailState(
     val showApplySheet: Boolean = false,
     val error: UiText? = null,
     val applicationSuccess: Boolean = false,
+    val hasApplied: Boolean = false,
 )
 
 data class JobDetailUiModel(
