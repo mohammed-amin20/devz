@@ -160,6 +160,7 @@ fun HomeScreen(
                     onEditProfile = navigateToEditProfile,
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
                     onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
+                    onJobClick = navigateToJobDetail,
                     onLogout = onLogout,
                     refreshTrigger = profileRefreshCounter,
                     onFullScreenChanged = { isFullScreenImage = it },
