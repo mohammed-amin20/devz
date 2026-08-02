@@ -199,7 +199,7 @@ fun ViewQuestionsScreen(
                 indicator = {
                     TabRowDefaults.PrimaryIndicator(
                         color = CyanPrimary,
-                        modifier = Modifier.tabIndicatorOffset(pagerState.currentPage)
+                        modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = true)
                     )
                 },
                 divider = {},

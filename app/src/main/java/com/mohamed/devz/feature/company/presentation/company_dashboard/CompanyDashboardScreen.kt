@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -34,14 +36,17 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -71,6 +76,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.core.tween
 import androidx.compose.ui.text.style.TextAlign
+import kotlinx.coroutines.launch
 
 @Composable
 fun CompanyDashboardScreen(
@@ -83,6 +89,21 @@ fun CompanyDashboardScreen(
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
     var showEditProfileDialog by rememberSaveable { mutableStateOf(false) }
+
+    val pagerState = rememberPagerState(pageCount = { 2 })
+    val coroutineScope = rememberCoroutineScope()
+
+    LaunchedEffect(pagerState.currentPage) {
+        if (uiState.selectedTab != pagerState.currentPage) {
+            viewModel.onAction(CompanyDashboardAction.SelectTab(pagerState.currentPage))
+        }
+    }
+
+    LaunchedEffect(uiState.selectedTab) {
+        if (pagerState.currentPage != uiState.selectedTab) {
+            pagerState.animateScrollToPage(uiState.selectedTab)
+        }
+    }
 
     Box(modifier = modifier.fillMaxSize().background(QBg)) {
         Column(
@@ -157,10 +178,7 @@ fun CompanyDashboardScreen(
                             )
                         },
                     ) {
-                        LazyColumn(
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
-                        ) {
-                        item {
+                        Column(modifier = Modifier.fillMaxSize()) {
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
                                 color = DevzCard,
@@ -239,98 +257,119 @@ fun CompanyDashboardScreen(
                                     )
                                 }
                             }
-                        }
 
-                        item {
-                            Spacer(modifier = Modifier.height(4.dp))
-                            PrimaryTabRow(
-                                selectedTabIndex = uiState.selectedTab,
-                                containerColor = QBg,
-                            ) {
+                        Spacer(modifier = Modifier.height(4.dp))
+                        PrimaryTabRow(
+                            selectedTabIndex = pagerState.currentPage,
+                            containerColor = QBg,
+                            indicator = {
+                                TabRowDefaults.PrimaryIndicator(
+                                    color = CyanPrimary,
+                                    modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = true),
+                                )
+                            },
+                            divider = {},
+                        ) {
                                 Tab(
-                                    selected = uiState.selectedTab == 0,
-                                    onClick = { viewModel.onAction(CompanyDashboardAction.SelectTab(0)) },
+                                    selected = pagerState.currentPage == 0,
+                                    onClick = {
+                                        coroutineScope.launch { pagerState.animateScrollToPage(0) }
+                                    },
                                     text = {
                                         Text(
                                             "Offered (${uiState.offeredJobs.size})",
-                                            fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 0) CyanPrimary else TextGray,
+                                            fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (pagerState.currentPage == 0) CyanPrimary else TextGray,
                                         )
                                     },
                                 )
                                 Tab(
-                                    selected = uiState.selectedTab == 1,
-                                    onClick = { viewModel.onAction(CompanyDashboardAction.SelectTab(1)) },
+                                    selected = pagerState.currentPage == 1,
+                                    onClick = {
+                                        coroutineScope.launch { pagerState.animateScrollToPage(1) }
+                                    },
                                     text = {
                                         Text(
                                             "Reserved (${uiState.reservedJobs.size})",
-                                            fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 1) CyanPrimary else TextGray,
+                                            fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (pagerState.currentPage == 1) CyanPrimary else TextGray,
                                         )
                                     },
                                 )
                             }
                             Spacer(modifier = Modifier.height(8.dp))
-                        }
 
-                        val currentJobs = if (uiState.selectedTab == 0) uiState.offeredJobs else uiState.reservedJobs
+                        HorizontalPager(
+                            state = pagerState,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .weight(1f),
+                        ) { page ->
+                            val currentJobs = if (page == 0) uiState.offeredJobs else uiState.reservedJobs
 
-                        if (currentJobs.isEmpty()) {
-                            item {
-                                Text(
-                                    text = if (uiState.selectedTab == 0) "No offered jobs" else "No reserved jobs",
-                                    color = QOnSurfaceVariant,
-                                    fontSize = 14.sp,
-                                    modifier = Modifier.padding(vertical = 8.dp),
-                                )
-                            }
-                        } else {
-                            items(currentJobs, key = { it.id }) { job ->
-                                Surface(
-                                    shape = RoundedCornerShape(12.dp),
-                                    color = DevzCard,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clickable { onJobClick(job.id) },
+                            if (currentJobs.isEmpty()) {
+                                Box(
+                                    modifier = Modifier.fillMaxSize(),
+                                    contentAlignment = Alignment.Center,
                                 ) {
-                                    Column(modifier = Modifier.padding(16.dp)) {
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            verticalAlignment = Alignment.CenterVertically,
+                                    Text(
+                                        text = if (page == 0) "No offered jobs" else "No reserved jobs",
+                                        color = QOnSurfaceVariant,
+                                        fontSize = 14.sp,
+                                    )
+                                }
+                            } else {
+                                LazyColumn(
+                                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                                    modifier = Modifier.fillMaxSize(),
+                                ) {
+                                    items(currentJobs, key = { it.id }) { job ->
+                                        Surface(
+                                            shape = RoundedCornerShape(12.dp),
+                                            color = DevzCard,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clickable { onJobClick(job.id) },
                                         ) {
-                                            Text(
-                                                text = job.title,
-                                                color = TextWhite,
-                                                fontSize = 14.sp,
-                                                fontWeight = FontWeight.Medium,
-                                                modifier = Modifier.weight(1f),
-                                            )
-                                            Spacer(modifier = Modifier.width(8.dp))
-                                            Text(
-                                                text = job.status.replaceFirstChar { it.uppercase() },
-                                                color = Color(0xFF4CAF50),
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Bold,
-                                                modifier = Modifier
-                                                    .background(Color(0xFF4CAF50).copy(alpha = 0.15f), RoundedCornerShape(6.dp))
-                                                    .padding(horizontal = 8.dp, vertical = 3.dp),
-                                            )
-                                        }
-                                        if (job.createdAt.isNotBlank()) {
-                                            Spacer(modifier = Modifier.height(4.dp))
-                                            Text(
-                                                text = formatTimestamp(job.createdAt),
-                                                color = TextGray,
-                                                fontSize = 11.sp,
-                                            )
+                                            Column(modifier = Modifier.padding(16.dp)) {
+                                                Row(
+                                                    modifier = Modifier.fillMaxWidth(),
+                                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                                    verticalAlignment = Alignment.CenterVertically,
+                                                ) {
+                                                    Text(
+                                                        text = job.title,
+                                                        color = TextWhite,
+                                                        fontSize = 14.sp,
+                                                        fontWeight = FontWeight.Medium,
+                                                        modifier = Modifier.weight(1f),
+                                                    )
+                                                    Spacer(modifier = Modifier.width(8.dp))
+                                                    Text(
+                                                        text = job.status.replaceFirstChar { it.uppercase() },
+                                                        color = Color(0xFF4CAF50),
+                                                        fontSize = 11.sp,
+                                                        fontWeight = FontWeight.Bold,
+                                                        modifier = Modifier
+                                                            .background(Color(0xFF4CAF50).copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                                                    )
+                                                }
+                                                if (job.createdAt.isNotBlank()) {
+                                                    Spacer(modifier = Modifier.height(4.dp))
+                                                    Text(
+                                                        text = formatTimestamp(job.createdAt),
+                                                        color = TextGray,
+                                                        fontSize = 11.sp,
+                                                    )
+                                                }
+                                            }
                                         }
                                     }
+                                    item { Spacer(modifier = Modifier.height(80.dp)) }
                                 }
                             }
                         }
-
-                        item { Spacer(modifier = Modifier.height(80.dp)) }
                         }
                     }
                 }
