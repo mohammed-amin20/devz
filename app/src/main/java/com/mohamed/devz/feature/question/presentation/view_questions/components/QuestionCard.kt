@@ -38,6 +38,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
+import com.mohamed.devz.feature.report.presentation.ReportMenu
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.TextGray
@@ -48,6 +49,7 @@ fun QuestionCard(
     question: QuestionFeedUiModel,
     onClick: () -> Unit,
     onAuthorClick: () -> Unit = {},
+    onReport: (() -> Unit)? = null,
 ) {
     Surface(
         modifier = Modifier
@@ -125,6 +127,10 @@ fun QuestionCard(
                             )
                         }
                     }
+                }
+
+                if (onReport != null) {
+                    ReportMenu(onReport = onReport)
                 }
             }
 

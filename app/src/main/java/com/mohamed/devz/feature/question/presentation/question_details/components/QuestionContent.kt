@@ -57,6 +57,7 @@ fun QuestionContent(
     onAcceptAnswer: (Int) -> Unit = {},
     onQuestionAuthorClick: () -> Unit = {},
     onAnswerAuthorClick: (Int) -> Unit = {},
+    onAnswerReport: ((AnswerUiModel) -> Unit)? = null,
     onCodeLongPress: (String) -> Unit = {},
     isPro: Boolean = false,
     isPinned: Boolean = false,
@@ -237,13 +238,17 @@ fun QuestionContent(
         }
 
         items(answers.size) { index ->
+            val answer = answers[index]
             AnswerCard(
-                answer = answers[index],
-                onVoteClick = { onAnswerVoteClick(answers[index].answerId) },
+                answer = answer,
+                onVoteClick = { onAnswerVoteClick(answer.answerId) },
                 isAcceptButtonVisible = currentAccountId == question.authorAccountId
-                        && currentAccountId != answers[index].authorAccountId,
-                onAcceptClick = { onAcceptAnswer(answers[index].answerId) },
-                onAuthorClick = { onAnswerAuthorClick(answers[index].authorAccountId) },
+                        && currentAccountId != answer.authorAccountId,
+                onAcceptClick = { onAcceptAnswer(answer.answerId) },
+                onAuthorClick = { onAnswerAuthorClick(answer.authorAccountId) },
+                onReport = if (currentAccountId != 0 && answer.authorAccountId != currentAccountId) {
+                    { onAnswerReport?.invoke(answer) }
+                } else null,
             )
             Spacer(Modifier.height(12.dp))
         }

@@ -100,6 +100,9 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.components.Pro
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.report.presentation.ReportMenu
+import com.mohamed.devz.feature.report.presentation.ReportSheet
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -425,6 +428,21 @@ fun ProfileScreen(
                                         modifier = Modifier.size(18.dp)
                                     )
                                 }
+                            } else if (uiState.id != 0) {
+                                ReportMenu(
+                                    onReport = {
+                                        viewModel.onAction(
+                                            ProfileAction.ShowReport(
+                                                ReportTarget(
+                                                    reportedType = "user",
+                                                    reportedId = uiState.id,
+                                                    preview = uiState.profile?.fullName
+                                                        ?: "@${uiState.profile?.username ?: "user"}",
+                                                )
+                                            )
+                                        )
+                                    }
+                                )
                             }
                         }
                     }
@@ -1220,6 +1238,13 @@ fun ProfileScreen(
             onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
             onProfileClick = onProfileClick,
         )
+
+        uiState.reportTarget?.let { target ->
+            ReportSheet(
+                target = target,
+                onDismiss = { viewModel.onAction(ProfileAction.DismissReport) },
+            )
+        }
     }
 }
 

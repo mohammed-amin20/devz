@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.question.presentation.view_questions
 
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 
 data class ViewQuestionsState(
     val questions: List<QuestionFeedUiModel> = emptyList(),
@@ -18,4 +19,6 @@ data class ViewQuestionsState(
     val isNotFollowingAnyone: Boolean = false,
     val noTechMatches: Boolean = false,
     val isPro: Boolean = false,
+    val currentAccountId: Int = 0,
+    val reportTarget: ReportTarget? = null,
 )

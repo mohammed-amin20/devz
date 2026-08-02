@@ -79,6 +79,12 @@ class ProfileViewModel @Inject constructor(
                 targetAccountId = action.accountId
                 loadProfile(targetAccountId)
             }
+            is ProfileAction.ShowReport -> {
+                _uiState.update { it.copy(reportTarget = action.target) }
+            }
+            is ProfileAction.DismissReport -> {
+                _uiState.update { it.copy(reportTarget = null) }
+            }
         }
     }
 

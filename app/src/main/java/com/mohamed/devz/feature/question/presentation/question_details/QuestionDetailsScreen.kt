@@ -47,6 +47,8 @@ import com.mohamed.devz.feature.question.presentation.question_details.component
 import com.mohamed.devz.feature.question.presentation.question_details.components.QuestionContent
 import com.mohamed.devz.feature.question.presentation.question_details.components.TopBar
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
+import com.mohamed.devz.feature.report.presentation.ReportSheet
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.QBg
@@ -104,7 +106,25 @@ fun QuestionDetailScreen(
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(modifier = Modifier.fillMaxSize()) {
-                TopBar()
+                val questionForReport = uiState.question
+                TopBar(
+                    onReport = if (questionForReport != null
+                        && uiState.currentAccountId != 0
+                        && questionForReport.authorAccountId != uiState.currentAccountId
+                    ) {
+                        {
+                            viewModel.onAction(
+                                QuestionDetailsAction.ShowReport(
+                                    ReportTarget(
+                                        reportedType = "question",
+                                        reportedId = questionId,
+                                        preview = questionForReport.title,
+                                    )
+                                )
+                            )
+                        }
+                    } else null,
+                )
 
                 if (uiState.question == null) {
                     Box(
@@ -165,6 +185,17 @@ fun QuestionDetailScreen(
                         onCodeLongPress = { code ->
                             viewModel.onAction(QuestionDetailsAction.PrefillAnswerCode(code))
                         },
+                        onAnswerReport = { answer ->
+                            viewModel.onAction(
+                                QuestionDetailsAction.ShowReport(
+                                    ReportTarget(
+                                        reportedType = "answer",
+                                        reportedId = answer.answerId,
+                                        preview = answer.body,
+                                    )
+                                )
+                            )
+                        },
                         isPro = uiState.isPro,
                         isPinned = question.isPinned,
                         isPinning = uiState.isPinning,
@@ -196,6 +227,13 @@ fun QuestionDetailScreen(
                         viewModel.onAction(QuestionDetailsAction.AnswerCodeChanged(null))
                         viewModel.onAction(QuestionDetailsAction.HideCodeEditor)
                     },
+                )
+            }
+
+            uiState.reportTarget?.let { target ->
+                ReportSheet(
+                    target = target,
+                    onDismiss = { viewModel.onAction(QuestionDetailsAction.DismissReport) },
                 )
             }
         }

@@ -6,6 +6,7 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileFo
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 
 data class ProfileState(
     val id: Int = 0,
@@ -26,4 +27,5 @@ data class ProfileState(
     val myApplications: List<ProfileJobApplicationUiModel> = emptyList(),
     val isLoadingApplications: Boolean = false,
     val applicationsError: UiText? = null,
+    val reportTarget: ReportTarget? = null,
 )

@@ -51,6 +51,7 @@ fun AdminDashboardScreen(
     onNavigateToAnnouncements: () -> Unit,
     onNavigateToJobs: () -> Unit = {},
     onNavigateToCompanies: () -> Unit = {},
+    onNavigateToReports: () -> Unit = {},
     onNavigateUp: () -> Unit,
     viewModel: AdminDashboardViewModel = hiltViewModel(),
 ) {
@@ -166,6 +167,11 @@ fun AdminDashboardScreen(
                 emoji = "\uD83C\uDFED",
                 label = "Companies",
                 onClick = onNavigateToCompanies
+            )
+            AdminMenuItem(
+                emoji = "\uD83D\uDEA9",
+                label = "Reports",
+                onClick = onNavigateToReports
             )
         }
     }

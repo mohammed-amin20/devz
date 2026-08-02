@@ -9,6 +9,7 @@ import com.mohamed.devz.feature.core.data.model.Question
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
 import com.mohamed.devz.feature.core.data.model.CompanyProfile
+import com.mohamed.devz.feature.core.data.model.Report
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Order
@@ -646,6 +647,65 @@ class DevZRemoteDataSourceImpl(
             }
 
             override suspend fun updateJobApplicationStatus(id: Int, status: String) {
+                db.from(tableName)
+                    .update(buildJsonObject { put("status", status) }) {
+                        filter { eq("id", id) }
+                    }
+            }
+        }
+
+    override val report: DevZRemoteDataSource.ReportTable
+        get() = object : DevZRemoteDataSource.ReportTable {
+            private val tableName = "Report"
+
+            override suspend fun insertReport(report: Report): Report {
+                val json = buildJsonObject {
+                    put("reporter_id", report.reporterId)
+                    put("reported_type", report.reportedType)
+                    put("reported_id", report.reportedId)
+                    put("reason", report.reason)
+                    put("details", report.details)
+                    put("status", report.status)
+                    put("created_at", report.createdAt)
+                }
+
+                return db.from(tableName)
+                    .insert(json) {
+                        select()
+                    }
+                    .decodeSingle()
+            }
+
+            override suspend fun getReportsByStatus(status: String?): List<Report> {
+                return db.from(tableName)
+                    .select {
+                        if (status != null) {
+                            filter { eq("status", status) }
+                        }
+                        order(column = "created_at", order = Order.DESCENDING)
+                    }
+                    .decodeList()
+            }
+
+            override suspend fun getReportByReporterAndTarget(
+                reporterId: Int,
+                reportedType: String,
+                reportedId: Int,
+            ): Report? {
+                return db.from(tableName)
+                    .select {
+                        filter {
+                            and {
+                                eq("reporter_id", reporterId)
+                                eq("reported_type", reportedType)
+                                eq("reported_id", reportedId)
+                            }
+                        }
+                    }
+                    .decodeSingleOrNull()
+            }
+
+            override suspend fun updateReportStatus(id: Int, status: String) {
                 db.from(tableName)
                     .update(buildJsonObject { put("status", status) }) {
                         filter { eq("id", id) }

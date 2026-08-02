@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
+import com.mohamed.devz.feature.report.presentation.ReportMenu
 import com.mohamed.devz.ui.theme.QOnSurface
 import com.mohamed.devz.ui.theme.QOnSurfaceVariant
 import com.mohamed.devz.ui.theme.QOutline
@@ -63,6 +64,7 @@ fun AnswerCard(
     onVoteClick: () -> Unit = {},
     onAcceptClick: () -> Unit = {},
     onAuthorClick: () -> Unit = {},
+    onReport: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
@@ -140,6 +142,10 @@ fun AnswerCard(
                             style = MaterialTheme.typography.bodyMedium
                         )
                     }
+                }
+
+                if (onReport != null) {
+                    ReportMenu(onReport = onReport)
                 }
             }
 

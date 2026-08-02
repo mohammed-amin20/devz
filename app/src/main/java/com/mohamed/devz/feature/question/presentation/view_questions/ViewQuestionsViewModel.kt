@@ -83,6 +83,12 @@ class ViewQuestionsViewModel @Inject constructor(
                 }
             }
             is ViewQuestionsAction.Refresh -> loadFeed(isRefresh = true)
+            is ViewQuestionsAction.ShowReport -> {
+                _uiState.update { it.copy(reportTarget = action.target) }
+            }
+            is ViewQuestionsAction.DismissReport -> {
+                _uiState.update { it.copy(reportTarget = null) }
+            }
         }
     }
 
@@ -134,6 +140,7 @@ class ViewQuestionsViewModel @Inject constructor(
             }
 
             val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            _uiState.update { it.copy(currentAccountId = accountId) }
             if (accountId == 0) {
                 _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 return@launch
@@ -235,6 +242,7 @@ class ViewQuestionsViewModel @Inject constructor(
             }
 
             val accountId = userPreferencesRepository.observeCurrentAccountId().first() ?: 0
+            _uiState.update { it.copy(currentAccountId = accountId) }
             if (accountId == 0) {
                 _uiState.update { it.copy(isLoading = false, isRefreshing = false) }
                 return@launch

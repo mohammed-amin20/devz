@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.question.presentation.question_details
 
 import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerUiModel
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 
 data class QuestionDetailsState(
     val question: QuestionDetailUiModel? = null,
@@ -10,6 +11,7 @@ data class QuestionDetailsState(
     val answerCode: String? = null,
     val showCodeEditor: Boolean = false,
     val currentAccountId: Int = 0,
+    val reportTarget: ReportTarget? = null,
     val isLoading: Boolean = false,
     val isPosting: Boolean = false,
     val isLiking: Boolean = false,

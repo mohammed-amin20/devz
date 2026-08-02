@@ -71,6 +71,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
+import com.mohamed.devz.feature.report.presentation.ReportSheet
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -237,6 +239,7 @@ fun ViewQuestionsScreen(
                     onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
                     onQuestionClick = onQuestionClick,
                     onAuthorClick = onAuthorClick,
+                    onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
                 )
                 1 -> FollowingFeed(
                     uiState = uiState,
@@ -244,8 +247,16 @@ fun ViewQuestionsScreen(
                     onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
                     onQuestionClick = onQuestionClick,
                     onAuthorClick = onAuthorClick,
+                    onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
                 )
             }
+        }
+
+        uiState.reportTarget?.let { target ->
+            ReportSheet(
+                target = target,
+                onDismiss = { viewModel.onAction(ViewQuestionsAction.DismissReport) },
+            )
         }
     }
 }
@@ -258,6 +269,7 @@ private fun ForYouFeed(
     onRefresh: () -> Unit,
     onQuestionClick: (Int) -> Unit,
     onAuthorClick: (Int) -> Unit,
+    onReport: (ReportTarget) -> Unit,
 ) {
     val feedItems = remember(uiState.questions, uiState.pinnedQuestions, uiState.isPro) {
         val pinned = uiState.pinnedQuestions.map { FeedItem.QuestionItem(it) }
@@ -365,6 +377,17 @@ private fun ForYouFeed(
                                 question = item.question,
                                 onClick = { onQuestionClick(item.question.id) },
                                 onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                                onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
+                                    {
+                                        onReport(
+                                            ReportTarget(
+                                                reportedType = "question",
+                                                reportedId = item.question.id,
+                                                preview = item.question.title,
+                                            )
+                                        )
+                                    }
+                                } else null,
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                         }
@@ -406,6 +429,7 @@ private fun FollowingFeed(
     onRefresh: () -> Unit,
     onQuestionClick: (Int) -> Unit,
     onAuthorClick: (Int) -> Unit,
+    onReport: (ReportTarget) -> Unit,
 ) {
     val feedItems = remember(uiState.questions, uiState.pinnedQuestions, uiState.isPro) {
         val pinnedIds = uiState.pinnedQuestions.map { it.id }.toSet()
@@ -499,6 +523,17 @@ private fun FollowingFeed(
                                 question = item.question,
                                 onClick = { onQuestionClick(item.question.id) },
                                 onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                                onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
+                                    {
+                                        onReport(
+                                            ReportTarget(
+                                                reportedType = "question",
+                                                reportedId = item.question.id,
+                                                preview = item.question.title,
+                                            )
+                                        )
+                                    }
+                                } else null,
                             )
                             Spacer(modifier = Modifier.height(12.dp))
                         }

@@ -9,6 +9,7 @@ import com.mohamed.devz.feature.core.data.model.Question
 import com.mohamed.devz.feature.core.data.model.JobPosting
 import com.mohamed.devz.feature.core.data.model.JobApplication
 import com.mohamed.devz.feature.core.data.model.CompanyProfile
+import com.mohamed.devz.feature.core.data.model.Report
 
 interface DevZRemoteDataSource {
 
@@ -21,6 +22,7 @@ interface DevZRemoteDataSource {
     val jobPosting: JobPostingTable
     val jobApplication: JobApplicationTable
     val companyProfile: CompanyProfileTable
+    val report: ReportTable
 
     interface AccountTable {
         suspend fun uploadImage(imageBytes: ByteArray, fileName: String): String
@@ -140,5 +142,16 @@ interface DevZRemoteDataSource {
         suspend fun insert(profile: CompanyProfile): CompanyProfile
         suspend fun update(profile: CompanyProfile)
         suspend fun getAll(): List<CompanyProfile>
+    }
+
+    interface ReportTable {
+        suspend fun insertReport(report: Report): Report
+        suspend fun getReportsByStatus(status: String?): List<Report>
+        suspend fun getReportByReporterAndTarget(
+            reporterId: Int,
+            reportedType: String,
+            reportedId: Int,
+        ): Report?
+        suspend fun updateReportStatus(id: Int, status: String)
     }
 }

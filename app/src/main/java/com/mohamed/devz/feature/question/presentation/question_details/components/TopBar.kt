@@ -28,12 +28,15 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.report.presentation.ReportMenu
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.QOutline
 import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
-fun TopBar() {
+fun TopBar(
+    onReport: (() -> Unit)? = null,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -75,6 +78,9 @@ fun TopBar() {
                 },
                 style = MaterialTheme.typography.titleLarge
             )
+        }
+        if (onReport != null) {
+            ReportMenu(onReport = onReport)
         }
     }
 }

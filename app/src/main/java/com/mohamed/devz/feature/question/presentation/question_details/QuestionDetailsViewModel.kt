@@ -73,6 +73,12 @@ class QuestionDetailsViewModel @Inject constructor(
             is QuestionDetailsAction.ToggleAnswerVote -> toggleAnswerVote(action.answerId)
             is QuestionDetailsAction.AcceptAnswer -> acceptAnswer(action.answerId)
             is QuestionDetailsAction.PinQuestion -> pinQuestion()
+            is QuestionDetailsAction.ShowReport -> {
+                _uiState.update { it.copy(reportTarget = action.target) }
+            }
+            is QuestionDetailsAction.DismissReport -> {
+                _uiState.update { it.copy(reportTarget = null) }
+            }
         }
     }
 

@@ -35,6 +35,7 @@ import com.mohamed.devz.feature.company.presentation.company_job_detail.CompanyJ
 import com.mohamed.devz.feature.company.presentation.company_profile.ProfileHostScreen
 import com.mohamed.devz.feature.admin.presentation.manage_jobs.ManageJobsScreen
 import com.mohamed.devz.feature.admin.presentation.manage_companies.ManageCompaniesScreen
+import com.mohamed.devz.feature.admin.presentation.manage_reports.ManageReportsScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
 import com.mohamed.devz.navigation.components.home.HomeViewModel
 
@@ -261,6 +262,7 @@ fun DevzNavHost(
                 onNavigateToAnnouncements = { navController.navigate(Route.ManageAnnouncements) },
                 onNavigateToJobs = { navController.navigate(Route.ManageJobs) },
                 onNavigateToCompanies = { navController.navigate(Route.ManageCompanies) },
+                onNavigateToReports = { navController.navigate(Route.ManageReports) },
                 onNavigateUp = { navController.navigateUp() },
             )
         }
@@ -322,6 +324,11 @@ fun DevzNavHost(
                 onCompanyClick = { accountId ->
                     navController.navigate(Route.Profile(accountId))
                 },
+            )
+        }
+        composable<Route.ManageReports> {
+            ManageReportsScreen(
+                onNavigateUp = { navController.navigateUp() },
             )
         }
         composable<Route.CompanyJobDetail> {

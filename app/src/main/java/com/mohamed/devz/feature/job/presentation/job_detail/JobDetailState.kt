@@ -1,6 +1,7 @@
 package com.mohamed.devz.feature.job.presentation.job_detail
 
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 
 data class JobDetailState(
     val job: JobDetailUiModel? = null,
@@ -13,6 +14,8 @@ data class JobDetailState(
     val error: UiText? = null,
     val applicationSuccess: Boolean = false,
     val hasApplied: Boolean = false,
+    val currentAccountId: Int = 0,
+    val reportTarget: ReportTarget? = null,
 )
 
 data class JobDetailUiModel(

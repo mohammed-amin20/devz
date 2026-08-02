@@ -61,6 +61,9 @@ import com.mohamed.devz.ui.theme.QSurfaceHigh
 import com.mohamed.devz.ui.theme.TextGray
 import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.report.presentation.ReportMenu
+import com.mohamed.devz.feature.report.presentation.ReportSheet
+import com.mohamed.devz.feature.report.presentation.ReportTarget
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -94,12 +97,29 @@ fun JobDetailScreen(
                     .background(QBg)
                     .padding(horizontal = 4.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 IconButton(onClick = navigateUp) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = "Back",
                         tint = TextWhite,
+                    )
+                }
+                val jobForReport = uiState.job
+                if (jobForReport != null && uiState.currentAccountId != 0 && jobForReport.accountId != uiState.currentAccountId) {
+                    ReportMenu(
+                        onReport = {
+                            viewModel.onAction(
+                                JobDetailAction.ShowReport(
+                                    ReportTarget(
+                                        reportedType = "job",
+                                        reportedId = jobForReport.id,
+                                        preview = jobForReport.title,
+                                    )
+                                )
+                            )
+                        }
                     )
                 }
             }
@@ -417,6 +437,13 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
+        }
+
+        uiState.reportTarget?.let { target ->
+            ReportSheet(
+                target = target,
+                onDismiss = { viewModel.onAction(JobDetailAction.DismissReport) },
+            )
         }
     }
 }

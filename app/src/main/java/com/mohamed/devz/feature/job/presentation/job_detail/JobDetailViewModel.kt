@@ -35,6 +35,8 @@ class JobDetailViewModel @Inject constructor(
             is JobDetailAction.CoverLetterChanged -> _uiState.update { it.copy(coverLetter = action.value) }
             is JobDetailAction.SubmitApplication -> submitApplication(action.onSuccess)
             is JobDetailAction.DismissError -> _uiState.update { it.copy(error = null) }
+            is JobDetailAction.ShowReport -> _uiState.update { it.copy(reportTarget = action.target) }
+            is JobDetailAction.DismissReport -> _uiState.update { it.copy(reportTarget = null) }
         }
     }
 
@@ -68,6 +70,7 @@ class JobDetailViewModel @Inject constructor(
                                 applicantCount = applicantCount,
                             ),
                             hasApplied = hasApplied,
+                            currentAccountId = currentAccountId,
                             isLoading = false,
                         )
                     }

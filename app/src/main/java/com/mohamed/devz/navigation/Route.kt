@@ -70,6 +70,9 @@ sealed interface Route {
     data object ManageCompanies : Route
 
     @Serializable
+    data object ManageReports : Route
+
+    @Serializable
     data object Banned : Route
 
     @Serializable

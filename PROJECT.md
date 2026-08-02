@@ -375,3 +375,4 @@ SUPABASE_ANON_KEY=your-anon-key
 ## Screen Walkthrough
 
 For a **step-by-step breakdown of every screen** — what each does, what UI components it contains, and how the user interacts with it — see [`SCREEN_WALKTHROUGH.md`](SCREEN_WALKTHROUGH.md).
+op
