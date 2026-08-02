@@ -74,6 +74,10 @@ fun NotificationsScreen(
     val notifications = uiState.notifications
     var isRefreshing by remember { mutableStateOf(false) }
 
+    LaunchedEffect(Unit) {
+        viewModel.onAction(NotificationsAction.Refresh)
+    }
+
     LaunchedEffect(uiState.isLoading) {
         if (!uiState.isLoading) {
             isRefreshing = false

@@ -51,10 +51,8 @@ class HomeViewModel @Inject constructor(
 
     fun onSelectedIndexChange(index: Int) {
         _selectedIndex.update { index }
-        if (index != 2) {
-            viewModelScope.launch {
-                loadUnreadCount(_currentAccountId.value)
-            }
+        viewModelScope.launch {
+            loadUnreadCount(_currentAccountId.value)
         }
     }
 

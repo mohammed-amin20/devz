@@ -2,6 +2,7 @@ package com.mohamed.devz.feature.report.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mohamed.devz.feature.core.data.data_source.local.FcmPushSender
 import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.domain.model.Report
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
@@ -27,6 +28,7 @@ class ReportViewModel @Inject constructor(
     private val accountRepository: AccountRepository,
     private val notificationRepository: NotificationRepository,
     private val notificationTypeRepository: NotificationTypeRepository,
+    private val fcmPushSender: FcmPushSender,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ReportState())
@@ -97,7 +99,7 @@ class ReportViewModel @Inject constructor(
 
             when (val result = reportRepository.insert(report)) {
                 is Result.Success -> {
-                    notifyAdmins(reporterId, target)
+                    notifyAdmins(reporterId, target, result.data.id)
                     _uiState.update { it.copy(isSubmitting = false, submitted = true, error = null) }
                 }
                 is Result.Error -> {
@@ -107,10 +109,13 @@ class ReportViewModel @Inject constructor(
         }
     }
 
-    private suspend fun notifyAdmins(reporterId: Int, target: ReportTarget) {
+    private suspend fun notifyAdmins(reporterId: Int, target: ReportTarget, reportId: Int) {
         val accountsResult = accountRepository.getAll()
         val admins = (accountsResult as? Result.Success)?.data?.filter { it.isAdmin } ?: emptyList()
         if (admins.isEmpty()) return
+
+        val reporterName = (accountsResult as? Result.Success)?.data
+            ?.firstOrNull { it.id == reporterId }?.username
 
         val typeResult = notificationTypeRepository.getAll()
         val typeId = when (val result = typeResult) {
@@ -120,7 +125,8 @@ class ReportViewModel @Inject constructor(
         } ?: 1
 
         val label = target.reportedType.replaceFirstChar { it.uppercase() }
-        val message = "New $label report: ${target.preview.take(60)}"
+        val byLine = reporterName?.let { "@$it" } ?: "someone"
+        val message = "New $label report by $byLine\n${target.preview.take(60)}"
         val now = java.time.LocalDateTime.now().toString()
         admins.forEach { admin ->
             notificationRepository.insert(
@@ -139,6 +145,16 @@ class ReportViewModel @Inject constructor(
                     isGlobal = false,
                 )
             )
+            if (admin.fcmToken.isNotBlank()) {
+                fcmPushSender.sendPush(
+                    fcmToken = admin.fcmToken,
+                    title = "New $label report",
+                    body = "$byLine: ${target.preview.take(60)}",
+                    questionId = null,
+                    type = "system",
+                    reportId = reportId,
+                )
+            }
         }
     }
 }

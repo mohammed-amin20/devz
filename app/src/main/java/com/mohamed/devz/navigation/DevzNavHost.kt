@@ -45,6 +45,7 @@ fun DevzNavHost(
     pendingQuestionId: Int? = null,
     pendingActorId: Int? = null,
     pendingJobId: Int? = null,
+    pendingReportId: Int? = null,
 ) {
     val navController = rememberNavController()
     var profileRefreshCounter by remember { mutableIntStateOf(0) }
@@ -119,9 +120,13 @@ fun DevzNavHost(
                 .getStateFlow("switchToProfileTab", false)
                 .collectAsState()
 
-            LaunchedEffect(pendingQuestionId, pendingActorId, pendingJobId) {
+            LaunchedEffect(pendingQuestionId, pendingActorId, pendingJobId, pendingReportId) {
                 if (!handledDeepLink) {
                     when {
+                        pendingReportId != null -> {
+                            handledDeepLink = true
+                            navController.navigate(Route.ManageReports)
+                        }
                         pendingActorId != null -> {
                             handledDeepLink = true
                             navController.navigate(Route.Profile(pendingActorId))

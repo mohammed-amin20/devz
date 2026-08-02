@@ -41,6 +41,7 @@ class MainActivity : ComponentActivity() {
         val pendingQuestionId = intent?.getIntExtra("questionId", 0)?.takeIf { it > 0 }
         val pendingActorId = intent?.getIntExtra("actorId", 0)?.takeIf { it > 0 }
         val pendingJobId = intent?.getIntExtra("jobId", 0)?.takeIf { it > 0 }
+        val pendingReportId = intent?.getIntExtra("reportId", 0)?.takeIf { it > 0 }
 
         if (intent?.getBooleanExtra(DevzFirebaseMessagingService.EXTRA_REQUEST_PERMISSION, false) == true) {
             requestNotificationPermission()
@@ -56,6 +57,7 @@ class MainActivity : ComponentActivity() {
                         pendingQuestionId = pendingQuestionId,
                         pendingActorId = pendingActorId,
                         pendingJobId = pendingJobId,
+                        pendingReportId = pendingReportId,
                         modifier = Modifier
                             .fillMaxSize()
                             .padding(innerPadding)
