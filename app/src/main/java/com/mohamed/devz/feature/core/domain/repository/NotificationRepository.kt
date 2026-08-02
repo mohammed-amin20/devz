@@ -9,4 +9,5 @@ interface NotificationRepository {
     suspend fun getAllByAccountId(accountId: Int): Result<List<Notification>, Error>
     suspend fun getSystemNotifications(): Result<List<Notification>, Error>
     suspend fun update(notification: Notification): Result<Unit, Error>
+    suspend fun deleteSystemAnnouncement(notification: Notification): Result<Unit, Error>
 }

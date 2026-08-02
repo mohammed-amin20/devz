@@ -109,6 +109,10 @@ interface DevZRemoteDataSource {
         suspend fun getSystemNotifications(): List<Notification>
 
         suspend fun updateNotification(notification: Notification)
+
+        suspend fun deleteNotification(id: Int)
+
+        suspend fun deleteSystemNotificationCopies(message: String)
     }
 
     interface NotificationTypeTable {

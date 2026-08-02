@@ -183,8 +183,7 @@ class ManageAnnouncementsViewModel @Inject constructor(
         viewModelScope.launch {
             _uiState.update { it.copy(showDeleteDialog = false, targetDeleteNotification = null) }
 
-            val deleted = notification.copy(isRead = true)
-            when (val result = notificationRepository.update(deleted)) {
+            when (val result = notificationRepository.deleteSystemAnnouncement(notification)) {
                 is Result.Success -> loadAnnouncements()
                 is Result.Error -> {
                     _uiState.update { it.copy(error = result.error.toUIText()) }

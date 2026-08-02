@@ -439,6 +439,26 @@ class DevZRemoteDataSourceImpl(
                         filter { eq("id", notification.id) }
                     }
             }
+
+            override suspend fun deleteNotification(id: Int) {
+                db.from(tableName)
+                    .delete {
+                        filter { eq("id", id) }
+                    }
+            }
+
+            override suspend fun deleteSystemNotificationCopies(message: String) {
+                db.from(tableName)
+                    .delete {
+                        filter {
+                            and {
+                                eq("sender_type", "system")
+                                eq("is_global", false)
+                                eq("message", message)
+                            }
+                        }
+                    }
+            }
         }
 
     override val notificationType: DevZRemoteDataSource.NotificationTypeTable
@@ -571,7 +591,6 @@ class DevZRemoteDataSourceImpl(
                     put("location", profile.location)
                     put("industry", profile.industry)
                     put("twitter_url", profile.twitterUrl)
-                    put("rating", profile.rating)
                     put("is_verified", profile.isVerified)
                 }
                 db.from(tableName)

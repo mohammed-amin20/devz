@@ -87,4 +87,22 @@ class NotificationRepositoryImpl @Inject constructor(
             Result.Error(Error.Unknown(e.message ?: "Unknown error"))
         }
     }
+
+    override suspend fun deleteSystemAnnouncement(notification: Notification): Result<Unit, Error> {
+        return try {
+            remoteDataSource.notification.deleteNotification(notification.id)
+            remoteDataSource.notification.deleteSystemNotificationCopies(notification.message)
+            Result.Success(Unit)
+        } catch (e: PostgrestRestException) {
+            when (e.statusCode) {
+                404 -> Result.Error(Error.NotFound)
+                409 -> Result.Error(Error.Conflict)
+                else -> Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+            }
+        } catch (e: IOException) {
+            Result.Error(Error.Network)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Unknown error"))
+        }
+    }
 }
