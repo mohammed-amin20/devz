@@ -1,0 +1,2 @@
+ALTER TABLE "Question"
+  ADD COLUMN IF NOT EXISTS "updated_at" TEXT;

@@ -22,6 +22,8 @@ data class QuestionFeedUiModel(
     val isBookmarked: Boolean = false,
     val isPinned: Boolean = false,
     val isAuthorPro: Boolean = false,
+    val isEdited: Boolean = false,
+    val editedTimeAgo: String? = null,
 )
 
 val accountCache = mutableMapOf<Int, Account>()
@@ -41,6 +43,7 @@ fun Question.toFeedUiModel(
 ): QuestionFeedUiModel {
     val account = accountCache[accountId]
     val langType = languageTypeCache[langTypeId]
+    val edited = updatedAt != null && updatedAt != createdAt
     return QuestionFeedUiModel(
         id = id,
         authorAccountId = account?.id ?: 0,
@@ -57,5 +60,7 @@ fun Question.toFeedUiModel(
         isBookmarked = id in bookmarkedIds,
         isPinned = isPinned,
         isAuthorPro = account?.isPro ?: false,
+        isEdited = edited,
+        editedTimeAgo = if (edited) formatRelativeTime(updatedAt) else null,
     )
 }

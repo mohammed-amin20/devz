@@ -78,6 +78,7 @@ fun QuestionDetailScreen(
     navigateUp: () -> Unit,
     modifier: Modifier = Modifier,
     onNavigateToProfile: (Int) -> Unit = {},
+    onEditQuestion: (Int) -> Unit = {},
     viewModel: QuestionDetailsViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -168,6 +169,7 @@ fun QuestionDetailScreen(
                         isPinned = question.isPinned,
                         isPinning = uiState.isPinning,
                         onPinClick = { viewModel.onAction(QuestionDetailsAction.PinQuestion) },
+                        onEditClick = { onEditQuestion(questionId) },
                     )
 
                     if (!uiState.isCompany) {

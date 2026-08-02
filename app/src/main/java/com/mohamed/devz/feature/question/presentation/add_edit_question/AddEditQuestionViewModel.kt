@@ -82,6 +82,9 @@ class AddEditQuestionViewModel @Inject constructor(
                             selectedLangTypeId = q.langTypeId,
                             tags = q.tags.split(",").filter { tag -> tag.isNotBlank() },
                             createdAt = q.createdAt,
+                            likesCount = q.likesCount,
+                            answersCount = q.answersCount,
+                            likedAccountIds = q.likedAccountIds,
                             isLoading = false,
                         )
                     }
@@ -118,13 +121,14 @@ class AddEditQuestionViewModel @Inject constructor(
                 title = state.title,
                 description = state.body,
                 code = state.code,
-                likesCount = 0,
-                answersCount = 0,
+                likesCount = state.likesCount,
+                answersCount = state.answersCount,
                 tags = state.tags.joinToString(","),
                 langTypeId = state.selectedLangTypeId,
                 accountId = currentAccountId,
                 createdAt = state.createdAt,
-                likedAccountIds = "",
+                updatedAt = if (state.isEdit) java.time.LocalDateTime.now().toString() else null,
+                likedAccountIds = state.likedAccountIds,
             )
             if (state.isEdit) {
                 when (val r = questionRepository.update(question)) {

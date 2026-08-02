@@ -11,6 +11,7 @@ data class Question(
     val langTypeId: Int,
     val accountId: Int,
     val createdAt: String?,
+    val updatedAt: String? = null,
     val likedAccountIds: String = "",
     val isHidden: Boolean = false,
     val pinnedUntil: String? = null,

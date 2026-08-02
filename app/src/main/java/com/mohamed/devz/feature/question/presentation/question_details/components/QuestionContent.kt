@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ModeComment
 import androidx.compose.material.icons.filled.ThumbUp
 import androidx.compose.material.icons.filled.PushPin
@@ -61,6 +62,7 @@ fun QuestionContent(
     isPinned: Boolean = false,
     isPinning: Boolean = false,
     onPinClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
 ) {
     LazyColumn(
         modifier = modifier
@@ -199,6 +201,14 @@ fun QuestionContent(
                         active = isPinned,
                         onClick = onPinClick,
                         enabled = !isPinning,
+                    )
+                }
+                if (currentAccountId == question.authorAccountId) {
+                    ActionPill(
+                        icon = Icons.Filled.Edit,
+                        text = "Edit",
+                        active = false,
+                        onClick = onEditClick,
                     )
                 }
             }

@@ -21,6 +21,8 @@ data class Question(
     val accountId: Int,
     @SerialName("created_at")
     val createdAt: String?,
+    @SerialName("updated_at")
+    val updatedAt: String? = null,
     @SerialName("like_accounts_ids")
     val likedAccountIds: String = "",
     @SerialName("is_hidden")

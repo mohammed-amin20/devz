@@ -206,6 +206,9 @@ fun DevzNavHost(
             QuestionDetailScreen(
                 questionId = id,
                 navigateUp = { navController.navigateUp() },
+                onEditQuestion = { questionId ->
+                    navController.navigate(Route.AddEditQuestion(questionId))
+                },
                 onNavigateToProfile = { targetId ->
                     if (targetId == currentAccountId && currentAccountId != 0) {
                         homeEntry.savedStateHandle["switchToProfileTab"] = true
