@@ -29,49 +29,54 @@
 | <img src="assets/screenshots/0_splash.jpg" width="180"/> | <img src="assets/screenshots/1.1_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.2_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.3_onboarding.jpg" width="180"/> |
 
 ### Authentication
-| Login | Sign Up | Banned ⚠️ |
+| Login | Sign Up | Banned  |
 |-------|---------|-----------|
-| <img src="assets/screenshots/2.1_Login.jpg" width="180"/> | <img src="assets/screenshots/2.2_SignUp.jpg" width="180"/> | <img src="assets/screenshots/2.3_Banned.jpg" width="180"/> |
+| <img src="assets/screenshots/2.1_login.jpg" width="180"/> | <img src="assets/screenshots/2.2_signup.jpg" width="180"/> | <img src="assets/screenshots/2.3_banned.jpg" width="180"/> |
 
 ### Feed & Questions
 | Feed — For You | Feed — Following | Question Details | Add / Edit Question |
 |----------------|------------------|------------------|---------------------|
-| <img src="assets/screenshots/3.1_feed_ForYou.jpg" width="180"/> | <img src="assets/screenshots/3.5_feed_following.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> |
+| <img src="assets/screenshots/3.1_feed_for_you.jpg" width="180"/> | <img src="assets/screenshots/3.2_feed_following.jpg" width="180"/> | <img src="assets/screenshots/3.3_question_details.jpg" width="180"/> | <img src="assets/screenshots/3.4_add_edit_question.jpg" width="180"/> |
 
 | Code Block | Report Sheet |
 |------------|--------------|
-| <img src="assets/screenshots/3.4_code_block.jpg" width="180"/> | <img src="assets/screenshots/3.6_reportSheet.jpg" width="180"/> |
+| <img src="assets/screenshots/3.5_code_block.jpg" width="180"/> | <img src="assets/screenshots/3.6_report_sheet.jpg" width="180"/> |
 
 ### Profile
 | View Profile | Edit Profile | Followers / Following | Logout Dialog | Admin Profile |
 |--------------|--------------|------------------------|---------------|---------------|
-| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/4.3_followersDialog.jpg" width="180"/> | <img src="assets/screenshots/4.4_logoutDialog.jpg" width="180"/> | <img src="assets/screenshots/4.5_adminProfile.jpg" width="180"/> |
+| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_edit_profile.jpg" width="180"/> | <img src="assets/screenshots/4.3_followers_dialog.jpg" width="180"/> | <img src="assets/screenshots/4.4_logout_dialog.jpg" width="180"/> | <img src="assets/screenshots/4.5_admin_profile.jpg" width="180"/> |
 
 > Admins see an additional 🛠️ Admin Panel button on their own profile → Admin Dashboard.
 
 ### Notifications
 | Notifications | System Announcement |
 |---------------|---------------------|
-| <img src="assets/screenshots/5.1_notification.jpg" width="180"/> | <img src="assets/screenshots/5.2_systemAnnouncemen.jpg" width="180"/> |
+| <img src="assets/screenshots/5.1_notification.jpg" width="180"/> | <img src="assets/screenshots/5.2_system_announcement.jpg" width="180"/> |
+
+### Gamification
+| Gamification |
+|--------------|
+| <img src="assets/screenshots/6_gamification.jpg" width="180"/> |
 
 ### Jobs
 | Jobs | Job Detail | Apply Sheet | Post Job |
 |------|------------|-------------|----------|
-| <img src="assets/screenshots/7.1_jobs.jpg" width="180"/> | <img src="assets/screenshots/7.2_jobDetail.jpg" width="180"/> | <img src="assets/screenshots/7.3_applySheet.jpg" width="180"/> | <img src="assets/screenshots/7.4_postJob.jpg" width="180"/> |
+| <img src="assets/screenshots/7.1_jobs.jpg" width="180"/> | <img src="assets/screenshots/7.2_job_detail.jpg" width="180"/> | <img src="assets/screenshots/7.3_apply_sheet.jpg" width="180"/> | <img src="assets/screenshots/7.4_post_job.jpg" width="180"/> |
 
 ### Company
 | Company Dashboard | Company Profile | Company Job Detail | Edit Company Profile | Pending Approval |
 |-------------------|-----------------|--------------------|----------------------|-------------------|
-| <img src="assets/screenshots/8.1_companyDashboard.jpg" width="180"/> | <img src="assets/screenshots/8.2_companyProfile.jpg" width="180"/> | <img src="assets/screenshots/8.3_companyJobDetail.jpg" width="180"/> | <img src="assets/screenshots/8.4_editCompanyProfile.jpg" width="180"/> | <img src="assets/screenshots/8.5_pendingApproval.jpg" width="180"/> |
+| <img src="assets/screenshots/8.1_company_dashboard.jpg" width="180"/> | <img src="assets/screenshots/8.2_company_profile.jpg" width="180"/> | <img src="assets/screenshots/8.3_company_job_detail.jpg" width="180"/> | <img src="assets/screenshots/8.4_edit_company_profile.jpg" width="180"/> | <img src="assets/screenshots/8.5_pending_approval.jpg" width="180"/> |
 
 ### Admin
 | Admin Dashboard | Manage Users | Manage Questions | Manage Answers |
 |-----------------|--------------|------------------|----------------|
-| <img src="assets/screenshots/9.1_adminDashboard.jpg" width="180"/> | <img src="assets/screenshots/9.2_manageUsers.jpg" width="180"/> | <img src="assets/screenshots/9.3_manageQuestions.jpg" width="180"/> | <img src="assets/screenshots/9.4_manageAnswers.jpg" width="180"/> |
+| <img src="assets/screenshots/9.1_admin_dashboard.jpg" width="180"/> | <img src="assets/screenshots/9.2_manage_users.jpg" width="180"/> | <img src="assets/screenshots/9.3_manage_questions.jpg" width="180"/> | <img src="assets/screenshots/9.4_manage_answers.jpg" width="180"/> |
 
 | Manage Announcements | Manage Jobs | Manage Companies | Manage Reports | Report Detail Sheet |
 |----------------------|-------------|------------------|----------------|---------------------|
-| <img src="assets/screenshots/9.5_manageAnnouncements.jpg" width="180"/> | <img src="assets/screenshots/9.6_manageJobs.jpg" width="180"/> | <img src="assets/screenshots/9.7_manageCompanies.jpg" width="180"/> | <img src="assets/screenshots/9.8_manageReports.jpg" width="180"/> | <img src="assets/screenshots/9.9_reportDetailSheet.jpg" width="180"/> |
+| <img src="assets/screenshots/9.5_manage_announcements.jpg" width="180"/> | <img src="assets/screenshots/9.6_manage_jobs.jpg" width="180"/> | <img src="assets/screenshots/9.7_manage_companies.jpg" width="180"/> | <img src="assets/screenshots/9.8_manage_reports.jpg" width="180"/> | <img src="assets/screenshots/9.9_report_detail_sheet.jpg" width="180"/> |
 
 </div>
 
