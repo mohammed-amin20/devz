@@ -36,7 +36,7 @@
 ### Feed & Questions
 | Feed — For You | Feed — Following | Question Details | Add / Edit Question |
 |----------------|------------------|------------------|---------------------|
-| <img src="assets/screenshots/3.1_viewQuestion.jpeg" width="180"/> | <img src="assets/screenshots/3.5_feed_following.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> |
+| <img src="assets/screenshots/3.1_feed_ForYou.jpg" width="180"/> | <img src="assets/screenshots/3.5_feed_following.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> |
 
 | Code Block | Report Sheet |
 |------------|--------------|
