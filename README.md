@@ -52,7 +52,7 @@
 ### Notifications
 | Notifications | System Announcement |
 |---------------|---------------------|
-| <img src="assets/screenshots/5_notification.jpg" width="180"/> | <img src="assets/screenshots/5.1_systemAnnouncement.jpg" width="180"/> |
+| <img src="assets/screenshots/5.1_notification.jpg" width="180"/> | <img src="assets/screenshots/5.2_systemAnnouncemen.jpg" width="180"/> |
 
 ### Jobs
 | Jobs | Job Detail | Apply Sheet | Post Job |
