@@ -34,6 +34,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -66,7 +67,8 @@ import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun NotificationsScreen(
-    onNotificationClick: (notification: NotificationUiModel) -> Unit = {},
+    onNotificationClick: (NotificationUiModel) -> Unit = {},
+    onUnreadChanged: () -> Unit = {},
     modifier: Modifier = Modifier,
     viewModel: NotificationsViewModel = hiltViewModel(),
 ) {
@@ -103,8 +105,24 @@ fun NotificationsScreen(
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.titleLarge
+                    style = MaterialTheme.typography.titleLarge,
+                    modifier = Modifier.weight(1f)
                 )
+                if (notifications.any { !it.isRead }) {
+                    TextButton(
+                        onClick = {
+                            viewModel.onAction(NotificationsAction.MarkAllRead)
+                            onUnreadChanged()
+                        }
+                    ) {
+                        Text(
+                            text = "Mark all read",
+                            color = CyanPrimary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Medium
+                        )
+                    }
+                }
             }
 
             val pullRefreshState = rememberPullToRefreshState()
@@ -217,6 +235,7 @@ fun NotificationsScreen(
                                     notification = notification,
                                     onClick = {
                                         viewModel.onAction(NotificationsAction.MarkRead(notification.id))
+                                        onUnreadChanged()
                                         onNotificationClick(notification)
                                     }
                                 )

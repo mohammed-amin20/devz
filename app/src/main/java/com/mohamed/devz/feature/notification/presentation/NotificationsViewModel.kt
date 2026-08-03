@@ -19,6 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 sealed interface NotificationsAction {
+    data object MarkAllRead : NotificationsAction
     data class MarkRead(val id: String) : NotificationsAction
     data object Refresh : NotificationsAction
 }
@@ -69,6 +70,7 @@ class NotificationsViewModel @Inject constructor(
 
     fun onAction(action: NotificationsAction) {
         when (action) {
+            is NotificationsAction.MarkAllRead -> markAllRead()
             is NotificationsAction.MarkRead -> markRead(action.id)
             is NotificationsAction.Refresh -> loadNotifications()
         }
@@ -125,6 +127,19 @@ class NotificationsViewModel @Inject constructor(
                     _uiState.update { it.copy(error = result.error.toUIText(), isLoading = false) }
                 }
             }
+        }
+    }
+
+    private fun markAllRead() {
+        viewModelScope.launch {
+            val unreadIds = rawNotifications.filter { !it.value.isRead }.keys
+            if (unreadIds.isEmpty()) return@launch
+            unreadIds.forEach { id ->
+                val raw = rawNotifications[id] ?: return@forEach
+                notificationRepository.update(raw.copy(isRead = true))
+            }
+            rawNotifications = rawNotifications.mapValues { it.value.copy(isRead = true) }
+            _uiState.update { it.copy(notifications = it.notifications.map { n -> n.copy(isRead = true) }) }
         }
     }
 

@@ -134,7 +134,8 @@ fun HomeScreen(
                         } else {
                             navigateToQuestionDetails(notification.questionId)
                         }
-                    }
+                    },
+                    onUnreadChanged = viewModel::refreshUnreadCount
                 )
             }
         ),

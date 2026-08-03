@@ -125,6 +125,38 @@ class NotificationsViewModelTest {
     }
 
     @Test
+    fun `mark all read updates all notifications`() = runTest(testDispatcher) {
+        coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
+        coEvery { notificationRepository.getAllByAccountId(1) } returns Result.Success(
+            listOf(
+                DomainNotification(id = 1, typeId = 2, userId = 1, actorId = 5, questionId = 100,
+                    answerId = null, type = "like", message = "liked", isRead = false,
+                    createdAt = "2024-01-15T10:00:00Z", actorName = "John"),
+                DomainNotification(id = 2, typeId = 3, userId = 1, actorId = 6, questionId = 200,
+                    answerId = 50, type = "answer", message = "answered", isRead = false,
+                    createdAt = "2024-01-14T10:00:00Z", actorName = "Jane"),
+            )
+        )
+        coEvery { questionRepository.getById(100) } returns Result.Success(
+            com.mohamed.devz.feature.core.domain.model.Question(100, "Q", "", "", 0, 0, "", 1, 1, null, "")
+        )
+        coEvery { questionRepository.getById(200) } returns Result.Success(
+            com.mohamed.devz.feature.core.domain.model.Question(200, "Q2", "", "", 0, 0, "", 1, 1, null, "")
+        )
+        coEvery { notificationRepository.update(any()) } returns Result.Success(Unit)
+
+        val viewModel = NotificationsViewModel(notificationRepository, questionRepository, userPreferencesRepository)
+        advanceUntilIdle()
+
+        viewModel.onAction(NotificationsAction.MarkAllRead)
+        advanceUntilIdle()
+
+        assertEquals(2, viewModel.uiState.value.notifications.size)
+        assertEquals(true, viewModel.uiState.value.notifications[0].isRead)
+        assertEquals(true, viewModel.uiState.value.notifications[1].isRead)
+    }
+
+    @Test
     fun `refresh reloads notifications`() = runTest(testDispatcher) {
         coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
         coEvery { notificationRepository.getAllByAccountId(1) } returns Result.Success(emptyList())
