@@ -43,19 +43,16 @@
 | <img src="assets/screenshots/3.4_code_block.jpg" width="180"/> | <img src="assets/screenshots/3.6_reportSheet.jpg" width="180"/> |
 
 ### Profile
-| View Profile | Edit Profile | Followers / Following | Logout Dialog |
-|--------------|--------------|------------------------|---------------|
-| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/4.3_followersDialog.jpg" width="180"/> | <img src="assets/screenshots/4.4_logoutDialog.jpg" width="180"/> |
+| View Profile | Edit Profile | Followers / Following | Logout Dialog | Admin Profile |
+|--------------|--------------|------------------------|---------------|---------------|
+| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/4.3_followersDialog.jpg" width="180"/> | <img src="assets/screenshots/4.4_logoutDialog.jpg" width="180"/> | <img src="assets/screenshots/4.5_adminProfile.jpg" width="180"/> |
+
+> Admins see an additional 🛠️ Admin Panel button on their own profile → Admin Dashboard.
 
 ### Notifications
 | Notifications | System Announcement |
 |---------------|---------------------|
 | <img src="assets/screenshots/5_notification.jpg" width="180"/> | <img src="assets/screenshots/5.1_systemAnnouncement.jpg" width="180"/> |
-
-### Gamification
-| Points System |
-|---------------|
-| <img src="assets/screenshots/6_gamefication.jpg" width="180"/> |
 
 ### Jobs
 | Jobs | Job Detail | Apply Sheet | Post Job |
