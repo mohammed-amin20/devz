@@ -29,43 +29,78 @@
 | <img src="assets/screenshots/0_splash.jpg" width="180"/> | <img src="assets/screenshots/1.1_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.2_onboarding.jpg" width="180"/> | <img src="assets/screenshots/1.3_onboarding.jpg" width="180"/> |
 
 ### Authentication
-| Login | Sign Up |
-|-------|---------|
-| <img src="assets/screenshots/2.1_Login.jpg" width="180"/> | <img src="assets/screenshots/2.2_SignUp.jpg" width="180"/> |
+| Login | Sign Up | Banned ⚠️ |
+|-------|---------|-----------|
+| <img src="assets/screenshots/2.1_Login.jpg" width="180"/> | <img src="assets/screenshots/2.2_SignUp.jpg" width="180"/> | <img src="assets/screenshots/2.3_Banned.jpg" width="180"/> |
 
-### View Question & Details
-| View Questions | Add Question | Question Details |
-|----------------|--------------|------------------|
-| <img src="assets/screenshots/3.1_viewQuestion.jpeg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> |
+### Feed & Questions
+| Feed — For You | Feed — Following | Question Details | Add / Edit Question |
+|----------------|------------------|------------------|---------------------|
+| <img src="assets/screenshots/3.1_viewQuestion.jpeg" width="180"/> | <img src="assets/screenshots/3.5_feed_following.jpg" width="180"/> | <img src="assets/screenshots/3.2_QuestionDetails.jpg" width="180"/> | <img src="assets/screenshots/3.3_addEditQuestion.jpg" width="180"/> |
 
-### Profile & Notifications
-| View Profile | Edit Profile | Notifications |
-|--------------|--------------|---------------|
-| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/5_notification.jpg" width="180"/> 
-
-### Other
-| Code Block | Gamefication |
+| Code Block | Report Sheet |
 |------------|--------------|
-| <img src="assets/screenshots/3.4_code_block.jpg" width="180"/> | <img src="assets/screenshots/6_gamefication.jpg" width="180"/> |
+| <img src="assets/screenshots/3.4_code_block.jpg" width="180"/> | <img src="assets/screenshots/3.6_reportSheet.jpg" width="180"/> |
+
+### Profile
+| View Profile | Edit Profile | Followers / Following | Logout Dialog |
+|--------------|--------------|------------------------|---------------|
+| <img src="assets/screenshots/4.1_profile.jpg" width="180"/> | <img src="assets/screenshots/4.2_editProfile.jpg" width="180"/> | <img src="assets/screenshots/4.3_followersDialog.jpg" width="180"/> | <img src="assets/screenshots/4.4_logoutDialog.jpg" width="180"/> |
+
+### Notifications
+| Notifications | System Announcement |
+|---------------|---------------------|
+| <img src="assets/screenshots/5_notification.jpg" width="180"/> | <img src="assets/screenshots/5.1_systemAnnouncement.jpg" width="180"/> |
+
+### Gamification
+| Points System |
+|---------------|
+| <img src="assets/screenshots/6_gamefication.jpg" width="180"/> |
+
+### Jobs
+| Jobs | Job Detail | Apply Sheet | Post Job |
+|------|------------|-------------|----------|
+| <img src="assets/screenshots/7.1_jobs.jpg" width="180"/> | <img src="assets/screenshots/7.2_jobDetail.jpg" width="180"/> | <img src="assets/screenshots/7.3_applySheet.jpg" width="180"/> | <img src="assets/screenshots/7.4_postJob.jpg" width="180"/> |
+
+### Company
+| Company Dashboard | Company Profile | Company Job Detail | Edit Company Profile | Pending Approval |
+|-------------------|-----------------|--------------------|----------------------|-------------------|
+| <img src="assets/screenshots/8.1_companyDashboard.jpg" width="180"/> | <img src="assets/screenshots/8.2_companyProfile.jpg" width="180"/> | <img src="assets/screenshots/8.3_companyJobDetail.jpg" width="180"/> | <img src="assets/screenshots/8.4_editCompanyProfile.jpg" width="180"/> | <img src="assets/screenshots/8.5_pendingApproval.jpg" width="180"/> |
+
+### Admin
+| Admin Dashboard | Manage Users | Manage Questions | Manage Answers |
+|-----------------|--------------|------------------|----------------|
+| <img src="assets/screenshots/9.1_adminDashboard.jpg" width="180"/> | <img src="assets/screenshots/9.2_manageUsers.jpg" width="180"/> | <img src="assets/screenshots/9.3_manageQuestions.jpg" width="180"/> | <img src="assets/screenshots/9.4_manageAnswers.jpg" width="180"/> |
+
+| Manage Announcements | Manage Jobs | Manage Companies | Manage Reports | Report Detail Sheet |
+|----------------------|-------------|------------------|----------------|---------------------|
+| <img src="assets/screenshots/9.5_manageAnnouncements.jpg" width="180"/> | <img src="assets/screenshots/9.6_manageJobs.jpg" width="180"/> | <img src="assets/screenshots/9.7_manageCompanies.jpg" width="180"/> | <img src="assets/screenshots/9.8_manageReports.jpg" width="180"/> | <img src="assets/screenshots/9.9_reportDetailSheet.jpg" width="180"/> |
 
 </div>
 
+> ⚠️ Screens marked with ⚠️ are temporary placeholders and incomplete.
 
 ---
 
+
 ## 🔥 Features
 
-- **Q&A Feed** — Paginated question feed with infinite scroll, pull-to-refresh, and category tabs by programming language
-- **Search** — Debounced keyword search across question title, description, code, tags, and author name/username
+- **Q&A Feed** — Two feeds ("For You" / "Following") with pinned questions on top, infinite scroll, pull-to-refresh, and paginated loading
+- **Search** — Debounced keyword search across question title, description, code, and tags
 - **Syntax Highlighting** — Custom tokenizer supporting Kotlin, JavaScript, Python, and a generic fallback
 - **Code Copy** — One-tap clipboard copy for any code block
 - **Voting & Acceptance** — Upvote answers, accept the best answer, and like/unlike questions
 - **Gamification** — Points system rewarding every meaningful interaction (likes, upvotes, accepted answers, follows)
 - **Profiles** — Full profile with skill chips, tech stack, social links, stats, and tabbed question/answer history
 - **Follow System** — Follow/unfollow other developers with followers and following dialogs
-- **Push Notifications** — Real-time FCM notifications for answers, likes, votes, and new followers
-- **Deep Links** — Notification tap navigates directly to the relevant question
-- **Search History** — Recent searches persisted in Supabase and surfaced as chips under the search bar
+- **Jobs Board** — Browse approved job postings, filter by job type, and apply with a cover letter
+- **Company Accounts** — Company profiles with a dedicated dashboard, job posting, and applicant review
+- **Admin Panel** — Dashboard with stats and moderation for users, questions, answers, announcements, jobs, companies, and reports
+- **Content Reporting** — Report questions, answers, jobs, or users; admins get real-time alerts and can dismiss, delete, or ban
+- **Push Notifications** — Real-time FCM notifications for answers, likes, votes, new followers, and system announcements
+- **Mark All Read** — One-tap clear of unread notifications
+- **Deep Links** — Notification tap navigates directly to the relevant question, profile, job, or report
+- **Pro Badges** — Pro users get a badge and an ad-free feed
 - **Dark Theme** — Dark-only Material Design 3 UI optimized for developer aesthetics
 
 ---
@@ -105,9 +140,10 @@ Every feature follows a **uniform MVI contract**:
 | UI | Jetpack Compose (BOM 2026.03.01) + Material3 |
 | Architecture | Clean Architecture + MVI |
 | DI | Dagger Hilt 2.51.1 (KSP) |
-| Backend | Supabase (PostgREST + Storage + Auth) via supabase-kt 3.6.0 |
+| Backend | Supabase (PostgREST + Storage) via supabase-kt 3.6.0 |
 | HTTP | Ktor Android |
 | Push Notifications | Firebase Cloud Messaging |
+| Server-side FCM | Ktor + Firebase service account (`res/raw/fcm_service_account.json`) |
 | Image Loading | Coil (Compose + OkHttp) |
 | Local Storage | DataStore Preferences |
 | Serialization | Kotlinx Serialization JSON |
@@ -121,12 +157,16 @@ Every feature follows a **uniform MVI contract**:
 
 | Table | Key Fields |
 |-------|-----------|
-| `Account` | id, username, fullName, email, imageUrl, bio, techStack, skills, points |
-| `Question` | id, title, description, code, tags, likesCount, answersCount, langTypeId, accountId |
-| `Answer` | id, description, accepted, votedIds, questionId, accountId |
+| `Account` | id, username, fullName, email, imageUrl, bio, techStack, points, fcmToken, followerIds, followingIds, isBanned, isAdmin, isPro, accountType, phoneNumber |
+| `Question` | id, title, description, code, tags, likesCount, answersCount, langTypeId, accountId, createdAt, updatedAt, likedAccountIds, isHidden, pinnedUntil |
+| `Answer` | id, description, accepted, votedIds, questionId, accountId, createdAt, code |
 | `LanguageType` | id, type |
-| `Notification` | id, message, type, isRead, userId, actorId, questionId |
-| `SearchHistory` | id, query, accountId, createdAt |
+| `Notification` | id, typeId, userId, actorId, questionId, answerId, message, isRead, senderType, isGlobal |
+| `NotificationType` | id, type |
+| `JobPosting` | id, companyName, title, description, salaryRange, jobType, status, createdAt, accountId |
+| `JobApplication` | id, jobId, applicantId, coverLetter, status, createdAt, email, whatsapp |
+| `CompanyProfile` | id, userId, companyName, logoUrl, website, description, subscriptionStatus, isVerified, location, industry |
+| `Report` | id, reporterId, reportedType, reportedId, reason, details, status, createdAt |
 
 ---
 
@@ -151,7 +191,7 @@ Every feature follows a **uniform MVI contract**:
 ### Prerequisites
 
 - Android Studio Hedgehog or newer
-- JDK 17+
+- JDK 21+
 - A Supabase project with the schema above
 - A Firebase project with FCM enabled
 
@@ -159,7 +199,7 @@ Every feature follows a **uniform MVI contract**:
 
 1. **Clone the repository**
 ```bash
-git clone https://github.com/your-username/devz.git
+git clone https://github.com/mohammed-amin20/devz.git
 cd devz
 ```
 
@@ -171,7 +211,11 @@ SUPABASE_ANON_KEY=your-anon-key
 
 3. **Add Firebase config** — Place your `google-services.json` inside `app/`
 
-4. **Build and run**
+4. **Add the Firebase service account** — Place your service-account JSON at `app/src/main/res/raw/fcm_service_account.json` (used for server-side push notifications)
+
+5. **Apply the SQL migrations** — Run `sql/001…004` in the Supabase SQL editor (004 adds the `Report` table, required for content reporting + admin pushes)
+
+6. **Build and run**
 ```bash
 ./gradlew assembleDebug
 ```
@@ -192,10 +236,14 @@ SUPABASE_ANON_KEY=your-anon-key
 ```
 
 Unit tests use **JUnit 4 + MockK + kotlinx-coroutines-test + Turbine** and cover:
-- Authentication ViewModel (login, signup, validation)
-- Feed ViewModel (load, search, bookmarks, error states)
+- Splash / Login / SignUp ViewModels
+- Feed (View Questions) ViewModel (load, search, bookmarks, error states)
 - Question Details ViewModel (like, vote, accept, points)
-- Profile ViewModel (follow/unfollow, points)
+- Add / Edit Question ViewModel
+- Profile + Edit Profile ViewModels (follow/unfollow, points)
+- Notifications ViewModel (load, mark read)
+- Data mappers (Account, Question, Answer, Notification, LanguageType)
+- Domain utils (Result, Error→UiText, Answer vote toggle, TimeFormatter, UiText)
 
 ---
 
@@ -204,25 +252,28 @@ Unit tests use **JUnit 4 + MockK + kotlinx-coroutines-test + Turbine** and cover
 ```
 app/src/main/java/com/mohamed/devz/
 ├── DevZApp.kt                    # @HiltAndroidApp + notification channel
-├── MainActivity.kt               # @AndroidEntryPoint + deep links
-├── navigation/                   # Route.kt · DevzNavHost.kt · HomeScreen.kt
+├── MainActivity.kt               # @AndroidEntryPoint + deep links (FCM extras)
+├── navigation/
+│   ├── Route.kt                  # 21 type-safe @Serializable routes
+│   ├── DevzNavHost.kt            # NavHost wiring
+│   └── components/home/          # HomeScreen (5 tabs) · HomeViewModel
 ├── ui/theme/                     # Color.kt · Theme.kt · Type.kt
 └── feature/
     ├── splash/
     ├── onboarding/
-    ├── authentication/
+    ├── authentication/           # Login · SignUp · Banned
     ├── core/
-    │   ├── domain/               # Models · Repository interfaces · Result/Error
-    │   └── data/                 # RemoteDataSource · DataStore · Mappers · Repos
-    ├── question/
-    │   ├── view_questions/
-    │   ├── question_details/
-    │   ├── add_edit_question/
-    │   └── util/                 # Syntax highlighting tokenizer
-    ├── profile/
-    │   ├── view_profile/
-    │   └── edit_profile/
-    └── notification/
+    │   ├── domain/               # 10 models · Repository interfaces · Result/Error
+    │   ├── data/                 # RemoteDataSource · DataStore · Mappers · Repos · FcmPushSender
+    │   ├── presentation/         # DevzBrandHeader · ProBadge · UiText
+    │   └── di/                   # CoreModule (Supabase client + all repositories)
+    ├── question/                 # view_questions · question_details · add_edit_question
+    ├── profile/                  # view_profile · edit_profile
+    ├── notification/
+    ├── report/                   # ReportSheet · ReportViewModel
+    ├── job/                      # jobs_screen · job_detail · post_job
+    ├── company/                  # company_dashboard · company_profile · company_job_detail · edit_company_profile · pending_approval
+    └── admin/                    # admin_dashboard · manage_users · manage_questions · manage_answers · manage_announcements · manage_jobs · manage_companies · manage_reports
 ```
 
 ---
@@ -232,13 +283,22 @@ app/src/main/java/com/mohamed/devz/
 ```
 Splash ──► Onboarding (first time)
        └──► Auth ──► Home
-                      ├── Feed Tab       ──► QuestionDetails ──► Profile
-                      │                  └──► AddEditQuestion
-                      ├── Notifications Tab
-                      └── Profile Tab   ──► EditProfile
+                       ├── Feed Tab          ──► QuestionDetails ──► Profile
+                       │                     └──► AddEditQuestion
+                       ├── Add Tab           ──► AddEditQuestion
+                       ├── Notifications Tab
+                       ├── Jobs Tab          ──► JobDetail ──► Apply sheet
+                       └── Profile Tab       ──► EditProfile
+Company accounts:
+  Auth (company) ──► PendingApproval ──► Home ──► CompanyDashboard
+                       └──► CompanyJobDetail ──► applicants
+
+Admin (via Profile tab or Jobs tab):
+  AdminDashboard ──► ManageUsers · ManageQuestions · ManageAnswers · ManageAnnouncements
+                 └──► ManageJobs · ManageCompanies · ManageReports
 ```
 
-FCM notifications deep-link directly to `QuestionDetails`.
+FCM notifications deep-link to **QuestionDetails**, **Profile**, **JobDetail**, or **ManageReports**.
 
 ---
 

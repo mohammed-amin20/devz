@@ -1,6 +1,6 @@
 ﻿# DevZ — Android Q&A + Job Board App for Developers
 
-A feature-rich question-and-answer platform with a built-in job board, built with **Kotlin** + **Jetpack Compose** and backed by **Supabase**. Users can ask coding questions, provide answers, vote, bookmark, edit their profile, browse and apply for jobs, register as a company, and receive push notifications. Admins get a full dashboard to manage users, content, jobs, companies, and send system-wide announcements.
+A feature-rich question-and-answer platform with a built-in job board, built with **Kotlin** + **Jetpack Compose** and backed by **Supabase**. Users can ask coding questions, provide answers, vote, bookmark, edit their profile, browse and apply for jobs, register as a company, receive push notifications, and report inappropriate content for moderation. Admins get a full dashboard to manage users, content, reports, jobs, companies, and send system-wide announcements.
 
 ---
 
@@ -61,13 +61,11 @@ Each feature follows a uniform MVI contract:
 | Min / Target SDK    | 26 / 36                                                      |
 | Navigation          | Compose Navigation with type-safe `@Serializable` routes      |
 
-**Declared but unused:** `androidx.room.ktx` (no Room compiler, database, entities, or DI wiring).
-
 ---
 
 ## Project Structure
 
-All 199 source files live under `app/src/main/java/com/mohamed/devz/`.
+All 215 source files live under `app/src/main/java/com/mohamed/devz/`.
 
 ```
 com.mohamed.devz/
@@ -77,8 +75,8 @@ com.mohamed.devz/
 ├── navigation/
 │   ├── Route.kt                         # @Serializable sealed interface — 21 routes
 │   ├── DevzNavHost.kt                   # NavHost wiring all routes
-│   └── components/home/
-│       ├── HomeScreen.kt                # Bottom nav shell (Feed/Jobs/Notifications/Profile)
+│       └── components/home/
+│       ├── HomeScreen.kt                # Bottom nav shell (Feed/Add/Notifications/Jobs/Profile)
 │       └── HomeViewModel.kt             # Exposes currentAccountId + accountType for cross-tab nav
 │
 ├── ui/theme/
@@ -98,10 +96,10 @@ com.mohamed.devz/
     │
     ├── core/
     │   ├── domain/
-    │   │   ├── model/                   # 9 domain models (Account, Question, Answer,
+    │   │   ├── model/                   # 10 domain models (Account, Question, Answer,
     │   │   │                            #  LanguageType, Notification, NotificationType,
-    │   │   │                            #  JobPosting, JobApplication, CompanyProfile)
-    │   │   ├── repository/              # 9 repository interfaces
+    │   │   │                            #  JobPosting, JobApplication, CompanyProfile, Report)
+    │   │   ├── repository/              # 10 repository interfaces
     │   │   └── util/                    # Error, Result, FcmTokenUtil
     │   ├── data/
     │   │   ├── data_source/
@@ -109,8 +107,10 @@ com.mohamed.devz/
     │   │   │   └── local/               # UserPreferences (DataStore), FcmPushSender
     │   │   ├── model/                   # @Serializable data models (snake_case mapping)
     │   │   ├── mapper/                  # toDomain() / toData() extensions
-    │   │   └── repository/              # 9 repository impls
-    │   ├── presentation/util/           # UiText, TimeFormatter
+    │   │   └── repository/              # 10 repository impls
+    │   ├── presentation/
+    │   │   ├── components/              # DevzBrandHeader, ProBadge
+    │   │   └── util/                    # UiText, TimeFormatter, TimestampFormatter
     │   └── di/CoreModule.kt             # Hilt @Module — provides all singletons
     │
     ├── question/presentation/
@@ -124,7 +124,11 @@ com.mohamed.devz/
     │   ├── view_profile/                # Stats, questions/answers tabs
     │   └── edit_profile/                # Form fields, photo upload, social links, skills
     │
-    ├── notification/presentation/       # Notification list — user + system announcements
+    ├── notification/presentation/       # Notification list — user + system announcements,
+    │                                    #  mark-all-read
+    │
+    ├── report/presentation/             # Report sheet + menu — report questions, answers,
+    │                                    #  jobs, and users
     │
     ├── job/presentation/
     │   ├── jobs_screen/                 # Job board: browse, filter by type/remote
@@ -142,7 +146,8 @@ com.mohamed.devz/
         ├── manage_answers/              # Delete answers
         ├── manage_announcements/        # Create system-wide announcements
         ├── manage_jobs/                 # Approve / reject job postings
-        └── manage_companies/            # Activate / deactivate company subscriptions
+        ├── manage_companies/            # Activate / deactivate company subscriptions
+        └── manage_reports/              # Dismiss reports / delete content / ban users
 ```
 
 ### Package quirk
@@ -178,7 +183,6 @@ Splash → Onboarding (if first time) → Auth
 | AddEditQuestion         | `data class`                   | `id: Int?`          |
 | EditProfile             | `data object`                  | —                   |
 | Profile                 | `data class`                   | `accountId: Int`    |
-| Jobs                    | `data object`                  | —                   |
 | JobDetail               | `data class`                   | `id: Int`           |
 | CompanyJobDetail        | `data class`                   | `id: Int`           |
 | AdminDashboard          | `data object`                  | —                   |
@@ -188,13 +192,14 @@ Splash → Onboarding (if first time) → Auth
 | ManageAnnouncements     | `data object`                  | —                   |
 | ManageJobs              | `data object`                  | —                   |
 | ManageCompanies         | `data object`                  | —                   |
+| ManageReports           | `data object`                  | —                   |
 | PendingApproval         | `data object`                  | —                   |
 | PostJob                 | `data object`                  | —                   |
 | Banned                  | `data object`                  | —                   |
 
 - All forward navigations **pop the backstack first** to prevent back-navigation to auth/onboarding/splash.
 - IDs are `Int` throughout the navigation chain.
-- Deep links from FCM notifications navigate directly to `QuestionDetails`.
+- Deep links from FCM notifications (new question / actor / job / report) navigate to the relevant screen on cold start or activity re-creation; `pendingReportId` opens `ManageReports` for admins.
 - Admin panel is accessible from the profile tab when user has `isAdmin = true`.
 - Company dashboard replaces the profile tab content when `accountType = "company"`.
 
@@ -256,8 +261,9 @@ Splash → Onboarding (if first time) → Auth
 - **System announcements** — notifications with `senderType = "system"` render with cyan-tinted background, 📢 icon, bold "📢 devZ" header, and "System" badge; user notifications render as before.
 - Firebase Cloud Messaging for push notifications (per-device + topic `"announcements"`).
 - Notification channel created on app startup.
-- Deep link from notification tap → question details.
+- Deep link from notification tap → question details (follower notifications → author profile).
 - Runtime permission request (Android 13+).
+- **Mark all read** — header button clears every unread notification in one tap; the bottom-nav badge refreshes immediately.
 
 ### 9. Syntax Highlighting
 - Custom tokenizer for Kotlin, JavaScript, Python.
@@ -296,12 +302,20 @@ Splash → Onboarding (if first time) → Auth
 - **Manage Announcements** — create system announcements that are inserted into the `Notification` table with `senderType = "system"`, `isGlobal = true`; FCM push sent to topic `"announcements"`; **delete** removes both the global announcement row and every per-user copy (not just marking them read).
 - **Manage Jobs** — list all job postings, approve/reject with FCM push notification to the posting company.
 - **Manage Companies** — list all company profiles, activate/deactivate subscription with FCM push notification.
+- **Manage Reports** — queue of user-submitted content reports filtered by status (All / Pending / Reviewed / Dismissed); each report shows the reporter, target, reason, and details. Resolve by dismissing, deleting the reported content, or banning the reported user.
 
 ### 15. System Announcements
 - Admin-published announcements stored in the `Notification` table (no separate table).
 - Notification query fetches `user_id = X OR is_global = true` so system announcements appear in every user's feed.
 - Rendered with distinct styling: cyan background, 📢 megaphone icon, "📢 devZ" header, "System" badge chip.
 - Global FCM topic push to `"announcements"`; users subscribe on login via `FcmTokenUtil`.
+
+### 16. Content Reporting
+- **Report menu** — every question, answer, job posting, and (non-own) user profile shows a "⋯" menu with a red **Report** action.
+- **ReportSheet** — reason pills (e.g. spam, harassment, inappropriate, other) with an optional details field; submitting inserts a row into the `Report` table and auto-dismisses the sheet.
+- **Real-time admin alert** — on submission, admins receive a database notification plus a per-admin FCM push carrying the `reportId`; tapping the push deep-links to `ManageReports`.
+- **Admin resolution** — the Manage Reports screen lists reports with status filter chips, resolves the reporter/owner/target names, and supports: dismiss, delete the reported content (question, answer, or job posting), or ban the reported user's account.
+- Requires `sql/004_report.sql` applied in Supabase.
 
 ---
 
@@ -324,6 +338,8 @@ Splash → Onboarding (if first time) → Auth
 | JobApplication   | id, jobId, applicantId, coverLetter, status, createdAt, email, whatsapp               | JobApplication       |
 | CompanyProfile   | id, userId, companyName, logoUrl, website, description, subscriptionStatus,           | CompanyProfile       |
 |                  | subscriptionExpiry, createdAt, bio, location, industry, twitterUrl, isVerified        |                      |
+| Report           | id, reporterId, reportedType, reportedId, reason, details, status, createdAt,        | Report               |
+|                  | reporterName, reporterAvatarUrl, targetTitle                                          |                      |
 
 - Data models (`@Serializable`) use `@SerialName` for snake_case → camelCase mapping.
 - Domain models are plain Kotlin data classes.
@@ -334,7 +350,6 @@ Splash → Onboarding (if first time) → Auth
 ## Known Quirks & Technical Notes
 
 - **Plaintext passwords** — auth is stubbed via PostgREST `WHERE username = ? AND password = ?`. No hashing, no Supabase Auth plugin.
-- **Room dependency** — `androidx.room.ktx` is in `build.gradle.kts` but has no compiler (no KSP), no database, no entities, no wiring. It is unused.
 - **Dark-only theme** — `DevzTheme` hardcodes `darkTheme = true`. No light mode support.
 - **Bookmarks** — stored in-memory only (`bookmarkedIds: Set<Int>`). Not persisted across sessions.
 - **Supabase credentials** — loaded from `local.properties` via `BuildConfig`, not in a secrets manager.
@@ -345,6 +360,8 @@ Splash → Onboarding (if first time) → Auth
 - **Database migrations** — the `sql/` folder holds one-off Supabase migrations that must be applied manually:
   - `001_company_profile_fields.sql` — adds company profile columns (incl. a `rating` column no longer used by the UI).
   - `002_question_updated_at.sql` — adds `Question.updated_at`; **required** for the edit-question flow (edits serialize the whole row).
+  - `003_unique_job_application.sql` — unique constraint so a user can submit at most one application per job.
+  - `004_report.sql` — creates the `Report` table; **required** for content reporting and admin report resolution.
 
 ---
 
