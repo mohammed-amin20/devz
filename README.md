@@ -80,8 +80,6 @@
 
 </div>
 
-> ⚠️ Screens marked with ⚠️ are temporary placeholders and incomplete.
-
 ---
 
 
