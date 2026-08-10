@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -47,10 +48,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.feature.job.presentation.util.onLostFocus
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
@@ -342,40 +345,72 @@ fun JobDetailScreen(
                     TextField(
                         value = uiState.email,
                         onValueChange = { viewModel.onAction(JobDetailAction.EmailChanged(it)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(onLostFocus {
+                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.EMAIL, false))
+                            }),
                         placeholder = { Text("Email address", color = TextGray) },
                         singleLine = true,
+                        isError = uiState.emailTouched && uiState.emailError != null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = QSurfaceHigh,
                             unfocusedContainerColor = QSurfaceHigh,
                             focusedIndicatorColor = CyanPrimary,
                             unfocusedIndicatorColor = QOutline,
+                            errorIndicatorColor = MaterialTheme.colorScheme.error,
                             cursorColor = CyanPrimary,
                             focusedTextColor = QOnSurface,
                             unfocusedTextColor = QOnSurface,
                         ),
                         shape = RoundedCornerShape(12.dp),
                     )
+
+                    uiState.emailError?.takeIf { uiState.emailTouched }?.let { error ->
+                        Text(
+                            text = error.asString(),
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     TextField(
                         value = uiState.whatsapp,
                         onValueChange = { viewModel.onAction(JobDetailAction.WhatsAppChanged(it)) },
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .then(onLostFocus {
+                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.WHATSAPP, false))
+                            }),
                         placeholder = { Text("WhatsApp number", color = TextGray) },
                         singleLine = true,
+                        isError = uiState.whatsappTouched && uiState.whatsappError != null,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = QSurfaceHigh,
                             unfocusedContainerColor = QSurfaceHigh,
                             focusedIndicatorColor = CyanPrimary,
                             unfocusedIndicatorColor = QOutline,
+                            errorIndicatorColor = MaterialTheme.colorScheme.error,
                             cursorColor = CyanPrimary,
                             focusedTextColor = QOnSurface,
                             unfocusedTextColor = QOnSurface,
                         ),
                         shape = RoundedCornerShape(12.dp),
                     )
+
+                    uiState.whatsappError?.takeIf { uiState.whatsappTouched }?.let { error ->
+                        Text(
+                            text = error.asString(),
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(12.dp))
 
@@ -384,24 +419,38 @@ fun JobDetailScreen(
                         onValueChange = { viewModel.onAction(JobDetailAction.CoverLetterChanged(it)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(160.dp),
+                            .height(160.dp)
+                            .then(onLostFocus {
+                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.COVER_LETTER, false))
+                            }),
                         placeholder = {
                             Text(
                                 "Write your proposal...",
                                 color = TextGray,
                             )
                         },
+                        isError = uiState.coverLetterTouched && uiState.coverLetterError != null,
                         colors = TextFieldDefaults.colors(
                             focusedContainerColor = QSurfaceHigh,
                             unfocusedContainerColor = QSurfaceHigh,
                             focusedIndicatorColor = CyanPrimary,
                             unfocusedIndicatorColor = QOutline,
+                            errorIndicatorColor = MaterialTheme.colorScheme.error,
                             cursorColor = CyanPrimary,
                             focusedTextColor = QOnSurface,
                             unfocusedTextColor = QOnSurface,
                         ),
                         shape = RoundedCornerShape(12.dp),
                     )
+
+                    uiState.coverLetterError?.takeIf { uiState.coverLetterTouched }?.let { error ->
+                        Text(
+                            text = error.asString(),
+                            color = MaterialTheme.colorScheme.error,
+                            fontSize = 12.sp,
+                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(20.dp))
 
@@ -410,7 +459,7 @@ fun JobDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(50.dp),
-                        enabled = uiState.coverLetter.isNotBlank() && !uiState.isSubmitting,
+                        enabled = uiState.canSubmit && !uiState.isSubmitting,
                         shape = RoundedCornerShape(14.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = CyanPrimary,

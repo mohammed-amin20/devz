@@ -5,5 +5,11 @@ sealed interface PostJobAction {
     data class DescriptionChanged(val value: String) : PostJobAction
     data class SalaryRangeChanged(val value: String) : PostJobAction
     data class JobTypeSelected(val value: String) : PostJobAction
+    data class FieldFocusChanged(val field: PostJobField, val isFocused: Boolean) : PostJobAction
     data class Submit(val onSuccess: () -> Unit) : PostJobAction
+}
+
+enum class PostJobField {
+    TITLE,
+    DESCRIPTION,
 }

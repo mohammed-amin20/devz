@@ -40,6 +40,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.feature.job.presentation.util.onLostFocus
 import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzCard
 import com.mohamed.devz.ui.theme.QBg
@@ -87,11 +88,25 @@ fun PostJobScreen(
                 onValueChange = { viewModel.onAction(PostJobAction.TitleChanged(it)) },
                 label = { Text("Job Title") },
                 placeholder = { Text("Senior Android Developer", color = TextGray) },
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(onLostFocus {
+                        viewModel.onAction(PostJobAction.FieldFocusChanged(PostJobField.TITLE, false))
+                    }),
                 shape = RoundedCornerShape(14.dp),
                 colors = textFieldColors(),
                 singleLine = true,
+                isError = uiState.titleTouched && uiState.titleError != null,
             )
+
+            uiState.titleError?.takeIf { uiState.titleTouched }?.let { error ->
+                Text(
+                    text = error.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -102,10 +117,23 @@ fun PostJobScreen(
                 placeholder = { Text("Describe the role, responsibilities...", color = TextGray) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
+                    .height(200.dp)
+                    .then(onLostFocus {
+                        viewModel.onAction(PostJobAction.FieldFocusChanged(PostJobField.DESCRIPTION, false))
+                    }),
                 shape = RoundedCornerShape(14.dp),
                 colors = textFieldColors(),
+                isError = uiState.descriptionTouched && uiState.descriptionError != null,
             )
+
+            uiState.descriptionError?.takeIf { uiState.descriptionTouched }?.let { error ->
+                Text(
+                    text = error.asString(),
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 12.sp,
+                    modifier = Modifier.padding(start = 4.dp, top = 4.dp),
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -167,7 +195,7 @@ fun PostJobScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(52.dp),
-                enabled = !uiState.isLoading,
+                enabled = uiState.canSubmit && !uiState.isLoading,
                 shape = RoundedCornerShape(14.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = CyanPrimary,
@@ -190,11 +218,15 @@ fun PostJobScreen(
 private fun textFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = CyanPrimary,
     unfocusedBorderColor = Color(0xFF2A3A3A),
+    errorBorderColor = MaterialTheme.colorScheme.error,
     focusedContainerColor = DevzCard,
     unfocusedContainerColor = DevzCard,
+    errorContainerColor = DevzCard,
     cursorColor = CyanPrimary,
     focusedTextColor = TextWhite,
     unfocusedTextColor = TextWhite,
     focusedLabelColor = CyanPrimary,
     unfocusedLabelColor = TextGray,
+    errorTextColor = TextWhite,
+    errorLabelColor = MaterialTheme.colorScheme.error,
 )

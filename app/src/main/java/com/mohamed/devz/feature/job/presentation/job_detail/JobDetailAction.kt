@@ -7,8 +7,15 @@ sealed interface JobDetailAction {
     data class EmailChanged(val value: String) : JobDetailAction
     data class WhatsAppChanged(val value: String) : JobDetailAction
     data class CoverLetterChanged(val value: String) : JobDetailAction
+    data class FieldFocusChanged(val field: JobApplicationField, val isFocused: Boolean) : JobDetailAction
     data class SubmitApplication(val onSuccess: () -> Unit) : JobDetailAction
     data object DismissError : JobDetailAction
     data class ShowReport(val target: ReportTarget) : JobDetailAction
     data object DismissReport : JobDetailAction
+}
+
+enum class JobApplicationField {
+    EMAIL,
+    WHATSAPP,
+    COVER_LETTER,
 }

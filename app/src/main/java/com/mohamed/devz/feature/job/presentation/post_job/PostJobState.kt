@@ -7,6 +7,11 @@ data class PostJobState(
     val description: String = "",
     val salaryRange: String = "",
     val jobType: String = "full-time",
+    val titleError: UiText? = null,
+    val descriptionError: UiText? = null,
+    val titleTouched: Boolean = false,
+    val descriptionTouched: Boolean = false,
+    val canSubmit: Boolean = false,
     val isLoading: Boolean = false,
     val error: UiText? = null,
 )

@@ -29,22 +29,70 @@ class PostJobViewModel @Inject constructor(
 
     fun onAction(action: PostJobAction) {
         when (action) {
-            is PostJobAction.TitleChanged -> _uiState.update { it.copy(title = action.value) }
-            is PostJobAction.DescriptionChanged -> _uiState.update { it.copy(description = action.value) }
+            is PostJobAction.TitleChanged -> _uiState.update {
+                recomputeValidation(it.copy(title = action.value, titleTouched = true))
+            }
+            is PostJobAction.DescriptionChanged -> _uiState.update {
+                recomputeValidation(it.copy(description = action.value, descriptionTouched = true))
+            }
             is PostJobAction.SalaryRangeChanged -> _uiState.update { it.copy(salaryRange = action.value) }
             is PostJobAction.JobTypeSelected -> _uiState.update { it.copy(jobType = action.value) }
+            is PostJobAction.FieldFocusChanged -> {
+                if (!action.isFocused) {
+                    _uiState.update {
+                        recomputeValidation(it).copy(
+                            titleTouched = it.titleTouched || action.field == PostJobField.TITLE,
+                            descriptionTouched = it.descriptionTouched || action.field == PostJobField.DESCRIPTION,
+                        )
+                    }
+                }
+            }
             is PostJobAction.Submit -> submit(action.onSuccess)
         }
     }
 
+    private fun validateTitle(value: String): UiText? {
+        val trimmed = value.trim()
+        return when {
+            trimmed.isEmpty() -> UiText.DynamicString("Title is required")
+            trimmed.length < MIN_TITLE_LENGTH -> UiText.DynamicString("Title must be at least 3 characters")
+            else -> null
+        }
+    }
+
+    private fun validateDescription(value: String): UiText? {
+        val trimmed = value.trim()
+        return when {
+            trimmed.isEmpty() -> UiText.DynamicString("Description is required")
+            trimmed.length < MIN_DESCRIPTION_LENGTH -> UiText.DynamicString("Description must be at least 20 characters")
+            else -> null
+        }
+    }
+
+    private fun recomputeValidation(state: PostJobState): PostJobState {
+        val titleError = validateTitle(state.title)
+        val descriptionError = validateDescription(state.description)
+        return state.copy(
+            titleError = titleError,
+            descriptionError = descriptionError,
+            canSubmit = titleError == null && descriptionError == null,
+        )
+    }
+
     private fun submit(onSuccess: () -> Unit) {
         val state = _uiState.value
-        if (state.title.isBlank()) {
-            _uiState.update { it.copy(error = UiText.DynamicString("Title is required")) }
-            return
-        }
-        if (state.description.isBlank()) {
-            _uiState.update { it.copy(error = UiText.DynamicString("Description is required")) }
+        val titleError = validateTitle(state.title)
+        val descriptionError = validateDescription(state.description)
+        if (titleError != null || descriptionError != null) {
+            _uiState.update {
+                it.copy(
+                    titleError = titleError,
+                    descriptionError = descriptionError,
+                    titleTouched = true,
+                    descriptionTouched = true,
+                    canSubmit = false,
+                )
+            }
             return
         }
 
@@ -80,5 +128,10 @@ class PostJobViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        private const val MIN_TITLE_LENGTH = 3
+        private const val MIN_DESCRIPTION_LENGTH = 20
     }
 }

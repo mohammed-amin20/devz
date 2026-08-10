@@ -30,14 +30,70 @@ class JobDetailViewModel @Inject constructor(
     fun onAction(action: JobDetailAction) {
         when (action) {
             is JobDetailAction.LoadJob -> loadJob(action.jobId)
-            is JobDetailAction.EmailChanged -> _uiState.update { it.copy(email = action.value) }
-            is JobDetailAction.WhatsAppChanged -> _uiState.update { it.copy(whatsapp = action.value) }
-            is JobDetailAction.CoverLetterChanged -> _uiState.update { it.copy(coverLetter = action.value) }
+            is JobDetailAction.EmailChanged -> _uiState.update {
+                recomputeValidation(it.copy(email = action.value, emailTouched = true))
+            }
+            is JobDetailAction.WhatsAppChanged -> _uiState.update {
+                recomputeValidation(it.copy(whatsapp = action.value, whatsappTouched = true))
+            }
+            is JobDetailAction.CoverLetterChanged -> _uiState.update {
+                recomputeValidation(it.copy(coverLetter = action.value, coverLetterTouched = true))
+            }
+            is JobDetailAction.FieldFocusChanged -> {
+                if (!action.isFocused) {
+                    _uiState.update {
+                        recomputeValidation(it).copy(
+                            emailTouched = it.emailTouched || action.field == JobApplicationField.EMAIL,
+                            whatsappTouched = it.whatsappTouched || action.field == JobApplicationField.WHATSAPP,
+                            coverLetterTouched = it.coverLetterTouched || action.field == JobApplicationField.COVER_LETTER,
+                        )
+                    }
+                }
+            }
             is JobDetailAction.SubmitApplication -> submitApplication(action.onSuccess)
             is JobDetailAction.DismissError -> _uiState.update { it.copy(error = null) }
             is JobDetailAction.ShowReport -> _uiState.update { it.copy(reportTarget = action.target) }
             is JobDetailAction.DismissReport -> _uiState.update { it.copy(reportTarget = null) }
         }
+    }
+
+    private fun validateEmail(value: String): UiText? {
+        val trimmed = value.trim()
+        return when {
+            trimmed.isEmpty() -> UiText.DynamicString("Email is required")
+            !EMAIL_REGEX.matches(trimmed) -> UiText.DynamicString("Invalid email format")
+            else -> null
+        }
+    }
+
+    private fun validateWhatsApp(value: String): UiText? {
+        val trimmed = value.trim()
+        return when {
+            trimmed.isEmpty() -> UiText.DynamicString("WhatsApp number is required")
+            !WHATSAPP_REGEX.matches(trimmed) -> UiText.DynamicString("Enter a valid WhatsApp number (8-15 digits, optional +)")
+            else -> null
+        }
+    }
+
+    private fun validateCoverLetter(value: String): UiText? {
+        val trimmed = value.trim()
+        return when {
+            trimmed.isEmpty() -> UiText.DynamicString("Cover letter is required")
+            trimmed.length < MIN_COVER_LETTER_LENGTH -> UiText.DynamicString("Cover letter must be at least 20 characters")
+            else -> null
+        }
+    }
+
+    private fun recomputeValidation(state: JobDetailState): JobDetailState {
+        val emailError = validateEmail(state.email)
+        val whatsappError = validateWhatsApp(state.whatsapp)
+        val coverLetterError = validateCoverLetter(state.coverLetter)
+        return state.copy(
+            emailError = emailError,
+            whatsappError = whatsappError,
+            coverLetterError = coverLetterError,
+            canSubmit = emailError == null && whatsappError == null && coverLetterError == null,
+        )
     }
 
     private fun loadJob(jobId: Int) {
@@ -86,7 +142,15 @@ class JobDetailViewModel @Inject constructor(
     }
 
     fun showApplySheet() {
-        _uiState.update { it.copy(showApplySheet = true, applicationSuccess = false) }
+        _uiState.update {
+            recomputeValidation(it).copy(
+                showApplySheet = true,
+                applicationSuccess = false,
+                emailTouched = false,
+                whatsappTouched = false,
+                coverLetterTouched = false,
+            )
+        }
     }
 
     fun hideApplySheet() {
@@ -96,8 +160,24 @@ class JobDetailViewModel @Inject constructor(
     private fun submitApplication(onSuccess: () -> Unit) {
         val state = _uiState.value
         val jobId = state.job?.id ?: return
+        val emailError = validateEmail(state.email)
+        val whatsappError = validateWhatsApp(state.whatsapp)
+        val coverLetterError = validateCoverLetter(state.coverLetter)
+        if (emailError != null || whatsappError != null || coverLetterError != null) {
+            _uiState.update {
+                it.copy(
+                    emailError = emailError,
+                    whatsappError = whatsappError,
+                    coverLetterError = coverLetterError,
+                    emailTouched = true,
+                    whatsappTouched = true,
+                    coverLetterTouched = true,
+                    canSubmit = false,
+                )
+            }
+            return
+        }
         val coverLetter = state.coverLetter.trim()
-        if (coverLetter.isEmpty()) return
 
         viewModelScope.launch {
             _uiState.update { it.copy(isSubmitting = true, error = null) }
@@ -148,6 +228,13 @@ class JobDetailViewModel @Inject constructor(
                             email = "",
                             whatsapp = "",
                             coverLetter = "",
+                            emailError = null,
+                            whatsappError = null,
+                            coverLetterError = null,
+                            emailTouched = false,
+                            whatsappTouched = false,
+                            coverLetterTouched = false,
+                            canSubmit = false,
                         )
                     }
                     onSuccess()
@@ -160,5 +247,11 @@ class JobDetailViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    companion object {
+        private val EMAIL_REGEX = Regex("^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$")
+        private val WHATSAPP_REGEX = Regex("^\\+?[0-9]{8,15}$")
+        private const val MIN_COVER_LETTER_LENGTH = 20
     }
 }
