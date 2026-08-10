@@ -22,6 +22,7 @@ import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.WorkHistory
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,10 +52,13 @@ import com.mohamed.devz.feature.notification.presentation.NotificationType
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.theme.QBg
 import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyDashboardScreen
+import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyDashboardState
+import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyDashboardViewModel
 import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
@@ -77,6 +81,14 @@ fun HomeScreen(
     val currentAccountId by viewModel.currentAccountId.collectAsStateWithLifecycle()
     val accountType by viewModel.accountType.collectAsStateWithLifecycle()
     val unreadCount by viewModel.unreadCount.collectAsStateWithLifecycle()
+
+    val companyViewModel: CompanyDashboardViewModel? =
+        if (accountType == "company") hiltViewModel() else null
+    val companyUiState: CompanyDashboardState? =
+        companyViewModel?.let { it.uiState.collectAsStateWithLifecycle().value }
+
+    val isHomeLoading = accountType == null ||
+        (accountType == "company" && (companyUiState == null || companyUiState.isLoading))
 
     LaunchedEffect(switchToProfileTab) {
         if (switchToProfileTab) {
@@ -180,14 +192,30 @@ fun HomeScreen(
         )
     )
 
-    if (accountType == "company") {
-        CompanyDashboardScreen(
-            onPostJob = navigateToPostJob,
-            onJobClick = navigateToCompanyJobDetail,
-            onLogout = onLogout,
-            modifier = modifier,
-        )
+    if (isHomeLoading) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(QBg)
+                .then(modifier),
+            contentAlignment = Alignment.Center,
+        ) {
+            CircularProgressIndicator(color = CyanPrimary)
+        }
         return
+    }
+
+    when (accountType) {
+        "company" -> {
+            CompanyDashboardScreen(
+                onPostJob = navigateToPostJob,
+                onJobClick = navigateToCompanyJobDetail,
+                onLogout = onLogout,
+                modifier = modifier,
+                viewModel = companyViewModel!!,
+            )
+            return
+        }
     }
 
     BackHandler(enabled = selectedIndex != 0) {
