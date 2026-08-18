@@ -96,12 +96,27 @@
 - **Jobs Board** — Browse approved job postings, filter by job type, and apply with a cover letter
 - **Company Accounts** — Company profiles with a dedicated dashboard, job posting, and applicant review
 - **Admin Panel** — Dashboard with stats and moderation for users, questions, answers, announcements, jobs, companies, and reports
-- **Content Reporting** — Report questions, answers, jobs, or users; admins get real-time alerts and can dismiss, delete, or ban
-- **Push Notifications** — Real-time FCM notifications for answers, likes, votes, new followers, and system announcements
+- **Content Reporting** — Report questions, answers, jobs, or users; admins get real-time alerts (DB notification + FCM push) and can dismiss the report, delete the content, or ban the user
+- **Push Notifications** — Real-time FCM notifications for answers, likes, votes, new followers, and system announcements; sent server-side from the app via `FcmPushSender` using a Firebase service account
 - **Mark All Read** — One-tap clear of unread notifications
 - **Deep Links** — Notification tap navigates directly to the relevant question, profile, job, or report
-- **Pro Badges** — Pro users get a badge and an ad-free feed
+- **Pro Badges** — Pro users (`is_pro`) get a badge on their profile and an ad-free feed (non-Pro users see a placeholder ad banner every 5th question)
 - **Dark Theme** — Dark-only Material Design 3 UI optimized for developer aesthetics
+
+### 🏢 Company Workflow
+
+1. A user signs up and selects **Company** as their account type
+2. They are shown a **Pending Approval** screen until an admin reviews their profile
+3. An admin approves the company via **Manage Companies** in the Admin Panel
+4. Once approved, the company sees a **Company Dashboard** instead of the standard 5-tab home — with their posted jobs and received applications
+5. The company can post jobs (status: `pending`) which require a separate admin approval before appearing in the Jobs feed
+
+### 📢 Content Reporting
+
+- Any user can report a **question**, **answer**, **job posting**, or **user** via a bottom sheet with predefined reasons (Spam, Harassment, Inappropriate, Other)
+- Duplicate reports from the same reporter for the same target are blocked client-side
+- Each report creates a `Report` row in the database and triggers a **notification + FCM push** to every admin
+- Admins review reports in **Manage Reports** with filter chips (All / Pending / Reviewed / Dismissed) and can: dismiss the report, delete the reported content, or ban the offending user
 
 ---
 
@@ -208,12 +223,20 @@ cd devz
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-anon-key
 ```
+> These are read via `local.properties` and exposed as `BuildConfig.SUPABASE_URL` / `BuildConfig.ANON_KEY` in `app/build.gradle.kts`.
 
 3. **Add Firebase config** — Place your `google-services.json` inside `app/`
 
-4. **Add the Firebase service account** — Place your service-account JSON at `app/src/main/res/raw/fcm_service_account.json` (used for server-side push notifications)
+4. **Add the Firebase service account** — Place your service-account JSON at `app/src/main/res/raw/fcm_service_account.json` (used for server-side push notifications via `FcmPushSender`)
 
-5. **Apply the SQL migrations** — Run `sql/001…004` in the Supabase SQL editor (004 adds the `Report` table, required for content reporting + admin pushes)
+5. **Apply the SQL migrations** — Run the following in the Supabase SQL editor in order:
+
+| Migration | File | Purpose |
+|-----------|------|---------|
+| 001 | `sql/001_company_profile_fields.sql` | Adds company profile fields to the `Account` table |
+| 002 | `sql/002_question_updated_at.sql` | Adds `updated_at` column and trigger to `Question` |
+| 003 | `sql/003_unique_job_application.sql` | Adds unique constraint on job applications (one per user per job) |
+| 004 | `sql/004_report.sql` | Creates the `Report` table — required for content reporting + admin push notifications |
 
 6. **Build and run**
 ```bash
