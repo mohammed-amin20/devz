@@ -24,12 +24,22 @@ screen per theme), which guarantees the light frame is genuinely recomposed.
 All screens use the same fixtures as the `@Preview` functions in the screen
 source files.
 
+### The bottom navigation bar
+
+The three in-app tab screens (Feed, View profile, Notifications) are captured
+with the home shell's **bottom navigation bar** drawn underneath them. The
+production bar lives inside the Hilt-bound `HomeContent`, so the test uses a
+small visual replica (same icons, colors, height and selected-tab state) rather
+than importing it.
+
 ### Screens that are not captured
 
-- **Home shell** — `HomeContent` embeds Hilt-backed screens
+- **Home shell (as a whole)** — `HomeContent` embeds Hilt-backed screens
   (`ViewQuestionsScreen`, `NotificationsScreen`, `JobsScreen`,
   `ProfileScreen`) and cannot be rendered in a plain Robolectric test. Its
-  constituent screens are captured individually instead.
+  constituent screens are captured individually instead (with the bar).
+- **Jobs list** — `JobsScreen` has no stateless content split, so the jobs
+  browse tab itself is not captured; only Job detail and Post job are.
 
 ## Regenerating
 
@@ -51,13 +61,13 @@ downloads the Android 14 (`android-all-instrumented`) runtime jar into
 | Banned | suspended account | [dark](banned-content-dark.png) | [light](banned-content-light.png) |
 | Splash | animated splash | [dark](splash-content-dark.png) | [light](splash-content-light.png) |
 | Onboarding | pager, page 1 | [dark](onboarding-content-dark.png) | [light](onboarding-content-light.png) |
-| Feed | For You + pinned | [dark](feed-content-dark.png) | [light](feed-content-light.png) |
+| Feed | For You + pinned, with bottom nav | [dark](feed-content-dark.png) | [light](feed-content-light.png) |
 | Question details | Q + accepted answer | [dark](question-details-content-dark.png) | [light](question-details-content-light.png) |
 | Add / edit question | create | [dark](add-edit-question-content-dark.png) | [light](add-edit-question-content-light.png) |
-| View profile | own profile | [dark](profile-content-dark.png) | [light](profile-content-light.png) |
+| View profile | own profile, with bottom nav | [dark](profile-content-dark.png) | [light](profile-content-light.png) |
 | Edit profile | filled | [dark](edit-profile-content-dark.png) | [light](edit-profile-content-light.png) |
 | Settings | theme + language | [dark](settings-content-dark.png) | [light](settings-content-light.png) |
-| Notifications | mixed read/unread | [dark](notifications-content-dark.png) | [light](notifications-content-light.png) |
+| Notifications | mixed read/unread, with bottom nav | [dark](notifications-content-dark.png) | [light](notifications-content-light.png) |
 | Job detail | approved job | [dark](job-detail-content-dark.png) | [light](job-detail-content-light.png) |
 | Post job | filled form | [dark](post-job-content-dark.png) | [light](post-job-content-light.png) |
 | Pending approval | company interstitial | [dark](pending-approval-content-dark.png) | [light](pending-approval-content-light.png) |

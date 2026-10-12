@@ -5,7 +5,43 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Home
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material.icons.rounded.Person
+import androidx.compose.material.icons.rounded.WorkHistory
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Paint
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.test.onRoot
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.github.takahirom.roborazzi.captureRoboImage
 import com.mohamed.devz.feature.admin.presentation.admin_dashboard.AdminDashboardContent
 import com.mohamed.devz.feature.admin.presentation.admin_dashboard.AdminDashboardState
@@ -107,15 +143,131 @@ class ScreenshotGalleryTest {
     @get:Rule
     val compose = createComposeRule()
 
-    private fun capture(name: String, themeMode: ThemeMode, ui: @Composable () -> Unit) {
+    private fun capture(
+        name: String,
+        themeMode: ThemeMode,
+        ui: @Composable () -> Unit,
+        selectedTab: Int? = null,
+    ) {
         compose.mainClock.autoAdvance = false
         compose.setContent {
-            DevzTheme(themeMode = themeMode) { ui() }
+            DevzTheme(themeMode = themeMode) {
+                if (selectedTab == null) {
+                    ui()
+                } else {
+                    Scaffold(
+                        containerColor = Color.Transparent,
+                        bottomBar = { TestBottomBar(selectedIndex = selectedTab) },
+                    ) { innerPadding ->
+                        Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
+                            ui()
+                        }
+                    }
+                }
+            }
         }
         compose.mainClock.advanceTimeBy(1_000)
         compose.onRoot().captureRoboImage(
             "../docs/screenshots/$name-content-${themeMode.storageKey}.png",
         )
+    }
+
+    /**
+     * Test-only replica of the app's `HomeContent` bottom navigation bar so tab
+     * screenshots include the shell chrome. Mirrors HomeScreen.kt: it is NOT the
+     * production composable (that one is private and Hilt-bound), just a visual copy.
+     */
+    @Composable
+    private fun TestBottomBar(selectedIndex: Int, unreadCount: Int = 3) {
+        val icons = listOf(
+            Icons.Rounded.Home,
+            Icons.Rounded.Add,
+            Icons.Rounded.Notifications,
+            Icons.Rounded.WorkHistory,
+            Icons.Rounded.Person,
+        )
+        val scrimColor = MaterialTheme.colorScheme.scrim
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .drawBehind {
+                    drawRect(
+                        brush = Brush.verticalGradient(
+                            colors = listOf(Color.Transparent, scrimColor.copy(alpha = 0.5f)),
+                            startY = 0f,
+                            endY = size.height,
+                        )
+                    )
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .height(64.dp)
+                    .imePadding()
+                    .padding(horizontal = 8.dp),
+                horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                icons.forEachIndexed { index, icon ->
+                    TestNavIcon(
+                        icon = icon,
+                        isSelected = index == selectedIndex,
+                        badgeCount = if (index == 2) unreadCount else 0,
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun TestNavIcon(icon: ImageVector, isSelected: Boolean, badgeCount: Int) {
+        val tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
+        val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(48.dp)
+                .clip(RoundedCornerShape(50))
+                .drawBehind {
+                    if (isSelected) {
+                        drawIntoCanvas { canvas ->
+                            val paint = Paint().asFrameworkPaint().apply {
+                                isAntiAlias = true
+                                color = android.graphics.Color.TRANSPARENT
+                                setShadowLayer(16f, 0f, 0f, glowColor)
+                            }
+                            canvas.nativeCanvas.drawCircle(center.x, center.y, 20.dp.toPx(), paint)
+                        }
+                    }
+                }
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = tint,
+                modifier = Modifier.size(26.dp),
+            )
+            if (badgeCount > 0) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .size(20.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.primary),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = if (badgeCount > 9) "9+" else badgeCount.toString(),
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
     }
 
     // ── Authentication ──────────────────────────────────────────────────────
@@ -139,8 +291,8 @@ class ScreenshotGalleryTest {
 
     // ── Feed ─────────────────────────────────────────────────────────────────
 
-    @Test fun feedDark() = capture("feed", ThemeMode.DARK, feedUi)
-    @Test fun feedLight() = capture("feed", ThemeMode.LIGHT, feedUi)
+    @Test fun feedDark() = capture("feed", ThemeMode.DARK, feedUi, selectedTab = 0)
+    @Test fun feedLight() = capture("feed", ThemeMode.LIGHT, feedUi, selectedTab = 0)
 
     // ── Question detail / editor ─────────────────────────────────────────────
 
@@ -152,8 +304,8 @@ class ScreenshotGalleryTest {
 
     // ── Profile ──────────────────────────────────────────────────────────────
 
-    @Test fun profileDark() = capture("profile", ThemeMode.DARK, profileUi)
-    @Test fun profileLight() = capture("profile", ThemeMode.LIGHT, profileUi)
+    @Test fun profileDark() = capture("profile", ThemeMode.DARK, profileUi, selectedTab = 4)
+    @Test fun profileLight() = capture("profile", ThemeMode.LIGHT, profileUi, selectedTab = 4)
 
     @Test fun editProfileDark() = capture("edit-profile", ThemeMode.DARK, editProfileUi)
     @Test fun editProfileLight() = capture("edit-profile", ThemeMode.LIGHT, editProfileUi)
@@ -163,8 +315,8 @@ class ScreenshotGalleryTest {
 
     // ── Notifications ────────────────────────────────────────────────────────
 
-    @Test fun notificationsDark() = capture("notifications", ThemeMode.DARK, notificationsUi)
-    @Test fun notificationsLight() = capture("notifications", ThemeMode.LIGHT, notificationsUi)
+    @Test fun notificationsDark() = capture("notifications", ThemeMode.DARK, notificationsUi, selectedTab = 2)
+    @Test fun notificationsLight() = capture("notifications", ThemeMode.LIGHT, notificationsUi, selectedTab = 2)
 
     // ── Jobs ─────────────────────────────────────────────────────────────────
 
