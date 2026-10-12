@@ -1,3 +1,491 @@
 <resources>
     <string name="app_name">devz</string>
+
+    <!-- Common -->
+    <string name="action_back">Back</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_open">Settings</string>
+    <string name="settings_theme">Theme</string>
+    <string name="settings_language">Language</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="language_system">System</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_notifications">Notifications</string>
+    <string name="nav_jobs">Jobs</string>
+    <string name="nav_profile">Profile</string>
+
+    <!-- Components -->
+    <string name="pro_badge">⭐ Pro</string>
+
+    <!-- Splash -->
+    <string name="splash_logo_desc">DevZ logo</string>
+    <string name="splash_tagline">ARCHITECTING SOLUTIONS</string>
+    <string name="splash_version">v1.0.0</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_intro">Welcome to </string>
+    <string name="onboarding_welcome_accent">devZ!</string>
+    <string name="onboarding_welcome_body">Ask freely. devZ supports beginners with helpful, judgment-free answers.</string>
+    <string name="onboarding_code_intro">Share code, get </string>
+    <string name="onboarding_code_accent">reviews</string>
+    <string name="onboarding_code_body">Share your code and get detailed feedback to improve quality and performance.</string>
+    <string name="onboarding_reputation_intro">Grow your </string>
+    <string name="onboarding_reputation_accent">reputation</string>
+    <string name="onboarding_reputation_body">Help others, earn reputation, and become a recognized expert.</string>
+    <string name="onboarding_next">Next</string>
+    <string name="onboarding_get_started">Get Started</string>
+    <string name="onboarding_skip">Skip</string>
+
+    <!-- Login -->
+    <string name="login_title">Welcome Back</string>
+    <string name="login_subtitle">Access your technical knowledge base\nand join the architect\'s community.</string>
+    <string name="login_username_label">USERNAME</string>
+    <string name="login_username_hint">architect_dev</string>
+    <string name="login_password_label">PASSWORD</string>
+    <string name="login_password_hint">••••••••</string>
+    <string name="login_button">Login</string>
+    <string name="login_no_account">Don\'t have an account? </string>
+    <string name="login_sign_up">Sign Up</string>
+
+    <!-- Sign up -->
+    <string name="signup_title">Join the Community</string>
+    <string name="signup_subtitle">Create your account to start\narchitecting solutions.</string>
+    <string name="signup_mode_company">Register as Company</string>
+    <string name="signup_mode_developer">Register as Developer</string>
+    <string name="signup_label_company_name">COMPANY NAME</string>
+    <string name="signup_label_full_name">FULL NAME</string>
+    <string name="signup_label_username">USERNAME</string>
+    <string name="signup_label_email">EMAIL ADDRESS</string>
+    <string name="signup_label_password">PASSWORD</string>
+    <string name="signup_label_confirm_password">CONFIRM PASSWORD</string>
+    <string name="signup_hint_company">Acme Inc.</string>
+    <string name="signup_hint_full_name">John Doe</string>
+    <string name="signup_hint_username">architect_dev</string>
+    <string name="signup_hint_email">architect@devz.io</string>
+    <string name="signup_hint_password">••••••••••••</string>
+    <string name="signup_terms_prefix">By signing up, you agree to our </string>
+    <string name="signup_terms_tos">Terms of Service</string>
+    <string name="signup_terms_and"> and </string>
+    <string name="signup_terms_privacy">Privacy Policy</string>
+    <string name="signup_terms_suffix">.</string>
+    <string name="signup_button_developer">Sign Up</string>
+    <string name="signup_button_company">Register Company</string>
+    <string name="signup_have_account">Already have an account? </string>
+    <string name="signup_login">Log In</string>
+
+    <!-- Banned -->
+    <string name="banned_icon_desc">Suspended account</string>
+    <string name="banned_title">Account suspended</string>
+    <string name="banned_message">Your account has been suspended by the administration.\nPlease contact us for assistance.</string>
+    <string name="banned_email_label">Support Email</string>
+    <string name="banned_email_value">support@devz.app</string>
+    <string name="banned_whatsapp_label">WhatsApp</string>
+    <string name="banned_whatsapp_value">+972 59 292 3130</string>
+
+    <!-- Common -->
+    <string name="action_retry">Retry</string>
+
+    <!-- Feed -->
+    <string name="feed_tab_for_you">For You</string>
+    <string name="feed_tab_following">Following</string>
+    <string name="feed_search_hint">Query the collective intelligence...</string>
+    <string name="feed_empty_tech_title">No matching questions</string>
+    <string name="feed_empty_tech_subtitle">Add technologies to your profile so we can\nshow you relevant questions.</string>
+    <string name="feed_empty_following_title">Your feed is empty</string>
+    <string name="feed_empty_following_subtitle">Follow developers to see their questions here.\nSearch for people or browse questions to find\ndevelopers who share your interests.</string>
+    <string name="feed_empty_no_questions_title">No questions yet</string>
+    <string name="feed_empty_no_questions_subtitle">Questions from developers you follow\nwill appear here.</string>
+    <string name="feed_ad_space">📢 Ad space</string>
+    <string name="feed_view_discussion">VIEW DISCUSSION →</string>
+    <string name="feed_pinned">Pinned</string>
+    <string name="feed_edited">Edited</string>
+    <string name="feed_edited_with_time">Edited · %s</string>
+
+    <!-- Question details -->
+    <string name="details_breadcrumb_questions">Questions</string>
+    <string name="details_asked">Asked %s</string>
+    <string name="details_answers_count">%1$d Answers</string>
+    <string name="details_pin">Pin</string>
+    <string name="details_pinned">Pinned</string>
+    <string name="details_edit">Edit</string>
+    <string name="details_accepted">Accepted</string>
+    <string name="details_accept">Accept</string>
+    <string name="details_upvote">Upvote</string>
+    <string name="details_remove_upvote">Remove upvote</string>
+    <string name="details_accept_answer_desc">Accept answer</string>
+    <string name="details_answer_code_title">Answer Code</string>
+    <string name="details_clear">Clear</string>
+    <string name="details_done">Done</string>
+    <string name="details_code_hint">Paste or write your code here...</string>
+    <string name="details_answer_hint">Write your answer...</string>
+    <string name="details_code_attached">Code attached</string>
+    <string name="details_post_answer_desc">Post answer</string>
+
+    <!-- Code block -->
+    <string name="code_copy">COPY</string>
+    <string name="code_copied">COPIED!</string>
+    <string name="code_copied_toast">Code copied!</string>
+    <string name="code_none">No code</string>
+    <string name="code_copy_desc">Copy code</string>
+
+    <!-- Add / edit question -->
+    <string name="addedit_title_ask">Ask Question</string>
+    <string name="addedit_title_edit">Edit Question</string>
+    <string name="addedit_publish">Publish</string>
+    <string name="addedit_hero_line1">Architect Your</string>
+    <string name="addedit_hero_line2">Inquiry</string>
+    <string name="addedit_subtitle">Provide as much context as possible. High-quality\ntechnical questions attract high-quality architectural solutions.</string>
+    <string name="addedit_label_language">CHOOSE LANGUAGE</string>
+    <string name="addedit_label_title">PROBLEM STATEMENT</string>
+    <string name="addedit_label_body">TECHNICAL CONTEXT</string>
+    <string name="addedit_label_code">CODE IMPLEMENTATION</string>
+    <string name="addedit_label_tags">CLASSIFICATION TAGS</string>
+    <string name="addedit_format_code">FORMAT CODE</string>
+    <string name="addedit_add_tag">Add Tag</string>
+    <string name="addedit_title_placeholder">e.g., How to implement firestore pagination...</string>
+    <string name="addedit_body_placeholder">Describe what you\'re trying to achieve and what you\'ve tried so far...</string>
+    <string name="addedit_tag_placeholder">e.g. Kotlin, Firebase</string>
+    <string name="addedit_review_title">Review before publishing</string>
+    <string name="addedit_review_body">Ensure all sensitive API keys and credentials have been removed from your code snippets.</string>
+    <string name="addedit_language_placeholder">Select language</string>
+    <string name="addedit_code_placeholder">// Paste your code here...</string>
+    <string name="addedit_close_desc">Close</string>
+    <string name="addedit_add_tag_desc">Add tag</string>
+
+    <!-- Report -->
+    <string name="report_title">Report this %s</string>
+    <string name="report_type_question">question</string>
+    <string name="report_type_answer">answer</string>
+    <string name="report_type_job">job</string>
+    <string name="report_type_user">user</string>
+    <string name="report_why">WHY ARE YOU REPORTING THIS?</string>
+    <string name="report_reason_spam">Spam</string>
+    <string name="report_reason_harassment">Harassment</string>
+    <string name="report_reason_inappropriate">Inappropriate</string>
+    <string name="report_reason_other">Other</string>
+    <string name="report_details_hint">Add details (optional)</string>
+    <string name="report_submit">Submit report</string>
+    <string name="report_submitted_title">Report submitted</string>
+    <string name="report_submitted_message">Our team will review it. Thank you.</string>
+    <string name="report_menu_more">More options</string>
+    <string name="report_menu_report">Report</string>
+
+    <!-- Profile (Phase 3) -->
+    <string name="profile_back_desc">Back</string>
+    <string name="profile_edit_profile">Edit Profile</string>
+    <string name="profile_logout">Log Out</string>
+    <string name="profile_logout_title">Log out</string>
+    <string name="profile_logout_message">Are you sure you want to log out?</string>
+    <string name="profile_logout_cancel">Cancel</string>
+    <string name="profile_follow">Follow</string>
+    <string name="profile_following">Following</string>
+    <string name="profile_followers">Followers</string>
+    <string name="profile_admin_panel">Admin Panel</string>
+    <string name="profile_tab_my_questions">MY QUESTIONS</string>
+    <string name="profile_tab_their_questions">THEIR QUESTIONS</string>
+    <string name="profile_tab_my_answers">MY ANSWERS</string>
+    <string name="profile_tab_their_answers">THEIR ANSWERS</string>
+    <string name="profile_tab_applications">APPLICATIONS</string>
+    <string name="profile_stat_answers">ANSWERS</string>
+    <string name="profile_stat_questions">QUESTIONS</string>
+    <string name="profile_stat_accepted">ACCEPTED</string>
+    <string name="profile_specialized_skills">SPECIALIZED SKILLS</string>
+    <string name="profile_social_links">SOCIAL LINKS</string>
+    <string name="profile_show_more">Show more</string>
+    <string name="profile_show_less">Show less</string>
+    <string name="profile_no_username">No username</string>
+    <string name="profile_avatar_desc">Profile picture</string>
+    <string name="profile_asked">Asked %s</string>
+    <string name="profile_answered">Answered %s</string>
+    <string name="profile_likes_label">LIKES</string>
+    <string name="profile_empty_questions_title">No questions yet</string>
+    <string name="profile_empty_questions_subtitle">Your questions will appear here</string>
+    <string name="profile_empty_answers_title">No answers yet</string>
+    <string name="profile_empty_answers_subtitle">Your answers will appear here</string>
+    <string name="profile_empty_applications_title">No applications yet</string>
+    <string name="profile_empty_applications_subtitle">No job applications yet</string>
+    <string name="profile_applications_error_title">Couldn\'t load applications</string>
+    <string name="profile_followers_empty">No followers yet</string>
+    <string name="profile_following_empty">Not following anyone yet</string>
+    <string name="profile_close_desc">Close</string>
+    <string name="something_went_wrong">Something went wrong</string>
+
+    <!-- Gamification (Phase 3) -->
+    <string name="gamif_achievement">ACHIEVEMENT</string>
+    <string name="gamif_level">Level %1$d</string>
+    <string name="gamif_points">%1$d PTS</string>
+    <string name="gamif_next_level">%1$d pts to next level</string>
+    <string name="gamif_max_level">Max level reached</string>
+    <string name="gamif_progress_desc">Level progress</string>
+    <string name="gamif_tier_newcomer">Newcomer</string>
+    <string name="gamif_tier_contributor">Contributor</string>
+    <string name="gamif_tier_specialist">Specialist</string>
+    <string name="gamif_tier_expert">Expert</string>
+    <string name="gamif_tier_master">Master</string>
+    <string name="gamif_tier_legend">Legend</string>
+
+    <!-- Edit profile (Phase 3) -->
+    <string name="editprofile_title">Edit Profile</string>
+    <string name="editprofile_save">Save</string>
+    <string name="editprofile_avatar_selection">AVATAR SELECTION</string>
+    <string name="editprofile_core_identity">Core Identity</string>
+    <string name="editprofile_technical_stack">Technical Stack</string>
+    <string name="editprofile_social_mesh">Social Mesh</string>
+    <string name="editprofile_governance">Governance</string>
+    <string name="editprofile_full_name">FULL NAME</string>
+    <string name="editprofile_username">USERNAME</string>
+    <string name="editprofile_bio">BIO</string>
+    <string name="editprofile_full_name_hint">Enter your full name</string>
+    <string name="editprofile_username_hint">Choose a username</string>
+    <string name="editprofile_bio_hint">Tell us about yourself</string>
+    <string name="editprofile_add_interest">Add Interest</string>
+    <string name="editprofile_skill_hint">e.g. Kotlin, Rust</string>
+    <string name="editprofile_github_hint">github.com/your_username</string>
+    <string name="editprofile_linkedin_hint">linkedin.com/in/your_name</string>
+    <string name="editprofile_website_hint">your-website.dev</string>
+    <string name="editprofile_public_profile">Public Profile Visibility</string>
+    <string name="editprofile_public_profile_desc">Allow others to see your technical queries</string>
+    <string name="editprofile_display_email">Display Email Address</string>
+    <string name="editprofile_display_email_desc">Visible to verified team members</string>
+    <string name="editprofile_save_changes">Save Profile Changes</string>
+    <string name="editprofile_deactivate">Deactivate Account</string>
+    <string name="editprofile_dismiss_error">Dismiss</string>
+    <string name="editprofile_avatar_desc">Change profile picture</string>
+
+    <!-- Notifications (Phase 3) -->
+    <string name="notif_mark_all_read">Mark all read</string>
+    <string name="notif_empty_title">No notifications yet</string>
+    <string name="notif_empty_message">You\'re all caught up</string>
+    <string name="notif_error_title">Couldn\'t load notifications</string>
+    <string name="notif_system_badge">System</string>
+    <string name="notif_system_brand">📢 devZ</string>
+    <string name="notif_someone">Someone</string>
+    <string name="notif_congrats">Congrats! </string>
+    <string name="jobtype_full_time">Full-time</string>
+    <string name="jobtype_part_time">Part-time</string>
+    <string name="jobtype_remote">Remote</string>
+    <string name="jobtype_contract">Contract</string>
+    <string name="jobs_filter_all">All</string>
+    <string name="jobs_empty_title">No jobs found</string>
+    <string name="jobs_empty_message">Check back later for new opportunities.</string>
+    <string name="jobdetail_back">Back</string>
+    <string name="jobdetail_description">Description</string>
+    <string name="jobdetail_posted">Posted %1$s</string>
+    <string name="jobdetail_applicants_count">%1$d applicant(s)</string>
+    <string name="jobdetail_status_reserved">Reserved</string>
+    <string name="jobdetail_status_offered">Offered</string>
+    <string name="jobdetail_apply">Apply</string>
+    <string name="jobdetail_applied">Applied</string>
+    <string name="jobdetail_apply_for">Apply for %1$s</string>
+    <string name="jobdetail_submitted">Application submitted!</string>
+    <string name="apply_email">Email address</string>
+    <string name="apply_whatsapp">WhatsApp number</string>
+    <string name="apply_cover_letter_hint">Write your proposal...</string>
+    <string name="apply_submit">Submit application</string>
+    <string name="postjob_title">Post New Job</string>
+    <string name="postjob_back">Back</string>
+    <string name="postjob_field_title">Job Title</string>
+    <string name="postjob_title_hint">Senior Android Developer</string>
+    <string name="postjob_field_description">Description</string>
+    <string name="postjob_description_hint">Describe the role, responsibilities...</string>
+    <string name="postjob_field_salary">Salary Range</string>
+    <string name="postjob_salary_hint">$80k - $120k</string>
+    <string name="postjob_field_type">Job Type</string>
+    <string name="postjob_submit">Submit for Approval</string>
+    <string name="company_edit_profile">Edit Profile</string>
+    <string name="company_logout">Logout</string>
+    <string name="company_status_active">Active</string>
+    <string name="company_status_pending">Pending Approval</string>
+    <string name="company_status_expired">Expired</string>
+    <string name="company_tab_offered">Offered (%1$d)</string>
+    <string name="company_tab_reserved">Reserved (%1$d)</string>
+    <string name="company_empty_offered">No offered jobs</string>
+    <string name="company_empty_reserved">No reserved jobs</string>
+    <string name="company_profile_back">Back</string>
+    <string name="company_profile_verified">Verified</string>
+    <string name="company_profile_website">Website</string>
+    <string name="company_profile_twitter">Twitter</string>
+    <string name="company_profile_stat_jobs">Jobs</string>
+    <string name="company_profile_stat_applicants">Applicants</string>
+    <string name="company_profile_stat_filled">Filled</string>
+    <string name="company_profile_tab_posted">Posted (%1$d)</string>
+    <string name="company_profile_tab_filled">Filled (%1$d)</string>
+    <string name="company_profile_empty_posted">No open jobs</string>
+    <string name="company_profile_empty_filled">No filled jobs yet</string>
+    <string name="company_profile_post_job">Post New Job</string>
+    <string name="company_profile_open">Open</string>
+    <string name="company_profile_filled">Filled</string>
+    <string name="company_job_detail_title">Job Details</string>
+    <string name="company_job_detail_applicants">Applicants (%1$d)</string>
+    <string name="company_job_detail_empty">No applications yet</string>
+    <string name="company_job_detail_pts">%1$d pts</string>
+    <string name="company_job_detail_applied">Applied %1$s</string>
+    <string name="company_job_detail_email">Email</string>
+    <string name="company_job_detail_whatsapp">WhatsApp</string>
+    <string name="company_job_detail_approved">Approved</string>
+    <string name="company_job_detail_approve">Approve</string>
+    <string name="company_edit_title">Edit Company Profile</string>
+    <string name="company_edit_close">Close</string>
+    <string name="company_edit_logo">Company Logo</string>
+    <string name="company_edit_field_name">Company Name</string>
+    <string name="company_edit_name_hint">Enter company name</string>
+    <string name="company_edit_field_industry">Industry</string>
+    <string name="company_edit_industry_hint">e.g. Software, Fintech, Design</string>
+    <string name="company_edit_field_location">Location</string>
+    <string name="company_edit_location_hint">e.g. Cairo, Egypt</string>
+    <string name="company_edit_field_website">Website</string>
+    <string name="company_edit_website_hint">https://your-company.com</string>
+    <string name="company_edit_field_twitter">Twitter / X</string>
+    <string name="company_edit_twitter_hint">https://x.com/your-company</string>
+    <string name="company_edit_field_description">Description</string>
+    <string name="company_edit_description_hint">Short description of the company</string>
+    <string name="company_edit_field_bio">Bio</string>
+    <string name="company_edit_bio_hint">Tell developers more about your company</string>
+    <string name="company_edit_cancel">Cancel</string>
+    <string name="company_edit_save">Save</string>
+    <string name="company_logout_title">Log out</string>
+    <string name="company_logout_message">Are you sure you want to log out?</string>
+    <string name="company_logout_cancel">Cancel</string>
+    <string name="company_logout_confirm">Log out</string>
+    <string name="company_pending_title">Registration Submitted!</string>
+    <string name="company_pending_message">Your company account is pending approval. We\'ll notify you once your subscription is activated.</string>
+    <string name="company_pending_go_home">Go to Home</string>
+
+    <!-- Shared action labels -->
+    <string name="action_cancel">Cancel</string>
+    <string name="action_delete">Delete</string>
+    <string name="action_create">Create</string>
+    <string name="action_approve">Approve</string>
+    <string name="action_reject">Reject</string>
+    <string name="action_hide">Hide</string>
+    <string name="action_unhide">Unhide</string>
+    <string name="action_activate">Activate</string>
+    <string name="action_deactivate">Deactivate</string>
+    <string name="action_close">Close</string>
+    <string name="action_remove">Remove</string>
+
+    <!-- Admin dashboard -->
+    <string name="admin_stat_users">USERS</string>
+    <string name="admin_stat_questions">QUESTIONS</string>
+    <string name="admin_stat_answers">ANSWERS</string>
+    <string name="admin_stat_banned">BANNED</string>
+    <string name="admin_menu_users">Users</string>
+    <string name="admin_menu_questions">Questions</string>
+    <string name="admin_menu_answers">Answers</string>
+    <string name="admin_menu_announcements">Announcements</string>
+    <string name="admin_menu_jobs">Jobs</string>
+    <string name="admin_menu_companies">Companies</string>
+    <string name="admin_menu_reports">Reports</string>
+
+    <!-- Manage users -->
+    <string name="admin_users_title">Manage Users</string>
+    <string name="admin_search_users">Search users…</string>
+    <string name="admin_filter_all">All</string>
+    <string name="admin_filter_banned">Banned</string>
+    <string name="admin_filter_pro">Pro</string>
+    <string name="admin_filter_admin">Admin</string>
+    <string name="admin_filter_hidden">Hidden</string>
+    <string name="admin_empty_users">No users found</string>
+    <string name="admin_ban_user_title">Ban User</string>
+    <string name="admin_ban_message">Are you sure you want to ban @%1$s? They will no longer be able to post.</string>
+    <string name="admin_action_ban">Ban</string>
+    <string name="admin_action_unban">Unban</string>
+    <string name="admin_pro_make_title">Make Pro</string>
+    <string name="admin_pro_remove_title">Remove Pro</string>
+    <string name="admin_pro_make_message">Are you sure you want to make @%1$s a Pro member?</string>
+    <string name="admin_pro_remove_message">Are you sure you want to remove Pro from @%1$s?</string>
+    <string name="admin_admin_make_title">Make Admin</string>
+    <string name="admin_admin_remove_title">Remove Admin</string>
+    <string name="admin_admin_make_message">Are you sure you want to make @%1$s an admin?</string>
+    <string name="admin_admin_remove_message">Are you sure you want to remove admin privileges from @%1$s?</string>
+    <string name="admin_role_admin">Admin</string>
+    <string name="admin_role_not_admin">Not Admin</string>
+    <string name="admin_role_pro">Pro</string>
+    <string name="admin_role_not_pro">Not Pro</string>
+    <string name="admin_badge_pro">PRO</string>
+    <string name="admin_badge_admin">ADMIN</string>
+    <string name="admin_badge_banned">BANNED</string>
+    <string name="admin_points">%1$d pts</string>
+
+    <!-- Manage questions -->
+    <string name="admin_questions_title">Manage Questions</string>
+    <string name="admin_search_questions">Search questions…</string>
+    <string name="admin_empty_questions">No questions found</string>
+    <string name="admin_hide_question_title">Hide Question</string>
+    <string name="admin_hide_question_message">Are you sure you want to hide \"%1$s\"? It will no longer be visible to users.</string>
+    <string name="admin_badge_hidden">HIDDEN</string>
+    <string name="admin_unknown">Unknown</string>
+    <string name="admin_by_author">by %1$s</string>
+    <string name="admin_answers_count">%1$d answers</string>
+    <string name="admin_likes_count">%1$d likes</string>
+
+    <!-- Manage answers -->
+    <string name="admin_answers_title">Manage Answers</string>
+    <string name="admin_search_answers">Search answers…</string>
+    <string name="admin_empty_answers">No answers found</string>
+    <string name="admin_delete_answer_title">Delete Answer</string>
+    <string name="admin_delete_answer_message">Are you sure you want to delete this answer? This action cannot be undone.</string>
+    <string name="admin_accepted">Accepted</string>
+
+    <!-- Manage announcements -->
+    <string name="admin_announcements_title">Manage Announcements</string>
+    <string name="admin_create_announcement">Create Announcement</string>
+    <string name="admin_new_announcement_title">New Announcement</string>
+    <string name="admin_field_title">Title</string>
+    <string name="admin_field_message">Message</string>
+    <string name="admin_empty_announcements">No announcements yet</string>
+    <string name="admin_delete_announcement_title">Delete Announcement</string>
+    <string name="admin_delete_announcement_message">Are you sure you want to delete \"%1$s\"? This action cannot be undone.</string>
+
+    <!-- Manage jobs -->
+    <string name="admin_jobs_title">Manage Jobs</string>
+    <string name="admin_empty_jobs">No job postings found</string>
+    <string name="admin_approve_job_title">Approve Job</string>
+    <string name="admin_approve_job_message">Approve \"%1$s\" by %2$s?</string>
+
+    <!-- Manage companies -->
+    <string name="admin_companies_title">Manage Companies</string>
+    <string name="admin_search_companies">Search companies…</string>
+    <string name="admin_empty_companies">No companies registered</string>
+    <string name="admin_empty_companies_search">No companies match your search</string>
+    <string name="admin_status_active">Active</string>
+    <string name="admin_status_inactive">Inactive</string>
+
+    <!-- Manage reports -->
+    <string name="admin_reports_title">Manage Reports</string>
+    <string name="admin_empty_reports">No reports here</string>
+    <string name="admin_status_pending">Pending</string>
+    <string name="admin_status_approved">Approved</string>
+    <string name="admin_status_rejected">Rejected</string>
+    <string name="admin_status_reviewed">Reviewed</string>
+    <string name="admin_status_dismissed">Dismissed</string>
+    <string name="admin_report_reason_label">Reason: %1$s</string>
+    <string name="admin_report_target_label">Target: %1$s</string>
+    <string name="admin_report_reported_by">Reported by %1$s</string>
+    <string name="admin_report_details_title">Report Details</string>
+    <string name="admin_report_field_type">Reported type</string>
+    <string name="admin_report_field_reason">Reason</string>
+    <string name="admin_report_field_details">Details</string>
+    <string name="admin_report_field_target">Target</string>
+    <string name="admin_report_field_reporter">Reporter</string>
+    <string name="admin_report_field_reported_at">Reported at</string>
+    <string name="admin_report_field_status">Status</string>
+    <string name="admin_report_delete_content">Delete content</string>
+    <string name="admin_report_ban_user">Ban user</string>
+    <string name="admin_report_dismiss">Dismiss report</string>
+
+    <!-- Follow list sheet -->
+    <string name="profile_follow_list_search">Search people…</string>
+    <string name="profile_followers_count">%1$d Followers</string>
+    <string name="profile_following_count">%1$d Following</string>
+    <string name="profile_follow_no_results">No matching people</string>
 </resources>

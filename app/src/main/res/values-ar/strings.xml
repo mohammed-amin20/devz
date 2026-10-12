@@ -1,0 +1,491 @@
+<resources>
+    <string name="app_name">devz</string>
+
+    <!-- Common -->
+    <string name="action_back">رجوع</string>
+
+    <!-- Settings -->
+    <string name="settings_title">الإعدادات</string>
+    <string name="settings_open">الإعدادات</string>
+    <string name="settings_theme">المظهر</string>
+    <string name="settings_language">اللغة</string>
+    <string name="theme_system">النظام</string>
+    <string name="theme_light">فاتح</string>
+    <string name="theme_dark">داكن</string>
+    <string name="language_system">لغة النظام</string>
+    <string name="language_english">English</string>
+    <string name="language_arabic">العربية</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">الرئيسية</string>
+    <string name="nav_add">إضافة</string>
+    <string name="nav_notifications">الإشعارات</string>
+    <string name="nav_jobs">الوظائف</string>
+    <string name="nav_profile">الملف الشخصي</string>
+
+    <!-- Components -->
+    <string name="pro_badge">⭐ برو</string>
+
+    <!-- Splash -->
+    <string name="splash_logo_desc">شعار DevZ</string>
+    <string name="splash_tagline">نبني الحلول</string>
+    <string name="splash_version">v1.0.0</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_welcome_intro">مرحباً بك في </string>
+    <string name="onboarding_welcome_accent">devZ!</string>
+    <string name="onboarding_welcome_body">اسأل بحرية. يدعم devZ المبتدئين بإجابات مفيدة وبدون أحكام.</string>
+    <string name="onboarding_code_intro">شارك الكود واحصل على </string>
+    <string name="onboarding_code_accent">المراجعات</string>
+    <string name="onboarding_code_body">شارك كودك واحصل على ملاحظات مفصّلة لتحسين الجودة والأداء.</string>
+    <string name="onboarding_reputation_intro">طوّر </string>
+    <string name="onboarding_reputation_accent">سمعتك</string>
+    <string name="onboarding_reputation_body">ساعد الآخرين، واكسب السمعة، وكن خبيراً معروفاً.</string>
+    <string name="onboarding_next">التالي</string>
+    <string name="onboarding_get_started">ابدأ الآن</string>
+    <string name="onboarding_skip">تخطّي</string>
+
+    <!-- Login -->
+    <string name="login_title">مرحباً بعودتك</string>
+    <string name="login_subtitle">ادخل إلى قاعدة معرفتك التقنية\nوانضم إلى مجتمع المطوّرين.</string>
+    <string name="login_username_label">اسم المستخدم</string>
+    <string name="login_username_hint">architect_dev</string>
+    <string name="login_password_label">كلمة المرور</string>
+    <string name="login_password_hint">••••••••</string>
+    <string name="login_button">تسجيل الدخول</string>
+    <string name="login_no_account">ليس لديك حساب؟ </string>
+    <string name="login_sign_up">إنشاء حساب</string>
+
+    <!-- Sign up -->
+    <string name="signup_title">انضم إلى المجتمع</string>
+    <string name="signup_subtitle">أنشئ حسابك لتبدأ\nببناء الحلول.</string>
+    <string name="signup_mode_company">التسجيل كشركة</string>
+    <string name="signup_mode_developer">التسجيل كمطوّر</string>
+    <string name="signup_label_company_name">اسم الشركة</string>
+    <string name="signup_label_full_name">الاسم الكامل</string>
+    <string name="signup_label_username">اسم المستخدم</string>
+    <string name="signup_label_email">البريد الإلكتروني</string>
+    <string name="signup_label_password">كلمة المرور</string>
+    <string name="signup_label_confirm_password">تأكيد كلمة المرور</string>
+    <string name="signup_hint_company">شركة أكمي</string>
+    <string name="signup_hint_full_name">محمد أحمد</string>
+    <string name="signup_hint_username">architect_dev</string>
+    <string name="signup_hint_email">architect@devz.io</string>
+    <string name="signup_hint_password">••••••••••••</string>
+    <string name="signup_terms_prefix">بإنشاء الحساب فأنت توافق على </string>
+    <string name="signup_terms_tos">شروط الخدمة</string>
+    <string name="signup_terms_and"> و</string>
+    <string name="signup_terms_privacy">سياسة الخصوصية</string>
+    <string name="signup_terms_suffix">.</string>
+    <string name="signup_button_developer">إنشاء الحساب</string>
+    <string name="signup_button_company">تسجيل الشركة</string>
+    <string name="signup_have_account">لديك حساب بالفعل؟ </string>
+    <string name="signup_login">تسجيل الدخول</string>
+
+    <!-- Banned -->
+    <string name="banned_icon_desc">حساب معلّق</string>
+    <string name="banned_title">تم تعليق حسابك</string>
+    <string name="banned_message">تم تعليق حسابك من قبل الإدارة.\nيرجى التواصل معنا للحصول على المساعدة</string>
+    <string name="banned_email_label">البريد الإلكتروني</string>
+    <string name="banned_email_value">support@devz.app</string>
+    <string name="banned_whatsapp_label">واتساب</string>
+    <string name="banned_whatsapp_value">+972 59 292 3130</string>
+
+    <!-- Common -->
+    <string name="action_retry">إعادة المحاولة</string>
+
+    <!-- Feed -->
+    <string name="feed_tab_for_you">لك</string>
+    <string name="feed_tab_following">المتابعة</string>
+    <string name="feed_search_hint">ابحث في الذكاء الجماعي...</string>
+    <string name="feed_empty_tech_title">لا توجد أسئلة مطابقة</string>
+    <string name="feed_empty_tech_subtitle">أضف تقنيات إلى ملفك الشخصي لنعرض\nلك أسئلة ذات صلة.</string>
+    <string name="feed_empty_following_title">صفحتك فارغة</string>
+    <string name="feed_empty_following_subtitle">تابع المطوّرين لعرض أسئلتهم هنا.\nابحث عن أشخاص أو تصفّح الأسئلة للعثور\nعلى مطوّرين يشاركونك اهتماماتك.</string>
+    <string name="feed_empty_no_questions_title">لا توجد أسئلة بعد</string>
+    <string name="feed_empty_no_questions_subtitle">ستظهر هنا أسئلة المطوّرين\nالذين تتابعهم.</string>
+    <string name="feed_ad_space">📢 مساحة إعلانية</string>
+    <string name="feed_view_discussion">عرض النقاش ←</string>
+    <string name="feed_pinned">مثبّت</string>
+    <string name="feed_edited">تم التعديل</string>
+    <string name="feed_edited_with_time">تم التعديل · %s</string>
+
+    <!-- Question details -->
+    <string name="details_breadcrumb_questions">الأسئلة</string>
+    <string name="details_asked">سُئل %s</string>
+    <string name="details_answers_count">%1$d إجابات</string>
+    <string name="details_pin">تثبيت</string>
+    <string name="details_pinned">مثبّت</string>
+    <string name="details_edit">تعديل</string>
+    <string name="details_accepted">مقبول</string>
+    <string name="details_accept">قبول</string>
+    <string name="details_upvote">تصويت</string>
+    <string name="details_remove_upvote">إزالة التصويت</string>
+    <string name="details_accept_answer_desc">قبول الإجابة</string>
+    <string name="details_answer_code_title">كود الإجابة</string>
+    <string name="details_clear">مسح</string>
+    <string name="details_done">تم</string>
+    <string name="details_code_hint">الصق أو اكتب الكود هنا...</string>
+    <string name="details_answer_hint">اكتب إجابتك...</string>
+    <string name="details_code_attached">كود مرفق</string>
+    <string name="details_post_answer_desc">نشر الإجابة</string>
+
+    <!-- Code block -->
+    <string name="code_copy">نسخ</string>
+    <string name="code_copied">تم النسخ!</string>
+    <string name="code_copied_toast">تم نسخ الكود!</string>
+    <string name="code_none">لا يوجد كود</string>
+    <string name="code_copy_desc">نسخ الكود</string>
+
+    <!-- Add / edit question -->
+    <string name="addedit_title_ask">اطرح سؤالاً</string>
+    <string name="addedit_title_edit">تعديل السؤال</string>
+    <string name="addedit_publish">نشر</string>
+    <string name="addedit_hero_line1">صمّم</string>
+    <string name="addedit_hero_line2">استفسارك</string>
+    <string name="addedit_subtitle">قدّم أكبر قدر من السياق. الأسئلة التقنية\nعالية الجودة تجذب حلولاً معمارية عالية الجودة.</string>
+    <string name="addedit_label_language">اختر اللغة</string>
+    <string name="addedit_label_title">نص المشكلة</string>
+    <string name="addedit_label_body">السياق التقني</string>
+    <string name="addedit_label_code">تنفيذ الكود</string>
+    <string name="addedit_label_tags">وسوم التصنيف</string>
+    <string name="addedit_format_code">تنسيق الكود</string>
+    <string name="addedit_add_tag">إضافة وسم</string>
+    <string name="addedit_title_placeholder">مثال: كيف أنفّذ ترقيم الصفحات في Firestore...</string>
+    <string name="addedit_body_placeholder">صف ما تحاول تحقيقه وما جرّبته حتى الآن...</string>
+    <string name="addedit_tag_placeholder">مثال: Kotlin، Firebase</string>
+    <string name="addedit_review_title">راجع قبل النشر</string>
+    <string name="addedit_review_body">تأكد من إزالة جميع مفاتيح API والبيانات الحساسة من مقاطع الكود.</string>
+    <string name="addedit_language_placeholder">اختر اللغة</string>
+    <string name="addedit_code_placeholder">// الصق الكود هنا...</string>
+    <string name="addedit_close_desc">إغلاق</string>
+    <string name="addedit_add_tag_desc">إضافة وسم</string>
+
+    <!-- Report -->
+    <string name="report_title">الإبلاغ عن %s</string>
+    <string name="report_type_question">سؤال</string>
+    <string name="report_type_answer">إجابة</string>
+    <string name="report_type_job">وظيفة</string>
+    <string name="report_type_user">مستخدم</string>
+    <string name="report_why">لماذا تُبلّغ عن هذا؟</string>
+    <string name="report_reason_spam">محتوى مزعج</string>
+    <string name="report_reason_harassment">تحرّش</string>
+    <string name="report_reason_inappropriate">محتوى غير لائق</string>
+    <string name="report_reason_other">أخرى</string>
+    <string name="report_details_hint">أضف تفاصيل (اختياري)</string>
+    <string name="report_submit">إرسال الإبلاغ</string>
+    <string name="report_submitted_title">تم إرسال الإبلاغ</string>
+    <string name="report_submitted_message">سيراجعه فريقنا. شكراً لك.</string>
+    <string name="report_menu_more">خيارات أخرى</string>
+    <string name="report_menu_report">إبلاغ</string>
+
+    <!-- Profile (Phase 3) -->
+    <string name="profile_back_desc">رجوع</string>
+    <string name="profile_edit_profile">تعديل الملف الشخصي</string>
+    <string name="profile_logout">تسجيل الخروج</string>
+    <string name="profile_logout_title">تسجيل الخروج</string>
+    <string name="profile_logout_message">هل أنت متأكد من رغبتك في تسجيل الخروج؟</string>
+    <string name="profile_logout_cancel">إلغاء</string>
+    <string name="profile_follow">متابعة</string>
+    <string name="profile_following">تتابعه</string>
+    <string name="profile_followers">المتابعون</string>
+    <string name="profile_admin_panel">لوحة الإدارة</string>
+    <string name="profile_tab_my_questions">أسئلتي</string>
+    <string name="profile_tab_their_questions">أسئلته</string>
+    <string name="profile_tab_my_answers">إجاباتي</string>
+    <string name="profile_tab_their_answers">إجاباته</string>
+    <string name="profile_tab_applications">طلباتي</string>
+    <string name="profile_stat_answers">إجابات</string>
+    <string name="profile_stat_questions">أسئلة</string>
+    <string name="profile_stat_accepted">مقبولة</string>
+    <string name="profile_specialized_skills">المهارات المتخصصة</string>
+    <string name="profile_social_links">روابط التواصل</string>
+    <string name="profile_show_more">عرض المزيد</string>
+    <string name="profile_show_less">عرض أقل</string>
+    <string name="profile_no_username">لا يوجد اسم مستخدم</string>
+    <string name="profile_avatar_desc">صورة الملف الشخصي</string>
+    <string name="profile_asked">سُئل %s</string>
+    <string name="profile_answered">أُجيب %s</string>
+    <string name="profile_likes_label">إعجابات</string>
+    <string name="profile_empty_questions_title">لا توجد أسئلة بعد</string>
+    <string name="profile_empty_questions_subtitle">ستظهر أسئلتك هنا</string>
+    <string name="profile_empty_answers_title">لا توجد إجابات بعد</string>
+    <string name="profile_empty_answers_subtitle">ستظهر إجاباتك هنا</string>
+    <string name="profile_empty_applications_title">لا توجد طلبات بعد</string>
+    <string name="profile_empty_applications_subtitle">لا توجد طلبات وظائف بعد</string>
+    <string name="profile_applications_error_title">تعذّر تحميل الطلبات</string>
+    <string name="profile_followers_empty">لا يوجد متابعون بعد</string>
+    <string name="profile_following_empty">لا يتابع أحداً بعد</string>
+    <string name="profile_close_desc">إغلاق</string>
+    <string name="something_went_wrong">حدث خطأ ما</string>
+
+    <!-- Gamification (Phase 3) -->
+    <string name="gamif_achievement">الإنجاز</string>
+    <string name="gamif_level">المستوى %1$d</string>
+    <string name="gamif_points">%1$d نقطة</string>
+    <string name="gamif_next_level">%1$d نقطة للمستوى التالي</string>
+    <string name="gamif_max_level">وصلت إلى أعلى مستوى</string>
+    <string name="gamif_progress_desc">تقدم المستوى</string>
+    <string name="gamif_tier_newcomer">مبتدئ</string>
+    <string name="gamif_tier_contributor">مساهم</string>
+    <string name="gamif_tier_specialist">متخصص</string>
+    <string name="gamif_tier_expert">خبير</string>
+    <string name="gamif_tier_master">محترف</string>
+    <string name="gamif_tier_legend">أسطورة</string>
+
+    <!-- Edit profile (Phase 3) -->
+    <string name="editprofile_title">تعديل الملف الشخصي</string>
+    <string name="editprofile_save">حفظ</string>
+    <string name="editprofile_avatar_selection">اختيار الصورة الرمزية</string>
+    <string name="editprofile_core_identity">الهوية الأساسية</string>
+    <string name="editprofile_technical_stack">الحزمة التقنية</string>
+    <string name="editprofile_social_mesh">شبكة التواصل</string>
+    <string name="editprofile_governance">الخصوصية</string>
+    <string name="editprofile_full_name">الاسم الكامل</string>
+    <string name="editprofile_username">اسم المستخدم</string>
+    <string name="editprofile_bio">نبذة</string>
+    <string name="editprofile_full_name_hint">أدخل اسمك الكامل</string>
+    <string name="editprofile_username_hint">اختر اسم مستخدم</string>
+    <string name="editprofile_bio_hint">أخبرنا عن نفسك</string>
+    <string name="editprofile_add_interest">إضافة اهتمام</string>
+    <string name="editprofile_skill_hint">مثال: Kotlin، Rust</string>
+    <string name="editprofile_github_hint">github.com/your_username</string>
+    <string name="editprofile_linkedin_hint">linkedin.com/in/your_name</string>
+    <string name="editprofile_website_hint">your-website.dev</string>
+    <string name="editprofile_public_profile">ظهور الملف الشخصي العام</string>
+    <string name="editprofile_public_profile_desc">اسمح للآخرين برؤية أسئلتك التقنية</string>
+    <string name="editprofile_display_email">إظهار البريد الإلكتروني</string>
+    <string name="editprofile_display_email_desc">مرئي لأعضاء الفريق الموثوقين</string>
+    <string name="editprofile_save_changes">حفظ تغييرات الملف</string>
+    <string name="editprofile_deactivate">إلغاء تنشيط الحساب</string>
+    <string name="editprofile_dismiss_error">إغلاق</string>
+    <string name="editprofile_avatar_desc">تغيير صورة الملف الشخصي</string>
+
+    <!-- Notifications (Phase 3) -->
+    <string name="notif_mark_all_read">تعليم الكل كمقروء</string>
+    <string name="notif_empty_title">لا توجد إشعارات بعد</string>
+    <string name="notif_empty_message">لا يوجد جديد</string>
+    <string name="notif_error_title">تعذّر تحميل الإشعارات</string>
+    <string name="notif_system_badge">النظام</string>
+    <string name="notif_system_brand">📢 devZ</string>
+    <string name="notif_someone">شخص ما</string>
+    <string name="notif_congrats">مبروك! </string>
+    <string name="jobtype_full_time">دوام كامل</string>
+    <string name="jobtype_part_time">دوام جزئي</string>
+    <string name="jobtype_remote">عن بُعد</string>
+    <string name="jobtype_contract">عقد</string>
+    <string name="jobs_filter_all">الكل</string>
+    <string name="jobs_empty_title">لا توجد وظائف</string>
+    <string name="jobs_empty_message">تحقّق لاحقًا من الفرص الجديدة.</string>
+    <string name="jobdetail_back">رجوع</string>
+    <string name="jobdetail_description">الوصف</string>
+    <string name="jobdetail_posted">نُشر %1$s</string>
+    <string name="jobdetail_applicants_count">%1$d متقدم</string>
+    <string name="jobdetail_status_reserved">محجوز</string>
+    <string name="jobdetail_status_offered">معروض</string>
+    <string name="jobdetail_apply">تقديم</string>
+    <string name="jobdetail_applied">تم التقديم</string>
+    <string name="jobdetail_apply_for">التقديم على %1$s</string>
+    <string name="jobdetail_submitted">تم إرسال الطلب!</string>
+    <string name="apply_email">البريد الإلكتروني</string>
+    <string name="apply_whatsapp">رقم واتساب</string>
+    <string name="apply_cover_letter_hint">اكتب عرضك...</string>
+    <string name="apply_submit">إرسال الطلب</string>
+    <string name="postjob_title">نشر وظيفة</string>
+    <string name="postjob_back">رجوع</string>
+    <string name="postjob_field_title">المسمى الوظيفي</string>
+    <string name="postjob_title_hint">مطوّر أندرويد أول</string>
+    <string name="postjob_field_description">الوصف</string>
+    <string name="postjob_description_hint">صف الدور والمسؤوليات...</string>
+    <string name="postjob_field_salary">نطاق الراتب</string>
+    <string name="postjob_salary_hint">٨٠ ألف - ١٢٠ ألف</string>
+    <string name="postjob_field_type">نوع الوظيفة</string>
+    <string name="postjob_submit">إرسال للاعتماد</string>
+    <string name="company_edit_profile">تعديل الملف</string>
+    <string name="company_logout">تسجيل الخروج</string>
+    <string name="company_status_active">نشط</string>
+    <string name="company_status_pending">بانتظار الموافقة</string>
+    <string name="company_status_expired">منتهي</string>
+    <string name="company_tab_offered">معروض (%1$d)</string>
+    <string name="company_tab_reserved">محجوز (%1$d)</string>
+    <string name="company_empty_offered">لا توجد وظائف معروضة</string>
+    <string name="company_empty_reserved">لا توجد وظائف محجوزة</string>
+    <string name="company_profile_back">رجوع</string>
+    <string name="company_profile_verified">موثّق</string>
+    <string name="company_profile_website">الموقع</string>
+    <string name="company_profile_twitter">تويتر</string>
+    <string name="company_profile_stat_jobs">وظائف</string>
+    <string name="company_profile_stat_applicants">المتقدمون</string>
+    <string name="company_profile_stat_filled">مكتملة</string>
+    <string name="company_profile_tab_posted">منشورة (%1$d)</string>
+    <string name="company_profile_tab_filled">مكتملة (%1$d)</string>
+    <string name="company_profile_empty_posted">لا توجد وظائف مفتوحة</string>
+    <string name="company_profile_empty_filled">لا توجد وظائف مكتملة بعد</string>
+    <string name="company_profile_post_job">نشر وظيفة</string>
+    <string name="company_profile_open">مفتوحة</string>
+    <string name="company_profile_filled">مكتملة</string>
+    <string name="company_job_detail_title">تفاصيل الوظيفة</string>
+    <string name="company_job_detail_applicants">المتقدمون (%1$d)</string>
+    <string name="company_job_detail_empty">لا توجد طلبات بعد</string>
+    <string name="company_job_detail_pts">%1$d نقطة</string>
+    <string name="company_job_detail_applied">تقدّم %1$s</string>
+    <string name="company_job_detail_email">البريد</string>
+    <string name="company_job_detail_whatsapp">واتساب</string>
+    <string name="company_job_detail_approved">تمت الموافقة</string>
+    <string name="company_job_detail_approve">موافقة</string>
+    <string name="company_edit_title">تعديل ملف الشركة</string>
+    <string name="company_edit_close">إغلاق</string>
+    <string name="company_edit_logo">شعار الشركة</string>
+    <string name="company_edit_field_name">اسم الشركة</string>
+    <string name="company_edit_name_hint">أدخل اسم الشركة</string>
+    <string name="company_edit_field_industry">المجال</string>
+    <string name="company_edit_industry_hint">مثال: برمجيات، تقنية مالية، تصميم</string>
+    <string name="company_edit_field_location">الموقع الجغرافي</string>
+    <string name="company_edit_location_hint">مثال: القاهرة، مصر</string>
+    <string name="company_edit_field_website">الموقع الإلكتروني</string>
+    <string name="company_edit_website_hint">https://your-company.com</string>
+    <string name="company_edit_field_twitter">تويتر / إكس</string>
+    <string name="company_edit_twitter_hint">https://x.com/your-company</string>
+    <string name="company_edit_field_description">الوصف</string>
+    <string name="company_edit_description_hint">وصف مختصر للشركة</string>
+    <string name="company_edit_field_bio">نبذة</string>
+    <string name="company_edit_bio_hint">أخبر المطورين المزيد عن شركتك</string>
+    <string name="company_edit_cancel">إلغاء</string>
+    <string name="company_edit_save">حفظ</string>
+    <string name="company_logout_title">تسجيل الخروج</string>
+    <string name="company_logout_message">هل أنت متأكد من رغبتك في تسجيل الخروج؟</string>
+    <string name="company_logout_cancel">إلغاء</string>
+    <string name="company_logout_confirm">تسجيل الخروج</string>
+    <string name="company_pending_title">تم إرسال التسجيل!</string>
+    <string name="company_pending_message">حساب شركتك بانتظار الموافقة. سنُعلمك بمجرد تفعيل اشتراكك.</string>
+    <string name="company_pending_go_home">الذهاب إلى الرئيسية</string>
+
+    <!-- Shared action labels -->
+    <string name="action_cancel">إلغاء</string>
+    <string name="action_delete">حذف</string>
+    <string name="action_create">إنشاء</string>
+    <string name="action_approve">موافقة</string>
+    <string name="action_reject">رفض</string>
+    <string name="action_hide">إخفاء</string>
+    <string name="action_unhide">إظهار</string>
+    <string name="action_activate">تفعيل</string>
+    <string name="action_deactivate">إلغاء التفعيل</string>
+    <string name="action_close">إغلاق</string>
+    <string name="action_remove">إزالة</string>
+
+    <!-- Admin dashboard -->
+    <string name="admin_stat_users">المستخدمون</string>
+    <string name="admin_stat_questions">الأسئلة</string>
+    <string name="admin_stat_answers">الإجابات</string>
+    <string name="admin_stat_banned">المحظورون</string>
+    <string name="admin_menu_users">المستخدمون</string>
+    <string name="admin_menu_questions">الأسئلة</string>
+    <string name="admin_menu_answers">الإجابات</string>
+    <string name="admin_menu_announcements">الإعلانات</string>
+    <string name="admin_menu_jobs">الوظائف</string>
+    <string name="admin_menu_companies">الشركات</string>
+    <string name="admin_menu_reports">البلاغات</string>
+
+    <!-- Manage users -->
+    <string name="admin_users_title">إدارة المستخدمين</string>
+    <string name="admin_search_users">ابحث عن المستخدمين…</string>
+    <string name="admin_filter_all">الكل</string>
+    <string name="admin_filter_banned">المحظورون</string>
+    <string name="admin_filter_pro">برو</string>
+    <string name="admin_filter_admin">مشرف</string>
+    <string name="admin_filter_hidden">المخفية</string>
+    <string name="admin_empty_users">لا يوجد مستخدمون</string>
+    <string name="admin_ban_user_title">حظر المستخدم</string>
+    <string name="admin_ban_message">هل أنت متأكد من حظر @%1$s؟ لن يتمكن من النشر بعد الآن.</string>
+    <string name="admin_action_ban">حظر</string>
+    <string name="admin_action_unban">إلغاء الحظر</string>
+    <string name="admin_pro_make_title">ترقية إلى برو</string>
+    <string name="admin_pro_remove_title">إزالة برو</string>
+    <string name="admin_pro_make_message">هل أنت متأكد من ترقية @%1$s إلى عضو برو؟</string>
+    <string name="admin_pro_remove_message">هل أنت متأكد من إزالة برو من @%1$s؟</string>
+    <string name="admin_admin_make_title">تعيين كمشرف</string>
+    <string name="admin_admin_remove_title">إزالة صلاحية المشرف</string>
+    <string name="admin_admin_make_message">هل أنت متأكد من تعيين @%1$s كمشرف؟</string>
+    <string name="admin_admin_remove_message">هل أنت متأكد من إزالة صلاحيات المشرف من @%1$s؟</string>
+    <string name="admin_role_admin">مشرف</string>
+    <string name="admin_role_not_admin">ليس مشرفًا</string>
+    <string name="admin_role_pro">برو</string>
+    <string name="admin_role_not_pro">ليس برو</string>
+    <string name="admin_badge_pro">برو</string>
+    <string name="admin_badge_admin">مشرف</string>
+    <string name="admin_badge_banned">محظور</string>
+    <string name="admin_points">%1$d نقطة</string>
+
+    <!-- Manage questions -->
+    <string name="admin_questions_title">إدارة الأسئلة</string>
+    <string name="admin_search_questions">ابحث عن الأسئلة…</string>
+    <string name="admin_empty_questions">لا توجد أسئلة</string>
+    <string name="admin_hide_question_title">إخفاء السؤال</string>
+    <string name="admin_hide_question_message">هل أنت متأكد من إخفاء \"%1$s\"؟ لن يكون مرئيًا للمستخدمين بعد الآن.</string>
+    <string name="admin_badge_hidden">مخفي</string>
+    <string name="admin_unknown">غير معروف</string>
+    <string name="admin_by_author">بواسطة %1$s</string>
+    <string name="admin_answers_count">%1$d إجابة</string>
+    <string name="admin_likes_count">%1$d إعجاب</string>
+
+    <!-- Manage answers -->
+    <string name="admin_answers_title">إدارة الإجابات</string>
+    <string name="admin_search_answers">ابحث عن الإجابات…</string>
+    <string name="admin_empty_answers">لا توجد إجابات</string>
+    <string name="admin_delete_answer_title">حذف الإجابة</string>
+    <string name="admin_delete_answer_message">هل أنت متأكد من حذف هذه الإجابة؟ لا يمكن التراجع عن هذا الإجراء.</string>
+    <string name="admin_accepted">مقبولة</string>
+
+    <!-- Manage announcements -->
+    <string name="admin_announcements_title">إدارة الإعلانات</string>
+    <string name="admin_create_announcement">إنشاء إعلان</string>
+    <string name="admin_new_announcement_title">إعلان جديد</string>
+    <string name="admin_field_title">العنوان</string>
+    <string name="admin_field_message">الرسالة</string>
+    <string name="admin_empty_announcements">لا توجد إعلانات بعد</string>
+    <string name="admin_delete_announcement_title">حذف الإعلان</string>
+    <string name="admin_delete_announcement_message">هل أنت متأكد من حذف \"%1$s\"؟ لا يمكن التراجع عن هذا الإجراء.</string>
+
+    <!-- Manage jobs -->
+    <string name="admin_jobs_title">إدارة الوظائف</string>
+    <string name="admin_empty_jobs">لا توجد وظائف</string>
+    <string name="admin_approve_job_title">الموافقة على الوظيفة</string>
+    <string name="admin_approve_job_message">الموافقة على \"%1$s\" من %2$s؟</string>
+
+    <!-- Manage companies -->
+    <string name="admin_companies_title">إدارة الشركات</string>
+    <string name="admin_search_companies">ابحث عن الشركات…</string>
+    <string name="admin_empty_companies">لا توجد شركات مسجلة</string>
+    <string name="admin_empty_companies_search">لا توجد شركات مطابقة لبحثك</string>
+    <string name="admin_status_active">نشط</string>
+    <string name="admin_status_inactive">غير نشط</string>
+
+    <!-- Manage reports -->
+    <string name="admin_reports_title">إدارة البلاغات</string>
+    <string name="admin_empty_reports">لا توجد بلاغات</string>
+    <string name="admin_status_pending">قيد الانتظار</string>
+    <string name="admin_status_approved">مقبول</string>
+    <string name="admin_status_rejected">مرفوض</string>
+    <string name="admin_status_reviewed">تمت المراجعة</string>
+    <string name="admin_status_dismissed">تم التجاهل</string>
+    <string name="admin_report_reason_label">السبب: %1$s</string>
+    <string name="admin_report_target_label">الهدف: %1$s</string>
+    <string name="admin_report_reported_by">أبلغ عنه %1$s</string>
+    <string name="admin_report_details_title">تفاصيل البلاغ</string>
+    <string name="admin_report_field_type">نوع المحتوى</string>
+    <string name="admin_report_field_reason">السبب</string>
+    <string name="admin_report_field_details">التفاصيل</string>
+    <string name="admin_report_field_target">الهدف</string>
+    <string name="admin_report_field_reporter">المُبلِّغ</string>
+    <string name="admin_report_field_reported_at">تاريخ الإبلاغ</string>
+    <string name="admin_report_field_status">الحالة</string>
+    <string name="admin_report_delete_content">حذف المحتوى</string>
+    <string name="admin_report_ban_user">حظر المستخدم</string>
+    <string name="admin_report_dismiss">تجاهل البلاغ</string>
+
+    <!-- Follow list sheet -->
+    <string name="profile_follow_list_search">ابحث عن أشخاص…</string>
+    <string name="profile_followers_count">%1$d من المتابِعين</string>
+    <string name="profile_following_count">%1$d يتابعهم</string>
+    <string name="profile_follow_no_results">لا يوجد أشخاص مطابقون</string>
+</resources>

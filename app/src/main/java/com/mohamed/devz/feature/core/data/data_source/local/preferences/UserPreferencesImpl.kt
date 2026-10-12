@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -17,6 +18,8 @@ private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(na
 private val IS_FIRST_TIME = booleanPreferencesKey("is_first_time")
 private val IS_LOGGED_IN = booleanPreferencesKey("is_logged_in")
 private val CURRENT_ACCOUNT_ID = intPreferencesKey("current_account_id")
+private val THEME_MODE = stringPreferencesKey("theme_mode")
+private val LANGUAGE = stringPreferencesKey("language")
 
 class UserPreferencesImpl(
     private val app: Application,
@@ -32,6 +35,14 @@ class UserPreferencesImpl(
 
     override fun observeCurrentAccountId(): Flow<Int?> {
         return app.dataStore.data.map { it[CURRENT_ACCOUNT_ID] }
+    }
+
+    override fun observeThemeMode(): Flow<String> {
+        return app.dataStore.data.map { it[THEME_MODE] ?: "dark" }
+    }
+
+    override fun observeLanguage(): Flow<String> {
+        return app.dataStore.data.map { it[LANGUAGE] ?: "system" }
     }
 
     override suspend fun setNotFirstTime() {
@@ -52,5 +63,13 @@ class UserPreferencesImpl(
 
     override suspend fun setLoggedOut() {
         app.dataStore.edit { it[IS_LOGGED_IN] = false }
+    }
+
+    override suspend fun setThemeMode(value: String) {
+        app.dataStore.edit { it[THEME_MODE] = value }
+    }
+
+    override suspend fun setLanguage(value: String) {
+        app.dataStore.edit { it[LANGUAGE] = value }
     }
 }

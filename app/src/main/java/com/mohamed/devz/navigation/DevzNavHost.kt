@@ -1,5 +1,10 @@
 package com.mohamed.devz.navigation
 
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -35,6 +40,7 @@ import com.mohamed.devz.feature.company.presentation.company_profile.ProfileHost
 import com.mohamed.devz.feature.admin.presentation.manage_jobs.ManageJobsScreen
 import com.mohamed.devz.feature.admin.presentation.manage_companies.ManageCompaniesScreen
 import com.mohamed.devz.feature.admin.presentation.manage_reports.ManageReportsScreen
+import com.mohamed.devz.feature.settings.presentation.SettingsScreen
 import com.mohamed.devz.navigation.components.home.HomeScreen
 import com.mohamed.devz.navigation.components.home.HomeViewModel
 
@@ -54,7 +60,19 @@ fun DevzNavHost(
         navController = navController,
         startDestination = Route.Splash,
         modifier = Modifier
-            .fillMaxSize()
+            .fillMaxSize(),
+        enterTransition = {
+            fadeIn(tween(220)) + slideInVertically(tween(280)) { it / 12 }
+        },
+        exitTransition = {
+            fadeOut(tween(160))
+        },
+        popEnterTransition = {
+            fadeIn(tween(220))
+        },
+        popExitTransition = {
+            fadeOut(tween(160)) + slideOutVertically(tween(280)) { it / 12 }
+        },
     ) {
         composable<Route.Splash> {
             SplashScreen(
@@ -175,6 +193,9 @@ fun DevzNavHost(
                 navigateToAdminDashboard = {
                     navController.navigate(Route.AdminDashboard)
                 },
+                navigateToSettings = {
+                    navController.navigate(Route.Settings)
+                },
                 modifier = modifier
             )
             if (switchToProfileTab) {
@@ -232,6 +253,12 @@ fun DevzNavHost(
                     profileRefreshCounter++
                     navController.navigateUp()
                 },
+                modifier = modifier
+            )
+        }
+        composable<Route.Settings> {
+            SettingsScreen(
+                onNavigateUp = { navController.navigateUp() },
                 modifier = modifier
             )
         }

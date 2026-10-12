@@ -8,9 +8,13 @@ interface UserPreferencesRepository {
     fun observeIsFirstTime(): Flow<Boolean>
     fun observeIsLoggedIn(): Flow<Boolean>
     fun observeCurrentAccountId(): Flow<Int?>
+    fun observeThemeMode(): Flow<String>
+    fun observeLanguage(): Flow<String>
     suspend fun setNotFirstTime(): Result<Unit, Error>
     suspend fun setLoggedIn(): Result<Unit, Error>
     suspend fun setAccountId(id: Int): Result<Unit, Error>
     suspend fun clearAccountId(): Result<Unit, Error>
     suspend fun setLoggedOut(): Result<Unit, Error>
+    suspend fun setThemeMode(value: String): Result<Unit, Error>
+    suspend fun setLanguage(value: String): Result<Unit, Error>
 }

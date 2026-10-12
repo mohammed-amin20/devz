@@ -30,6 +30,9 @@ sealed interface Route {
     data object EditProfile : Route
 
     @Serializable
+    data object Settings : Route
+
+    @Serializable
     data class Profile(
         val accountId: Int
     ) : Route

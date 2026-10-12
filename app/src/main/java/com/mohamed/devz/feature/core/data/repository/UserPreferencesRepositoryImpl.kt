@@ -23,6 +23,14 @@ class UserPreferencesRepositoryImpl @Inject constructor(
         return userPreferences.observeCurrentAccountId()
     }
 
+    override fun observeThemeMode(): Flow<String> {
+        return userPreferences.observeThemeMode()
+    }
+
+    override fun observeLanguage(): Flow<String> {
+        return userPreferences.observeLanguage()
+    }
+
     override suspend fun setNotFirstTime(): Result<Unit, Error> {
         return try {
             userPreferences.setNotFirstTime()
@@ -62,6 +70,24 @@ class UserPreferencesRepositoryImpl @Inject constructor(
     override suspend fun setLoggedOut(): Result<Unit, Error> {
         return try {
             userPreferences.setLoggedOut()
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Failed to save preference"))
+        }
+    }
+
+    override suspend fun setThemeMode(value: String): Result<Unit, Error> {
+        return try {
+            userPreferences.setThemeMode(value)
+            Result.Success(Unit)
+        } catch (e: Exception) {
+            Result.Error(Error.Unknown(e.message ?: "Failed to save preference"))
+        }
+    }
+
+    override suspend fun setLanguage(value: String): Result<Unit, Error> {
+        return try {
+            userPreferences.setLanguage(value)
             Result.Success(Unit)
         } catch (e: Exception) {
             Result.Error(Error.Unknown(e.message ?: "Failed to save preference"))

@@ -1,7 +1,8 @@
 ﻿package com.mohamed.devz.navigation.components.home
 
-import android.graphics.Color.argb
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.rounded.Person
 import androidx.compose.material.icons.rounded.WorkHistory
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -41,19 +43,19 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.notification.presentation.NotificationType
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
 import com.mohamed.devz.feature.question.presentation.view_questions.ViewQuestionsScreen
 import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyDashboardScreen
@@ -75,6 +77,7 @@ fun HomeScreen(
     switchToProfileTab: Boolean = false,
     profileRefreshCounter: Int = 0,
     navigateToAdminDashboard: () -> Unit = {},
+    navigateToSettings: () -> Unit = {},
     viewModel: HomeViewModel = hiltViewModel()
 ) {
     val selectedIndex by viewModel.selectedIndex.collectAsStateWithLifecycle()
@@ -109,7 +112,7 @@ fun HomeScreen(
 
     val navigationItems = listOf(
         NavigationItem(
-            title = "Home",
+            title = stringResource(R.string.nav_home),
             icon = Icons.Rounded.Home,
             index = 0,
             onClick = { viewModel.onSelectedIndexChange(0) },
@@ -127,14 +130,14 @@ fun HomeScreen(
             }
         ),
         NavigationItem(
-            title = "Add",
+            title = stringResource(R.string.nav_add),
             icon = Icons.Rounded.Add,
             index = 1,
             onClick = { navigateToAddEditQuestion(null) },
             content = null
         ),
         NavigationItem(
-            title = "Notifications",
+            title = stringResource(R.string.nav_notifications),
             icon = Icons.Rounded.Notifications,
             index = 2,
             onClick = { viewModel.onSelectedIndexChange(2) },
@@ -152,7 +155,7 @@ fun HomeScreen(
             }
         ),
         NavigationItem(
-            title = "Jobs",
+            title = stringResource(R.string.nav_jobs),
             icon = Icons.Rounded.WorkHistory,
             index = 3,
             onClick = { viewModel.onSelectedIndexChange(3) },
@@ -164,7 +167,7 @@ fun HomeScreen(
             }
         ),
         NavigationItem(
-            title = "Profile",
+            title = stringResource(R.string.nav_profile),
             icon = Icons.Rounded.Person,
             index = 4,
             onClick = { viewModel.onSelectedIndexChange(4) },
@@ -179,6 +182,7 @@ fun HomeScreen(
                     onFullScreenChanged = { isFullScreenImage = it },
                     onDialogVisibilityChanged = { isDialogOpen = it },
                     onAdminPanelClick = navigateToAdminDashboard,
+                    onSettingsClick = navigateToSettings,
                     onProfileClick = { accountId ->
                         if (accountId == currentAccountId) {
                             viewModel.onSelectedIndexChange(4)
@@ -196,11 +200,11 @@ fun HomeScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(QBg)
+                .background(MaterialTheme.colorScheme.background)
                 .then(modifier),
             contentAlignment = Alignment.Center,
         ) {
-            CircularProgressIndicator(color = CyanPrimary)
+            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
         }
         return
     }
@@ -224,15 +228,16 @@ fun HomeScreen(
 
     Scaffold(
         containerColor = Color.Transparent,
-        bottomBar = if (!isFullScreenImage && !isDialogOpen) {
+bottomBar = if (!isFullScreenImage && !isDialogOpen) {
             {
+                val scrimColor = MaterialTheme.colorScheme.scrim
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .drawBehind {
                             drawRect(
                                 brush = Brush.verticalGradient(
-                                    colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.5f)),
+                                    colors = listOf(Color.Transparent, scrimColor.copy(alpha = 0.5f)),
                                     startY = 0f,
                                     endY = size.height
                                 )
@@ -243,7 +248,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
-                            .background(QSurfaceLow)
+                            .background(MaterialTheme.colorScheme.surfaceContainer)
                             .height(64.dp)
                             .imePadding()
                             .padding(horizontal = 8.dp),
@@ -285,11 +290,18 @@ private fun NavIconButton(
     badgeCount: Int = 0,
     onClick: () -> Unit,
 ) {
-    val tint = when {
-        isAccent && isSelected -> Color(0xFF44D8F1)
-        isSelected -> Color(0xFF44D8F1)
-        else -> Color(0xFF869396)
-    }
+    val tint by animateColorAsState(
+        targetValue = when {
+            isSelected -> MaterialTheme.colorScheme.primary
+            else -> MaterialTheme.colorScheme.outline
+        },
+        label = "navIconTint",
+    )
+    val iconSize by animateDpAsState(
+        targetValue = if (isAccent && isSelected) 30.dp else 26.dp,
+        label = "navIconSize",
+    )
+    val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
 
     Box(
         contentAlignment = Alignment.Center,
@@ -302,7 +314,7 @@ private fun NavIconButton(
                         val paint = Paint().asFrameworkPaint().apply {
                             isAntiAlias = true
                             color = android.graphics.Color.TRANSPARENT
-                            setShadowLayer(16f, 0f, 0f, argb(20, 68, 216, 241))
+                            setShadowLayer(16f, 0f, 0f, glowColor)
                         }
                         canvas.nativeCanvas.drawCircle(center.x, center.y, 20.dp.toPx(), paint)
                     }
@@ -318,8 +330,7 @@ private fun NavIconButton(
             imageVector = icon,
             contentDescription = null,
             tint = tint,
-            modifier = Modifier
-                .size(if (isAccent && isSelected) 30.dp else 26.dp)
+            modifier = Modifier.size(iconSize)
         )
 
         if (badgeCount > 0) {
@@ -328,12 +339,12 @@ private fun NavIconButton(
                     .align(Alignment.TopEnd)
                     .size(20.dp)
                     .clip(CircleShape)
-                    .background(CyanPrimary),
+                    .background(MaterialTheme.colorScheme.primary),
                 contentAlignment = Alignment.Center
             ) {
                 Text(
                     text = if (badgeCount > 9) "9+" else badgeCount.toString(),
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onPrimary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Bold,
                 )

@@ -20,8 +20,6 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.mohamed.devz.R
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun DevzBrandHeader(modifier: Modifier = Modifier) {
@@ -36,20 +34,23 @@ fun DevzBrandHeader(modifier: Modifier = Modifier) {
         Spacer(Modifier.width(8.dp))
         Text(
             text = buildAnnotatedString {
+                // Left-to-right override keeps the Latin "devZ" word order in RTL/Arabic.
+                append("\u202A")
                 withStyle(
                     SpanStyle(
-                        color = TextWhite,
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                 ) { append("dev") }
                 withStyle(
                     SpanStyle(
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 16.sp
                     )
                 ) { append("Z") }
+                append("\u202C")
             },
             style = MaterialTheme.typography.titleLarge
         )
