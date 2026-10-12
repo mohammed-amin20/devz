@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -66,13 +67,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.company.presentation.edit_company_profile.EditCompanyProfileOverlay
 import com.mohamed.devz.feature.core.presentation.components.DevzBrandHeader
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
-import com.mohamed.devz.feature.company.presentation.edit_company_profile.EditCompanyProfileOverlay
 import com.mohamed.devz.ui.components.ErrorState
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.ThemeMode
 import com.mohamed.devz.ui.theme.extendedColors
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -84,8 +86,6 @@ fun CompanyDashboardScreen(
     viewModel: CompanyDashboardViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
-    var showEditProfileDialog by rememberSaveable { mutableStateOf(false) }
 
     val pagerState = rememberPagerState(pageCount = { 2 })
     val coroutineScope = rememberCoroutineScope()
@@ -101,6 +101,32 @@ fun CompanyDashboardScreen(
             pagerState.animateScrollToPage(uiState.selectedTab)
         }
     }
+
+    CompanyDashboardContent(
+        state = uiState,
+        onRefresh = { viewModel.onAction(CompanyDashboardAction.Refresh) },
+        onPostJob = onPostJob,
+        onJobClick = onJobClick,
+        onLogout = onLogout,
+        modifier = modifier,
+        pagerState = pagerState,
+        coroutineScope = coroutineScope,
+    )
+}
+
+@Composable
+fun CompanyDashboardContent(
+    state: CompanyDashboardState,
+    onRefresh: () -> Unit,
+    onPostJob: () -> Unit,
+    onJobClick: (Int) -> Unit,
+    onLogout: () -> Unit,
+    modifier: Modifier = Modifier,
+    pagerState: PagerState = rememberPagerState(pageCount = { 2 }),
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+) {
+    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
+    var showEditProfileDialog by rememberSaveable { mutableStateOf(false) }
 
     Box(
         modifier = modifier
@@ -141,7 +167,7 @@ fun CompanyDashboardScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             when {
-                uiState.isLoading -> {
+                state.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -150,10 +176,10 @@ fun CompanyDashboardScreen(
                     }
                 }
 
-                uiState.error != null -> {
+                state.error != null -> {
                     ErrorState(
-                        message = uiState.error!!.asString(),
-                        onRetry = { viewModel.onAction(CompanyDashboardAction.Refresh) },
+                        message = state.error!!.asString(),
+                        onRetry = onRefresh,
                         retryLabel = stringResource(R.string.action_retry),
                     )
                 }
@@ -161,14 +187,14 @@ fun CompanyDashboardScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(CompanyDashboardAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -184,9 +210,9 @@ fun CompanyDashboardScreen(
                                     modifier = Modifier.padding(20.dp),
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                 ) {
-                                    if (uiState.logoUrl.isNotBlank()) {
+                                    if (state.logoUrl.isNotBlank()) {
                                         AsyncImage(
-                                            model = uiState.logoUrl,
+                                            model = state.logoUrl,
                                             contentDescription = null,
                                             modifier = Modifier
                                                 .size(64.dp)
@@ -212,12 +238,12 @@ fun CompanyDashboardScreen(
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))
                                     Text(
-                                        text = uiState.companyName,
+                                        text = state.companyName,
                                         color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
                                     )
-                                    if (uiState.website.isNotBlank()) {
+                                    if (state.website.isNotBlank()) {
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
@@ -228,20 +254,20 @@ fun CompanyDashboardScreen(
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = uiState.website,
+                                                text = state.website,
                                                 color = MaterialTheme.colorScheme.primary,
                                                 fontSize = 13.sp,
                                             )
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))
-                                    val statusColor = when (uiState.subscriptionStatus) {
+                                    val statusColor = when (state.subscriptionStatus) {
                                         "active" -> MaterialTheme.extendedColors.success
                                         "pending" -> MaterialTheme.extendedColors.warning
                                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                                     }
                                     Text(
-                                        text = subscriptionStatusLabel(uiState.subscriptionStatus),
+                                        text = subscriptionStatusLabel(state.subscriptionStatus),
                                         color = statusColor,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.SemiBold,
@@ -264,7 +290,7 @@ fun CompanyDashboardScreen(
                                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                                     text = {
                                         Text(
-                                            stringResource(R.string.company_tab_offered, uiState.offeredJobs.size),
+                                            stringResource(R.string.company_tab_offered, state.offeredJobs.size),
                                             fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
                                             color = if (pagerState.currentPage == 0) {
                                                 MaterialTheme.colorScheme.primary
@@ -279,7 +305,7 @@ fun CompanyDashboardScreen(
                                     onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                                     text = {
                                         Text(
-                                            stringResource(R.string.company_tab_reserved, uiState.reservedJobs.size),
+                                            stringResource(R.string.company_tab_reserved, state.reservedJobs.size),
                                             fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
                                             color = if (pagerState.currentPage == 1) {
                                                 MaterialTheme.colorScheme.primary
@@ -299,7 +325,7 @@ fun CompanyDashboardScreen(
                                     .fillMaxWidth()
                                     .weight(1f),
                             ) { page ->
-                                val currentJobs = if (page == 0) uiState.offeredJobs else uiState.reservedJobs
+                                val currentJobs = if (page == 0) state.offeredJobs else state.reservedJobs
 
                                 if (currentJobs.isEmpty()) {
                                     Box(
@@ -373,7 +399,7 @@ fun CompanyDashboardScreen(
             }
         }
 
-        if (uiState.subscriptionStatus == "active" && !uiState.isLoading) {
+        if (state.subscriptionStatus == "active" && !state.isLoading) {
             FloatingActionButton(
                 onClick = onPostJob,
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -442,7 +468,6 @@ fun CompanyDashboardScreen(
                             }
                             Button(
                                 onClick = {
-                                    viewModel.onAction(CompanyDashboardAction.Logout)
                                     onLogout()
                                     showLogoutDialog = false
                                 },
@@ -463,14 +488,16 @@ fun CompanyDashboardScreen(
             }
         }
 
-        EditCompanyProfileOverlay(
-            visible = showEditProfileDialog,
-            onDismiss = { showEditProfileDialog = false },
-            onSaved = {
-                showEditProfileDialog = false
-                viewModel.onAction(CompanyDashboardAction.Refresh)
-            },
-        )
+        if (showEditProfileDialog) {
+            EditCompanyProfileOverlay(
+                visible = true,
+                onDismiss = { showEditProfileDialog = false },
+                onSaved = {
+                    showEditProfileDialog = false
+                    onRefresh()
+                },
+            )
+        }
     }
 }
 
@@ -491,11 +518,43 @@ private fun jobStatusColor(status: String): Color = when (status) {
     else -> MaterialTheme.colorScheme.onSurfaceVariant
 }
 
+private val previewDashboardState = CompanyDashboardState(
+    companyName = "Acme Labs",
+    logoUrl = "",
+    website = "https://acme.dev",
+    description = "We build developer tools.",
+    subscriptionStatus = "active",
+    offeredJobs = listOf(
+        CompanyJobUiModel(
+            id = 1,
+            title = "Senior Android Developer",
+            status = "approved",
+            createdAt = "2024-01-01T00:00:00Z",
+        )
+    ),
+    reservedJobs = listOf(
+        CompanyJobUiModel(
+            id = 2,
+            title = "Backend Engineer",
+            status = "pending",
+            createdAt = "2024-01-02T00:00:00Z",
+        )
+    ),
+    selectedTab = 0,
+    isLoading = false,
+)
+
 @Preview
 @Composable
 private fun PreviewCompanyDashboardDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        CompanyDashboardScreen(onPostJob = {})
+        CompanyDashboardContent(
+            state = previewDashboardState,
+            onRefresh = {},
+            onPostJob = {},
+            onJobClick = {},
+            onLogout = {},
+        )
     }
 }
 
@@ -503,6 +562,12 @@ private fun PreviewCompanyDashboardDark() {
 @Composable
 private fun PreviewCompanyDashboardLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        CompanyDashboardScreen(onPostJob = {})
+        CompanyDashboardContent(
+            state = previewDashboardState,
+            onRefresh = {},
+            onPostJob = {},
+            onJobClick = {},
+            onLogout = {},
+        )
     }
 }

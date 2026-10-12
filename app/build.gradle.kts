@@ -45,6 +45,20 @@ android {
         compose = true
         buildConfig = true
     }
+    testOptions {
+        unitTests {
+            isIncludeAndroidResources = true
+        }
+    }
+}
+
+tasks.withType<Test>().configureEach {
+    systemProperty("robolectric.graphicsMode", "NATIVE")
+    systemProperty("roborazzi.test.record", "true")
+    systemProperty(
+        "roborazzi.output.dir",
+        rootProject.projectDir.resolve("docs/screenshots").absolutePath,
+    )
 }
 
 kotlin {
@@ -68,6 +82,11 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(platform(libs.androidx.compose.bom))
+    testImplementation(libs.androidx.ui.test.junit4)
+    testImplementation(libs.roborazzi)
+    testImplementation(libs.roborazzi.compose)
+    testImplementation(libs.robolectric)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
