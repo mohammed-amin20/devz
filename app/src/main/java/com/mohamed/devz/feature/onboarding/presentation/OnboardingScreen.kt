@@ -1,34 +1,51 @@
 package com.mohamed.devz.feature.onboarding.presentation
 
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.onboarding.presentation.components.FirstScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.SecondScreen
 import com.mohamed.devz.feature.onboarding.presentation.components.ThirdScreen
-import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.components.BrandBackground
+import com.mohamed.devz.ui.components.DevzButton
+import com.mohamed.devz.ui.components.DevzTextButton
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.DotInactive
+import kotlin.math.absoluteValue
 import kotlinx.coroutines.launch
 
 @Composable
@@ -56,21 +73,9 @@ fun OnboardingScreen(
 
     LaunchedEffect(Unit) { visible = true }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.75f, 0.6f),
-                    radius = 1200f
-                )
-            )
-            .then(modifier)
+    BrandBackground(
+        modifier = modifier,
+        accentCenter = Offset(0.75f, 0.6f),
     ) {
         HorizontalPager(
             state = pagerState,
@@ -79,10 +84,21 @@ fun OnboardingScreen(
                 .alpha(alpha)
                 .scale(scale)
         ) { page ->
-            when (page) {
-                0 -> FirstScreen()
-                1 -> SecondScreen()
-                2 -> ThirdScreen()
+            val pageOffset =
+                (pagerState.currentPage - page) + pagerState.currentPageOffsetFraction
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = pageOffset * 90f
+                        this.alpha = 1f - 0.6f * pageOffset.absoluteValue.coerceIn(0f, 1f)
+                    }
+            ) {
+                when (page) {
+                    0 -> FirstScreen()
+                    1 -> SecondScreen()
+                    2 -> ThirdScreen()
+                }
             }
         }
 
@@ -94,7 +110,10 @@ fun OnboardingScreen(
                 .scale(scale),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Button(
+            DevzButton(
+                label = stringResource(
+                    if (isLastPage) R.string.onboarding_get_started else R.string.onboarding_next
+                ),
                 onClick = {
                     scope.launch {
                         if (!isLastPage) {
@@ -105,22 +124,7 @@ fun OnboardingScreen(
                         }
                     }
                 },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(54.dp),
-                shape = RoundedCornerShape(50),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = CyanPrimary,
-                    contentColor = Color.Black
-                )
-            ) {
-                Text(
-                    text = if (isLastPage) "Get Started" else "Next",
-                    fontSize = 17.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            )
             Spacer(modifier = Modifier.height(28.dp))
 
             Row(
@@ -139,14 +143,18 @@ fun OnboardingScreen(
                             .height(8.dp)
                             .width(width)
                             .clip(CircleShape)
-                            .background(if (isSelected) CyanPrimary else DotInactive)
+                            .background(
+                                if (isSelected) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.outlineVariant
+                            )
                     )
                 }
             }
         }
 
         if (!isLastPage) {
-            TextButton(
+            DevzTextButton(
+                label = stringResource(R.string.onboarding_skip),
                 onClick = {
                     viewModel.onAction(OnboardingAction.FinishAction)
                     onFinish()
@@ -156,15 +164,7 @@ fun OnboardingScreen(
                     .padding(end = 16.dp, bottom = 16.dp)
                     .alpha(alpha)
                     .scale(scale),
-                colors = ButtonDefaults.textButtonColors(contentColor = CyanPrimary)
-            ) {
-                Text(
-                    text = "skip",
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
+            )
         }
     }
 }

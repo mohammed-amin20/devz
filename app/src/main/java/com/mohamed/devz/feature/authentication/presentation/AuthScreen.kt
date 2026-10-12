@@ -1,13 +1,17 @@
 package com.mohamed.devz.feature.authentication.presentation
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseInOutCubic
 import androidx.compose.animation.core.EaseOutBack
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -20,11 +24,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.mohamed.devz.feature.authentication.presentation.components.login_screen.presentation.LoginScreen
 import com.mohamed.devz.feature.authentication.presentation.components.signup_screen.presentation.SignUpScreen
+import com.mohamed.devz.ui.components.BrandBackground
+import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun AuthScreen(
@@ -64,46 +68,47 @@ fun AuthScreen(
         visible = true
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = animatedOffset,
-                    radius = 1200f
-                )
-            )
-            .then(modifier)
-            .alpha(alpha)
-            .scale(scale)
+    BrandBackground(
+        modifier = modifier,
+        accentCenter = animatedOffset,
     ) {
-        when(index) {
-            0 -> LoginScreen(
-                onNavigateToRegister = { index = 1 },
-                onLoginSuccess = onLoginSuccess,
-                onBanned = onBanned
-            )
+        AnimatedContent(
+            targetState = index,
+            transitionSpec = {
+                (fadeIn(tween(400)) + scaleIn(tween(400), initialScale = 0.96f))
+                    .togetherWith(fadeOut(tween(250)) + scaleOut(tween(250), targetScale = 0.98f))
+            },
+            label = "auth_swap",
+            modifier = Modifier
+                .fillMaxSize()
+                .alpha(alpha)
+                .scale(scale),
+        ) { target ->
+            when (target) {
+                0 -> LoginScreen(
+                    onNavigateToRegister = { index = 1 },
+                    onLoginSuccess = onLoginSuccess,
+                    onBanned = onBanned
+                )
 
-            1 -> SignUpScreen(
-                onNavigateToLogin = { index = 0 },
-                onRegisterSuccess = onRegisterSuccess,
-                onCompanyRegisterSuccess = onCompanyRegisterSuccess,
-            )
+                1 -> SignUpScreen(
+                    onNavigateToLogin = { index = 0 },
+                    onRegisterSuccess = onRegisterSuccess,
+                    onCompanyRegisterSuccess = onCompanyRegisterSuccess,
+                )
+            }
         }
     }
 }
 
-@Preview (showSystemUi = true)
+@Preview(showSystemUi = true)
 @Composable
 private fun PrevAuth() {
-    AuthScreen(
-        onLoginSuccess = {},
-        onRegisterSuccess = {},
-        onBanned = {}
-    )
+    DevzTheme {
+        AuthScreen(
+            onLoginSuccess = {},
+            onRegisterSuccess = {},
+            onBanned = {}
+        )
+    }
 }

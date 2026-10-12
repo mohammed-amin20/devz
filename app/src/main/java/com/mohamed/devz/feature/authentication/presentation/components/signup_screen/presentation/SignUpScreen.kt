@@ -1,7 +1,6 @@
 package com.mohamed.devz.feature.authentication.presentation.components.signup_screen.presentation
 
 import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,9 +15,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Switch
-import androidx.compose.material3.SwitchDefaults
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -29,29 +25,24 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -65,14 +56,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.DevzInput
+import com.mohamed.devz.ui.components.BrandHero
+import com.mohamed.devz.ui.components.DevzButton
+import com.mohamed.devz.ui.components.DevzFieldLabel
+import com.mohamed.devz.ui.components.DevzTextField
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.LabelGray
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun SignUpScreen(
@@ -85,6 +73,12 @@ fun SignUpScreen(
     val uiState by viewModel.uiState.collectAsState()
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
+
+    val termsPrefix = stringResource(R.string.signup_terms_prefix)
+    val termsTos = stringResource(R.string.signup_terms_tos)
+    val termsAnd = stringResource(R.string.signup_terms_and)
+    val termsPrivacy = stringResource(R.string.signup_terms_privacy)
+    val termsSuffix = stringResource(R.string.signup_terms_suffix)
 
     BackHandler {
         onNavigateToLogin()
@@ -106,49 +100,14 @@ fun SignUpScreen(
             )
         ) {
             item {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(48.dp)
-                            .clip(RoundedCornerShape(16.dp))
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(
-                                SpanStyle(
-                                    color = TextWhite,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 26.sp
-                                )
-                            ) {
-                                append("dev")
-                            }
-                            withStyle(
-                                SpanStyle(
-                                    color = CyanPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 26.sp
-                                )
-                            ) {
-                                append("Z")
-                            }
-                        },
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
+                BrandHero(logoSize = 48.dp, cornerRadius = 16.dp, fontSize = 26.sp)
                 Spacer(modifier = Modifier.height(36.dp))
             }
 
             item {
                 Text(
-                    text = "Join the Community",
-                    color = TextWhite,
+                    text = stringResource(R.string.signup_title),
+                    color = MaterialTheme.colorScheme.onBackground,
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -160,8 +119,8 @@ fun SignUpScreen(
 
             item {
                 Text(
-                    text = "Create your account to start\narchitecting solutions.",
-                    color = TextGray,
+                    text = stringResource(R.string.signup_subtitle),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                     lineHeight = 22.sp,
@@ -177,8 +136,11 @@ fun SignUpScreen(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Text(
-                        text = if (uiState.isCompany) "Register as Company" else "Register as Developer",
-                        color = TextWhite,
+                        text = stringResource(
+                            if (uiState.isCompany) R.string.signup_mode_company
+                            else R.string.signup_mode_developer
+                        ),
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -186,10 +148,10 @@ fun SignUpScreen(
                         checked = uiState.isCompany,
                         onCheckedChange = { viewModel.onAction(SignUpAction.IsCompanyToggled(it)) },
                         colors = SwitchDefaults.colors(
-                            checkedThumbColor = CyanPrimary,
-                            checkedTrackColor = CyanPrimary.copy(alpha = 0.3f),
-                            uncheckedThumbColor = TextGray,
-                            uncheckedTrackColor = Color(0xFF2A3A3A),
+                            checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.outline,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                         ),
                     )
                 }
@@ -202,171 +164,146 @@ fun SignUpScreen(
                         .imePadding()
                         .fillMaxWidth(),
                     shape = RoundedCornerShape(20.dp),
-                    color = DevzCard
+                    color = MaterialTheme.colorScheme.surfaceContainer
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
                         if (uiState.isCompany) {
-                            AuthFieldLabel("COMPANY NAME")
+                            DevzFieldLabel(text = stringResource(R.string.signup_label_company_name))
                             Spacer(modifier = Modifier.height(8.dp))
                             DevzTextField(
                                 value = uiState.companyName,
                                 onValueChange = { viewModel.onAction(SignUpAction.CompanyNameChanged(it)) },
-                                placeholder = "Acme Inc.",
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Filled.Person,
-                                        null,
-                                        tint = TextSubtle,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                },
+                                placeholder = stringResource(R.string.signup_hint_company),
+                                leadingIcon = Icons.Filled.Person,
                                 isError = uiState.companyNameError != null,
-                                errorMessage = uiState.companyNameError?.asString()
+                                errorMessage = uiState.companyNameError?.asString(),
                             )
                         } else {
-                            AuthFieldLabel("FULL NAME")
+                            DevzFieldLabel(text = stringResource(R.string.signup_label_full_name))
                             Spacer(modifier = Modifier.height(8.dp))
                             DevzTextField(
                                 value = uiState.fullName,
                                 onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
-                                placeholder = "John Doe",
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Filled.Person,
-                                        null,
-                                        tint = TextSubtle,
-                                        modifier = Modifier.size(20.dp)
-                                    )
-                                },
+                                placeholder = stringResource(R.string.signup_hint_full_name),
+                                leadingIcon = Icons.Filled.Person,
                                 isError = uiState.fullNameError != null,
-                                errorMessage = uiState.fullNameError?.asString()
+                                errorMessage = uiState.fullNameError?.asString(),
                             )
                         }
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        AuthFieldLabel("USERNAME")
+                        DevzFieldLabel(text = stringResource(R.string.signup_label_username))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
                             value = uiState.username,
                             onValueChange = { viewModel.onAction(SignUpAction.UsernameChanged(it)) },
-                            placeholder = "architect_dev",
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.AlternateEmail,
-                                    null,
-                                    tint = TextSubtle,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            },
+                            placeholder = stringResource(R.string.signup_hint_username),
+                            leadingIcon = Icons.Filled.AlternateEmail,
                             isError = uiState.usernameError != null,
-                            errorMessage = uiState.usernameError?.asString()
+                            errorMessage = uiState.usernameError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        AuthFieldLabel("EMAIL ADDRESS")
+                        DevzFieldLabel(text = stringResource(R.string.signup_label_email))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
                             value = uiState.email,
                             onValueChange = { viewModel.onAction(SignUpAction.EmailChanged(it)) },
-                            placeholder = "architect@devz.io",
-                            keyboardType = KeyboardType.Email,
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Email,
-                                    null,
-                                    tint = TextSubtle,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            },
+                            placeholder = stringResource(R.string.signup_hint_email),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                            leadingIcon = Icons.Filled.Email,
                             isError = uiState.emailError != null,
-                            errorMessage = uiState.emailError?.asString()
+                            errorMessage = uiState.emailError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        AuthFieldLabel("PASSWORD")
+                        DevzFieldLabel(text = stringResource(R.string.signup_label_password))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
                             value = uiState.password,
                             onValueChange = { viewModel.onAction(SignUpAction.PasswordChanged(it)) },
-                            placeholder = "••••••••••••",
-                            keyboardType = KeyboardType.Password,
-                            isPassword = true,
-                            passwordVisible = passwordVisible,
-                            onTogglePassword = { passwordVisible = !passwordVisible },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Lock,
-                                    null,
-                                    tint = TextSubtle,
-                                    modifier = Modifier.size(20.dp)
-                                )
+                            placeholder = stringResource(R.string.signup_hint_password),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            leadingIcon = Icons.Filled.Lock,
+                            trailingIcon = {
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(
+                                        imageVector = if (passwordVisible) Icons.Filled.VisibilityOff
+                                        else Icons.Filled.Visibility,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                }
                             },
+                            visualTransformation = if (passwordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
                             isError = uiState.passwordError != null,
-                            errorMessage = uiState.passwordError?.asString()
+                            errorMessage = uiState.passwordError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
 
-                        AuthFieldLabel("CONFIRM PASSWORD")
+                        DevzFieldLabel(text = stringResource(R.string.signup_label_confirm_password))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
                             value = uiState.confirmPassword,
                             onValueChange = {
-                                viewModel.onAction(
-                                    SignUpAction.ConfirmPasswordChanged(
-                                        it
+                                viewModel.onAction(SignUpAction.ConfirmPasswordChanged(it))
+                            },
+                            placeholder = stringResource(R.string.signup_hint_password),
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                            leadingIcon = Icons.Filled.Lock,
+                            trailingIcon = {
+                                IconButton(onClick = { confirmPasswordVisible = !confirmPasswordVisible }) {
+                                    Icon(
+                                        imageVector = if (confirmPasswordVisible) Icons.Filled.VisibilityOff
+                                        else Icons.Filled.Visibility,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(20.dp)
                                     )
-                                )
+                                }
                             },
-                            placeholder = "••••••••••••",
-                            keyboardType = KeyboardType.Password,
-                            isPassword = true,
-                            passwordVisible = confirmPasswordVisible,
-                            onTogglePassword = { confirmPasswordVisible = !confirmPasswordVisible },
-                            leadingIcon = {
-                                Icon(
-                                    Icons.Filled.Lock,
-                                    null,
-                                    tint = TextSubtle,
-                                    modifier = Modifier.size(20.dp)
-                                )
-                            },
+                            visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
+                            else PasswordVisualTransformation(),
                             isError = uiState.confirmPasswordError != null,
-                            errorMessage = uiState.confirmPasswordError?.asString()
+                            errorMessage = uiState.confirmPasswordError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
 
-                        // Terms
                         Text(
                             text = buildAnnotatedString {
-                                withStyle(SpanStyle(color = TextGray, fontSize = 12.sp)) {
-                                    append("By signing up, you agree to our ")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)) {
+                                    append(termsPrefix)
                                 }
-                                withStyle(SpanStyle(color = CyanPrimary, fontSize = 12.sp)) {
-                                    append("Terms of Service")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)) {
+                                    append(termsTos)
                                 }
-                                withStyle(SpanStyle(color = TextGray, fontSize = 12.sp)) {
-                                    append(" and ")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)) {
+                                    append(termsAnd)
                                 }
-                                withStyle(SpanStyle(color = CyanPrimary, fontSize = 12.sp)) {
-                                    append("Privacy Policy")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.primary, fontSize = 12.sp)) {
+                                    append(termsPrivacy)
                                 }
-                                withStyle(SpanStyle(color = TextGray, fontSize = 12.sp)) {
-                                    append(".")
+                                withStyle(SpanStyle(color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 12.sp)) {
+                                    append(termsSuffix)
                                 }
                             },
                             textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth(),
                             style = MaterialTheme.typography.bodyMedium
                         )
 
                         Spacer(modifier = Modifier.height(24.dp))
 
-                        // Sign Up button
-                        Button(
+                        DevzButton(
+                            label = stringResource(
+                                if (uiState.isCompany) R.string.signup_button_company
+                                else R.string.signup_button_developer
+                            ),
                             onClick = {
                                 viewModel.onAction(
                                     SignUpAction.RegisterClicked(
@@ -375,31 +312,9 @@ fun SignUpScreen(
                                     )
                                 )
                             },
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(54.dp),
-                            shape = RoundedCornerShape(50),
                             enabled = !uiState.isLoading,
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = CyanPrimary,
-                                contentColor = Color.Black
-                            )
-                        ) {
-                            if (uiState.isLoading) {
-                                CircularProgressIndicator(
-                                    color = Color.Black,
-                                    modifier = Modifier.size(22.dp),
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text(
-                                    text = if (uiState.isCompany) "Register Company →" else "Sign Up →",
-                                    fontSize = 17.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    style = MaterialTheme.typography.bodyMedium
-                                )
-                            }
-                        }
+                            loading = uiState.isLoading,
+                        )
                     }
                 }
             }
@@ -419,14 +334,18 @@ fun SignUpScreen(
                 Spacer(modifier = Modifier.height(28.dp))
 
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    Text("Already have an account? ", color = TextGray, fontSize = 14.sp)
+                    Text(
+                        text = stringResource(R.string.signup_have_account),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 14.sp,
+                    )
                     TextButton(
                         onClick = onNavigateToLogin,
                         contentPadding = PaddingValues(0.dp)
                     ) {
                         Text(
-                            "Log In",
-                            color = CyanPrimary,
+                            text = stringResource(R.string.signup_login),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.SemiBold
                         )
@@ -436,74 +355,6 @@ fun SignUpScreen(
 
         }
     }
-}
-
-@Composable
-fun AuthFieldLabel(text: String) {
-    Text(
-        text = text,
-        color = LabelGray,
-        fontSize = 11.sp,
-        fontWeight = FontWeight.SemiBold,
-        letterSpacing = 1.5.sp,
-        style = MaterialTheme.typography.titleLarge
-    )
-}
-
-@Composable
-fun DevzTextField(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String,
-    modifier: Modifier = Modifier,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    isPassword: Boolean = false,
-    passwordVisible: Boolean = false,
-    onTogglePassword: (() -> Unit)? = null,
-    leadingIcon: @Composable (() -> Unit)? = null,
-    isError: Boolean = false,
-    errorMessage: String? = null,
-) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        modifier = modifier.fillMaxWidth(),
-        placeholder = { Text(placeholder, color = TextSubtle) },
-        leadingIcon = leadingIcon,
-        trailingIcon = if (isPassword) {
-            {
-                IconButton(onClick = { onTogglePassword?.invoke() }) {
-                    Icon(
-                        imageVector = if (passwordVisible) Icons.Filled.VisibilityOff else Icons.Filled.Visibility,
-                        contentDescription = null,
-                        tint = TextSubtle,
-                        modifier = Modifier.size(20.dp)
-                    )
-                }
-            }
-        } else null,
-        visualTransformation = if (isPassword && !passwordVisible) PasswordVisualTransformation() else VisualTransformation.None,
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        singleLine = true,
-        isError = isError,
-        supportingText = if (isError && errorMessage != null) {
-            { Text(text = errorMessage, fontSize = 12.sp) }
-        } else null,
-        shape = RoundedCornerShape(12.dp),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = CyanPrimary,
-            unfocusedBorderColor = Color(0xFF2A3A3A),
-            errorBorderColor = MaterialTheme.colorScheme.error,
-            focusedTextColor = TextWhite,
-            unfocusedTextColor = TextWhite,
-            errorTextColor = TextWhite,
-            cursorColor = CyanPrimary,
-            focusedContainerColor = DevzInput,
-            unfocusedContainerColor = DevzInput,
-            errorContainerColor = DevzInput,
-        ),
-        textStyle = MaterialTheme.typography.bodyMedium
-    )
 }
 
 @Preview(showSystemUi = true)

@@ -35,19 +35,17 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.R
+import com.mohamed.devz.ui.components.BrandBackground
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun BannedScreen(
@@ -71,20 +69,9 @@ fun BannedScreen(
         visible = true
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.5f, 0.45f),
-                    radius = 1200f
-                )
-            )
+    BrandBackground(
+        modifier = modifier,
+        accentCenter = Offset(0.5f, 0.45f),
     ) {
         Column(
             modifier = Modifier
@@ -99,20 +86,20 @@ fun BannedScreen(
                 modifier = Modifier
                     .size(100.dp)
                     .background(
-                        color = CyanPrimary.copy(alpha = 0.10f),
+                        color = MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.5f),
                         shape = CircleShape
                     )
                     .border(
                         width = 1.5.dp,
-                        color = CyanPrimary.copy(alpha = 0.25f),
+                        color = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
                         shape = CircleShape
                     ),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Block,
-                    contentDescription = null,
-                    tint = CyanPrimary,
+                    contentDescription = stringResource(R.string.banned_icon_desc),
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(48.dp)
                 )
             }
@@ -120,8 +107,8 @@ fun BannedScreen(
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "تم تعليق حسابك",
-                color = TextWhite,
+                text = stringResource(R.string.banned_title),
+                color = MaterialTheme.colorScheme.onBackground,
                 fontSize = 26.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge,
@@ -134,14 +121,14 @@ fun BannedScreen(
                 modifier = Modifier
                     .width(60.dp)
                     .height(1.dp)
-                    .background(CyanPrimary.copy(alpha = 0.3f))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
             Text(
-                text = "تم تعليق حسابك من قبل الإدارة.\nيرجى التواصل معنا للحصول على المساعدة",
-                color = QOnSurfaceVariant,
+                text = stringResource(R.string.banned_message),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 15.sp,
                 textAlign = TextAlign.Center,
                 lineHeight = 24.sp
@@ -150,8 +137,8 @@ fun BannedScreen(
             Spacer(modifier = Modifier.height(36.dp))
 
             Text(
-                text = "البريد الإلكتروني",
-                color = CyanPrimary.copy(alpha = 0.7f),
+                text = stringResource(R.string.banned_email_label),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp
@@ -160,8 +147,8 @@ fun BannedScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "support@devz.app",
-                color = CyanPrimary,
+                text = stringResource(R.string.banned_email_value),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 textDecoration = TextDecoration.Underline,
@@ -178,8 +165,8 @@ fun BannedScreen(
             Spacer(modifier = Modifier.height(24.dp))
 
             Text(
-                text = "واتساب",
-                color = CyanPrimary.copy(alpha = 0.7f),
+                text = stringResource(R.string.banned_whatsapp_label),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp
@@ -188,8 +175,8 @@ fun BannedScreen(
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
-                text = "+972 59 292 3130",
-                color = CyanPrimary,
+                text = stringResource(R.string.banned_whatsapp_value),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
                 textDecoration = TextDecoration.Underline,

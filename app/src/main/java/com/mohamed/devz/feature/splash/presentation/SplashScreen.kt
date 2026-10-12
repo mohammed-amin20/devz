@@ -4,7 +4,11 @@ import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.EaseInOut
 import androidx.compose.animation.core.EaseOutBack
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -12,12 +16,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -33,21 +37,19 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.splash.presentation.SplashViewModel.SplashEvent
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.components.BrandBackground
+import com.mohamed.devz.ui.components.DevzWordmark
+import com.mohamed.devz.ui.theme.DevzTheme
 
 @Composable
 fun SplashScreen(
@@ -73,6 +75,17 @@ fun SplashScreen(
 
     val progressAnim = remember { Animatable(0f) }
 
+    val pulseTransition = rememberInfiniteTransition(label = "glow")
+    val pulse by pulseTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 1f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1800, easing = EaseInOut),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "pulse",
+    )
+
     LaunchedEffect(Unit) {
         visible = true
         progressAnim.animateTo(
@@ -93,21 +106,9 @@ fun SplashScreen(
         }
     }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.5f, 0.45f),
-                    radius = 1200f
-                )
-            )
-            .then(modifier)
+    BrandBackground(
+        modifier = modifier,
+        accentCenter = Offset(0.5f, 0.45f),
     ) {
         Column(
             modifier = Modifier
@@ -116,38 +117,38 @@ fun SplashScreen(
                 .scale(scale),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(com.mohamed.devz.R.drawable.logo),
-                contentDescription = "DevZ Logo",
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(RoundedCornerShape(32.dp)),
-                contentScale = ContentScale.Crop
-            )
+            Box(contentAlignment = Alignment.Center) {
+                Box(
+                    modifier = Modifier
+                        .size(190.dp)
+                        .scale(0.85f + 0.2f * pulse)
+                        .background(
+                            color = MaterialTheme.colorScheme.primary
+                                .copy(alpha = 0.14f * (1f - pulse)),
+                            shape = CircleShape,
+                        )
+                )
+                Image(
+                    painter = painterResource(R.drawable.logo),
+                    contentDescription = stringResource(R.string.splash_logo_desc),
+                    modifier = Modifier
+                        .size(140.dp)
+                        .clip(RoundedCornerShape(32.dp)),
+                    contentScale = ContentScale.Crop
+                )
+            }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            Text(
-                text = buildAnnotatedString {
-                    withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                        append("dev")
-                    }
-                    withStyle(SpanStyle(color = CyanPrimary, fontWeight = FontWeight.Bold)) {
-                        append("Z")
-                    }
-                },
-                fontSize = 42.sp,
-                letterSpacing = 3.sp,
-                style = MaterialTheme.typography.titleLarge
-            )
+            DevzWordmark(fontSize = 42.sp, letterSpacing = 3.sp)
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Box(
                 modifier = Modifier
                     .width(60.dp)
                     .height(1.dp)
-                    .background(TextSubtle.copy(alpha = 0.4f))
+                    .background(MaterialTheme.colorScheme.outlineVariant)
             )
         }
 
@@ -162,21 +163,24 @@ fun SplashScreen(
                 modifier = Modifier
                     .width(160.dp)
                     .height(2.dp)
-                    .background(TextSubtle.copy(alpha = 0.2f), RoundedCornerShape(1.dp))
+                    .background(
+                        MaterialTheme.colorScheme.outlineVariant,
+                        RoundedCornerShape(1.dp),
+                    )
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxHeight()
                         .fillMaxWidth(progressAnim.value)
-                        .background(CyanPrimary, RoundedCornerShape(1.dp))
+                        .background(MaterialTheme.colorScheme.primary, RoundedCornerShape(1.dp))
                 )
             }
 
             Spacer(modifier = Modifier.height(14.dp))
 
             Text(
-                text = "ARCHITECTING SOLUTIONS",
-                color = TextSubtle,
+                text = stringResource(R.string.splash_tagline),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 11.sp,
                 letterSpacing = 3.sp,
                 fontWeight = FontWeight.Medium,
@@ -186,8 +190,8 @@ fun SplashScreen(
             Spacer(modifier = Modifier.height(4.dp))
 
             Text(
-                text = "v1.0.0",
-                color = TextSubtle.copy(alpha = 0.6f),
+                text = stringResource(R.string.splash_version),
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 fontSize = 10.sp,
                 letterSpacing = 1.sp,
                 style = MaterialTheme.typography.bodyMedium
@@ -196,4 +200,15 @@ fun SplashScreen(
     }
 }
 
-
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewSplashScreen() {
+    DevzTheme {
+        SplashScreen(
+            navigateToOnboarding = {},
+            navigateToAuth = {},
+            navigateToHome = {},
+            navigateToBanned = {},
+        )
+    }
+}
