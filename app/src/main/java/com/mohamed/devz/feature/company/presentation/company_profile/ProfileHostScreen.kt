@@ -55,7 +55,6 @@ class ProfileHostViewModel @Inject constructor(
 fun ProfileHostScreen(
     onEditProfile: () -> Unit,
     onQuestionClick: (Int) -> Unit,
-    onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     onAnswerClick: (Int) -> Unit = onQuestionClick,
     refreshTrigger: Int = 0,
@@ -95,7 +94,6 @@ fun ProfileHostScreen(
         else -> ProfileScreen(
             onEditProfile = onEditProfile,
             onQuestionClick = onQuestionClick,
-            onLogout = onLogout,
             modifier = modifier,
             onAnswerClick = onAnswerClick,
             refreshTrigger = refreshTrigger,

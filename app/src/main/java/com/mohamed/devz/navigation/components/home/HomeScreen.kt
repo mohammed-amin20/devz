@@ -177,7 +177,6 @@ fun HomeScreen(
                     onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
                     onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
                     onJobClick = navigateToJobDetail,
-                    onLogout = onLogout,
                     refreshTrigger = profileRefreshCounter,
                     onFullScreenChanged = { isFullScreenImage = it },
                     onDialogVisibilityChanged = { isDialogOpen = it },

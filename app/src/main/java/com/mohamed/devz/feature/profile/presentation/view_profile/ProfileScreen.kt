@@ -31,7 +31,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Help
-import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Code
 import androidx.compose.material.icons.filled.Forum
@@ -52,7 +51,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -109,7 +107,6 @@ import com.mohamed.devz.ui.theme.spacing
 fun ProfileScreen(
     onEditProfile: () -> Unit,
     onQuestionClick: (Int) -> Unit,
-    onLogout: () -> Unit,
     modifier: Modifier = Modifier,
     onAnswerClick: (Int) -> Unit = onQuestionClick,
     refreshTrigger: Int = 0,
@@ -126,15 +123,7 @@ fun ProfileScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     var showImagePreview by rememberSaveable { mutableStateOf(false) }
-    var showLogoutDialog by rememberSaveable { mutableStateOf(false) }
 
-    LaunchedEffect(Unit) {
-        viewModel.profileEvent.collect { event ->
-            when (event) {
-                is ProfileEvent.NavigateToAuth -> onLogout()
-            }
-        }
-    }
     LaunchedEffect(refreshTrigger) {
         if (refreshTrigger > 0) {
             viewModel.onAction(ProfileAction.Refresh)
@@ -144,8 +133,8 @@ fun ProfileScreen(
         viewModel.onAction(ProfileAction.SetTargetAccountId(navAccountId))
         viewModel.onAction(ProfileAction.LoadApplications)
     }
-    LaunchedEffect(showImagePreview, showLogoutDialog, uiState.showFollowersDialog, uiState.showFollowingDialog) {
-        if (!showImagePreview && !showLogoutDialog && !uiState.showFollowersDialog && !uiState.showFollowingDialog) {
+    LaunchedEffect(showImagePreview, uiState.showFollowersDialog, uiState.showFollowingDialog) {
+        if (!showImagePreview && !uiState.showFollowersDialog && !uiState.showFollowingDialog) {
             onFullScreenChanged(false)
             onDialogVisibilityChanged(false)
         }
@@ -161,10 +150,6 @@ fun ProfileScreen(
             showImagePreview -> {
                 showImagePreview = false
                 onFullScreenChanged(false)
-            }
-            showLogoutDialog -> {
-                showLogoutDialog = false
-                onDialogVisibilityChanged(false)
             }
             uiState.showFollowersDialog || uiState.showFollowingDialog -> {
                 viewModel.onAction(ProfileAction.DismissDialog)
@@ -182,7 +167,6 @@ fun ProfileScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .then(if (showLogoutDialog) Modifier.blur(8.dp) else Modifier)
         ) {
             when {
                 uiState.isLoading && uiState.profile == null -> {
@@ -264,35 +248,13 @@ fun ProfileScreen(
                                         DevzBrandHeader()
                                     }
                                     if (uiState.isOwnProfile) {
-                                        Row(verticalAlignment = Alignment.CenterVertically) {
-                                            IconButton(onClick = onSettingsClick) {
-                                                Icon(
-                                                    Icons.Filled.Settings,
-                                                    contentDescription = stringResource(R.string.settings_open),
-                                                    tint = MaterialTheme.colorScheme.onSurface,
-                                                    modifier = Modifier.size(22.dp)
-                                                )
-                                            }
-                                            TextButton(
-                                                onClick = {
-                                                    showLogoutDialog = true
-                                                    onDialogVisibilityChanged(true)
-                                                },
-                                            ) {
-                                                Text(
-                                                    text = stringResource(R.string.profile_logout),
-                                                    color = MaterialTheme.colorScheme.error,
-                                                    fontSize = 13.sp,
-                                                    fontWeight = FontWeight.SemiBold
-                                                )
-                                                Spacer(modifier = Modifier.width(8.dp))
-                                                Icon(
-                                                    Icons.AutoMirrored.Filled.Logout,
-                                                    contentDescription = null,
-                                                    tint = MaterialTheme.colorScheme.error,
-                                                    modifier = Modifier.size(18.dp)
-                                                )
-                                            }
+                                        IconButton(onClick = onSettingsClick) {
+                                            Icon(
+                                                Icons.Filled.Settings,
+                                                contentDescription = stringResource(R.string.settings_open),
+                                                tint = MaterialTheme.colorScheme.onSurface,
+                                                modifier = Modifier.size(22.dp)
+                                            )
                                         }
                                     } else if (uiState.id != 0) {
                                         ReportMenu(
@@ -919,87 +881,6 @@ fun ProfileScreen(
             }
         }
 
-        // ── Logout dialog ─────────────────────────────────────────────────────
-        AnimatedVisibility(
-            visible = showLogoutDialog,
-            enter = fadeIn(tween(300)),
-            exit = fadeOut(tween(250))
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.Black.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center
-            ) {
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 32.dp),
-                    shape = RoundedCornerShape(24.dp),
-                    color = MaterialTheme.colorScheme.surfaceContainerHigh,
-                    tonalElevation = 8.dp
-                ) {
-                    Column(
-                        modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = stringResource(R.string.profile_logout_title),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
-                        )
-                        Spacer(modifier = Modifier.height(12.dp))
-                        Text(
-                            text = stringResource(R.string.profile_logout_message),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 14.sp,
-                            textAlign = TextAlign.Center
-                        )
-                        Spacer(modifier = Modifier.height(24.dp))
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
-                        ) {
-                            Button(
-                                onClick = {
-                                    showLogoutDialog = false
-                                    onDialogVisibilityChanged(false)
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(48.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                    contentColor = MaterialTheme.colorScheme.onSurface
-                                )
-                            ) {
-                                Text(stringResource(R.string.profile_logout_cancel), fontWeight = FontWeight.SemiBold)
-                            }
-                            Button(
-                                onClick = {
-                                    viewModel.onAction(ProfileAction.Logout)
-                                    showLogoutDialog = false
-                                    onDialogVisibilityChanged(false)
-                                },
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .height(48.dp),
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.colorScheme.error,
-                                    contentColor = MaterialTheme.colorScheme.onError
-                                )
-                            ) {
-                                Text(stringResource(R.string.profile_logout_title), fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
         FollowListSheet(
             visible = uiState.showFollowersDialog,
             title = stringResource(R.string.profile_followers),
@@ -1151,7 +1032,6 @@ private fun PrevProfileDark() {
             onEditProfile = {},
             onQuestionClick = { _ -> },
             onAnswerClick = { _ -> },
-            onLogout = {},
             navigateUp = {}
         )
     }
@@ -1165,7 +1045,6 @@ private fun PrevProfileLight() {
             onEditProfile = {},
             onQuestionClick = { _ -> },
             onAnswerClick = { _ -> },
-            onLogout = {},
             navigateUp = {}
         )
     }

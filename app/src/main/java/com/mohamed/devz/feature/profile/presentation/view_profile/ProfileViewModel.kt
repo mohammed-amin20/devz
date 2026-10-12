@@ -23,19 +23,12 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJo
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileQuestionUiModel
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-sealed interface ProfileEvent {
-    data object NavigateToAuth : ProfileEvent
-}
 
 @HiltViewModel
 class ProfileViewModel @Inject constructor(
@@ -52,9 +45,6 @@ class ProfileViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(ProfileState())
     val uiState = _uiState.asStateFlow()
 
-    private val _profileEvent = MutableSharedFlow<ProfileEvent>()
-    val profileEvent: SharedFlow<ProfileEvent> = _profileEvent.asSharedFlow()
-
     private var _followerIds: String = ""
     private var _followingIds: String = ""
     private var targetAccountId: Int? = null
@@ -69,7 +59,6 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.Refresh -> {
                 loadProfile(targetAccountId)
             }
-            is ProfileAction.Logout -> logout()
             is ProfileAction.ToggleFollow -> toggleFollow(action.targetAccountId)
             is ProfileAction.ShowFollowers -> showFollowers()
             is ProfileAction.ShowFollowing -> showFollowing()
@@ -85,14 +74,6 @@ class ProfileViewModel @Inject constructor(
             is ProfileAction.DismissReport -> {
                 _uiState.update { it.copy(reportTarget = null) }
             }
-        }
-    }
-
-    private fun logout() {
-        viewModelScope.launch {
-            userPreferencesRepository.setLoggedOut()
-            userPreferencesRepository.clearAccountId()
-            _profileEvent.emit(ProfileEvent.NavigateToAuth)
         }
     }
 

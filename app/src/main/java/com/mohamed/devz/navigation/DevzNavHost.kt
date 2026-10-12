@@ -259,6 +259,12 @@ fun DevzNavHost(
         composable<Route.Settings> {
             SettingsScreen(
                 onNavigateUp = { navController.navigateUp() },
+                onLogout = {
+                    navController.apply {
+                        popBackStack()
+                        navigate(Route.Auth)
+                    }
+                },
                 modifier = modifier
             )
         }
@@ -269,7 +275,6 @@ fun DevzNavHost(
                 onEditProfile = {},
                 onQuestionClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
                 onAnswerClick = { id -> navController.navigate(Route.QuestionDetails(id)) },
-                onLogout = {},
                 onProfileClick = { id -> navController.navigate(Route.Profile(id)) },
                 onJobClick = { id -> navController.navigate(Route.JobDetail(id)) },
                 onPostJob = { navController.navigate(Route.PostJob) },

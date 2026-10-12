@@ -11,7 +11,6 @@ import com.mohamed.devz.feature.core.domain.repository.QuestionRepository
 import com.mohamed.devz.feature.core.domain.repository.UserPreferencesRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileAction
-import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileEvent
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileViewModel
 import io.mockk.coEvery
 import io.mockk.every
@@ -19,7 +18,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
@@ -121,34 +119,6 @@ class ProfileViewModelTest {
 
         assertNotNull(viewModel.uiState.value.error)
         assertEquals(false, viewModel.uiState.value.isLoading)
-    }
-
-    @Test
-    fun `logout clears preferences and emits NavigateToAuth`() = runTest(testDispatcher) {
-        val account = Account(1, "me", "Me", "", "", "", "", "", "", "", websiteUrl = "")
-        every { savedStateHandle.get<Int>("accountId") } returns null
-        coEvery { userPreferencesRepository.observeCurrentAccountId() } returns MutableStateFlow(1)
-        coEvery { accountRepository.getById(1) } returns Result.Success(account)
-        coEvery { questionRepository.getByAccountId(1) } returns Result.Success(emptyList())
-        coEvery { answerRepository.getByAccountId(1) } returns Result.Success(emptyList())
-        coEvery { userPreferencesRepository.setLoggedOut() } returns Result.Success(Unit)
-        coEvery { userPreferencesRepository.clearAccountId() } returns Result.Success(Unit)
-
-        val viewModel = ProfileViewModel(
-            savedStateHandle, accountRepository, questionRepository, answerRepository,
-            jobRepository, userPreferencesRepository, notificationRepository, fcmPushSender
-        )
-        advanceUntilIdle()
-
-        val events = mutableListOf<ProfileEvent>()
-        val job = launch { viewModel.profileEvent.collect { events.add(it) } }
-
-        viewModel.onAction(ProfileAction.Logout)
-        advanceUntilIdle()
-        job.cancel()
-
-        assertEquals(1, events.size)
-        assertEquals(ProfileEvent.NavigateToAuth, events[0])
     }
 
     @Test
