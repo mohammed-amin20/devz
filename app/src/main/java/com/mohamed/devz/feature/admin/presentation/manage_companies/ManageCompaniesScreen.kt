@@ -26,8 +26,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -46,21 +45,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.util.UiText
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.components.DevzTextField
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,17 +81,28 @@ fun ManageCompaniesScreen(
     }
 
     Scaffold(
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
-                title = { Text("Manage Companies", color = TextWhite, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        stringResource(R.string.admin_companies_title),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextWhite, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp),
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = QBg),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
     ) { innerPadding ->
@@ -101,42 +112,29 @@ fun ManageCompaniesScreen(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = CyanPrimary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
             uiState.companies.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("No companies registered", color = QOnSurfaceVariant, fontSize = 16.sp)
-                }
+                EmptyState(
+                    icon = Icons.Filled.Business,
+                    title = stringResource(R.string.admin_empty_companies),
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
             else -> {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
-                        .padding(horizontal = 16.dp)
+                        .padding(horizontal = 16.dp),
                 ) {
-                    OutlinedTextField(
+                    DevzTextField(
                         value = uiState.searchQuery,
                         onValueChange = { viewModel.onAction(ManageCompaniesAction.SearchQueryChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        placeholder = { Text("Search companies...", color = TextGray) },
-                        leadingIcon = {
-                            Icon(Icons.Filled.Search, contentDescription = null, tint = TextGray)
-                        },
-                        shape = RoundedCornerShape(14.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CyanPrimary,
-                            unfocusedBorderColor = Color(0xFF2A3A3A),
-                            focusedContainerColor = DevzCard,
-                            unfocusedContainerColor = DevzCard,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = TextWhite,
-                            unfocusedTextColor = TextWhite,
-                        ),
+                        placeholder = stringResource(R.string.admin_search_companies),
+                        leadingIcon = Icons.Filled.Search,
                         singleLine = true,
                     )
 
@@ -153,17 +151,15 @@ fun ManageCompaniesScreen(
                                 modifier = Modifier.align(Alignment.TopCenter),
                                 isRefreshing = uiState.isRefreshing,
                                 state = pullRefreshState,
-                                color = CyanPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
                         if (uiState.filteredCompanies.isEmpty()) {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                Text("No companies match your search", color = QOnSurfaceVariant, fontSize = 16.sp)
-                            }
+                            EmptyState(
+                                icon = Icons.Filled.Business,
+                                title = stringResource(R.string.admin_empty_companies_search),
+                            )
                         } else {
                             LazyColumn(
                                 modifier = Modifier.fillMaxSize(),
@@ -173,7 +169,9 @@ fun ManageCompaniesScreen(
                                     CompanyCard(
                                         company = company,
                                         onToggle = { activate ->
-                                            viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
+                                            viewModel.onAction(
+                                                ManageCompaniesAction.ToggleSubscription(company.accountId, activate),
+                                            )
                                         },
                                         onCompanyClick = { onCompanyClick(company.accountId) },
                                     )
@@ -199,7 +197,7 @@ private fun CompanyCard(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -218,7 +216,7 @@ private fun CompanyCard(
             } else {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = CyanPrimary.copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     modifier = Modifier
                         .size(44.dp)
                         .clickable(onClick = onCompanyClick),
@@ -226,7 +224,7 @@ private fun CompanyCard(
                     Icon(
                         Icons.Filled.Business,
                         contentDescription = null,
-                        tint = CyanPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(10.dp),
                     )
                 }
@@ -235,7 +233,7 @@ private fun CompanyCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = company.companyName,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 1,
@@ -245,7 +243,7 @@ private fun CompanyCard(
                 if (company.website.isNotBlank()) {
                     Text(
                         text = company.website,
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
@@ -253,15 +251,20 @@ private fun CompanyCard(
                 }
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = if (isActive) "Active" else "Inactive",
-                    color = if (isActive) Color(0xFF4CAF50) else TextGray,
+                    text = stringResource(
+                        if (isActive) R.string.admin_status_active else R.string.admin_status_inactive,
+                    ),
+                    color = if (isActive) MaterialTheme.extendedColors.success else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
                     modifier = Modifier
                         .background(
-                            if (isActive) Color(0xFF4CAF50).copy(alpha = 0.15f)
-                            else TextGray.copy(alpha = 0.15f),
-                            RoundedCornerShape(4.dp)
+                            if (isActive) {
+                                MaterialTheme.extendedColors.success.copy(alpha = 0.15f)
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.15f)
+                            },
+                            RoundedCornerShape(4.dp),
                         )
                         .padding(horizontal = 8.dp, vertical = 3.dp),
                 )
@@ -273,16 +276,34 @@ private fun CompanyCard(
                 onClick = { onToggle(!isActive) },
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = if (isActive) Color(0xFFFF5252) else Color(0xFF4CAF50),
+                    containerColor = if (isActive) MaterialTheme.colorScheme.error else MaterialTheme.extendedColors.success,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
             ) {
                 Text(
-                    text = if (isActive) "Deactivate" else "Activate",
+                    text = stringResource(
+                        if (isActive) R.string.action_deactivate else R.string.action_activate,
+                    ),
                     fontSize = 12.sp,
                     fontWeight = FontWeight.SemiBold,
-                    color = TextWhite,
                 )
             }
         }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageCompaniesDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ManageCompaniesScreen(onNavigateUp = {})
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageCompaniesLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ManageCompaniesScreen(onNavigateUp = {})
     }
 }

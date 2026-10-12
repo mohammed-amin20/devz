@@ -30,17 +30,16 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.admin.presentation.admin_dashboard.components.StatCard
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -58,32 +57,32 @@ fun AdminDashboardScreen(
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        text = "Admin Panel",
-                        color = TextWhite,
+                        text = stringResource(R.string.profile_admin_panel),
+                        color = MaterialTheme.colorScheme.onBackground,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 20.sp
+                        fontSize = 20.sp,
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = TextWhite,
-                            modifier = Modifier.size(24.dp)
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = QBg
-                )
+                    containerColor = MaterialTheme.colorScheme.background,
+                ),
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -91,47 +90,47 @@ fun AdminDashboardScreen(
                 .padding(innerPadding)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
-                    color = CyanPrimary,
-                    modifier = Modifier.align(Alignment.CenterHorizontally)
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
                 )
             } else {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     StatCard(
-                        label = "USERS",
+                        label = stringResource(R.string.admin_stat_users),
                         value = "${uiState.totalUsers}",
                         emoji = "\uD83D\uDC65",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     StatCard(
-                        label = "QUESTIONS",
+                        label = stringResource(R.string.admin_stat_questions),
                         value = "${uiState.totalQuestions}",
                         emoji = "❓",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     StatCard(
-                        label = "ANSWERS",
+                        label = stringResource(R.string.admin_stat_answers),
                         value = "${uiState.totalAnswers}",
                         emoji = "\uD83D\uDCAC",
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.weight(1f),
                     )
                     StatCard(
-                        label = "BANNED",
+                        label = stringResource(R.string.admin_stat_banned),
                         value = "${uiState.bannedUsers}",
                         emoji = "\u26D4\uFE0F",
-                        valueColor = QError,
-                        modifier = Modifier.weight(1f)
+                        valueColor = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
@@ -140,38 +139,38 @@ fun AdminDashboardScreen(
 
             AdminMenuItem(
                 emoji = "\uD83D\uDC65",
-                label = "Users",
-                onClick = onNavigateToUsers
+                label = stringResource(R.string.admin_menu_users),
+                onClick = onNavigateToUsers,
             )
             AdminMenuItem(
                 emoji = "❓",
-                label = "Questions",
-                onClick = onNavigateToQuestions
+                label = stringResource(R.string.admin_menu_questions),
+                onClick = onNavigateToQuestions,
             )
             AdminMenuItem(
                 emoji = "\uD83D\uDCAC",
-                label = "Answers",
-                onClick = onNavigateToAnswers
+                label = stringResource(R.string.admin_menu_answers),
+                onClick = onNavigateToAnswers,
             )
             AdminMenuItem(
                 emoji = "\uD83D\uDCE2",
-                label = "Announcements",
-                onClick = onNavigateToAnnouncements
+                label = stringResource(R.string.admin_menu_announcements),
+                onClick = onNavigateToAnnouncements,
             )
             AdminMenuItem(
                 emoji = "\uD83D\uDCBC",
-                label = "Jobs",
-                onClick = onNavigateToJobs
+                label = stringResource(R.string.admin_menu_jobs),
+                onClick = onNavigateToJobs,
             )
             AdminMenuItem(
                 emoji = "\uD83C\uDFED",
-                label = "Companies",
-                onClick = onNavigateToCompanies
+                label = stringResource(R.string.admin_menu_companies),
+                onClick = onNavigateToCompanies,
             )
             AdminMenuItem(
                 emoji = "\uD83D\uDEA9",
-                label = "Reports",
-                onClick = onNavigateToReports
+                label = stringResource(R.string.admin_menu_reports),
+                onClick = onNavigateToReports,
             )
         }
     }
@@ -187,7 +186,7 @@ private fun AdminMenuItem(
         onClick = onClick,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             modifier = Modifier
@@ -197,16 +196,44 @@ private fun AdminMenuItem(
         ) {
             Text(
                 text = emoji,
-                fontSize = 28.sp
+                fontSize = 28.sp,
             )
             Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = label,
-                color = QOnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 17.sp,
                 fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewAdminDashboardDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        AdminDashboardScreen(
+            onNavigateToUsers = {},
+            onNavigateToQuestions = {},
+            onNavigateToAnswers = {},
+            onNavigateToAnnouncements = {},
+            onNavigateUp = {},
+        )
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewAdminDashboardLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        AdminDashboardScreen(
+            onNavigateToUsers = {},
+            onNavigateToQuestions = {},
+            onNavigateToAnswers = {},
+            onNavigateToAnnouncements = {},
+            onNavigateUp = {},
+        )
     }
 }

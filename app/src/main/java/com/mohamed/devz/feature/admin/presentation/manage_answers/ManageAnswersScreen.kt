@@ -28,9 +28,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -43,23 +42,22 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.domain.model.Answer
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.components.DevzTextField
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -73,77 +71,76 @@ fun ManageAnswersScreen(
     if (uiState.showDeleteDialog && uiState.targetDeleteAnswer != null) {
         AlertDialog(
             onDismissRequest = { viewModel.onAction(ManageAnswersAction.DismissDeleteDialog) },
-            containerColor = DevzCard,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
-                Text("Delete Answer", color = TextWhite, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.admin_delete_answer_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                )
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete this answer? This action cannot be undone.",
-                    color = QOnSurfaceVariant,
+                    text = stringResource(R.string.admin_delete_answer_message),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
                     onClick = { viewModel.onAction(ManageAnswersAction.ConfirmDelete(uiState.targetDeleteAnswer!!)) },
-                    colors = ButtonDefaults.buttonColors(containerColor = QError)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
                 ) {
-                    Text("Delete", color = TextWhite)
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onAction(ManageAnswersAction.DismissDeleteDialog) }) {
-                    Text("Cancel", color = TextGray)
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
     Scaffold(
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Manage Answers", color = TextWhite, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.admin_answers_title),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = TextWhite,
-                            modifier = Modifier.size(24.dp)
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = QBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
-            OutlinedTextField(
+            DevzTextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onAction(ManageAnswersAction.SearchQueryChanged(it)) },
                 modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("Search answers...", color = TextGray) },
-                leadingIcon = {
-                    Icon(Icons.Filled.Search, contentDescription = null, tint = TextGray)
-                },
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CyanPrimary,
-                    unfocusedBorderColor = Color(0xFF2A3A3A),
-                    focusedContainerColor = DevzCard,
-                    unfocusedContainerColor = DevzCard,
-                    cursorColor = CyanPrimary,
-                    focusedTextColor = TextWhite,
-                    unfocusedTextColor = TextWhite,
-                ),
+                placeholder = stringResource(R.string.admin_search_answers),
+                leadingIcon = Icons.Filled.Search,
                 singleLine = true,
             )
 
@@ -153,18 +150,16 @@ fun ManageAnswersScreen(
                 uiState.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = CyanPrimary)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 uiState.filteredAnswers.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No answers found", color = QOnSurfaceVariant, fontSize = 16.sp)
-                    }
+                    EmptyState(
+                        icon = Icons.Filled.Search,
+                        title = stringResource(R.string.admin_empty_answers),
+                    )
                 }
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
@@ -178,7 +173,7 @@ fun ManageAnswersScreen(
                                 modifier = Modifier.align(Alignment.TopCenter),
                                 isRefreshing = uiState.isRefreshing,
                                 state = pullRefreshState,
-                                color = CyanPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
@@ -188,8 +183,10 @@ fun ManageAnswersScreen(
                             items(uiState.filteredAnswers, key = { it.id }) { answer ->
                                 AnswerCard(
                                     answer = answer,
-                                    authorName = uiState.authorNames[answer.accountId] ?: "Unknown",
-                                    questionTitle = uiState.questionTitles[answer.questionId] ?: "Unknown",
+                                    authorName = uiState.authorNames[answer.accountId]
+                                        ?: stringResource(R.string.admin_unknown),
+                                    questionTitle = uiState.questionTitles[answer.questionId]
+                                        ?: stringResource(R.string.admin_unknown),
                                     onAnswerClick = { onAnswerClick(answer.questionId) },
                                     onDelete = { viewModel.onAction(ManageAnswersAction.DeleteAnswer(answer)) },
                                 )
@@ -216,7 +213,7 @@ private fun AnswerCard(
             .fillMaxWidth()
             .clickable { onAnswerClick() },
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier
@@ -225,7 +222,7 @@ private fun AnswerCard(
         ) {
             Text(
                 text = answer.description,
-                color = TextWhite,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 14.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
@@ -235,7 +232,7 @@ private fun AnswerCard(
 
             Text(
                 text = authorName,
-                color = TextGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 12.sp,
             )
 
@@ -243,7 +240,7 @@ private fun AnswerCard(
 
             Text(
                 text = questionTitle,
-                color = CyanPrimary,
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 12.sp,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
@@ -265,13 +262,13 @@ private fun AnswerCard(
                     Icon(
                         Icons.Filled.ThumbUp,
                         contentDescription = null,
-                        tint = CyanPrimary,
-                        modifier = Modifier.size(14.dp)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(14.dp),
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
                         text = "$votesCount",
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -281,13 +278,13 @@ private fun AnswerCard(
                         Icon(
                             Icons.Filled.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF4CAF50),
-                            modifier = Modifier.size(14.dp)
+                            tint = MaterialTheme.extendedColors.success,
+                            modifier = Modifier.size(14.dp),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Accepted",
-                            color = Color(0xFF4CAF50),
+                            text = stringResource(R.string.admin_accepted),
+                            color = MaterialTheme.extendedColors.success,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
                         )
@@ -297,12 +294,28 @@ private fun AnswerCard(
                 OutlinedButton(
                     onClick = onDelete,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = QError),
-                    border = BorderStroke(1.dp, QError.copy(alpha = 0.5f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                 ) {
-                    Text("Delete", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_delete), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageAnswersDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ManageAnswersScreen(onNavigateUp = {}, onAnswerClick = {})
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageAnswersLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ManageAnswersScreen(onNavigateUp = {}, onAnswerClick = {})
     }
 }

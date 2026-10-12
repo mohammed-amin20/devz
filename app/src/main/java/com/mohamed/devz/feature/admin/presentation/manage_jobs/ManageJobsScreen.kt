@@ -20,6 +20,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
+import androidx.compose.material.icons.filled.Work
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,6 +28,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.OutlinedButton
@@ -47,21 +49,21 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.util.UiText
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,41 +87,65 @@ fun ManageJobsScreen(
     if (uiState.showConfirmDialog && uiState.targetJob != null) {
         AlertDialog(
             onDismissRequest = { viewModel.onAction(ManageJobsAction.DismissDialog) },
-            containerColor = DevzCard,
-            title = { Text("Approve Job", color = TextWhite, fontWeight = FontWeight.Bold) },
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            title = {
+                Text(
+                    stringResource(R.string.admin_approve_job_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                )
+            },
             text = {
                 Text(
-                    "Approve \"${uiState.targetJob!!.title}\" by ${uiState.targetJob!!.companyName}?",
-                    color = QOnSurfaceVariant,
+                    text = stringResource(
+                        R.string.admin_approve_job_message,
+                        uiState.targetJob!!.title,
+                        uiState.targetJob!!.companyName,
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
                     onClick = { viewModel.confirmApprove() },
-                    colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.extendedColors.success,
+                        contentColor = MaterialTheme.colorScheme.onPrimary,
+                    ),
                 ) {
-                    Text("Approve", color = TextWhite)
+                    Text(stringResource(R.string.action_approve))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onAction(ManageJobsAction.DismissDialog) }) {
-                    Text("Cancel", color = TextGray)
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
     Scaffold(
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TopAppBar(
-                title = { Text("Manage Jobs", color = TextWhite, fontWeight = FontWeight.Bold) },
+                title = {
+                    Text(
+                        stringResource(R.string.admin_jobs_title),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = TextWhite, modifier = Modifier.size(24.dp))
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp),
+                        )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = QBg),
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -130,16 +156,15 @@ fun ManageJobsScreen(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = CyanPrimary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
             uiState.jobs.isEmpty() -> {
-                Box(
-                    modifier = Modifier.fillMaxSize().padding(innerPadding),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text("No job postings found", color = QOnSurfaceVariant, fontSize = 16.sp)
-                }
+                EmptyState(
+                    icon = Icons.Filled.Work,
+                    title = stringResource(R.string.admin_empty_jobs),
+                    modifier = Modifier.padding(innerPadding),
+                )
             }
             else -> {
                 val pullRefreshState = rememberPullToRefreshState()
@@ -153,7 +178,7 @@ fun ManageJobsScreen(
                             modifier = Modifier.align(Alignment.TopCenter),
                             isRefreshing = uiState.isRefreshing,
                             state = pullRefreshState,
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                         )
                     },
                 ) {
@@ -180,6 +205,18 @@ fun ManageJobsScreen(
 }
 
 @Composable
+private fun jobTypeLabel(jobType: String): String {
+    val resId = when (jobType) {
+        "full-time" -> R.string.jobtype_full_time
+        "part-time" -> R.string.jobtype_part_time
+        "remote" -> R.string.jobtype_remote
+        "contract" -> R.string.jobtype_contract
+        else -> null
+    }
+    return if (resId != null) stringResource(resId) else jobType
+}
+
+@Composable
 private fun JobCard(
     job: com.mohamed.devz.feature.core.domain.model.JobPosting,
     logoUrl: String,
@@ -193,7 +230,7 @@ private fun JobCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier.fillMaxWidth().padding(16.dp),
@@ -201,7 +238,7 @@ private fun JobCard(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = job.title,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.SemiBold,
                     maxLines = 2,
@@ -229,7 +266,7 @@ private fun JobCard(
                     Icon(
                         Icons.Filled.Business,
                         contentDescription = null,
-                        tint = TextGray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier
                             .size(16.dp)
                             .clickable(onClick = onCompanyClick),
@@ -237,8 +274,8 @@ private fun JobCard(
                 }
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
-                    text = "${job.companyName} \u2022 ${job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() }}",
-                    color = TextGray,
+                    text = "${job.companyName} \u2022 ${jobTypeLabel(job.jobType)}",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     modifier = Modifier.clickable(onClick = onCompanyClick),
                 )
@@ -247,7 +284,7 @@ private fun JobCard(
             if (job.salaryRange.isNotBlank()) {
                 Text(
                     text = job.salaryRange,
-                    color = CyanPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 13.sp,
                 )
             }
@@ -263,17 +300,20 @@ private fun JobCard(
                         onClick = onReject,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFFFF5252)),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     ) {
-                        Text("Reject", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.action_reject), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                     Button(
                         onClick = onApprove,
                         modifier = Modifier.weight(1f),
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF4CAF50)),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.extendedColors.success,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
                     ) {
-                        Text("Approve", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = TextWhite)
+                        Text(stringResource(R.string.action_approve), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                     }
                 }
             }
@@ -283,11 +323,17 @@ private fun JobCard(
 
 @Composable
 private fun StatusBadge(status: String) {
-    val (color, label) = when (status) {
-        "approved" -> Color(0xFF4CAF50) to "Approved"
-        "pending" -> Color(0xFFFFC107) to "Pending"
-        "rejected" -> Color(0xFFFF5252) to "Rejected"
-        else -> TextGray to status
+    val color = when (status) {
+        "approved" -> MaterialTheme.extendedColors.success
+        "pending" -> MaterialTheme.extendedColors.warning
+        "rejected" -> MaterialTheme.colorScheme.error
+        else -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    val label = when (status) {
+        "approved" -> stringResource(R.string.admin_status_approved)
+        "pending" -> stringResource(R.string.admin_status_pending)
+        "rejected" -> stringResource(R.string.admin_status_rejected)
+        else -> status
     }
     Text(
         text = label,
@@ -298,4 +344,20 @@ private fun StatusBadge(status: String) {
             .background(color.copy(alpha = 0.15f), RoundedCornerShape(4.dp))
             .padding(horizontal = 6.dp, vertical = 2.dp),
     )
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageJobsDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ManageJobsScreen(onNavigateUp = {})
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageJobsLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ManageJobsScreen(onNavigateUp = {})
+    }
 }

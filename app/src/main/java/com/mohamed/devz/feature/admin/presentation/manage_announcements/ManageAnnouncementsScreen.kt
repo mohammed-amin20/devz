@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -22,9 +23,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -43,21 +43,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.domain.model.Notification
 import com.mohamed.devz.feature.core.presentation.util.UiText
 import com.mohamed.devz.feature.core.presentation.util.formatTimestampUtcPlus3
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.components.DevzTextField
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,27 +81,34 @@ fun ManageAnnouncementsScreen(
         val title = parts.getOrElse(0) { "" }
         AlertDialog(
             onDismissRequest = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) },
-            containerColor = DevzCard,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
-                Text("Delete Announcement", color = TextWhite, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.admin_delete_announcement_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                )
             },
             text = {
                 Text(
-                    text = "Are you sure you want to delete \"$title\"? This action cannot be undone.",
-                    color = QOnSurfaceVariant,
+                    text = stringResource(R.string.admin_delete_announcement_message, title),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
                     onClick = { viewModel.onAction(ManageAnnouncementsAction.ConfirmDelete(uiState.targetDeleteNotification!!)) },
-                    colors = ButtonDefaults.buttonColors(containerColor = QError)
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                        contentColor = MaterialTheme.colorScheme.onError,
+                    ),
                 ) {
-                    Text("Delete", color = TextWhite)
+                    Text(stringResource(R.string.action_delete))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) }) {
-                    Text("Cancel", color = TextGray)
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )
@@ -110,41 +117,29 @@ fun ManageAnnouncementsScreen(
     if (uiState.showCreateDialog) {
         AlertDialog(
             onDismissRequest = { viewModel.onAction(ManageAnnouncementsAction.DismissCreateDialog) },
-            containerColor = DevzCard,
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
-                Text("New Announcement", color = TextWhite, fontWeight = FontWeight.Bold)
+                Text(
+                    stringResource(R.string.admin_new_announcement_title),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    fontWeight = FontWeight.Bold,
+                )
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                    OutlinedTextField(
+                    DevzTextField(
                         value = uiState.createTitle,
                         onValueChange = { viewModel.onAction(ManageAnnouncementsAction.TitleChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Title", color = TextGray) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CyanPrimary,
-                            unfocusedBorderColor = QOnSurfaceVariant,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = TextWhite,
-                            unfocusedTextColor = TextWhite,
-                        ),
+                        label = stringResource(R.string.admin_field_title),
                         singleLine = true,
                     )
-                    OutlinedTextField(
+                    DevzTextField(
                         value = uiState.createMessage,
                         onValueChange = { viewModel.onAction(ManageAnnouncementsAction.MessageChanged(it)) },
                         modifier = Modifier.fillMaxWidth(),
-                        label = { Text("Message", color = TextGray) },
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = CyanPrimary,
-                            unfocusedBorderColor = QOnSurfaceVariant,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = TextWhite,
-                            unfocusedTextColor = TextWhite,
-                        ),
-                        minLines = 3,
+                        label = stringResource(R.string.admin_field_message),
+                        singleLine = false,
                         maxLines = 6,
                     )
                 }
@@ -152,55 +147,63 @@ fun ManageAnnouncementsScreen(
             confirmButton = {
                 Button(
                     onClick = { viewModel.onAction(ManageAnnouncementsAction.CreateAnnouncement) },
-                    colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(10.dp),
                 ) {
-                    Text("Create", color = TextWhite, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_create), fontWeight = FontWeight.SemiBold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { viewModel.onAction(ManageAnnouncementsAction.DismissCreateDialog) }) {
-                    Text("Cancel", color = TextGray)
+                    Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
     Scaffold(
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             TopAppBar(
                 title = {
-                    Text("Manage Announcements", color = TextWhite, fontWeight = FontWeight.Bold)
+                    Text(
+                        stringResource(R.string.admin_announcements_title),
+                        color = MaterialTheme.colorScheme.onBackground,
+                        fontWeight = FontWeight.Bold,
+                    )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateUp) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back",
-                            tint = TextWhite,
-                            modifier = Modifier.size(24.dp)
+                            contentDescription = stringResource(R.string.action_back),
+                            tint = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.size(24.dp),
                         )
                     }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = QBg)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
             )
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
             Button(
                 onClick = { viewModel.onAction(ManageAnnouncementsAction.ShowCreateDialog) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = CyanPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
             ) {
-                Text("Create Announcement", color = TextWhite, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.admin_create_announcement),
+                    color = MaterialTheme.colorScheme.onPrimary,
+                    fontWeight = FontWeight.SemiBold,
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -209,18 +212,16 @@ fun ManageAnnouncementsScreen(
                 uiState.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
+                        contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = CyanPrimary)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
                 uiState.announcements.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text("No announcements yet", color = QOnSurfaceVariant, fontSize = 16.sp)
-                    }
+                    EmptyState(
+                        icon = Icons.Filled.Campaign,
+                        title = stringResource(R.string.admin_empty_announcements),
+                    )
                 }
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
@@ -234,7 +235,7 @@ fun ManageAnnouncementsScreen(
                                 modifier = Modifier.align(Alignment.TopCenter),
                                 isRefreshing = uiState.isRefreshing,
                                 state = pullRefreshState,
-                                color = CyanPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
@@ -268,7 +269,7 @@ private fun SystemNotificationCard(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier
@@ -277,7 +278,7 @@ private fun SystemNotificationCard(
         ) {
             Text(
                 text = title,
-                color = TextWhite,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.SemiBold,
             )
@@ -286,7 +287,7 @@ private fun SystemNotificationCard(
 
             Text(
                 text = body,
-                color = QOnSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis,
@@ -296,7 +297,7 @@ private fun SystemNotificationCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = formatTimestampUtcPlus3(notification.createdAt),
-                    color = TextGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                 )
             }
@@ -310,12 +311,28 @@ private fun SystemNotificationCard(
                 OutlinedButton(
                     onClick = onDelete,
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = QError),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, QError.copy(alpha = 0.5f)),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                 ) {
-                    Text("Delete", fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                    Text(stringResource(R.string.action_delete), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
             }
         }
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageAnnouncementsDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ManageAnnouncementsScreen(onNavigateUp = {})
+    }
+}
+
+@Preview(showSystemUi = true)
+@Composable
+private fun PreviewManageAnnouncementsLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ManageAnnouncementsScreen(onNavigateUp = {})
     }
 }
