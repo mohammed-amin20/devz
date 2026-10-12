@@ -2,7 +2,7 @@
 
 <img src="docs/banner.svg" alt="devZ — Ask. Answer. Grow." width="100%"/>
 
-<a href="#-screenshots"><img alt="Screens" src="https://img.shields.io/badge/Screens-27-44D8F1?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="#-screenshots"><img alt="Screens" src="https://img.shields.io/badge/Screens-28-44D8F1?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="#-architecture"><img alt="Clean Architecture" src="https://img.shields.io/badge/Architecture-Clean_+_MVI-00BCD4?style=for-the-badge&logo=dependencyci&logoColor=white"></a>
 <a href="#-tech-stack"><img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white"></a>
 <a href="#-tech-stack"><img alt="Jetpack Compose" src="https://img.shields.io/badge/Compose-2026.05-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white"></a>
@@ -39,10 +39,10 @@ questions, earn reputation, follow great developers, hire and get hired.
 
 | 🖼️ Screens | 🧩 Kotlin files | 🗄️ Tables | 🧭 Routes | 🛠️ Migrations | 🧪 Test suites |
 |:---:|:---:|:---:|:---:|:---:|:---:|
-| **27** | **239** | **10** | **22** | **4** | **25** |
+| **28** | **239** | **10** | **22** | **4** | **25** |
 
 > Every screenshot in this README is rendered straight from the real Compose UI by an
-> automated **Robolectric + Roborazzi** test — 27 screens × **dark & light** — and uses
+> automated **Robolectric + Roborazzi** test — 28 screens × **dark & light** — and uses
 > GitHub's theme support to switch automatically. See [`docs/screenshots/`](docs/screenshots/README.md).
 
 ---
@@ -127,9 +127,9 @@ A full-featured developer community app, built as a single-module Android projec
 | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/feed-content-light.png"><img src="docs/screenshots/feed-content-dark.png" width="200" alt="Feed"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/question-details-content-light.png"><img src="docs/screenshots/question-details-content-dark.png" width="200" alt="Question details"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/add-edit-question-content-light.png"><img src="docs/screenshots/add-edit-question-content-dark.png" width="200" alt="Add / edit question"/></picture> |
 
 ### Profile
-| View Profile | Edit Profile | Settings |
-|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/profile-content-light.png"><img src="docs/screenshots/profile-content-dark.png" width="200" alt="Profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-profile-content-light.png"><img src="docs/screenshots/edit-profile-content-dark.png" width="200" alt="Edit profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/settings-content-light.png"><img src="docs/screenshots/settings-content-dark.png" width="200" alt="Settings"/></picture> |
+| View Profile | Admin Profile | Edit Profile | Settings |
+|:---:|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/profile-content-light.png"><img src="docs/screenshots/profile-content-dark.png" width="200" alt="Profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/admin-profile-content-light.png"><img src="docs/screenshots/admin-profile-content-dark.png" width="200" alt="Admin profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-profile-content-light.png"><img src="docs/screenshots/edit-profile-content-dark.png" width="200" alt="Edit profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/settings-content-light.png"><img src="docs/screenshots/settings-content-dark.png" width="200" alt="Settings"/></picture> |
 
 > 🛠️ Admins get an extra **Admin Panel** entry on their profile → Admin Dashboard.
 
@@ -405,7 +405,7 @@ profile (follow / points), notifications, data mappers, and domain utilities.
 ./gradlew :app:testDebugUnitTest --tests "*ScreenshotGalleryTest*"
 ```
 
-Renders all **27 screens in dark & light** straight from the real Compose UI via
+Renders all **28 screens in dark & light** straight from the real Compose UI via
 **Robolectric + Roborazzi** and writes them to [`docs/screenshots/`](docs/screenshots/README.md).
 On first run Robolectric downloads its Android runtime jar (a few minutes). Details and the
 full table live in [`docs/screenshots/README.md`](docs/screenshots/README.md).

@@ -307,6 +307,9 @@ class ScreenshotGalleryTest {
     @Test fun profileDark() = capture("profile", ThemeMode.DARK, profileUi, selectedTab = 4)
     @Test fun profileLight() = capture("profile", ThemeMode.LIGHT, profileUi, selectedTab = 4)
 
+    @Test fun adminProfileDark() = capture("admin-profile", ThemeMode.DARK, adminProfileUi, selectedTab = 4)
+    @Test fun adminProfileLight() = capture("admin-profile", ThemeMode.LIGHT, adminProfileUi, selectedTab = 4)
+
     @Test fun editProfileDark() = capture("edit-profile", ThemeMode.DARK, editProfileUi)
     @Test fun editProfileLight() = capture("edit-profile", ThemeMode.LIGHT, editProfileUi)
 
@@ -490,6 +493,26 @@ private val profileUi: @Composable () -> Unit = {
         onShowReport = {},
         onDismissReport = {},
         onFullScreenChanged = {},
+        navigateUp = {},
+    )
+}
+
+private val adminProfileUi: @Composable () -> Unit = {
+    ProfileContent(
+        state = adminProfileState,
+        showImagePreview = false,
+        onImagePreviewChange = {},
+        onRefresh = {},
+        onEditProfile = {},
+        onQuestionClick = {},
+        onToggleFollow = {},
+        onShowFollowers = {},
+        onShowFollowing = {},
+        onDismissDialog = {},
+        onShowReport = {},
+        onDismissReport = {},
+        onFullScreenChanged = {},
+        onAdminPanelClick = {},
         navigateUp = {},
     )
 }
@@ -964,6 +987,10 @@ private val sampleProfileState = ProfileState(
     followersCount = 128,
     followingCount = 64,
 )
+
+private val adminProfile = sampleProfile.copy(isAdmin = true)
+
+private val adminProfileState = sampleProfileState.copy(profile = adminProfile)
 
 private val previewDashboardState = CompanyDashboardState(
     companyName = "Acme Labs",

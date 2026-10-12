@@ -52,7 +52,7 @@ folder as `<screen>-content-{dark,light}.png`. On the first run Robolectric
 downloads the Android 14 (`android-all-instrumented`) runtime jar into
 `~/.m2/repository`, which can take several minutes.
 
-## Screens (27 × 2 = 54 images)
+## Screens (28 × 2 = 56 images)
 
 | Screen | State | Dark | Light |
 |--------|-------|------|-------|
@@ -65,6 +65,7 @@ downloads the Android 14 (`android-all-instrumented`) runtime jar into
 | Question details | Q + accepted answer | [dark](question-details-content-dark.png) | [light](question-details-content-light.png) |
 | Add / edit question | create | [dark](add-edit-question-content-dark.png) | [light](add-edit-question-content-light.png) |
 | View profile | own profile, with bottom nav | [dark](profile-content-dark.png) | [light](profile-content-light.png) |
+| Admin profile | own profile + Admin Panel entry | [dark](admin-profile-content-dark.png) | [light](admin-profile-content-light.png) |
 | Edit profile | filled | [dark](edit-profile-content-dark.png) | [light](edit-profile-content-light.png) |
 | Settings | theme + language | [dark](settings-content-dark.png) | [light](settings-content-light.png) |
 | Notifications | mixed read/unread, with bottom nav | [dark](notifications-content-dark.png) | [light](notifications-content-light.png) |
