@@ -22,18 +22,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AlternateEmail
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Language
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.AlternateEmail
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
@@ -46,27 +43,23 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
-
-private val Gold = Color(0xFFE0B94A)
+import com.mohamed.devz.ui.components.ErrorState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 @Composable
 fun CompanyProfileScreen(
@@ -88,61 +81,29 @@ fun CompanyProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(QBg)
-            .then(modifier)
+            .background(MaterialTheme.colorScheme.background)
+            .then(modifier),
     ) {
         when {
             uiState.isLoading -> {
                 CircularProgressIndicator(
-                    color = CyanPrimary,
-                    modifier = Modifier.align(Alignment.Center)
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.align(Alignment.Center),
                 )
             }
 
             uiState.error != null -> {
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(horizontal = 32.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Icon(
-                        Icons.Filled.Warning,
-                        contentDescription = null,
-                        tint = QError,
-                        modifier = Modifier.size(56.dp)
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        text = uiState.error!!.asString(),
-                        color = QOnSurfaceVariant,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Button(
-                        onClick = { viewModel.onAction(CompanyProfileAction.Refresh) },
-                        shape = RoundedCornerShape(50),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CyanPrimary,
-                            contentColor = Color.Black
-                        )
-                    ) {
-                        Icon(
-                            Icons.Filled.Refresh,
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Retry", fontWeight = FontWeight.SemiBold)
-                    }
-                }
+                ErrorState(
+                    message = uiState.error!!.asString(),
+                    onRetry = { viewModel.onAction(CompanyProfileAction.Refresh) },
+                    retryLabel = stringResource(R.string.action_retry),
+                )
             }
 
             else -> {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     item {
                         CompanyHeader(
@@ -155,16 +116,21 @@ fun CompanyProfileScreen(
                         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                             PrimaryTabRow(
                                 selectedTabIndex = uiState.selectedTab,
-                                containerColor = QBg,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                divider = {},
                             ) {
                                 Tab(
                                     selected = uiState.selectedTab == 0,
                                     onClick = { viewModel.onAction(CompanyProfileAction.SelectTab(0)) },
                                     text = {
                                         Text(
-                                            "Posted (${uiState.postedJobs.size})",
+                                            stringResource(R.string.company_profile_tab_posted, uiState.postedJobs.size),
                                             fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 0) CyanPrimary else TextGray,
+                                            color = if (uiState.selectedTab == 0) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                         )
                                     },
                                 )
@@ -173,9 +139,13 @@ fun CompanyProfileScreen(
                                     onClick = { viewModel.onAction(CompanyProfileAction.SelectTab(1)) },
                                     text = {
                                         Text(
-                                            "Filled (${uiState.filledJobs.size})",
+                                            stringResource(R.string.company_profile_tab_filled, uiState.filledJobs.size),
                                             fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 1) CyanPrimary else TextGray,
+                                            color = if (uiState.selectedTab == 1) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                         )
                                     },
                                 )
@@ -187,8 +157,14 @@ fun CompanyProfileScreen(
                     if (currentJobs.isEmpty()) {
                         item {
                             Text(
-                                text = if (uiState.selectedTab == 0) "No open jobs" else "No filled jobs yet",
-                                color = QOnSurfaceVariant,
+                                text = stringResource(
+                                    if (uiState.selectedTab == 0) {
+                                        R.string.company_profile_empty_posted
+                                    } else {
+                                        R.string.company_profile_empty_filled
+                                    }
+                                ),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
                             )
@@ -197,7 +173,7 @@ fun CompanyProfileScreen(
                         items(currentJobs, key = { it.id }) { job ->
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = DevzCard,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp)
@@ -211,23 +187,27 @@ fun CompanyProfileScreen(
                                     ) {
                                         Text(
                                             text = job.title,
-                                            color = TextWhite,
+                                            color = MaterialTheme.colorScheme.onSurface,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.Medium,
                                             modifier = Modifier.weight(1f),
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
+                                        val isOpen = uiState.selectedTab == 0
+                                        val chipColor = if (isOpen) {
+                                            MaterialTheme.extendedColors.success
+                                        } else {
+                                            MaterialTheme.colorScheme.onSurfaceVariant
+                                        }
                                         Text(
-                                            text = if (uiState.selectedTab == 0) "Open" else "Filled",
-                                            color = if (uiState.selectedTab == 0) Color(0xFF4CAF50) else TextGray,
+                                            text = stringResource(
+                                                if (isOpen) R.string.company_profile_open else R.string.company_profile_filled
+                                            ),
+                                            color = chipColor,
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             modifier = Modifier
-                                                .background(
-                                                    if (uiState.selectedTab == 0) Color(0xFF4CAF50).copy(alpha = 0.15f)
-                                                    else TextGray.copy(alpha = 0.15f),
-                                                    RoundedCornerShape(6.dp)
-                                                )
+                                                .background(chipColor.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
                                                 .padding(horizontal = 8.dp, vertical = 3.dp),
                                         )
                                     }
@@ -235,7 +215,7 @@ fun CompanyProfileScreen(
                                         Spacer(modifier = Modifier.height(4.dp))
                                         Text(
                                             text = formatTimestamp(job.createdAt),
-                                            color = TextGray,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             fontSize = 11.sp,
                                         )
                                     }
@@ -252,13 +232,13 @@ fun CompanyProfileScreen(
         if (uiState.isOwnProfile && !uiState.isLoading) {
             FloatingActionButton(
                 onClick = onPostJob,
-                containerColor = CyanPrimary,
-                contentColor = Color(0xFF00363E),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Post New Job")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.company_profile_post_job))
             }
         }
     }
@@ -270,14 +250,18 @@ private fun CompanyHeader(
     onBack: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
+    val gold = MaterialTheme.extendedColors.pro
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(Color(0xFF114545), Color(0xFF0A1F1F), QBg)
+                    colors = listOf(
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+                        MaterialTheme.colorScheme.background,
+                    )
                 )
-            )
+            ),
     ) {
         Row(
             modifier = Modifier
@@ -287,8 +271,8 @@ private fun CompanyHeader(
             IconButton(onClick = onBack) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = TextWhite,
+                    contentDescription = stringResource(R.string.company_profile_back),
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
         }
@@ -304,8 +288,8 @@ private fun CompanyHeader(
                     modifier = Modifier
                         .size(104.dp)
                         .clip(CircleShape)
-                        .background(DevzCard)
-                        .border(3.dp, Gold, CircleShape),
+                        .background(MaterialTheme.colorScheme.surfaceContainer)
+                        .border(3.dp, gold, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
                     if (uiState.logoUrl.isNotBlank()) {
@@ -321,7 +305,7 @@ private fun CompanyHeader(
                         Icon(
                             Icons.Filled.Business,
                             contentDescription = null,
-                            tint = CyanPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(52.dp),
                         )
                     }
@@ -331,14 +315,14 @@ private fun CompanyHeader(
                         modifier = Modifier
                             .size(32.dp)
                             .clip(CircleShape)
-                            .background(Gold)
-                            .border(2.dp, QBg, CircleShape),
+                            .background(gold)
+                            .border(2.dp, MaterialTheme.colorScheme.background, CircleShape),
                         contentAlignment = Alignment.Center,
                     ) {
                         Icon(
                             Icons.Filled.Check,
-                            contentDescription = "Verified",
-                            tint = Color(0xFF1A1A1A),
+                            contentDescription = stringResource(R.string.company_profile_verified),
+                            tint = MaterialTheme.colorScheme.surface,
                             modifier = Modifier.size(18.dp),
                         )
                     }
@@ -350,7 +334,7 @@ private fun CompanyHeader(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = uiState.companyName,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
@@ -360,7 +344,7 @@ private fun CompanyHeader(
                     Icon(
                         Icons.Filled.Check,
                         contentDescription = null,
-                        tint = Gold,
+                        tint = gold,
                         modifier = Modifier.size(20.dp),
                     )
                 }
@@ -372,7 +356,7 @@ private fun CompanyHeader(
                     text = listOf(uiState.industry, uiState.location)
                         .filter { it.isNotBlank() }
                         .joinToString(" \u00b7 "),
-                    color = QOnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Center,
                 )
@@ -383,7 +367,7 @@ private fun CompanyHeader(
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
                     text = summary,
-                    color = QOnSurface,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
                     lineHeight = 20.sp,
                     textAlign = TextAlign.Center,
@@ -408,13 +392,13 @@ private fun CompanyHeader(
                             Icon(
                                 Icons.Filled.Language,
                                 contentDescription = null,
-                                tint = CyanPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Website",
-                                color = CyanPrimary,
+                                text = stringResource(R.string.company_profile_website),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                             )
@@ -430,13 +414,13 @@ private fun CompanyHeader(
                             Icon(
                                 Icons.Filled.AlternateEmail,
                                 contentDescription = null,
-                                tint = CyanPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(16.dp),
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "Twitter",
-                                color = CyanPrimary,
+                                text = stringResource(R.string.company_profile_twitter),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Medium,
                             )
@@ -449,7 +433,7 @@ private fun CompanyHeader(
 
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = DevzCard,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 modifier = Modifier.fillMaxWidth(),
             ) {
                 Row(
@@ -461,15 +445,15 @@ private fun CompanyHeader(
                 ) {
                     StatItem(
                         value = uiState.totalJobs.toString(),
-                        label = "Jobs",
+                        label = stringResource(R.string.company_profile_stat_jobs),
                     )
                     StatItem(
                         value = uiState.totalApplicants.toString(),
-                        label = "Applicants",
+                        label = stringResource(R.string.company_profile_stat_applicants),
                     )
                     StatItem(
                         value = uiState.filledJobs.size.toString(),
-                        label = "Filled",
+                        label = stringResource(R.string.company_profile_stat_filled),
                     )
                 }
             }
@@ -487,14 +471,14 @@ private fun StatItem(
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Text(
             text = value,
-            color = TextWhite,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 16.sp,
             fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text = label,
-            color = TextGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 11.sp,
         )
     }
@@ -502,4 +486,20 @@ private fun StatItem(
 
 private fun normalizeUrl(url: String): String {
     return if (url.startsWith("http://") || url.startsWith("https://")) url else "https://$url"
+}
+
+@Preview
+@Composable
+private fun PreviewCompanyProfileDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        CompanyProfileScreen(onJobClick = {}, onPostJob = {}, navigateUp = {})
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewCompanyProfileLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        CompanyProfileScreen(onJobClick = {}, onPostJob = {}, navigateUp = {})
+    }
 }

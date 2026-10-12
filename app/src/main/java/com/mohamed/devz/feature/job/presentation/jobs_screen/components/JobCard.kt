@@ -23,15 +23,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.mohamed.devz.feature.job.presentation.jobs_screen.JobListingUiModel
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.job.presentation.jobs_screen.JobListingUiModel
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @Composable
 fun JobCard(
@@ -45,7 +44,7 @@ fun JobCard(
             .fillMaxWidth()
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Row(
             modifier = Modifier.padding(16.dp),
@@ -64,7 +63,7 @@ fun JobCard(
             } else {
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = CyanPrimary.copy(alpha = 0.1f),
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     modifier = Modifier
                         .size(48.dp)
                         .clickable(onClick = onCompanyClick),
@@ -72,7 +71,7 @@ fun JobCard(
                     Icon(
                         Icons.Filled.Business,
                         contentDescription = null,
-                        tint = CyanPrimary,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(10.dp),
                     )
                 }
@@ -81,7 +80,7 @@ fun JobCard(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = job.title,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
@@ -89,7 +88,7 @@ fun JobCard(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = job.companyName,
-                    color = CyanPrimary,
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 13.sp,
                     fontWeight = FontWeight.Medium,
                     style = MaterialTheme.typography.bodyMedium,
@@ -103,7 +102,7 @@ fun JobCard(
                     if (job.salaryRange.isNotBlank()) {
                         Text(
                             text = job.salaryRange,
-                            color = TextGray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.bodyMedium,
                         )
@@ -111,7 +110,7 @@ fun JobCard(
                     if (job.createdAt.isNotBlank()) {
                         Text(
                             text = formatTimestamp(job.createdAt),
-                            color = TextGray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.bodyMedium,
                         )
@@ -119,5 +118,31 @@ fun JobCard(
                 }
             }
         }
+    }
+}
+
+private val previewJob = JobListingUiModel(
+    id = 1,
+    accountId = 1,
+    companyName = "Acme Labs",
+    title = "Senior Android Developer",
+    salaryRange = "$80k - $120k",
+    jobType = "full-time",
+    createdAt = "2024-01-01T00:00:00Z",
+)
+
+@Preview
+@Composable
+private fun PreviewJobCardDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        JobCard(job = previewJob, onClick = {})
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewJobCardLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        JobCard(job = previewJob, onClick = {})
     }
 }

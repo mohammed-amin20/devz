@@ -44,23 +44,24 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QSurfaceHigh
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.core.domain.model.JobPosting
+import com.mohamed.devz.ui.components.ErrorState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
+
+private val WhatsAppGreen = Color(0xFF25D366)
 
 @Composable
 fun CompanyJobDetailScreen(
@@ -79,25 +80,25 @@ fun CompanyJobDetailScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(QBg),
+            .background(MaterialTheme.colorScheme.background),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(QBg)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 4.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             IconButton(onClick = navigateUp) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
-                    tint = TextWhite,
+                    contentDescription = stringResource(R.string.jobdetail_back),
+                    tint = MaterialTheme.colorScheme.onSurface,
                 )
             }
             Text(
-                text = "Job Details",
-                color = QOnSurface,
+                text = stringResource(R.string.company_job_detail_title),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
             )
@@ -109,37 +110,38 @@ fun CompanyJobDetailScreen(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = CyanPrimary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
             uiState.error != null && uiState.job == null -> {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(text = uiState.error!!.asString(), color = QOutline)
-                }
+                ErrorState(
+                    message = uiState.error!!.asString(),
+                    onRetry = { viewModel.onAction(CompanyJobDetailAction.LoadJob(jobId)) },
+                    retryLabel = stringResource(R.string.action_retry),
+                )
             }
 
             uiState.job != null -> {
                 val job = uiState.job!!
 
                 LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     item {
                         Spacer(modifier = Modifier.height(4.dp))
                         Surface(
                             shape = RoundedCornerShape(16.dp),
-                            color = DevzCard,
+                            color = MaterialTheme.colorScheme.surfaceContainer,
                             modifier = Modifier.fillMaxWidth(),
                         ) {
                             Column(modifier = Modifier.padding(20.dp)) {
                                 Text(
                                     text = job.title,
-                                    color = TextWhite,
+                                    color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 20.sp,
                                     fontWeight = FontWeight.Bold,
                                 )
@@ -148,21 +150,21 @@ fun CompanyJobDetailScreen(
                                     if (job.salaryRange.isNotBlank()) {
                                         Text(
                                             text = job.salaryRange,
-                                            color = CyanPrimary,
+                                            color = MaterialTheme.colorScheme.primary,
                                             fontSize = 14.sp,
                                             fontWeight = FontWeight.SemiBold,
                                         )
                                     }
                                     Text(
-                                        text = job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() },
-                                        color = QOnSurfaceVariant,
+                                        text = jobTypeLabel(job.jobType),
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                         fontSize = 14.sp,
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(12.dp))
                                 Text(
                                     text = job.description,
-                                    color = QOnSurfaceVariant,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     fontSize = 14.sp,
                                     lineHeight = 20.sp,
                                 )
@@ -172,8 +174,8 @@ fun CompanyJobDetailScreen(
 
                     item {
                         Text(
-                            text = "Applicants (${uiState.proposals.size})",
-                            color = QOnSurface,
+                            text = stringResource(R.string.company_job_detail_applicants, uiState.proposals.size),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge,
@@ -183,8 +185,8 @@ fun CompanyJobDetailScreen(
                     if (uiState.proposals.isEmpty()) {
                         item {
                             Text(
-                                text = "No applications yet",
-                                color = QOnSurfaceVariant,
+                                text = stringResource(R.string.company_job_detail_empty),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 14.sp,
                                 modifier = Modifier.padding(vertical = 8.dp),
                             )
@@ -225,7 +227,7 @@ private fun ProposalCard(
 
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = DevzCard,
+        color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
@@ -248,13 +250,13 @@ private fun ProposalCard(
                         modifier = Modifier
                             .size(44.dp)
                             .clip(CircleShape)
-                            .background(CyanPrimary.copy(alpha = 0.2f))
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
                             .clickable(onClick = onProfileClick),
                         contentAlignment = Alignment.Center,
                     ) {
                         Text(
                             text = proposal.fullName.take(1).uppercase(),
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                         )
@@ -265,7 +267,7 @@ private fun ProposalCard(
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = proposal.fullName,
-                            color = TextWhite,
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 15.sp,
                             fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
@@ -281,13 +283,13 @@ private fun ProposalCard(
                         Icon(
                             Icons.Filled.Star,
                             contentDescription = null,
-                            tint = Color(0xFFFFC107),
+                            tint = MaterialTheme.extendedColors.pro,
                             modifier = Modifier.size(14.dp),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${proposal.points} pts",
-                            color = QOnSurfaceVariant,
+                            text = stringResource(R.string.company_job_detail_pts, proposal.points),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 12.sp,
                         )
                     }
@@ -298,7 +300,7 @@ private fun ProposalCard(
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = proposal.coverLetter,
-                    color = QOnSurfaceVariant,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     maxLines = 3,
                     overflow = TextOverflow.Ellipsis,
@@ -308,8 +310,11 @@ private fun ProposalCard(
             if (proposal.createdAt.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = "Applied ${formatTimestamp(proposal.createdAt)}",
-                    color = TextGray,
+                    text = stringResource(
+                        R.string.company_job_detail_applied,
+                        formatTimestamp(proposal.createdAt)
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp,
                 )
             }
@@ -323,11 +328,11 @@ private fun ProposalCard(
                     },
                     modifier = Modifier.height(36.dp),
                     shape = RoundedCornerShape(10.dp),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanPrimary),
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Icon(Icons.Filled.Email, contentDescription = null, modifier = Modifier.size(16.dp))
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Email", fontSize = 12.sp)
+                    Text(stringResource(R.string.company_job_detail_email), fontSize = 12.sp)
                 }
 
                 if (proposal.whatsapp.isNotBlank()) {
@@ -338,11 +343,11 @@ private fun ProposalCard(
                         },
                         modifier = Modifier.height(36.dp),
                         shape = RoundedCornerShape(10.dp),
-                        colors = ButtonDefaults.outlinedButtonColors(contentColor = Color(0xFF25D366)),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = WhatsAppGreen),
                     ) {
                         Icon(Icons.Filled.Phone, contentDescription = null, modifier = Modifier.size(16.dp))
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text("WhatsApp", fontSize = 12.sp)
+                        Text(stringResource(R.string.company_job_detail_whatsapp), fontSize = 12.sp)
                     }
                 }
 
@@ -353,13 +358,13 @@ private fun ProposalCard(
                         Icon(
                             Icons.Filled.CheckCircle,
                             contentDescription = null,
-                            tint = Color(0xFF4CAF50),
+                            tint = MaterialTheme.extendedColors.success,
                             modifier = Modifier.size(18.dp),
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "Approved",
-                            color = Color(0xFF4CAF50),
+                            text = stringResource(R.string.company_job_detail_approved),
+                            color = MaterialTheme.extendedColors.success,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                         )
@@ -371,22 +376,78 @@ private fun ProposalCard(
                         modifier = Modifier.height(36.dp),
                         shape = RoundedCornerShape(10.dp),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = CyanPrimary,
-                            contentColor = Color(0xFF00363E),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
                         ),
                     ) {
                         if (isApproving) {
                             CircularProgressIndicator(
-                                color = Color(0xFF00363E),
+                                color = MaterialTheme.colorScheme.onPrimary,
                                 modifier = Modifier.size(16.dp),
                                 strokeWidth = 2.dp,
                             )
                         } else {
-                            Text("Approve", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            Text(
+                                stringResource(R.string.company_job_detail_approve),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
                         }
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun jobTypeLabel(type: String): String = stringResource(
+    when (type) {
+        "full-time" -> R.string.jobtype_full_time
+        "part-time" -> R.string.jobtype_part_time
+        "remote" -> R.string.jobtype_remote
+        "contract" -> R.string.jobtype_contract
+        else -> R.string.jobtype_full_time
+    }
+)
+
+private val previewProposal = ProposalUiModel(
+    applicationId = 1,
+    applicantId = 2,
+    fullName = "Sara Ali",
+    username = "sara",
+    avatarUrl = "",
+    email = "sara@example.com",
+    whatsapp = "+12345678",
+    points = 120,
+    status = "pending",
+    coverLetter = "I am very interested in this role and have five years of Android experience.",
+    createdAt = "2024-01-01T00:00:00Z",
+    isPro = true,
+)
+
+@Preview
+@Composable
+private fun PreviewProposalCardDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ProposalCard(
+            proposal = previewProposal,
+            onProfileClick = {},
+            onApprove = {},
+            isApproving = false,
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewProposalCardLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ProposalCard(
+            proposal = previewProposal,
+            onProfileClick = {},
+            onApprove = {},
+            isApproving = false,
+        )
     }
 }

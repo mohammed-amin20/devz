@@ -12,24 +12,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowUpward
 import androidx.compose.material.icons.filled.Campaign
 import androidx.compose.material.icons.filled.ChatBubbleOutline
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material.icons.filled.FavoriteBorder
+import androidx.compose.material.icons.filled.NotificationsNone
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -49,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -59,12 +54,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.components.DevzBrandHeader
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.components.ErrorState
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun NotificationsScreen(
@@ -90,7 +84,7 @@ fun NotificationsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(QBg)
+            .background(MaterialTheme.colorScheme.background)
             .then(modifier)
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -110,8 +104,8 @@ fun NotificationsScreen(
                         }
                     ) {
                         Text(
-                            text = "Mark all read",
-                            color = CyanPrimary,
+                            text = stringResource(R.string.notif_mark_all_read),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Medium
                         )
@@ -133,7 +127,7 @@ fun NotificationsScreen(
                         modifier = Modifier.align(Alignment.TopCenter),
                         isRefreshing = isRefreshing,
                         state = pullRefreshState,
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                     )
                 },
             ) {
@@ -143,76 +137,24 @@ fun NotificationsScreen(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
                         ) {
-                            CircularProgressIndicator(color = CyanPrimary)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
 
                     uiState.error != null && notifications.isEmpty() -> {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .verticalScroll(rememberScrollState()),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(80.dp)
-                                    .clip(CircleShape)
-                                    .background(CyanPrimary.copy(alpha = 0.1f)),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Icon(
-                                    Icons.Filled.Warning,
-                                    contentDescription = null,
-                                    tint = CyanPrimary,
-                                    modifier = Modifier.size(40.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(20.dp))
-                            Text(
-                                text = "Couldn't load notifications",
-                                color = TextWhite,
-                                fontSize = 18.sp,
-                                fontWeight = FontWeight.Bold,
-                                textAlign = TextAlign.Center
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = uiState.error!!.asString(),
-                                color = TextGray,
-                                fontSize = 14.sp,
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
-                            )
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Button(
-                                onClick = { viewModel.onAction(NotificationsAction.Refresh) },
-                                shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = CyanPrimary,
-                                    contentColor = Color(0xFF00363E)
-                                )
-                            ) {
-                                Icon(Icons.Filled.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text("Try Again", fontWeight = FontWeight.SemiBold)
-                            }
-                        }
+                        ErrorState(
+                            message = uiState.error!!.asString(),
+                            onRetry = { viewModel.onAction(NotificationsAction.Refresh) },
+                            retryLabel = stringResource(R.string.action_retry),
+                        )
                     }
 
                     !uiState.isLoading && notifications.isEmpty() -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize(),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Text(
-                                text = "No notifications yet",
-                                color = TextGray,
-                                fontSize = 16.sp,
-                                textAlign = TextAlign.Center
-                            )
-                        }
+                        EmptyState(
+                            icon = Icons.Filled.NotificationsNone,
+                            title = stringResource(R.string.notif_empty_title),
+                            message = stringResource(R.string.notif_empty_message),
+                        )
                     }
 
                     else -> {
@@ -251,6 +193,9 @@ fun NotificationItem(
 ) {
     val isUnread = !notification.isRead
     val isSystem = notification.senderType == "system"
+    val primary = MaterialTheme.colorScheme.primary
+    val onSurface = MaterialTheme.colorScheme.onSurface
+    val onSurfaceVariant = MaterialTheme.colorScheme.onSurfaceVariant
 
     Row(
         modifier = Modifier
@@ -258,9 +203,9 @@ fun NotificationItem(
             .clip(RoundedCornerShape(14.dp))
             .background(
                 when {
-                    isSystem -> CyanPrimary.copy(alpha = 0.08f)
-                    isUnread -> Color(0xFF1A2424)
-                    else -> Color(0xFF141E1E)
+                    isSystem -> primary.copy(alpha = 0.08f)
+                    isUnread -> MaterialTheme.colorScheme.surfaceContainerHigh
+                    else -> MaterialTheme.colorScheme.surfaceContainer
                 }
             )
             .clickable(onClick = onClick)
@@ -273,16 +218,20 @@ fun NotificationItem(
                 .size(44.dp)
                 .clip(CircleShape)
                 .background(
-                    if (isSystem) CyanPrimary.copy(alpha = 0.2f)
-                    else if (isUnread) CyanPrimary.copy(alpha = 0.15f)
-                    else Color(0xFF1E2A2A)
+                    when {
+                        isSystem -> primary.copy(alpha = 0.2f)
+                        isUnread -> primary.copy(alpha = 0.15f)
+                        else -> MaterialTheme.colorScheme.surfaceContainerHighest
+                    }
                 ),
             contentAlignment = Alignment.Center
         ) {
             if (isSystem) {
-                Text(
-                    text = "📢",
-                    fontSize = 20.sp
+                Icon(
+                    imageVector = Icons.Filled.Campaign,
+                    contentDescription = null,
+                    tint = primary,
+                    modifier = Modifier.size(22.dp)
                 )
             } else {
                 Icon(
@@ -295,7 +244,7 @@ fun NotificationItem(
                         NotificationType.SYSTEM -> Icons.Filled.Campaign
                     },
                     contentDescription = null,
-                    tint = CyanPrimary,
+                    tint = primary,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -307,8 +256,8 @@ fun NotificationItem(
                 val title = parts.getOrElse(0) { "" }
                 val body = parts.getOrElse(1) { "" }
                 Text(
-                    text = "📢 devZ",
-                    color = CyanPrimary,
+                    text = stringResource(R.string.notif_system_brand),
+                    color = primary,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                 )
@@ -316,7 +265,7 @@ fun NotificationItem(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = title,
-                        color = TextWhite,
+                        color = onSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
@@ -327,7 +276,7 @@ fun NotificationItem(
                     Spacer(modifier = Modifier.height(2.dp))
                     Text(
                         text = body,
-                        color = TextGray,
+                        color = onSurfaceVariant,
                         fontSize = 13.sp,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis,
@@ -342,45 +291,51 @@ fun NotificationItem(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(4.dp))
-                            .background(CyanPrimary.copy(alpha = 0.15f))
+                            .background(primary.copy(alpha = 0.15f))
                             .padding(horizontal = 6.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = "System",
-                            color = CyanPrimary,
+                            text = stringResource(R.string.notif_system_badge),
+                            color = primary,
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                         )
                     }
                     Text(
                         text = notification.timeAgo,
-                        color = TextGray,
+                        color = onSurfaceVariant,
                         fontSize = 12.sp,
                     )
                 }
             } else {
+                val someone = stringResource(R.string.notif_someone)
+                val congrats = stringResource(R.string.notif_congrats)
                 Text(
                     text = buildAnnotatedString {
-                        if (notification.type == NotificationType.FOLLOWER) {
-                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                                append(notification.actorName ?: "Someone")
+                        when {
+                            notification.type == NotificationType.FOLLOWER -> {
+                                withStyle(SpanStyle(color = onSurface, fontWeight = FontWeight.Bold)) {
+                                    append(notification.actorName ?: someone)
+                                }
+                                withStyle(SpanStyle(color = onSurfaceVariant)) {
+                                    append(" ${notification.message}")
+                                }
                             }
-                            withStyle(SpanStyle(color = TextGray)) {
-                                append(" ${notification.message}")
+                            notification.actorName == null -> {
+                                withStyle(SpanStyle(color = onSurface, fontWeight = FontWeight.Bold)) {
+                                    append("$congrats ")
+                                }
+                                withStyle(SpanStyle(color = onSurfaceVariant)) {
+                                    append("${notification.message} ${notification.questionTitle}")
+                                }
                             }
-                        } else if (notification.actorName == null) {
-                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                                append("Congrats! ")
-                            }
-                            withStyle(SpanStyle(color = TextGray)) {
-                                append("${notification.message} ${notification.questionTitle}")
-                            }
-                        } else {
-                            withStyle(SpanStyle(color = TextWhite, fontWeight = FontWeight.Bold)) {
-                                append("${notification.actorName} ")
-                            }
-                            withStyle(SpanStyle(color = TextGray)) {
-                                append("${notification.message} ${notification.questionTitle}")
+                            else -> {
+                                withStyle(SpanStyle(color = onSurface, fontWeight = FontWeight.Bold)) {
+                                    append("${notification.actorName} ")
+                                }
+                                withStyle(SpanStyle(color = onSurfaceVariant)) {
+                                    append("${notification.message} ${notification.questionTitle}")
+                                }
                             }
                         }
                     },
@@ -393,7 +348,7 @@ fun NotificationItem(
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = notification.timeAgo,
-                    color = if (isUnread) CyanPrimary else TextGray,
+                    color = if (isUnread) primary else onSurfaceVariant,
                     fontSize = 12.sp,
                     fontWeight = if (isUnread) FontWeight.SemiBold else FontWeight.Normal,
                     modifier = Modifier.fillMaxWidth(),
@@ -408,7 +363,7 @@ fun NotificationItem(
                 modifier = Modifier
                     .size(8.dp)
                     .clip(CircleShape)
-                    .background(CyanPrimary)
+                    .background(primary)
             )
         }
     }

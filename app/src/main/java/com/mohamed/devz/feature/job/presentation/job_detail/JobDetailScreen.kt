@@ -10,33 +10,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Business
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -45,28 +37,25 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.mohamed.devz.feature.job.presentation.util.onLostFocus
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QSurfaceHigh
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
+import com.mohamed.devz.feature.job.presentation.job_detail.components.ApplySheet
 import com.mohamed.devz.feature.report.presentation.ReportMenu
 import com.mohamed.devz.feature.report.presentation.ReportSheet
 import com.mohamed.devz.feature.report.presentation.ReportTarget
+import com.mohamed.devz.ui.components.DevzButton
+import com.mohamed.devz.ui.components.ErrorState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -79,6 +68,7 @@ fun JobDetailScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+    val submittedMessage = stringResource(R.string.jobdetail_submitted)
 
     LaunchedEffect(jobId) {
         viewModel.onAction(JobDetailAction.LoadJob(jobId))
@@ -86,18 +76,18 @@ fun JobDetailScreen(
 
     LaunchedEffect(uiState.applicationSuccess) {
         if (uiState.applicationSuccess) {
-            snackbarHostState.showSnackbar("Application submitted!")
+            snackbarHostState.showSnackbar(submittedMessage)
         }
     }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        containerColor = QBg,
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(QBg)
+                    .background(MaterialTheme.colorScheme.background)
                     .padding(horizontal = 4.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -105,8 +95,8 @@ fun JobDetailScreen(
                 IconButton(onClick = navigateUp) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = "Back",
-                        tint = TextWhite,
+                        contentDescription = stringResource(R.string.jobdetail_back),
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 }
                 val jobForReport = uiState.job
@@ -137,20 +127,16 @@ fun JobDetailScreen(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator(color = CyanPrimary)
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
 
             uiState.error != null && uiState.job == null -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = uiState.error!!.asString(),
-                        color = QOutline,
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    ErrorState(
+                        message = uiState.error!!.asString(),
+                        onRetry = { viewModel.onAction(JobDetailAction.LoadJob(jobId)) },
+                        retryLabel = stringResource(R.string.action_retry),
                     )
                 }
             }
@@ -167,78 +153,13 @@ fun JobDetailScreen(
                 ) {
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    Surface(
-                        shape = RoundedCornerShape(16.dp),
-                        color = CyanPrimary.copy(alpha = 0.1f),
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Column(
-                            modifier = Modifier.padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                        ) {
-                            if (job.logoUrl.isNotBlank()) {
-                                AsyncImage(
-                                    model = job.logoUrl,
-                                    contentDescription = null,
-                                    modifier = Modifier
-                                        .size(56.dp)
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .clickable { onProfileClick(job.accountId) },
-                                    contentScale = ContentScale.Crop,
-                                )
-                            } else {
-                                Icon(
-                                    Icons.Filled.Business,
-                                    contentDescription = null,
-                                    tint = CyanPrimary,
-                                    modifier = Modifier
-                                        .clip(RoundedCornerShape(16.dp))
-                                        .background(CyanPrimary.copy(alpha = 0.1f))
-                                        .padding(12.dp)
-                                        .clickable { onProfileClick(job.accountId) },
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(12.dp))
-                            Text(
-                                text = job.companyName,
-                                color = CyanPrimary,
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Medium,
-                                modifier = Modifier.clickable { onProfileClick(job.accountId) },
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = job.title,
-                                color = QOnSurface,
-                                fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
-                                style = MaterialTheme.typography.titleLarge,
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Row(
-                                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                            ) {
-                                if (job.salaryRange.isNotBlank()) {
-                                    Text(
-                                        text = job.salaryRange,
-                                        color = QOnSurfaceVariant,
-                                        fontSize = 14.sp,
-                                    )
-                                }
-                                Text(
-                                    text = job.jobType.replace("-", " ").replaceFirstChar { it.uppercase() },
-                                    color = QOnSurfaceVariant,
-                                    fontSize = 14.sp,
-                                )
-                            }
-                        }
-                    }
+                    JobHeader(job = job, onProfileClick = onProfileClick)
 
                     Spacer(modifier = Modifier.height(24.dp))
 
                     Text(
-                        text = "Description",
-                        color = QOnSurface,
+                        text = stringResource(R.string.jobdetail_description),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 18.sp,
                         fontWeight = FontWeight.Bold,
                         style = MaterialTheme.typography.titleLarge,
@@ -246,7 +167,7 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
                         text = job.description,
-                        color = QOnSurfaceVariant,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 15.sp,
                         lineHeight = 22.sp,
                         style = MaterialTheme.typography.bodyMedium,
@@ -255,8 +176,11 @@ fun JobDetailScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Posted ${formatTimestamp(job.createdAt)}",
-                        color = TextGray,
+                        text = stringResource(
+                            R.string.jobdetail_posted,
+                            formatTimestamp(job.createdAt)
+                        ),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp,
                         style = MaterialTheme.typography.bodyMedium,
                     )
@@ -265,13 +189,22 @@ fun JobDetailScreen(
 
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            text = "${job.applicantCount} applicant(s)",
-                            color = QOnSurfaceVariant,
+                            text = stringResource(R.string.jobdetail_applicants_count, job.applicantCount),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
                         )
                         Spacer(modifier = Modifier.width(12.dp))
-                        val statusColor = if (job.status == "filled") Color(0xFFFFA726) else Color(0xFF4CAF50)
-                        val statusLabel = if (job.status == "filled") "Reserved" else "Offered"
+                        val isReserved = job.status == "filled"
+                        val statusColor = if (isReserved) {
+                            MaterialTheme.extendedColors.warning
+                        } else {
+                            MaterialTheme.extendedColors.success
+                        }
+                        val statusLabel = if (isReserved) {
+                            stringResource(R.string.jobdetail_status_reserved)
+                        } else {
+                            stringResource(R.string.jobdetail_status_offered)
+                        }
                         Surface(
                             shape = RoundedCornerShape(8.dp),
                             color = statusColor.copy(alpha = 0.15f),
@@ -288,30 +221,15 @@ fun JobDetailScreen(
 
                     Spacer(modifier = Modifier.height(20.dp))
 
-                    Button(
+                    DevzButton(
+                        label = when {
+                            job.status == "filled" -> stringResource(R.string.jobdetail_status_reserved)
+                            uiState.hasApplied -> stringResource(R.string.jobdetail_applied)
+                            else -> stringResource(R.string.jobdetail_apply)
+                        },
                         onClick = { viewModel.showApplySheet() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
                         enabled = job.status != "filled" && !uiState.hasApplied,
-                        shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CyanPrimary,
-                            contentColor = Color(0xFF00363E),
-                            disabledContainerColor = TextGray.copy(alpha = 0.3f),
-                            disabledContentColor = TextGray,
-                        ),
-                    ) {
-                        Text(
-                            text = when {
-                                job.status == "filled" -> "Reserved"
-                                uiState.hasApplied -> "Applied"
-                                else -> "\u2709\uFE0F Apply"
-                            },
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
@@ -319,173 +237,11 @@ fun JobDetailScreen(
         }
 
         if (uiState.showApplySheet) {
-            val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-            ModalBottomSheet(
-                onDismissRequest = { viewModel.hideApplySheet() },
-                sheetState = sheetState,
-                containerColor = DevzCard,
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .imePadding()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                ) {
-                    Text(
-                        text = "Apply for ${uiState.job?.title ?: ""}",
-                        color = QOnSurface,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    TextField(
-                        value = uiState.email,
-                        onValueChange = { viewModel.onAction(JobDetailAction.EmailChanged(it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(onLostFocus {
-                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.EMAIL, false))
-                            }),
-                        placeholder = { Text("Email address", color = TextGray) },
-                        singleLine = true,
-                        isError = uiState.emailTouched && uiState.emailError != null,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = QSurfaceHigh,
-                            unfocusedContainerColor = QSurfaceHigh,
-                            focusedIndicatorColor = CyanPrimary,
-                            unfocusedIndicatorColor = QOutline,
-                            errorIndicatorColor = MaterialTheme.colorScheme.error,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = QOnSurface,
-                            unfocusedTextColor = QOnSurface,
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                    )
-
-                    uiState.emailError?.takeIf { uiState.emailTouched }?.let { error ->
-                        Text(
-                            text = error.asString(),
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    TextField(
-                        value = uiState.whatsapp,
-                        onValueChange = { viewModel.onAction(JobDetailAction.WhatsAppChanged(it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .then(onLostFocus {
-                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.WHATSAPP, false))
-                            }),
-                        placeholder = { Text("WhatsApp number", color = TextGray) },
-                        singleLine = true,
-                        isError = uiState.whatsappTouched && uiState.whatsappError != null,
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = QSurfaceHigh,
-                            unfocusedContainerColor = QSurfaceHigh,
-                            focusedIndicatorColor = CyanPrimary,
-                            unfocusedIndicatorColor = QOutline,
-                            errorIndicatorColor = MaterialTheme.colorScheme.error,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = QOnSurface,
-                            unfocusedTextColor = QOnSurface,
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                    )
-
-                    uiState.whatsappError?.takeIf { uiState.whatsappTouched }?.let { error ->
-                        Text(
-                            text = error.asString(),
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    TextField(
-                        value = uiState.coverLetter,
-                        onValueChange = { viewModel.onAction(JobDetailAction.CoverLetterChanged(it)) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(160.dp)
-                            .then(onLostFocus {
-                                viewModel.onAction(JobDetailAction.FieldFocusChanged(JobApplicationField.COVER_LETTER, false))
-                            }),
-                        placeholder = {
-                            Text(
-                                "Write your proposal...",
-                                color = TextGray,
-                            )
-                        },
-                        isError = uiState.coverLetterTouched && uiState.coverLetterError != null,
-                        colors = TextFieldDefaults.colors(
-                            focusedContainerColor = QSurfaceHigh,
-                            unfocusedContainerColor = QSurfaceHigh,
-                            focusedIndicatorColor = CyanPrimary,
-                            unfocusedIndicatorColor = QOutline,
-                            errorIndicatorColor = MaterialTheme.colorScheme.error,
-                            cursorColor = CyanPrimary,
-                            focusedTextColor = QOnSurface,
-                            unfocusedTextColor = QOnSurface,
-                        ),
-                        shape = RoundedCornerShape(12.dp),
-                    )
-
-                    uiState.coverLetterError?.takeIf { uiState.coverLetterTouched }?.let { error ->
-                        Text(
-                            text = error.asString(),
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp, top = 4.dp),
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(20.dp))
-
-                    Button(
-                        onClick = { viewModel.onAction(JobDetailAction.SubmitApplication(onSuccess = {})) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        enabled = uiState.canSubmit && !uiState.isSubmitting,
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = CyanPrimary,
-                            contentColor = Color(0xFF00363E),
-                        ),
-                    ) {
-                        if (uiState.isSubmitting) {
-                            CircularProgressIndicator(
-                                color = Color(0xFF00363E),
-                                modifier = Modifier
-                                    .width(20.dp)
-                                    .height(20.dp),
-                                strokeWidth = 2.dp,
-                            )
-                        } else {
-                            Text(
-                                text = "Save",
-                                fontSize = 15.sp,
-                                fontWeight = FontWeight.Bold,
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(24.dp))
-                }
-            }
+            ApplySheet(
+                state = uiState,
+                onAction = viewModel::onAction,
+                onDismiss = { viewModel.hideApplySheet() },
+            )
         }
 
         uiState.reportTarget?.let { target ->
@@ -494,5 +250,127 @@ fun JobDetailScreen(
                 onDismiss = { viewModel.onAction(JobDetailAction.DismissReport) },
             )
         }
+    }
+}
+
+@Composable
+private fun JobHeader(
+    job: JobDetailUiModel,
+    onProfileClick: (Int) -> Unit,
+) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier.padding(20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            if (job.logoUrl.isNotBlank()) {
+                AsyncImage(
+                    model = job.logoUrl,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(56.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .clickable { onProfileClick(job.accountId) },
+                    contentScale = ContentScale.Crop,
+                )
+            } else {
+                Icon(
+                    Icons.Filled.Business,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
+                        .padding(12.dp)
+                        .clickable { onProfileClick(job.accountId) },
+                )
+            }
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                text = job.companyName,
+                color = MaterialTheme.colorScheme.primary,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier.clickable { onProfileClick(job.accountId) },
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = job.title,
+                color = MaterialTheme.colorScheme.onSurface,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.titleLarge,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                if (job.salaryRange.isNotBlank()) {
+                    Text(
+                        text = job.salaryRange,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 14.sp,
+                    )
+                }
+                Text(
+                    text = jobTypeLabel(job.jobType),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun jobTypeLabel(type: String): String = stringResource(
+    when (type) {
+        "full-time" -> R.string.jobtype_full_time
+        "part-time" -> R.string.jobtype_part_time
+        "remote" -> R.string.jobtype_remote
+        "contract" -> R.string.jobtype_contract
+        else -> R.string.jobtype_full_time
+    }
+)
+
+@Preview
+@Composable
+private fun PreviewJobHeaderDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        JobHeader(
+            job = JobDetailUiModel(
+                id = 1,
+                accountId = 1,
+                companyName = "Acme Labs",
+                title = "Senior Android Developer",
+                description = "Build great things.",
+                salaryRange = "$80k - $120k",
+                jobType = "full-time",
+                createdAt = "2024-01-01T00:00:00Z",
+            ),
+            onProfileClick = {},
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewJobHeaderLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        JobHeader(
+            job = JobDetailUiModel(
+                id = 1,
+                accountId = 1,
+                companyName = "Acme Labs",
+                title = "Senior Android Developer",
+                description = "Build great things.",
+                salaryRange = "$80k - $120k",
+                jobType = "full-time",
+                createdAt = "2024-01-01T00:00:00Z",
+            ),
+            onProfileClick = {},
+        )
     }
 }

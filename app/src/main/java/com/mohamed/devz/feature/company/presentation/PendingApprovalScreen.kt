@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.company.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -8,25 +9,22 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.R
+import com.mohamed.devz.ui.components.DevzButton
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @Composable
 fun PendingApprovalScreen(
@@ -36,13 +34,14 @@ fun PendingApprovalScreen(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Surface(
             shape = RoundedCornerShape(24.dp),
-            color = DevzCard,
+            color = MaterialTheme.colorScheme.surfaceContainer,
             modifier = Modifier.fillMaxWidth(),
         ) {
             Column(
@@ -55,8 +54,8 @@ fun PendingApprovalScreen(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Registration Submitted!",
-                    color = TextWhite,
+                    text = stringResource(R.string.company_pending_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 22.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge,
@@ -64,31 +63,18 @@ fun PendingApprovalScreen(
                 )
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = "Your company account is pending approval. We\u2019ll notify you once your subscription is activated.",
-                    color = QOnSurfaceVariant,
+                    text = stringResource(R.string.company_pending_message),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 15.sp,
                     lineHeight = 22.sp,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                 )
                 Spacer(modifier = Modifier.height(28.dp))
-                Button(
+                DevzButton(
+                    label = stringResource(R.string.company_pending_go_home),
                     onClick = onGoToHome,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = CyanPrimary,
-                        contentColor = Color(0xFF00363E),
-                    ),
-                ) {
-                    Text(
-                        text = "Go to Home",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
+                )
             }
         }
     }
@@ -96,6 +82,16 @@ fun PendingApprovalScreen(
 
 @Preview
 @Composable
-private fun Pe() {
-    PendingApprovalScreen(onGoToHome = {})
+private fun PreviewPendingApprovalDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        PendingApprovalScreen(onGoToHome = {})
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewPendingApprovalLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        PendingApprovalScreen(onGoToHome = {})
+    }
 }

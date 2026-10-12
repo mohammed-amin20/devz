@@ -1,5 +1,9 @@
 package com.mohamed.devz.feature.company.presentation.company_dashboard
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,22 +25,21 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Business
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.filled.Language
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Surface
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
@@ -54,28 +57,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QSurfaceHigh
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.R
+import com.mohamed.devz.feature.core.presentation.components.DevzBrandHeader
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 import com.mohamed.devz.feature.company.presentation.edit_company_profile.EditCompanyProfileOverlay
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.core.tween
-import androidx.compose.ui.text.style.TextAlign
+import com.mohamed.devz.ui.components.ErrorState
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 import kotlinx.coroutines.launch
 
 @Composable
@@ -105,7 +102,11 @@ fun CompanyDashboardScreen(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize().background(QBg)) {
+    Box(
+        modifier = modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background),
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -118,24 +119,20 @@ fun CompanyDashboardScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text(
-                    text = "Company",
-                    color = QOnSurface,
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge,
-                )
+                DevzBrandHeader()
                 Row {
                     IconButton(onClick = { showEditProfileDialog = true }) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Edit Profile", tint = TextGray)
+                        Icon(
+                            Icons.Filled.Edit,
+                            contentDescription = stringResource(R.string.company_edit_profile),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
-                    IconButton(
-                        onClick = { showLogoutDialog = true }
-                    ) {
+                    IconButton(onClick = { showLogoutDialog = true }) {
                         Icon(
                             Icons.AutoMirrored.Filled.ExitToApp,
-                            contentDescription = "Logout",
-                            tint = TextGray,
+                            contentDescription = stringResource(R.string.company_logout),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                 }
@@ -149,17 +146,16 @@ fun CompanyDashboardScreen(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
                     ) {
-                        CircularProgressIndicator(color = CyanPrimary)
+                        CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
 
                 uiState.error != null -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(text = uiState.error!!.asString(), color = QOutline, fontSize = 14.sp)
-                    }
+                    ErrorState(
+                        message = uiState.error!!.asString(),
+                        onRetry = { viewModel.onAction(CompanyDashboardAction.Refresh) },
+                        retryLabel = stringResource(R.string.action_retry),
+                    )
                 }
 
                 else -> {
@@ -174,14 +170,14 @@ fun CompanyDashboardScreen(
                                 modifier = Modifier.align(Alignment.TopCenter),
                                 isRefreshing = uiState.isRefreshing,
                                 state = pullRefreshState,
-                                color = CyanPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
                         Column(modifier = Modifier.fillMaxSize()) {
                             Surface(
                                 shape = RoundedCornerShape(16.dp),
-                                color = DevzCard,
+                                color = MaterialTheme.colorScheme.surfaceContainer,
                                 modifier = Modifier.fillMaxWidth(),
                             ) {
                                 Column(
@@ -195,17 +191,21 @@ fun CompanyDashboardScreen(
                                             modifier = Modifier
                                                 .size(64.dp)
                                                 .clip(CircleShape)
-                                                .border(2.dp, CyanPrimary.copy(alpha = 0.4f), CircleShape),
+                                                .border(
+                                                    2.dp,
+                                                    MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                                    CircleShape,
+                                                ),
                                             contentScale = ContentScale.Crop,
                                         )
                                     } else {
                                         Icon(
                                             Icons.Filled.Business,
                                             contentDescription = null,
-                                            tint = CyanPrimary,
+                                            tint = MaterialTheme.colorScheme.primary,
                                             modifier = Modifier
                                                 .clip(RoundedCornerShape(16.dp))
-                                                .background(CyanPrimary.copy(alpha = 0.1f))
+                                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.1f))
                                                 .padding(12.dp)
                                                 .size(32.dp),
                                         )
@@ -213,7 +213,7 @@ fun CompanyDashboardScreen(
                                     Spacer(modifier = Modifier.height(12.dp))
                                     Text(
                                         text = uiState.companyName,
-                                        color = TextWhite,
+                                        color = MaterialTheme.colorScheme.onSurface,
                                         fontSize = 20.sp,
                                         fontWeight = FontWeight.Bold,
                                     )
@@ -223,31 +223,25 @@ fun CompanyDashboardScreen(
                                             Icon(
                                                 Icons.Filled.Language,
                                                 contentDescription = null,
-                                                tint = TextGray,
+                                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                                 modifier = Modifier.size(14.dp),
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
                                                 text = uiState.website,
-                                                color = CyanPrimary,
+                                                color = MaterialTheme.colorScheme.primary,
                                                 fontSize = 13.sp,
                                             )
                                         }
                                     }
                                     Spacer(modifier = Modifier.height(12.dp))
                                     val statusColor = when (uiState.subscriptionStatus) {
-                                        "active" -> Color(0xFF4CAF50)
-                                        "pending" -> Color(0xFFFFC107)
-                                        else -> QOutline
-                                    }
-                                    val statusText = when (uiState.subscriptionStatus) {
-                                        "active" -> "Active"
-                                        "pending" -> "Pending Approval"
-                                        "expired" -> "Expired"
-                                        else -> uiState.subscriptionStatus
+                                        "active" -> MaterialTheme.extendedColors.success
+                                        "pending" -> MaterialTheme.extendedColors.warning
+                                        else -> MaterialTheme.colorScheme.onSurfaceVariant
                                     }
                                     Text(
-                                        text = statusText,
+                                        text = subscriptionStatusLabel(uiState.subscriptionStatus),
                                         color = statusColor,
                                         fontSize = 13.sp,
                                         fontWeight = FontWeight.SemiBold,
@@ -258,118 +252,121 @@ fun CompanyDashboardScreen(
                                 }
                             }
 
-                        Spacer(modifier = Modifier.height(4.dp))
-                        PrimaryTabRow(
-                            selectedTabIndex = pagerState.currentPage,
-                            containerColor = QBg,
-                            indicator = {
-                                TabRowDefaults.PrimaryIndicator(
-                                    color = CyanPrimary,
-                                    modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = true),
-                                )
-                            },
-                            divider = {},
-                        ) {
+                            Spacer(modifier = Modifier.height(4.dp))
+
+                            PrimaryTabRow(
+                                selectedTabIndex = pagerState.currentPage,
+                                containerColor = MaterialTheme.colorScheme.background,
+                                divider = {},
+                            ) {
                                 Tab(
                                     selected = pagerState.currentPage == 0,
-                                    onClick = {
-                                        coroutineScope.launch { pagerState.animateScrollToPage(0) }
-                                    },
+                                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(0) } },
                                     text = {
                                         Text(
-                                            "Offered (${uiState.offeredJobs.size})",
+                                            stringResource(R.string.company_tab_offered, uiState.offeredJobs.size),
                                             fontWeight = if (pagerState.currentPage == 0) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (pagerState.currentPage == 0) CyanPrimary else TextGray,
+                                            color = if (pagerState.currentPage == 0) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                         )
                                     },
                                 )
                                 Tab(
                                     selected = pagerState.currentPage == 1,
-                                    onClick = {
-                                        coroutineScope.launch { pagerState.animateScrollToPage(1) }
-                                    },
+                                    onClick = { coroutineScope.launch { pagerState.animateScrollToPage(1) } },
                                     text = {
                                         Text(
-                                            "Reserved (${uiState.reservedJobs.size})",
+                                            stringResource(R.string.company_tab_reserved, uiState.reservedJobs.size),
                                             fontWeight = if (pagerState.currentPage == 1) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (pagerState.currentPage == 1) CyanPrimary else TextGray,
+                                            color = if (pagerState.currentPage == 1) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.onSurfaceVariant
+                                            },
                                         )
                                     },
                                 )
                             }
+
                             Spacer(modifier = Modifier.height(8.dp))
 
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .weight(1f),
-                        ) { page ->
-                            val currentJobs = if (page == 0) uiState.offeredJobs else uiState.reservedJobs
+                            HorizontalPager(
+                                state = pagerState,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                            ) { page ->
+                                val currentJobs = if (page == 0) uiState.offeredJobs else uiState.reservedJobs
 
-                            if (currentJobs.isEmpty()) {
-                                Box(
-                                    modifier = Modifier.fillMaxSize(),
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Text(
-                                        text = if (page == 0) "No offered jobs" else "No reserved jobs",
-                                        color = QOnSurfaceVariant,
-                                        fontSize = 14.sp,
-                                    )
-                                }
-                            } else {
-                                LazyColumn(
-                                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                                    modifier = Modifier.fillMaxSize(),
-                                ) {
-                                    items(currentJobs, key = { it.id }) { job ->
-                                        Surface(
-                                            shape = RoundedCornerShape(12.dp),
-                                            color = DevzCard,
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .clickable { onJobClick(job.id) },
-                                        ) {
-                                            Column(modifier = Modifier.padding(16.dp)) {
-                                                Row(
-                                                    modifier = Modifier.fillMaxWidth(),
-                                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                                    verticalAlignment = Alignment.CenterVertically,
-                                                ) {
-                                                    Text(
-                                                        text = job.title,
-                                                        color = TextWhite,
-                                                        fontSize = 14.sp,
-                                                        fontWeight = FontWeight.Medium,
-                                                        modifier = Modifier.weight(1f),
-                                                    )
-                                                    Spacer(modifier = Modifier.width(8.dp))
-                                                    Text(
-                                                        text = job.status.replaceFirstChar { it.uppercase() },
-                                                        color = Color(0xFF4CAF50),
-                                                        fontSize = 11.sp,
-                                                        fontWeight = FontWeight.Bold,
-                                                        modifier = Modifier
-                                                            .background(Color(0xFF4CAF50).copy(alpha = 0.15f), RoundedCornerShape(6.dp))
-                                                            .padding(horizontal = 8.dp, vertical = 3.dp),
-                                                    )
-                                                }
-                                                if (job.createdAt.isNotBlank()) {
-                                                    Spacer(modifier = Modifier.height(4.dp))
-                                                    Text(
-                                                        text = formatTimestamp(job.createdAt),
-                                                        color = TextGray,
-                                                        fontSize = 11.sp,
-                                                    )
+                                if (currentJobs.isEmpty()) {
+                                    Box(
+                                        modifier = Modifier.fillMaxSize(),
+                                        contentAlignment = Alignment.Center,
+                                    ) {
+                                        Text(
+                                            text = stringResource(
+                                                if (page == 0) R.string.company_empty_offered else R.string.company_empty_reserved
+                                            ),
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            fontSize = 14.sp,
+                                        )
+                                    }
+                                } else {
+                                    LazyColumn(
+                                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                                        modifier = Modifier.fillMaxSize(),
+                                    ) {
+                                        items(currentJobs, key = { it.id }) { job ->
+                                            Surface(
+                                                shape = RoundedCornerShape(12.dp),
+                                                color = MaterialTheme.colorScheme.surfaceContainer,
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .clickable { onJobClick(job.id) },
+                                            ) {
+                                                Column(modifier = Modifier.padding(16.dp)) {
+                                                    Row(
+                                                        modifier = Modifier.fillMaxWidth(),
+                                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                                        verticalAlignment = Alignment.CenterVertically,
+                                                    ) {
+                                                        Text(
+                                                            text = job.title,
+                                                            color = MaterialTheme.colorScheme.onSurface,
+                                                            fontSize = 14.sp,
+                                                            fontWeight = FontWeight.Medium,
+                                                            modifier = Modifier.weight(1f),
+                                                        )
+                                                        Spacer(modifier = Modifier.width(8.dp))
+                                                        val jobStatusColor = jobStatusColor(job.status)
+                                                        Text(
+                                                            text = job.status.replaceFirstChar { it.uppercase() },
+                                                            color = jobStatusColor,
+                                                            fontSize = 11.sp,
+                                                            fontWeight = FontWeight.Bold,
+                                                            modifier = Modifier
+                                                                .background(jobStatusColor.copy(alpha = 0.15f), RoundedCornerShape(6.dp))
+                                                                .padding(horizontal = 8.dp, vertical = 3.dp),
+                                                        )
+                                                    }
+                                                    if (job.createdAt.isNotBlank()) {
+                                                        Spacer(modifier = Modifier.height(4.dp))
+                                                        Text(
+                                                            text = formatTimestamp(job.createdAt),
+                                                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                            fontSize = 11.sp,
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
+                                        item { Spacer(modifier = Modifier.height(80.dp)) }
                                     }
-                                    item { Spacer(modifier = Modifier.height(80.dp)) }
                                 }
                             }
-                        }
                         }
                     }
                 }
@@ -379,56 +376,56 @@ fun CompanyDashboardScreen(
         if (uiState.subscriptionStatus == "active" && !uiState.isLoading) {
             FloatingActionButton(
                 onClick = onPostJob,
-                containerColor = CyanPrimary,
-                contentColor = Color(0xFF00363E),
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(16.dp),
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Post New Job")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.company_profile_post_job))
             }
         }
 
         AnimatedVisibility(
             visible = showLogoutDialog,
             enter = fadeIn(tween(300)),
-            exit = fadeOut(tween(250))
+            exit = fadeOut(tween(250)),
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.7f)),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 32.dp),
                     shape = RoundedCornerShape(24.dp),
-                    color = DevzCard,
-                    tonalElevation = 8.dp
+                    color = MaterialTheme.colorScheme.surfaceContainer,
+                    tonalElevation = 8.dp,
                 ) {
                     Column(
                         modifier = Modifier.padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                        horizontalAlignment = Alignment.CenterHorizontally,
                     ) {
                         Text(
-                            text = "Log out",
-                            color = TextWhite,
+                            text = stringResource(R.string.company_logout_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
                         )
                         Spacer(modifier = Modifier.height(12.dp))
                         Text(
-                            text = "Are you sure you want to log out?",
-                            color = TextGray,
+                            text = stringResource(R.string.company_logout_message),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 14.sp,
-                            textAlign = TextAlign.Center
+                            textAlign = TextAlign.Center,
                         )
                         Spacer(modifier = Modifier.height(24.dp))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(12.dp)
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
                             Button(
                                 onClick = { showLogoutDialog = false },
@@ -437,11 +434,11 @@ fun CompanyDashboardScreen(
                                     .height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color(0xFF2A2A2A),
-                                    contentColor = TextWhite
-                                )
+                                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                    contentColor = MaterialTheme.colorScheme.onSurface,
+                                ),
                             ) {
-                                Text("Cancel", fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.company_logout_cancel), fontWeight = FontWeight.SemiBold)
                             }
                             Button(
                                 onClick = {
@@ -454,11 +451,11 @@ fun CompanyDashboardScreen(
                                     .height(48.dp),
                                 shape = RoundedCornerShape(12.dp),
                                 colors = ButtonDefaults.buttonColors(
-                                    containerColor = QError,
-                                    contentColor = Color.White
-                                )
+                                    containerColor = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.onError,
+                                ),
                             ) {
-                                Text("Log out", fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.company_logout_confirm), fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -474,5 +471,38 @@ fun CompanyDashboardScreen(
                 viewModel.onAction(CompanyDashboardAction.Refresh)
             },
         )
+    }
+}
+
+@Composable
+private fun subscriptionStatusLabel(status: String): String = stringResource(
+    when (status) {
+        "active" -> R.string.company_status_active
+        "pending" -> R.string.company_status_pending
+        "expired" -> R.string.company_status_expired
+        else -> R.string.company_status_pending
+    }
+)
+
+@Composable
+private fun jobStatusColor(status: String): Color = when (status) {
+    "approved", "active", "offered" -> MaterialTheme.extendedColors.success
+    "pending" -> MaterialTheme.extendedColors.warning
+    else -> MaterialTheme.colorScheme.onSurfaceVariant
+}
+
+@Preview
+@Composable
+private fun PreviewCompanyDashboardDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        CompanyDashboardScreen(onPostJob = {})
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewCompanyDashboardLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        CompanyDashboardScreen(onPostJob = {})
     }
 }

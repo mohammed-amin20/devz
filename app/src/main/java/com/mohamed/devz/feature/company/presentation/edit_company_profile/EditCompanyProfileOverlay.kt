@@ -53,17 +53,16 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.LabelGray
-import com.mohamed.devz.ui.theme.QError
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.R
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @Composable
 fun EditCompanyProfileOverlay(
@@ -119,7 +118,7 @@ fun EditCompanyProfileOverlay(
                         indication = null,
                     ) {},
                 shape = RoundedCornerShape(24.dp),
-                color = DevzCard,
+                color = MaterialTheme.colorScheme.surfaceContainer,
                 tonalElevation = 8.dp,
             ) {
                 Column(modifier = Modifier.fillMaxSize()) {
@@ -132,14 +131,18 @@ fun EditCompanyProfileOverlay(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "Edit Company Profile",
-                            color = TextWhite,
+                            text = stringResource(R.string.company_edit_title),
+                            color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.titleLarge,
                         )
                         IconButton(onClick = onDismiss) {
-                            Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color(0xFF8A8A8A))
+                            Icon(
+                                Icons.Filled.Close,
+                                contentDescription = stringResource(R.string.company_edit_close),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
                         }
                     }
 
@@ -149,7 +152,7 @@ fun EditCompanyProfileOverlay(
                                 modifier = Modifier.fillMaxSize(),
                                 contentAlignment = Alignment.Center,
                             ) {
-                                CircularProgressIndicator(color = CyanPrimary)
+                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                             }
                         }
 
@@ -165,11 +168,11 @@ fun EditCompanyProfileOverlay(
                                     Surface(
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(12.dp),
-                                        color = QError.copy(alpha = 0.15f),
+                                        color = MaterialTheme.colorScheme.errorContainer,
                                     ) {
                                         Text(
                                             text = error.asString(),
-                                            color = QError,
+                                            color = MaterialTheme.colorScheme.onErrorContainer,
                                             fontSize = 13.sp,
                                             modifier = Modifier.padding(12.dp),
                                         )
@@ -182,8 +185,8 @@ fun EditCompanyProfileOverlay(
                                         modifier = Modifier
                                             .size(96.dp)
                                             .clip(CircleShape)
-                                            .background(Color(0xFF1E1E1E))
-                                            .border(2.dp, CyanPrimary.copy(alpha = 0.5f), CircleShape),
+                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                                            .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         if (uiState.logoUrl.isNotEmpty()) {
@@ -199,7 +202,7 @@ fun EditCompanyProfileOverlay(
                                             Icon(
                                                 Icons.Filled.Business,
                                                 contentDescription = null,
-                                                tint = CyanPrimary,
+                                                tint = MaterialTheme.colorScheme.primary,
                                                 modifier = Modifier.size(52.dp),
                                             )
                                         }
@@ -212,7 +215,7 @@ fun EditCompanyProfileOverlay(
                                                 contentAlignment = Alignment.Center,
                                             ) {
                                                 CircularProgressIndicator(
-                                                    color = CyanPrimary,
+                                                    color = MaterialTheme.colorScheme.primary,
                                                     modifier = Modifier.size(28.dp),
                                                     strokeWidth = 2.5.dp,
                                                 )
@@ -223,86 +226,80 @@ fun EditCompanyProfileOverlay(
                                         modifier = Modifier
                                             .size(30.dp)
                                             .clip(CircleShape)
-                                            .background(CyanPrimary)
+                                            .background(MaterialTheme.colorScheme.primary)
                                             .clickable { imagePickerLauncher.launch("image/*") },
                                         contentAlignment = Alignment.Center,
                                     ) {
                                         Icon(
                                             Icons.Filled.CameraAlt,
                                             contentDescription = null,
-                                            tint = Color.Black,
+                                            tint = MaterialTheme.colorScheme.onPrimary,
                                             modifier = Modifier.size(16.dp),
                                         )
                                     }
                                 }
 
                                 Spacer(modifier = Modifier.height(6.dp))
-                                Text(
-                                    text = "COMPANY LOGO",
-                                    color = LabelGray,
-                                    fontSize = 10.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 2.sp,
-                                )
+                                FieldLabel(stringResource(R.string.company_edit_logo))
                                 Spacer(modifier = Modifier.height(24.dp))
 
-                                FieldLabel("COMPANY NAME")
+                                FieldLabel(stringResource(R.string.company_edit_field_name))
                                 EditField(
                                     value = uiState.companyName,
-                                    placeholder = "Enter company name",
+                                    placeholder = stringResource(R.string.company_edit_name_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.CompanyNameChanged(it)) },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("INDUSTRY")
+                                FieldLabel(stringResource(R.string.company_edit_field_industry))
                                 EditField(
                                     value = uiState.industry,
-                                    placeholder = "e.g. Software, Fintech, Design",
+                                    placeholder = stringResource(R.string.company_edit_industry_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.IndustryChanged(it)) },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("LOCATION")
+                                FieldLabel(stringResource(R.string.company_edit_field_location))
                                 EditField(
                                     value = uiState.location,
-                                    placeholder = "e.g. Cairo, Egypt",
+                                    placeholder = stringResource(R.string.company_edit_location_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.LocationChanged(it)) },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("WEBSITE")
+                                FieldLabel(stringResource(R.string.company_edit_field_website))
                                 EditField(
                                     value = uiState.website,
-                                    placeholder = "https://your-company.com",
+                                    placeholder = stringResource(R.string.company_edit_website_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.WebsiteChanged(it)) },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("TWITTER / X")
+                                FieldLabel(stringResource(R.string.company_edit_field_twitter))
                                 EditField(
                                     value = uiState.twitterUrl,
-                                    placeholder = "https://x.com/your-company",
+                                    placeholder = stringResource(R.string.company_edit_twitter_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.TwitterChanged(it)) },
                                     singleLine = true,
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("DESCRIPTION")
+                                FieldLabel(stringResource(R.string.company_edit_field_description))
                                 EditField(
                                     value = uiState.description,
-                                    placeholder = "Short description of the company",
+                                    placeholder = stringResource(R.string.company_edit_description_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.DescriptionChanged(it)) },
                                 )
                                 Spacer(modifier = Modifier.height(16.dp))
 
-                                FieldLabel("BIO")
+                                FieldLabel(stringResource(R.string.company_edit_field_bio))
                                 EditField(
                                     value = uiState.bio,
-                                    placeholder = "Tell developers more about your company",
+                                    placeholder = stringResource(R.string.company_edit_bio_hint),
                                     onValueChange = { viewModel.onAction(EditCompanyProfileAction.BioChanged(it)) },
                                 )
                                 Spacer(modifier = Modifier.height(24.dp))
@@ -324,11 +321,11 @@ fun EditCompanyProfileOverlay(
                                 .height(50.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color(0xFF2A2A2A),
-                                contentColor = TextWhite,
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
                             ),
                         ) {
-                            Text("Cancel", fontWeight = FontWeight.SemiBold)
+                            Text(stringResource(R.string.company_edit_cancel), fontWeight = FontWeight.SemiBold)
                         }
                         Button(
                             onClick = { viewModel.onAction(EditCompanyProfileAction.Save(onSaved)) },
@@ -338,18 +335,18 @@ fun EditCompanyProfileOverlay(
                                 .height(50.dp),
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = CyanPrimary,
-                                contentColor = Color.Black,
+                                containerColor = MaterialTheme.colorScheme.primary,
+                                contentColor = MaterialTheme.colorScheme.onPrimary,
                             ),
                         ) {
                             if (uiState.isSaving) {
                                 CircularProgressIndicator(
-                                    color = Color.Black,
+                                    color = MaterialTheme.colorScheme.onPrimary,
                                     modifier = Modifier.size(18.dp),
                                     strokeWidth = 2.dp,
                                 )
                             } else {
-                                Text("Save", fontWeight = FontWeight.SemiBold)
+                                Text(stringResource(R.string.company_edit_save), fontWeight = FontWeight.SemiBold)
                             }
                         }
                     }
@@ -362,8 +359,8 @@ fun EditCompanyProfileOverlay(
 @Composable
 private fun FieldLabel(text: String) {
     Text(
-        text = text,
-        color = LabelGray,
+        text = text.uppercase(),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.5.sp,
@@ -387,7 +384,7 @@ private fun EditField(
         placeholder = {
             Text(
                 placeholder,
-                color = TextSubtle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
                 style = MaterialTheme.typography.bodyMedium,
             )
@@ -403,9 +400,25 @@ private fun EditField(
 private fun editTextFieldColors() = OutlinedTextFieldDefaults.colors(
     focusedBorderColor = Color.Transparent,
     unfocusedBorderColor = Color.Transparent,
-    focusedTextColor = TextWhite,
-    unfocusedTextColor = TextWhite,
-    cursorColor = CyanPrimary,
-    focusedContainerColor = Color(0xFF2A2A2A),
-    unfocusedContainerColor = Color(0xFF2A2A2A),
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
 )
+
+@Preview
+@Composable
+private fun PreviewEditCompanyProfileDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        EditCompanyProfileOverlay(visible = true, onDismiss = {}, onSaved = {})
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewEditCompanyProfileLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        EditCompanyProfileOverlay(visible = true, onDismiss = {}, onSaved = {})
+    }
+}
