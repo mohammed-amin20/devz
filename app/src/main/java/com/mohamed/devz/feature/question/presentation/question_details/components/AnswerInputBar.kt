@@ -24,15 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
-import com.mohamed.devz.ui.theme.QPrimaryContainer
-import com.mohamed.devz.ui.theme.QSurfaceHigh
+import com.mohamed.devz.R
+
 @Composable
 fun AnswerInputBar(
     answerText: String,
@@ -44,14 +42,14 @@ fun AnswerInputBar(
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(QBg.copy(alpha = 0.92f))
+            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.92f))
             .padding(horizontal = 16.dp, vertical = 8.dp)
     ) {
         if (!answerCode.isNullOrBlank()) {
             Surface(
                 onClick = onCodeClick,
                 shape = RoundedCornerShape(10.dp),
-                color = QPrimary.copy(alpha = 0.12f),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f),
                 modifier = Modifier.padding(bottom = 8.dp)
             ) {
                 Row(
@@ -61,14 +59,14 @@ fun AnswerInputBar(
                 ) {
                     Text(
                         text = "< >",
-                        color = QPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = FontFamily.Monospace,
                     )
                     Text(
-                        text = "Code attached",
-                        color = QPrimary,
+                        text = stringResource(R.string.details_code_attached),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -84,7 +82,11 @@ fun AnswerInputBar(
             IconButton(onClick = onCodeClick) {
                 Text(
                     text = "< >",
-                    color = if (answerCode.isNullOrBlank()) QOutline else QPrimary,
+                    color = if (answerCode.isNullOrBlank()) {
+                        MaterialTheme.colorScheme.outline
+                    } else {
+                        MaterialTheme.colorScheme.primary
+                    },
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = FontFamily.Monospace,
@@ -98,16 +100,18 @@ fun AnswerInputBar(
                 maxLines = 5,
                 placeholder = {
                     Text(
-                        text = "Write your answer...",
-                        color = QOutline,
+                        text = stringResource(R.string.details_answer_hint),
+                        color = MaterialTheme.colorScheme.outline,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 },
                 textStyle = MaterialTheme.typography.bodyMedium,
                 colors = TextFieldDefaults.colors(
-                    cursorColor = QPrimary,
-                    focusedContainerColor = QSurfaceHigh,
-                    unfocusedContainerColor = QSurfaceHigh,
+                    cursorColor = MaterialTheme.colorScheme.primary,
+                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
@@ -118,17 +122,25 @@ fun AnswerInputBar(
                 modifier = Modifier
                     .size(width = 70.dp, height = 50.dp)
                     .background(
-                        Brush.linearGradient(listOf(QPrimary, QPrimaryContainer)),
+                        Brush.linearGradient(
+                            listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.primaryContainer,
+                            )
+                        ),
                         RoundedCornerShape(14.dp)
                     )
                     .clip(RoundedCornerShape(14.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 IconButton(onClick = onPost) {
-                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, tint = Color(0xFF00363E))
+                    Icon(
+                        Icons.AutoMirrored.Filled.Send,
+                        contentDescription = stringResource(R.string.details_post_answer_desc),
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                    )
                 }
             }
         }
     }
 }
-

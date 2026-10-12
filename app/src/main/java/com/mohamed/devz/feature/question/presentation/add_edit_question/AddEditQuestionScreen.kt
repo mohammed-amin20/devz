@@ -27,6 +27,7 @@ import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +48,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -55,17 +57,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.add_edit_question.components.CodeEditorField
 import com.mohamed.devz.feature.question.presentation.add_edit_question.components.DefaultFieldLabel
 import com.mohamed.devz.feature.question.presentation.add_edit_question.components.LanguageDropdownField
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.question.presentation.util.formatCode
-import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @Composable
 fun AddEditQuestionScreen(
@@ -93,7 +92,7 @@ fun AddEditQuestionScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(QBg)
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .imePadding()
             .then(modifier)
@@ -101,19 +100,25 @@ fun AddEditQuestionScreen(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(QBg)
+                .background(MaterialTheme.colorScheme.background)
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(onClick = navigateUp) {
-                    Icon(Icons.Filled.Close, null, tint = TextWhite.copy(alpha = 0.3f))
+                    Icon(
+                        Icons.Filled.Close,
+                        contentDescription = stringResource(R.string.addedit_close_desc),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
-                    text = if (isEdit) "Edit Question" else "Ask Question",
-                    color = CyanPrimary,
+                    text = stringResource(
+                        if (isEdit) R.string.addedit_title_edit else R.string.addedit_title_ask
+                    ),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
@@ -126,17 +131,25 @@ fun AddEditQuestionScreen(
                 shape = RoundedCornerShape(10.dp),
                 enabled = !uiState.isLoading,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = CyanPrimary,
-                    contentColor = Color.Black
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
             ) {
-                Text(
-                    "Publish",
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+                if (uiState.isLoading) {
+                    CircularProgressIndicator(
+                        color = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.size(18.dp),
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Text(
+                        stringResource(R.string.addedit_publish),
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 14.sp,
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+                }
             }
         }
 
@@ -144,26 +157,26 @@ fun AddEditQuestionScreen(
             text = buildAnnotatedString {
                 withStyle(
                     style = SpanStyle(
-                        color = TextWhite,
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp
                     )
                 ) {
-                    append("Architect Your")
+                    append(stringResource(R.string.addedit_hero_line1))
                 }
                 withStyle(
                     style = SpanStyle(
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp,
                         shadow = Shadow(
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             offset = Offset(0f, 0f),
                             blurRadius = 20f
                         )
                     )
                 ) {
-                    append("\nInquiry")
+                    append("\n" + stringResource(R.string.addedit_hero_line2))
                 }
             },
             lineHeight = 32.sp,
@@ -174,8 +187,8 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "Provide as much context as possible. High-quality\ntechnical questions attract high-quality architectural solutions.",
-            color = TextGray,
+            text = stringResource(R.string.addedit_subtitle),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 13.sp,
             lineHeight = 20.sp,
             style = MaterialTheme.typography.bodyMedium,
@@ -186,7 +199,7 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(28.dp))
 
         DefaultFieldLabel(
-            text = "CHOOSE LANGUAGE",
+            text = stringResource(R.string.addedit_label_language),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
         )
@@ -208,7 +221,7 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         DefaultFieldLabel(
-            text = "PROBLEM STATEMENT",
+            text = stringResource(R.string.addedit_label_title),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
         )
@@ -222,8 +235,8 @@ fun AddEditQuestionScreen(
                 .padding(horizontal = 16.dp),
             placeholder = {
                 Text(
-                    "e.g., How to implement firestore pagination...",
-                    color = TextSubtle,
+                    stringResource(R.string.addedit_title_placeholder),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -247,7 +260,7 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         DefaultFieldLabel(
-            text = "TECHNICAL CONTEXT",
+            text = stringResource(R.string.addedit_label_body),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
         )
@@ -263,8 +276,8 @@ fun AddEditQuestionScreen(
             isError = uiState.bodyError != null,
             placeholder = {
                 Text(
-                    "Describe what you're trying to achieve and what you've tried so far...",
-                    color = TextSubtle,
+                    stringResource(R.string.addedit_body_placeholder),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -293,11 +306,11 @@ fun AddEditQuestionScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             DefaultFieldLabel(
-                text = "CODE IMPLEMENTATION"
+                text = stringResource(R.string.addedit_label_code)
             )
             Text(
-                text = "FORMAT CODE",
-                color = CyanPrimary,
+                text = stringResource(R.string.addedit_format_code),
+                color = MaterialTheme.colorScheme.primary,
                 fontSize = 12.sp,
                 style = MaterialTheme.typography.titleLarge,
                 modifier = Modifier
@@ -319,7 +332,7 @@ fun AddEditQuestionScreen(
 
         Surface(
             shape = RoundedCornerShape(16.dp),
-            color = CyanPrimary.copy(alpha = 0.4f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -334,7 +347,7 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(20.dp))
 
         DefaultFieldLabel(
-            text = "CLASSIFICATION TAGS",
+            text = stringResource(R.string.addedit_label_tags),
             modifier = Modifier
                 .padding(horizontal = 16.dp)
         )
@@ -352,10 +365,10 @@ fun AddEditQuestionScreen(
                         .padding(vertical = 4.dp)
                         .height(40.dp)
                         .clip(RoundedCornerShape(50))
-                        .background(CyanPrimary.copy(0.3f))
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
                         .border(
                             width = 1.dp,
-                            color = CyanPrimary.copy(alpha = 0.35f),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.35f),
                             shape = RoundedCornerShape(50)
                         ),
                     contentAlignment = Alignment.Center
@@ -366,7 +379,7 @@ fun AddEditQuestionScreen(
                     ) {
                         Text(
                             "#$tag",
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
                             style = MaterialTheme.typography.bodyMedium
@@ -374,15 +387,13 @@ fun AddEditQuestionScreen(
                         Spacer(modifier = Modifier.width(6.dp))
                         Icon(
                             Icons.Filled.Close,
-                            null,
-                            tint = CyanPrimary,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(14.dp)
                                 .clickable {
                                     viewModel.onAction(
-                                        AddEditQuestionAction.RemoveTag(
-                                            tag
-                                        )
+                                        AddEditQuestionAction.RemoveTag(tag)
                                     )
                                 }
                         )
@@ -392,19 +403,23 @@ fun AddEditQuestionScreen(
             Button(
                 onClick = { viewModel.onAction(AddEditQuestionAction.ShowTagInput) },
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color(0xFF1A2424)
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                 ),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         Icons.Filled.Add,
-                        null,
-                        tint = TextGray,
+                        contentDescription = stringResource(R.string.addedit_add_tag_desc),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(14.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text("Add Tag", color = TextGray, fontSize = 13.sp)
+                    Text(
+                        stringResource(R.string.addedit_add_tag),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        fontSize = 13.sp
+                    )
                 }
             }
         }
@@ -419,8 +434,8 @@ fun AddEditQuestionScreen(
                     .padding(horizontal = 16.dp),
                 placeholder = {
                     Text(
-                        "e.g. Kotlin, Firebase",
-                        color = TextSubtle,
+                        stringResource(R.string.addedit_tag_placeholder),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 13.sp
                     )
                 },
@@ -428,7 +443,11 @@ fun AddEditQuestionScreen(
                 shape = RoundedCornerShape(12.dp),
                 trailingIcon = {
                     IconButton(onClick = { viewModel.onAction(AddEditQuestionAction.AddTag) }) {
-                        Icon(Icons.Filled.Check, null, tint = CyanPrimary)
+                        Icon(
+                            Icons.Filled.Check,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
                     }
                 },
                 colors = devzTextFieldColors()
@@ -450,7 +469,7 @@ fun AddEditQuestionScreen(
 
         Surface(
             shape = RoundedCornerShape(12.dp),
-            color = CyanPrimary.copy(alpha = 0.4f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
@@ -459,29 +478,29 @@ fun AddEditQuestionScreen(
                 modifier = Modifier
                     .padding(start = 3.dp)
                     .clip(RoundedCornerShape(12.dp))
-                    .background(Color(0xFF1C1B1B))
+                    .background(MaterialTheme.colorScheme.surfaceContainerLow)
                     .padding(16.dp),
                 verticalAlignment = Alignment.Top
             ) {
                 Icon(
                     Icons.Filled.Lightbulb,
-                    null,
-                    tint = CyanPrimary,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(20.dp)
                 )
                 Spacer(modifier = Modifier.width(12.dp))
                 Column {
                     Text(
-                        "Review before publishing",
-                        color = TextWhite,
+                        stringResource(R.string.addedit_review_title),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 14.sp,
                         fontWeight = FontWeight.SemiBold,
                         style = MaterialTheme.typography.titleLarge
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Ensure all sensitive API keys and credentials have been removed from your code snippets.",
-                        color = TextGray,
+                        text = stringResource(R.string.addedit_review_body),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp,
                         lineHeight = 18.sp,
                         style = MaterialTheme.typography.bodyMedium
@@ -500,21 +519,35 @@ private fun typeToSyntaxLanguage(type: String): SyntaxLanguage {
 
 @Composable
 private fun devzTextFieldColors(isError: Boolean = false) = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = if (isError) MaterialTheme.colorScheme.error else Color.Transparent,
-    unfocusedBorderColor = if (isError) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else Color.Transparent,
-    focusedTextColor = TextWhite,
-    unfocusedTextColor = TextWhite,
-    cursorColor = CyanPrimary,
-    focusedContainerColor = Color(0xFF2A2A2A),
-    unfocusedContainerColor = Color(0xFF2A2A2A)
+    focusedBorderColor = if (isError) {
+        MaterialTheme.colorScheme.error
+    } else {
+        MaterialTheme.colorScheme.primary
+    },
+    unfocusedBorderColor = if (isError) {
+        MaterialTheme.colorScheme.error.copy(alpha = 0.5f)
+    } else {
+        Color.Transparent
+    },
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
 )
 
-@Preview
+@Preview(name = "AddEdit — Dark")
 @Composable
-private fun PreviewAddEditQuestionScreen() {
-    DevzTheme {
-        AddEditQuestionScreen(
-            navigateUp = {}
-        )
+private fun PreviewAddEditQuestionScreenDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        AddEditQuestionScreen(navigateUp = {})
+    }
+}
+
+@Preview(name = "AddEdit — Light")
+@Composable
+private fun PreviewAddEditQuestionScreenLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        AddEditQuestionScreen(navigateUp = {})
     }
 }

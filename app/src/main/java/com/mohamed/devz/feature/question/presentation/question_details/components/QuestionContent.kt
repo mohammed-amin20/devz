@@ -33,16 +33,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.question.presentation.question_details.QuestionDetailUiModel
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -69,9 +67,7 @@ fun QuestionContent(
         modifier = modifier
             .fillMaxSize()
             .padding(top = 0.dp, start = 16.dp, end = 16.dp),
-        contentPadding = PaddingValues(
-            bottom = 100.dp
-        ),
+        contentPadding = PaddingValues(bottom = 100.dp),
         verticalArrangement = Arrangement.spacedBy(0.dp)
     ) {
         item {
@@ -85,7 +81,7 @@ fun QuestionContent(
         item {
             Text(
                 text = question.title,
-                color = QOnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 28.sp,
                 lineHeight = 34.sp,
                 fontWeight = FontWeight.Bold,
@@ -109,7 +105,11 @@ fun QuestionContent(
                         modifier = Modifier
                             .size(40.dp)
                             .clip(CircleShape)
-                            .border(2.dp, QPrimary.copy(alpha = 0.2f), CircleShape),
+                            .border(
+                                2.dp,
+                                MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+                                CircleShape,
+                            ),
                         contentScale = ContentScale.Crop
                     )
                     Spacer(Modifier.width(12.dp))
@@ -117,7 +117,7 @@ fun QuestionContent(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = question.authorName,
-                                color = QOnSurface,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.titleLarge
@@ -128,8 +128,8 @@ fun QuestionContent(
                             }
                         }
                         Text(
-                            text = "Asked ${question.timeAgo}",
-                            color = QOutline,
+                            text = stringResource(R.string.details_asked, question.timeAgo),
+                            color = MaterialTheme.colorScheme.outline,
                             fontSize = 12.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -154,7 +154,7 @@ fun QuestionContent(
         item {
             Text(
                 text = question.body,
-                color = QOnSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp,
                 lineHeight = 26.sp,
                 style = MaterialTheme.typography.bodyMedium
@@ -198,7 +198,11 @@ fun QuestionContent(
                 if (isPro && currentAccountId == question.authorAccountId) {
                     ActionPill(
                         icon = Icons.Default.PushPin,
-                        text = if (isPinned) "Pinned" else "Pin",
+                        text = if (isPinned) {
+                            stringResource(R.string.details_pinned)
+                        } else {
+                            stringResource(R.string.details_pin)
+                        },
                         active = isPinned,
                         onClick = onPinClick,
                         enabled = !isPinning,
@@ -207,7 +211,7 @@ fun QuestionContent(
                 if (currentAccountId == question.authorAccountId) {
                     ActionPill(
                         icon = Icons.Filled.Edit,
-                        text = "Edit",
+                        text = stringResource(R.string.details_edit),
                         active = false,
                         onClick = onEditClick,
                     )
@@ -221,15 +225,15 @@ fun QuestionContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(1.dp)
-                    .background(QPrimary.copy(alpha = 0.18f))
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.18f))
             )
             Spacer(Modifier.height(16.dp))
         }
 
         item {
             Text(
-                text = "${answers.size} Answers",
-                color = QOnSurface,
+                text = stringResource(R.string.details_answers_count, answers.size),
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.titleLarge

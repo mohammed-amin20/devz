@@ -11,20 +11,25 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.R
+import com.mohamed.devz.ui.theme.extendedColors
 
 @Composable
 fun CodeEditorField(
@@ -32,14 +37,17 @@ fun CodeEditorField(
     onCodeChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     minLines: Int = 1,
-    placeholder: String = "// Paste your code here...",
+    placeholder: String? = null,
 ) {
+    val extended = MaterialTheme.extendedColors
+    val resolvedPlaceholder = placeholder ?: stringResource(R.string.addedit_code_placeholder)
+
     Surface(
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF0E0E0E),
+        color = extended.codeBackground,
         modifier = modifier
             .fillMaxWidth()
-            .border(0.5.dp, Color(0xFF3C494C).copy(alpha = 0.15f), RoundedCornerShape(16.dp))
+            .border(1.dp, extended.codeBorder, RoundedCornerShape(16.dp))
     ) {
         Column {
             Row(
@@ -51,52 +59,53 @@ fun CodeEditorField(
                 val lineCount = code.lines().size.coerceAtLeast(minLines)
                 Column(
                     modifier = Modifier
-                        .background(Color(0xFF0A0A0A))
+                        .background(MaterialTheme.colorScheme.surfaceContainerLowest)
                         .padding(horizontal = 10.dp, vertical = 16.dp),
                     horizontalAlignment = Alignment.End
                 ) {
                     repeat(lineCount) { index ->
                         Text(
                             text = (index + 1).toString(),
-                            color = Color(0xFF3C494C),
+                            color = MaterialTheme.colorScheme.outline,
                             fontSize = 11.sp,
                             fontFamily = FontFamily.Monospace,
                             lineHeight = 20.sp
                         )
                     }
                 }
-                TextField(
-                    value = code,
-                    onValueChange = onCodeChange,
-                    modifier = Modifier
-                        .weight(1f)
-                        .defaultMinSize(minHeight = (minLines * 20).dp)
-                        .horizontalScroll(rememberScrollState())
-                    /*.padding(horizontal = 12.dp, vertical = 16.dp)*/,
-                    singleLine = false,
-                    textStyle = TextStyle(
-                        color = CyanPrimary.copy(0.7f),
-                        fontSize = 12.sp,
-                        fontFamily = FontFamily.Monospace,
-                        lineHeight = 20.sp
-                    ),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent,
-                        cursorColor = Color(0xFF44D8F1)
-                    ),
-                    placeholder = {
-                        Text(
-                            text = placeholder,
-                            color = Color(0xFF3C494C),
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    TextField(
+                        value = code,
+                        onValueChange = onCodeChange,
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(minHeight = (minLines * 20).dp)
+                            .horizontalScroll(rememberScrollState()),
+                        singleLine = false,
+                        textStyle = TextStyle(
+                            color = extended.codeText,
                             fontSize = 12.sp,
                             fontFamily = FontFamily.Monospace,
                             lineHeight = 20.sp
-                        )
-                    }
-                )
+                        ),
+                        colors = TextFieldDefaults.colors(
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            cursorColor = MaterialTheme.colorScheme.primary
+                        ),
+                        placeholder = {
+                            Text(
+                                text = resolvedPlaceholder,
+                                color = MaterialTheme.colorScheme.outline,
+                                fontSize = 12.sp,
+                                fontFamily = FontFamily.Monospace,
+                                lineHeight = 20.sp
+                            )
+                        }
+                    )
+                }
             }
         }
     }

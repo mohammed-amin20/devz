@@ -21,10 +21,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
-import com.mohamed.devz.ui.theme.QSurfaceHigh
 
 @Composable
 fun ActionPill(
@@ -36,12 +32,16 @@ fun ActionPill(
 ) {
     Surface(
         shape = RoundedCornerShape(9999.dp),
-        color = if (active) QPrimary.copy(alpha = 0.1f) else QSurfaceHigh,
+        color = if (active) {
+            MaterialTheme.colorScheme.primary.copy(alpha = 0.12f)
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerHigh
+        },
         modifier = Modifier
             .clip(RoundedCornerShape(9999.dp))
             .border(
                 1.dp,
-                if (active) QPrimary.copy(alpha = 0.14f) else Color.Transparent,
+                if (active) MaterialTheme.colorScheme.primary.copy(alpha = 0.24f) else Color.Transparent,
                 RoundedCornerShape(9999.dp)
             )
             .then(
@@ -57,12 +57,12 @@ fun ActionPill(
             Icon(
                 icon,
                 contentDescription = null,
-                tint = if (active) QPrimary else QOutline,
+                tint = if (active) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(18.dp)
             )
             Text(
                 text = text,
-                color = QOnSurface,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 13.sp,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium

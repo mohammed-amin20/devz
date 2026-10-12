@@ -5,19 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -26,6 +21,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,27 +30,28 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerInputBar
 import com.mohamed.devz.feature.question.presentation.question_details.components.QuestionContent
 import com.mohamed.devz.feature.question.presentation.question_details.components.TopBar
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
 import com.mohamed.devz.feature.report.presentation.ReportSheet
 import com.mohamed.devz.feature.report.presentation.ReportTarget
-import com.mohamed.devz.ui.theme.CyanPrimary
+import com.mohamed.devz.ui.components.ErrorState
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
 
 data class QuestionDetailUiModel(
     val title: String,
@@ -102,7 +99,7 @@ fun QuestionDetailScreen(
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
-        modifier = modifier.background(QBg)
+        modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(modifier = Modifier.fillMaxSize()) {
@@ -134,33 +131,15 @@ fun QuestionDetailScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         if (uiState.error != null) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.Center,
-                                modifier = Modifier.padding(horizontal = 32.dp)
-                            ) {
-                                Icon(
-                                    Icons.Filled.Warning,
-                                    contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.error,
-                                    modifier = Modifier.size(48.dp)
-                                )
-                                Spacer(modifier = Modifier.height(12.dp))
-                                Text(
-                                    text = uiState.error!!.asString(),
-                                    color = MaterialTheme.colorScheme.error,
-                                    fontSize = 14.sp,
-                                    textAlign = TextAlign.Center,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-                                TextButton(onClick = {
+                            ErrorState(
+                                message = uiState.error!!.asString(),
+                                onRetry = {
                                     viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
-                                }) {
-                                    Text("Retry")
-                                }
-                            }
+                                },
+                                retryLabel = stringResource(R.string.action_retry),
+                            )
                         } else {
-                            CircularProgressIndicator(color = CyanPrimary)
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 } else {
@@ -211,7 +190,6 @@ fun QuestionDetailScreen(
                             answerCode = uiState.answerCode,
                             onCodeClick = {
                                 viewModel.onAction(QuestionDetailsAction.ShowCodeEditor)
-
                             }
                         )
                     }
@@ -248,18 +226,18 @@ private fun CodeEditorOverlay(
     onClear: () -> Unit,
 ) {
     var text by remember(code) { mutableStateOf(code) }
+    val extended = MaterialTheme.extendedColors
 
     Surface(
         modifier = Modifier.fillMaxSize(),
-        color = Color(0xFF0E0E0E)
+        color = extended.codeBackground
     ) {
         Column(modifier = Modifier.fillMaxSize()) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFF1A1A1A))
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                     .padding(horizontal = 16.dp, vertical = 12.dp),
-                contentAlignment = Alignment.CenterEnd
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -267,11 +245,15 @@ private fun CodeEditorOverlay(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     TextButton(onClick = onClear) {
-                        Text("Clear", color = QOutline, fontSize = 14.sp)
+                        Text(
+                            stringResource(R.string.details_clear),
+                            color = MaterialTheme.colorScheme.outline,
+                            fontSize = 14.sp,
+                        )
                     }
                     Text(
-                        text = "Answer Code",
-                        color = QOnSurface,
+                        text = stringResource(R.string.details_answer_code_title),
+                        color = MaterialTheme.colorScheme.onSurface,
                         fontSize = 16.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -279,7 +261,12 @@ private fun CodeEditorOverlay(
                         onCodeChange(text)
                         onDone()
                     }) {
-                        Text("Done", color = QPrimary, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                        Text(
+                            stringResource(R.string.details_done),
+                            color = MaterialTheme.colorScheme.primary,
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
                     }
                 }
             }
@@ -289,28 +276,30 @@ private fun CodeEditorOverlay(
                     .weight(1f)
                     .padding(16.dp)
             ) {
-                BasicTextField(
-                    value = text,
-                    onValueChange = { text = it },
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    textStyle = TextStyle(
-                        color = Color(0xFFD4D4D4),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 13.sp,
-                        lineHeight = 20.sp,
-                    ),
-                    cursorBrush = androidx.compose.ui.graphics.SolidColor(QPrimary),
-                )
-
-                if (text.isEmpty()) {
-                    Text(
-                        text = "Paste or write your code here...",
-                        color = Color(0xFF555555),
-                        fontFamily = FontFamily.Monospace,
-                        fontSize = 13.sp,
+                CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                    BasicTextField(
+                        value = text,
+                        onValueChange = { text = it },
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        textStyle = TextStyle(
+                            color = extended.codeText,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 13.sp,
+                            lineHeight = 20.sp,
+                        ),
+                        cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                     )
+
+                    if (text.isEmpty()) {
+                        Text(
+                            text = stringResource(R.string.details_code_hint),
+                            color = MaterialTheme.colorScheme.outline,
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 13.sp,
+                        )
+                    }
                 }
             }
         }
@@ -320,7 +309,7 @@ private fun CodeEditorOverlay(
 @Preview(showSystemUi = true)
 @Composable
 private fun PreviewQuestionDetailScreen() {
-    DevzTheme {
+    DevzTheme(themeMode = ThemeMode.DARK) {
         QuestionDetailScreen(
             questionId = 1,
             navigateUp = {}

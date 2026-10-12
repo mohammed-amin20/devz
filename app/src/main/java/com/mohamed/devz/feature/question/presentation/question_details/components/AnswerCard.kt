@@ -28,20 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.report.presentation.ReportMenu
-import com.mohamed.devz.ui.theme.QOnSurface
-import com.mohamed.devz.ui.theme.QOnSurfaceVariant
-import com.mohamed.devz.ui.theme.QOutline
-import com.mohamed.devz.ui.theme.QPrimary
-import com.mohamed.devz.ui.theme.QSurfaceHigh
-import com.mohamed.devz.ui.theme.QSurfaceLow
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
+import com.mohamed.devz.ui.theme.DevzTheme
 
 data class AnswerUiModel(
     val answerId: Int,
@@ -57,6 +54,7 @@ data class AnswerUiModel(
     val language: SyntaxLanguage = SyntaxLanguage.GENERIC,
     val isAuthorPro: Boolean = false,
 )
+
 @Composable
 fun AnswerCard(
     answer: AnswerUiModel,
@@ -71,7 +69,11 @@ fun AnswerCard(
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
             .background(
-                if (answer.isAccepted) QPrimary.copy(alpha = 0.3f) else Color.Transparent
+                if (answer.isAccepted) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.3f)
+                } else {
+                    Color.Transparent
+                }
             )
     ) {
         Column(
@@ -79,7 +81,7 @@ fun AnswerCard(
                 .fillMaxSize()
                 .padding(start = if (answer.isAccepted) 3.dp else 0.dp)
                 .clip(RoundedCornerShape(16.dp))
-                .background(QSurfaceLow)
+                .background(MaterialTheme.colorScheme.surfaceContainerLow)
                 .padding(18.dp)
         ) {
             Row(
@@ -104,7 +106,7 @@ fun AnswerCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 text = answer.authorName,
-                                color = QOnSurface,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.titleLarge
@@ -116,7 +118,11 @@ fun AnswerCard(
                         }
                         Text(
                             text = answer.timeAgo,
-                            color = if (answer.isAccepted) QPrimary else QOutline,
+                            color = if (answer.isAccepted) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
                             fontSize = 10.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.2.sp,
@@ -130,12 +136,12 @@ fun AnswerCard(
                         Icon(
                             Icons.Default.VerifiedUser,
                             contentDescription = null,
-                            tint = QPrimary,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(24.dp)
                         )
                         Text(
-                            text = "Accepted",
-                            color = QPrimary,
+                            text = stringResource(R.string.details_accepted),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 8.sp,
                             fontWeight = FontWeight.Black,
                             letterSpacing = 0.8.sp,
@@ -153,7 +159,7 @@ fun AnswerCard(
 
             Text(
                 text = answer.body,
-                color = QOnSurfaceVariant,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 14.sp,
                 lineHeight = 23.sp,
                 style = MaterialTheme.typography.bodyMedium
@@ -166,11 +172,18 @@ fun AnswerCard(
 
             Spacer(Modifier.height(16.dp))
 
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
                 Surface(
                     onClick = onVoteClick,
                     shape = RoundedCornerShape(10.dp),
-                    color = if (answer.isLiked) QPrimary.copy(alpha = 0.15f) else QSurfaceHigh
+                    color = if (answer.isLiked) {
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainerHigh
+                    }
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -179,13 +192,25 @@ fun AnswerCard(
                     ) {
                         Icon(
                             Icons.Default.KeyboardArrowUp,
-                            contentDescription = if (answer.isLiked) "Remove upvote" else "Upvote",
-                            tint = if (answer.isLiked) QPrimary else QOutline,
+                            contentDescription = if (answer.isLiked) {
+                                stringResource(R.string.details_remove_upvote)
+                            } else {
+                                stringResource(R.string.details_upvote)
+                            },
+                            tint = if (answer.isLiked) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
                             modifier = Modifier.size(18.dp)
                         )
                         Text(
                             text = answer.likes.toString(),
-                            color = if (answer.isLiked) QPrimary else QOutline,
+                            color = if (answer.isLiked) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Bold,
                             style = MaterialTheme.typography.bodyMedium
@@ -197,7 +222,7 @@ fun AnswerCard(
                     Surface(
                         onClick = onAcceptClick,
                         shape = RoundedCornerShape(10.dp),
-                        color = QPrimary.copy(alpha = 0.15f),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.15f),
                     ) {
                         Row(
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -206,13 +231,13 @@ fun AnswerCard(
                         ) {
                             Icon(
                                 Icons.Default.CheckCircle,
-                                contentDescription = "Accept answer",
-                                tint = QPrimary,
+                                contentDescription = stringResource(R.string.details_accept_answer_desc),
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp)
                             )
                             Text(
-                                text = "Accept",
-                                color = QPrimary,
+                                text = stringResource(R.string.details_accept),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 12.sp,
                                 fontWeight = FontWeight.Bold,
                                 style = MaterialTheme.typography.bodyMedium
@@ -228,14 +253,14 @@ fun AnswerCard(
 @Preview
 @Composable
 private fun PreviewAnswerCard() {
-    MaterialTheme {
+    DevzTheme {
         AnswerCard(
             answer = AnswerUiModel(
                 answerId = 0,
                 authorName = "Author",
                 avatarUrl = "",
                 authorAccountId = 0,
-                body = "",
+                body = "Here is a detailed answer.",
                 isAccepted = true,
                 likes = 10,
                 timeAgo = "1h"

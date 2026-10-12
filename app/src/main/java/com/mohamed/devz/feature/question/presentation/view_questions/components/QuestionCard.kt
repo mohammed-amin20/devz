@@ -30,19 +30,25 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.feature.report.presentation.ReportMenu
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.theme.DevzTheme
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.extendedColors
+import com.mohamed.devz.ui.theme.spacing
 
 @Composable
 fun QuestionCard(
@@ -52,15 +58,14 @@ fun QuestionCard(
     onReport: (() -> Unit)? = null,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = DevzCard
+        color = MaterialTheme.colorScheme.surfaceContainer,
     ) {
         Column(
             modifier = Modifier
                 .clickable(onClick = onClick)
-                .padding(16.dp)
+                .padding(MaterialTheme.spacing.lg)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -71,7 +76,6 @@ fun QuestionCard(
                     modifier = Modifier.clickable(onClick = onAuthorClick),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-
                     if (question.authorAvatarUrl.isNotEmpty()) {
                         AsyncImage(
                             model = question.authorAvatarUrl,
@@ -86,13 +90,13 @@ fun QuestionCard(
                             modifier = Modifier
                                 .size(36.dp)
                                 .clip(CircleShape)
-                                .background(Color(0xFF2A3A3A)),
+                                .background(MaterialTheme.colorScheme.surfaceContainerHigh),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 Icons.Filled.Person,
                                 null,
-                                tint = CyanPrimary,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(20.dp)
                             )
                         }
@@ -102,7 +106,7 @@ fun QuestionCard(
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text(
                                 question.authorName,
-                                color = TextWhite,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 fontSize = 14.sp,
                                 fontWeight = FontWeight.SemiBold,
                                 style = MaterialTheme.typography.bodyMedium
@@ -115,13 +119,13 @@ fun QuestionCard(
                         Row {
                             Text(
                                 text = "${question.timeAgo} in ",
-                                color = TextGray,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 11.sp,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                             Text(
                                 text = "#${question.category}",
-                                color = CyanPrimary,
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 11.sp,
                                 style = MaterialTheme.typography.bodyMedium
                             )
@@ -138,7 +142,7 @@ fun QuestionCard(
 
             Text(
                 text = question.title,
-                color = TextWhite,
+                color = MaterialTheme.colorScheme.onSurface,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 lineHeight = 28.sp,
@@ -151,8 +155,8 @@ fun QuestionCard(
                     Text("📌", fontSize = 12.sp)
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        "Pinned",
-                        color = CyanPrimary,
+                        stringResource(R.string.feed_pinned),
+                        color = MaterialTheme.colorScheme.primary,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.SemiBold,
                     )
@@ -165,13 +169,15 @@ fun QuestionCard(
                     Icon(
                         Icons.Filled.Edit,
                         null,
-                        tint = TextGray,
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(12.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "Edited${question.editedTimeAgo?.let { " · $it" } ?: ""}",
-                        color = TextGray,
+                        text = question.editedTimeAgo?.let {
+                            stringResource(R.string.feed_edited_with_time, it)
+                        } ?: stringResource(R.string.feed_edited),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                     )
@@ -182,7 +188,7 @@ fun QuestionCard(
 
             Text(
                 text = question.preview,
-                color = TextGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
                 lineHeight = 19.sp,
                 maxLines = 3,
@@ -191,27 +197,23 @@ fun QuestionCard(
 
             if (question.codeSnippet != null) {
                 Spacer(modifier = Modifier.height(10.dp))
-                Box(
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = MaterialTheme.extendedColors.codeBackground,
                     modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(CyanPrimary.copy(alpha = 0.6f))
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp)),
                 ) {
-                    Surface(
-                        shape = RoundedCornerShape(8.dp),
-                        color = Color(0xFF0A1515),
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(start = 2.dp)
-                    ) {
-                        Text(
-                            text = question.codeSnippet,
-                            color = CyanPrimary,
-                            fontSize = 11.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
-                            modifier = Modifier.padding(12.dp),
-                            maxLines = 3
-                        )
-                    }
+                    Text(
+                        text = question.codeSnippet,
+                        color = MaterialTheme.extendedColors.codeText,
+                        fontSize = 11.sp,
+                        fontFamily = FontFamily.Monospace,
+                        textAlign = TextAlign.Start,
+                        style = TextStyle(textDirection = TextDirection.Ltr),
+                        modifier = Modifier.padding(12.dp),
+                        maxLines = 3
+                    )
                 }
             }
 
@@ -223,12 +225,12 @@ fun QuestionCard(
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(6.dp))
-                            .background(Color(0xFF0F1A1A))
+                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
                             .padding(horizontal = 10.dp, vertical = 4.dp)
                     ) {
                         Text(
                             tag,
-                            color = TextGray,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                             fontSize = 11.sp,
                             style = MaterialTheme.typography.bodyMedium
                         )
@@ -243,7 +245,7 @@ fun QuestionCard(
                     .height(1.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(percent = 100))
-                    .background(color = TextWhite.copy(alpha = 0.05f))
+                    .background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
             )
 
             Spacer(Modifier.height(16.dp))
@@ -255,13 +257,13 @@ fun QuestionCard(
                 Icon(
                     Icons.Filled.ThumbUp,
                     null,
-                    tint = TextGray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     question.likes.toString(),
-                    color = TextGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -269,20 +271,20 @@ fun QuestionCard(
                 Icon(
                     Icons.Filled.ChatBubble,
                     null,
-                    tint = TextGray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     question.answers.toString(),
-                    color = TextGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "VIEW DISCUSSION →",
-                    color = CyanPrimary,
+                    text = stringResource(R.string.feed_view_discussion),
+                    color = MaterialTheme.colorScheme.primary,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.SemiBold,
                     letterSpacing = 0.5.sp,
@@ -291,4 +293,38 @@ fun QuestionCard(
             }
         }
     }
+}
+
+@Preview(name = "QuestionCard — Dark")
+@Composable
+private fun PreviewQuestionCardDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) { QuestionCardPreview() }
+}
+
+@Preview(name = "QuestionCard — Light")
+@Composable
+private fun PreviewQuestionCardLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) { QuestionCardPreview() }
+}
+
+@Composable
+private fun QuestionCardPreview() {
+    QuestionCard(
+        question = QuestionFeedUiModel(
+            id = 1,
+            authorAccountId = 1,
+            authorName = "Sarah Chen",
+            authorAvatarUrl = "",
+            timeAgo = "2h ago",
+            category = "Kotlin",
+            title = "How do I structure a coroutine pipeline?",
+            preview = "I'm building a data pipeline with flows and want to know the cleanest way to handle backpressure.",
+            codeSnippet = "flow { emit(1) }.buffer().collect {}",
+            tags = listOf("kotlin", "coroutines"),
+            likes = 42,
+            answers = 7,
+            isAuthorPro = true,
+        ),
+        onClick = {},
+    )
 }

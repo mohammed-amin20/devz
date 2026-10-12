@@ -1,17 +1,6 @@
 package com.mohamed.devz.feature.question.presentation.util
 
-import androidx.compose.ui.graphics.Color
-
-private object SyntaxColors {
-    val keyword = Color(0xFFFFB87B)
-    val string = Color(0xFFA1EFFF)
-    val comment = Color(0xFF869396)
-    val function = Color(0xFF44D8F1)
-    val number = Color(0xFFF19640)
-    val annotation = Color(0xFFFFD700)
-    val type = Color(0xFF82AAFF)
-    val plain = Color(0xFFE5E2E1)
-}
+import com.mohamed.devz.ui.theme.SyntaxPalette
 
 private object SyntaxKeywords {
     val kotlinKeywords = setOf(
@@ -38,7 +27,11 @@ private object SyntaxKeywords {
     )
 }
 
-fun tokenize(code: String, language: SyntaxLanguage): List<Token> {
+fun tokenize(
+    code: String,
+    language: SyntaxLanguage,
+    palette: SyntaxPalette,
+): List<Token> {
     val indentedCode = formatCode(language, code)
 
     val keywords = when (language) {
@@ -57,51 +50,51 @@ fun tokenize(code: String, language: SyntaxLanguage): List<Token> {
             i++
         }
         if (i > 0) {
-            tokens.add(Token(line.substring(0, i), SyntaxColors.plain))
+            tokens.add(Token(line.substring(0, i), palette.plain))
         }
 
         while (i < line.length) {
             when {
                 line.startsWith("//", i) -> {
-                    tokens.add(Token(line.substring(i), SyntaxColors.comment))
+                    tokens.add(Token(line.substring(i), palette.comment))
                     i = line.length
                 }
 
                 line[i] == '#' && language == SyntaxLanguage.PYTHON -> {
-                    tokens.add(Token(line.substring(i), SyntaxColors.comment))
+                    tokens.add(Token(line.substring(i), palette.comment))
                     i = line.length
                 }
 
                 line[i] == '"' -> {
                     val end = line.indexOf('"', i + 1).takeIf { it != -1 } ?: (line.length - 1)
-                    tokens.add(Token(line.substring(i, end + 1), SyntaxColors.string))
+                    tokens.add(Token(line.substring(i, end + 1), palette.string))
                     i = end + 1
                 }
 
                 line[i] == '\'' -> {
                     val end = line.indexOf('\'', i + 1).takeIf { it != -1 } ?: (line.length - 1)
-                    tokens.add(Token(line.substring(i, end + 1), SyntaxColors.string))
+                    tokens.add(Token(line.substring(i, end + 1), palette.string))
                     i = end + 1
                 }
 
                 line[i] == '@' && language == SyntaxLanguage.KOTLIN -> {
                     var end = i + 1
                     while (end < line.length && (line[end].isLetterOrDigit() || line[end] == '_')) end++
-                    tokens.add(Token(line.substring(i, end), SyntaxColors.annotation))
+                    tokens.add(Token(line.substring(i, end), palette.annotation))
                     i = end
                 }
 
                 line[i].isDigit() -> {
                     var end = i
                     while (end < line.length && (line[end].isDigit() || line[end] == '.')) end++
-                    tokens.add(Token(line.substring(i, end), SyntaxColors.number))
+                    tokens.add(Token(line.substring(i, end), palette.number))
                     i = end
                 }
 
                 line[i] == ' ' || line[i] == '\t' -> {
                     var end = i
                     while (end < line.length && (line[end] == ' ' || line[end] == '\t')) end++
-                    tokens.add(Token(line.substring(i, end), SyntaxColors.plain))
+                    tokens.add(Token(line.substring(i, end), palette.plain))
                     i = end
                 }
 
@@ -110,24 +103,24 @@ fun tokenize(code: String, language: SyntaxLanguage): List<Token> {
                     while (end < line.length && (line[end].isLetterOrDigit() || line[end] == '_')) end++
                     val word = line.substring(i, end)
                     val color = when {
-                        word in keywords -> SyntaxColors.keyword
-                        end < line.length && line[end] == '(' -> SyntaxColors.function
-                        word.first().isUpperCase() -> SyntaxColors.type
-                        else -> SyntaxColors.plain
+                        word in keywords -> palette.keyword
+                        end < line.length && line[end] == '(' -> palette.function
+                        word.first().isUpperCase() -> palette.type
+                        else -> palette.plain
                     }
                     tokens.add(Token(word, color))
                     i = end
                 }
 
                 else -> {
-                    tokens.add(Token(line[i].toString(), SyntaxColors.plain))
+                    tokens.add(Token(line[i].toString(), palette.plain))
                     i++
                 }
             }
         }
 
         if (lineIndex < lines.size - 1) {
-            tokens.add(Token("\n", SyntaxColors.plain))
+            tokens.add(Token("\n", palette.plain))
         }
     }
 

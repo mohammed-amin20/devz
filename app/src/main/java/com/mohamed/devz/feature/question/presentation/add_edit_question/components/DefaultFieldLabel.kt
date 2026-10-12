@@ -6,7 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.LabelGray
 
 @Composable
 fun DefaultFieldLabel(
@@ -15,7 +14,7 @@ fun DefaultFieldLabel(
 ) {
     Text(
         text = text,
-        color = LabelGray,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
         fontSize = 11.sp,
         fontWeight = FontWeight.SemiBold,
         letterSpacing = 1.5.sp,

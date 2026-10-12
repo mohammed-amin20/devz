@@ -16,13 +16,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -47,15 +45,23 @@ fun LanguageDropdownField(
                 .fillMaxWidth(),
             placeholder = {
                 Text(
-                    "Select language",
-                    color = TextSubtle,
+                    stringResource(R.string.addedit_language_placeholder),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
             },
             singleLine = true,
             shape = RoundedCornerShape(12.dp),
-            colors = devzTextFieldColors(),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant,
+                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                cursorColor = MaterialTheme.colorScheme.primary,
+                focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             }
@@ -64,7 +70,7 @@ fun LanguageDropdownField(
         ExposedDropdownMenu(
             expanded = expanded,
             onDismissRequest = { expanded = false },
-            containerColor = Color(0xFF131313)
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ) {
             SyntaxLanguage.entries.forEach { language ->
                 DropdownMenuItem(
@@ -78,14 +84,3 @@ fun LanguageDropdownField(
         }
     }
 }
-
-@Composable
-private fun devzTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = Color.Transparent,
-    unfocusedBorderColor = Color.Transparent,
-    focusedTextColor = TextWhite,
-    unfocusedTextColor = TextWhite,
-    cursorColor = CyanPrimary,
-    focusedContainerColor = Color(0xFF2A2A2A),
-    unfocusedContainerColor = Color(0xFF2A2A2A)
-)

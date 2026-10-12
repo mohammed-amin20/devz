@@ -1,8 +1,10 @@
 package com.mohamed.devz.feature.question.presentation.view_questions
 
-import androidx.compose.foundation.Image
+import androidx.compose.animation.core.EaseInOut
+import androidx.compose.animation.core.EaseOutBack
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -13,14 +15,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.animation.core.EaseInOut
-import androidx.compose.animation.core.EaseOutBack
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,17 +26,14 @@ import androidx.compose.material.icons.filled.Forum
 import androidx.compose.material.icons.filled.Lightbulb
 import androidx.compose.material.icons.filled.PersonSearch
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
+import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
 import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
@@ -55,31 +49,28 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.core.presentation.components.DevzBrandHeader
 import com.mohamed.devz.feature.question.presentation.view_questions.components.QuestionCard
 import com.mohamed.devz.feature.question.presentation.view_questions.util.QuestionFeedUiModel
 import com.mohamed.devz.feature.report.presentation.ReportSheet
 import com.mohamed.devz.feature.report.presentation.ReportTarget
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.components.DevzTextField
+import com.mohamed.devz.ui.components.EmptyState
+import com.mohamed.devz.ui.components.ErrorState
+import com.mohamed.devz.ui.components.ShimmerBox
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.QBg
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
+import com.mohamed.devz.ui.theme.ThemeMode
+import com.mohamed.devz.ui.theme.spacing
 import kotlinx.coroutines.launch
 
 sealed class FeedItem {
@@ -119,88 +110,37 @@ fun ViewQuestionsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(QBg)
+            .background(MaterialTheme.colorScheme.background)
             .then(modifier)
     ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 16.dp)
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
+        Column(modifier = Modifier.padding(horizontal = MaterialTheme.spacing.lg)) {
+            Spacer(Modifier.height(MaterialTheme.spacing.lg))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Image(
-                        painter = painterResource(R.drawable.logo),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(32.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = buildAnnotatedString {
-                            withStyle(
-                                SpanStyle(
-                                    color = TextWhite,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("dev") }
-                            withStyle(
-                                SpanStyle(
-                                    color = CyanPrimary,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 16.sp
-                                )
-                            ) { append("Z") }
-                        },
-                        style = MaterialTheme.typography.titleLarge
-                    )
-                }
-            }
+            DevzBrandHeader()
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.md))
 
-            OutlinedTextField(
+            DevzTextField(
                 value = uiState.searchQuery,
                 onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
-                placeholder = {
-                    Text(
-                        "Query the collective intelligence...",
-                        color = TextSubtle,
-                        fontSize = 14.sp,
-                        style = MaterialTheme.typography.bodyMedium
-                    )
-                },
-                leadingIcon = { Icon(Icons.Filled.Search, null, tint = TextSubtle) },
-                modifier = Modifier.fillMaxWidth(),
+                placeholder = stringResource(R.string.feed_search_hint),
+                leadingIcon = Icons.Filled.Search,
                 singleLine = true,
-                shape = RoundedCornerShape(14.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = CyanPrimary,
-                    unfocusedBorderColor = Color(0xFF2A3A3A),
-                    focusedTextColor = TextWhite,
-                    unfocusedTextColor = TextWhite,
-                    cursorColor = CyanPrimary,
-                    focusedContainerColor = DevzCard,
-                    unfocusedContainerColor = DevzCard
-                )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.md))
 
-            val tabs = listOf("For You", "Following")
+            val tabs = listOf(
+                stringResource(R.string.feed_tab_for_you),
+                stringResource(R.string.feed_tab_following),
+            )
             PrimaryTabRow(
                 selectedTabIndex = pagerState.currentPage,
-                containerColor = DevzCard,
-                contentColor = CyanPrimary,
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.primary,
                 indicator = {
                     TabRowDefaults.PrimaryIndicator(
-                        color = CyanPrimary,
+                        color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.tabIndicatorOffset(pagerState.currentPage, matchContentSize = true)
                     )
                 },
@@ -218,37 +158,49 @@ fun ViewQuestionsScreen(
                                 text = title,
                                 fontSize = 15.sp,
                                 fontWeight = if (pagerState.currentPage == index) FontWeight.Bold else FontWeight.Normal,
-                                color = if (pagerState.currentPage == index) CyanPrimary else TextSubtle,
+                                color = if (pagerState.currentPage == index) {
+                                    MaterialTheme.colorScheme.primary
+                                } else {
+                                    MaterialTheme.colorScheme.onSurfaceVariant
+                                },
                             )
                         },
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(Modifier.height(MaterialTheme.spacing.sm))
         }
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxSize()
-        ) { page ->
-            when (page) {
-                0 -> ForYouFeed(
-                    uiState = uiState,
-                    onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
-                    onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
-                    onQuestionClick = onQuestionClick,
-                    onAuthorClick = onAuthorClick,
-                    onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
-                )
-                1 -> FollowingFeed(
-                    uiState = uiState,
-                    onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
-                    onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
-                    onQuestionClick = onQuestionClick,
-                    onAuthorClick = onAuthorClick,
-                    onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
-                )
+        if (uiState.error != null && uiState.questions.isEmpty() && !uiState.isLoading) {
+            ErrorState(
+                message = uiState.error!!.asString(),
+                onRetry = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                retryLabel = stringResource(R.string.action_retry),
+            )
+        } else {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { page ->
+                when (page) {
+                    0 -> ForYouFeed(
+                        uiState = uiState,
+                        onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
+                        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                        onQuestionClick = onQuestionClick,
+                        onAuthorClick = onAuthorClick,
+                        onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
+                    )
+                    1 -> FollowingFeed(
+                        uiState = uiState,
+                        onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
+                        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                        onQuestionClick = onQuestionClick,
+                        onAuthorClick = onAuthorClick,
+                        onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
+                    )
+                }
             }
         }
 
@@ -314,7 +266,7 @@ private fun ForYouFeed(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = uiState.isRefreshing,
                 state = pullRefreshState,
-                color = CyanPrimary,
+                color = MaterialTheme.colorScheme.primary,
             )
         },
     ) {
@@ -322,78 +274,80 @@ private fun ForYouFeed(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = MaterialTheme.spacing.lg),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
             item {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(Modifier.height(MaterialTheme.spacing.xs))
             }
 
-            if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = CyanPrimary)
+            when {
+                uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty()) -> {
+                    item { FeedSkeleton() }
+                }
+                uiState.questions.isEmpty() && uiState.noTechMatches -> {
+                    item {
+                        FeedEmptyState(
+                            icon = Icons.Filled.Lightbulb,
+                            title = stringResource(R.string.feed_empty_tech_title),
+                            subtitle = stringResource(R.string.feed_empty_tech_subtitle),
+                        )
                     }
                 }
-            } else if (uiState.questions.isEmpty() && uiState.noTechMatches) {
-                item {
-                    EmptyStateAnimated(
-                        icon = { Icon(Icons.Filled.Lightbulb, null, tint = CyanPrimary, modifier = Modifier.size(36.dp)) },
-                        title = "No matching questions",
-                        subtitle = "Add technologies to your profile so we can\nshow you relevant questions.",
-                    )
-                }
-            } else if (uiState.questions.isEmpty() && uiState.isNotFollowingAnyone) {
-                item {
-                    EmptyStateAnimated(
-                        icon = { Icon(Icons.Filled.PersonSearch, null, tint = CyanPrimary, modifier = Modifier.size(36.dp)) },
-                        title = "Your feed is empty",
-                        subtitle = "Follow developers to see their questions here.\nSearch for people or browse questions to find\ndevelopers who share your interests.",
-                    )
-                }
-            } else if (uiState.questions.isEmpty() && !uiState.isNotFollowingAnyone) {
-                item {
-                    EmptyStateAnimated(
-                        icon = { Icon(Icons.Filled.Forum, null, tint = CyanPrimary, modifier = Modifier.size(36.dp)) },
-                        title = "No questions yet",
-                        subtitle = "Questions from developers you follow\nwill appear here.",
-                    )
-                }
-            } else {
-                items(feedItems, key = {
-                    when (it) {
-                        is FeedItem.QuestionItem -> "q_${it.question.id}"
-                        is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                uiState.questions.isEmpty() && uiState.isNotFollowingAnyone -> {
+                    item {
+                        FeedEmptyState(
+                            icon = Icons.Filled.PersonSearch,
+                            title = stringResource(R.string.feed_empty_following_title),
+                            subtitle = stringResource(R.string.feed_empty_following_subtitle),
+                        )
                     }
-                }) { item ->
-                    when (item) {
-                        is FeedItem.QuestionItem -> {
-                            QuestionCard(
-                                question = item.question,
-                                onClick = { onQuestionClick(item.question.id) },
-                                onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
-                                onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
-                                    {
-                                        onReport(
-                                            ReportTarget(
-                                                reportedType = "question",
-                                                reportedId = item.question.id,
-                                                preview = item.question.title,
-                                            )
-                                        )
-                                    }
-                                } else null,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                        is FeedItem.AdBanner -> {
-                            AdBannerItem()
-                            Spacer(modifier = Modifier.height(12.dp))
+                }
+                uiState.questions.isEmpty() && !uiState.isNotFollowingAnyone -> {
+                    item {
+                        FeedEmptyState(
+                            icon = Icons.Filled.Forum,
+                            title = stringResource(R.string.feed_empty_no_questions_title),
+                            subtitle = stringResource(R.string.feed_empty_no_questions_subtitle),
+                        )
+                    }
+                }
+                else -> {
+                    items(
+                        items = feedItems,
+                        key = {
+                            when (it) {
+                                is FeedItem.QuestionItem -> "q_${it.question.id}"
+                                is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                            }
+                        },
+                    ) { item ->
+                        Column(modifier = Modifier.animateItem()) {
+                            when (item) {
+                                is FeedItem.QuestionItem -> {
+                                    QuestionCard(
+                                        question = item.question,
+                                        onClick = { onQuestionClick(item.question.id) },
+                                        onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                                        onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
+                                            {
+                                                onReport(
+                                                    ReportTarget(
+                                                        reportedType = "question",
+                                                        reportedId = item.question.id,
+                                                        preview = item.question.title,
+                                                    )
+                                                )
+                                            }
+                                        } else null,
+                                    )
+                                    Spacer(Modifier.height(MaterialTheme.spacing.md))
+                                }
+                                is FeedItem.AdBanner -> {
+                                    AdBannerItem()
+                                    Spacer(Modifier.height(MaterialTheme.spacing.md))
+                                }
+                            }
                         }
                     }
                 }
@@ -404,19 +358,20 @@ private fun ForYouFeed(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .padding(vertical = MaterialTheme.spacing.lg),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = CyanPrimary,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
+                        com.mohamed.devz.ui.components.ShimmerBox(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(72.dp),
+                            shape = RoundedCornerShape(16.dp),
                         )
                     }
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
@@ -472,7 +427,7 @@ private fun FollowingFeed(
                 modifier = Modifier.align(Alignment.TopCenter),
                 isRefreshing = uiState.isRefreshing,
                 state = pullRefreshState,
-                color = CyanPrimary,
+                color = MaterialTheme.colorScheme.primary,
             )
         },
     ) {
@@ -480,66 +435,67 @@ private fun FollowingFeed(
             state = listState,
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = MaterialTheme.spacing.lg),
             verticalArrangement = Arrangement.spacedBy(0.dp)
         ) {
-            if (uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty())) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(200.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator(color = CyanPrimary)
+            when {
+                uiState.isLoading || (uiState.isRefreshing && uiState.questions.isEmpty()) -> {
+                    item { FeedSkeleton() }
+                }
+                uiState.questions.isEmpty() && uiState.isNotFollowingAnyone -> {
+                    item {
+                        FeedEmptyState(
+                            icon = Icons.Filled.PersonSearch,
+                            title = stringResource(R.string.feed_empty_following_title),
+                            subtitle = stringResource(R.string.feed_empty_following_subtitle),
+                        )
                     }
                 }
-            } else if (uiState.questions.isEmpty() && uiState.isNotFollowingAnyone) {
-                item {
-                    EmptyStateAnimated(
-                        icon = { Icon(Icons.Filled.PersonSearch, null, tint = CyanPrimary, modifier = Modifier.size(36.dp)) },
-                        title = "Your feed is empty",
-                        subtitle = "Follow developers to see their questions here.\nSearch for people or browse questions to find\ndevelopers who share your interests.",
-                    )
-                }
-            } else if (uiState.questions.isEmpty() && !uiState.isNotFollowingAnyone) {
-                item {
-                    EmptyStateAnimated(
-                        icon = { Icon(Icons.Filled.Forum, null, tint = CyanPrimary, modifier = Modifier.size(36.dp)) },
-                        title = "No questions yet",
-                        subtitle = "Questions from developers you follow\nwill appear here.",
-                    )
-                }
-            } else {
-                items(feedItems, key = {
-                    when (it) {
-                        is FeedItem.QuestionItem -> "q_${it.question.id}"
-                        is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                uiState.questions.isEmpty() && !uiState.isNotFollowingAnyone -> {
+                    item {
+                        FeedEmptyState(
+                            icon = Icons.Filled.Forum,
+                            title = stringResource(R.string.feed_empty_no_questions_title),
+                            subtitle = stringResource(R.string.feed_empty_no_questions_subtitle),
+                        )
                     }
-                }) { item ->
-                    when (item) {
-                        is FeedItem.QuestionItem -> {
-                            QuestionCard(
-                                question = item.question,
-                                onClick = { onQuestionClick(item.question.id) },
-                                onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
-                                onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
-                                    {
-                                        onReport(
-                                            ReportTarget(
-                                                reportedType = "question",
-                                                reportedId = item.question.id,
-                                                preview = item.question.title,
-                                            )
-                                        )
-                                    }
-                                } else null,
-                            )
-                            Spacer(modifier = Modifier.height(12.dp))
-                        }
-                        is FeedItem.AdBanner -> {
-                            AdBannerItem()
-                            Spacer(modifier = Modifier.height(12.dp))
+                }
+                else -> {
+                    items(
+                        items = feedItems,
+                        key = {
+                            when (it) {
+                                is FeedItem.QuestionItem -> "q_${it.question.id}"
+                                is FeedItem.AdBanner -> "ad_${it.hashCode()}"
+                            }
+                        },
+                    ) { item ->
+                        Column(modifier = Modifier.animateItem()) {
+                            when (item) {
+                                is FeedItem.QuestionItem -> {
+                                    QuestionCard(
+                                        question = item.question,
+                                        onClick = { onQuestionClick(item.question.id) },
+                                        onAuthorClick = { onAuthorClick(item.question.authorAccountId) },
+                                        onReport = if (uiState.currentAccountId != 0 && item.question.authorAccountId != uiState.currentAccountId) {
+                                            {
+                                                onReport(
+                                                    ReportTarget(
+                                                        reportedType = "question",
+                                                        reportedId = item.question.id,
+                                                        preview = item.question.title,
+                                                    )
+                                                )
+                                            }
+                                        } else null,
+                                    )
+                                    Spacer(Modifier.height(MaterialTheme.spacing.md))
+                                }
+                                is FeedItem.AdBanner -> {
+                                    AdBannerItem()
+                                    Spacer(Modifier.height(MaterialTheme.spacing.md))
+                                }
+                            }
                         }
                     }
                 }
@@ -550,84 +506,97 @@ private fun FollowingFeed(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 16.dp),
+                            .padding(vertical = MaterialTheme.spacing.lg),
                         contentAlignment = Alignment.Center
                     ) {
-                        CircularProgressIndicator(
-                            color = CyanPrimary,
-                            modifier = Modifier.size(24.dp),
-                            strokeWidth = 2.dp
+                        com.mohamed.devz.ui.components.ShimmerBox(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(72.dp),
+                            shape = RoundedCornerShape(16.dp),
                         )
                     }
                 }
             }
 
-            item { Spacer(modifier = Modifier.height(80.dp)) }
+            item { Spacer(Modifier.height(80.dp)) }
         }
     }
 }
 
 @Composable
-private fun EmptyStateAnimated(
-    icon: @Composable () -> Unit,
+private fun FeedEmptyState(
+    icon: ImageVector,
     title: String,
     subtitle: String,
 ) {
     val animAlpha by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(durationMillis = 500, easing = EaseInOut),
+        label = "emptyAlpha",
     )
     val animScale by animateFloatAsState(
         targetValue = 1f,
         animationSpec = tween(durationMillis = 500, easing = EaseOutBack),
+        label = "emptyScale",
     )
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .background(
-                Brush.radialGradient(
-                    colors = listOf(
-                        Color(0xFF0D3333),
-                        Color(0xFF0A1A1A),
-                        Color(0xFF060D0D)
-                    ),
-                    center = Offset(0.5f, 0.4f),
-                    radius = 1200f
-                )
-            )
-            .padding(vertical = 56.dp),
-        contentAlignment = Alignment.Center
+            .alpha(animAlpha)
+            .scale(animScale),
     ) {
-        Column(
-            modifier = Modifier
-                .alpha(animAlpha)
-                .scale(animScale),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(CyanPrimary.copy(alpha = 0.12f)),
-                contentAlignment = Alignment.Center
+        EmptyState(icon = icon, title = title, message = subtitle)
+    }
+}
+
+@Composable
+private fun FeedSkeleton() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        repeat(3) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                color = MaterialTheme.colorScheme.surfaceContainer,
             ) {
-                icon()
+                Column(modifier = Modifier.padding(MaterialTheme.spacing.lg)) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        ShimmerBox(
+                            modifier = Modifier.size(36.dp),
+                            shape = RoundedCornerShape(50),
+                        )
+                        Spacer(Modifier.size(MaterialTheme.spacing.sm))
+                        ShimmerBox(
+                            modifier = Modifier
+                                .height(14.dp)
+                                .fillMaxWidth(0.4f),
+                            shape = RoundedCornerShape(6.dp),
+                        )
+                    }
+                    Spacer(Modifier.height(MaterialTheme.spacing.md))
+                    ShimmerBox(
+                        modifier = Modifier
+                            .height(20.dp)
+                            .fillMaxWidth(0.85f),
+                        shape = RoundedCornerShape(6.dp),
+                    )
+                    Spacer(Modifier.height(MaterialTheme.spacing.sm))
+                    ShimmerBox(
+                        modifier = Modifier
+                            .height(13.dp)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(6.dp),
+                    )
+                    Spacer(Modifier.height(MaterialTheme.spacing.xs))
+                    ShimmerBox(
+                        modifier = Modifier
+                            .height(13.dp)
+                            .fillMaxWidth(0.7f),
+                        shape = RoundedCornerShape(6.dp),
+                    )
+                }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                title,
-                color = TextWhite,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                subtitle,
-                color = TextGray,
-                fontSize = 14.sp,
-                lineHeight = 20.sp,
-                textAlign = TextAlign.Center,
-            )
+            Spacer(Modifier.height(MaterialTheme.spacing.md))
         }
     }
 }
@@ -639,30 +608,35 @@ private fun AdBannerItem() {
             .fillMaxWidth()
             .height(120.dp),
         shape = RoundedCornerShape(16.dp),
-        color = Color(0xFF1E1E1E),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .border(1.dp, Color(0xFF2A3A3A), RoundedCornerShape(16.dp)),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             Text(
-                text = "📢 Ad space",
-                color = TextGray,
+                text = stringResource(R.string.feed_ad_space),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 16.sp,
                 fontWeight = FontWeight.Medium,
+                textAlign = TextAlign.Center,
             )
         }
     }
 }
 
-@Preview(showSystemUi = true)
+@Preview(showSystemUi = true, name = "Feed — Dark")
 @Composable
-private fun PreviewViewQuestionsScreen() {
-    DevzTheme {
-        ViewQuestionsScreen(
-            onQuestionClick = {}
-        )
+private fun PreviewViewQuestionsScreenDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        ViewQuestionsScreen(onQuestionClick = {})
+    }
+}
+
+@Preview(showSystemUi = true, name = "Feed — Light")
+@Composable
+private fun PreviewViewQuestionsScreenLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        ViewQuestionsScreen(onQuestionClick = {})
     }
 }
