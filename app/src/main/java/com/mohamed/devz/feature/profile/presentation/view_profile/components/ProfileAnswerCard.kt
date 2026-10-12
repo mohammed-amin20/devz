@@ -22,18 +22,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileAnswerUiModel
-import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun ProfileAnswerCard(
@@ -43,14 +41,13 @@ fun ProfileAnswerCard(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = Color(0xFF1C1B1B),
+        color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
         Column(
             modifier = Modifier
                 .padding(16.dp)
         ) {
-            // Title + status badge
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -58,7 +55,7 @@ fun ProfileAnswerCard(
             ) {
                 Text(
                     text = answer.questionTitle,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     lineHeight = 22.sp,
@@ -66,18 +63,16 @@ fun ProfileAnswerCard(
                     style = MaterialTheme.typography.titleLarge
                 )
                 Spacer(modifier = Modifier.width(width = 8.dp))
-                if(answer.isAccepted) {
+                if (answer.isAccepted) {
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
-                            .background(
-                                CyanPrimary.copy(alpha = 0.15f)
-                            )
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.15f))
                             .padding(horizontal = 8.dp, vertical = 8.dp)
                     ) {
                         Text(
-                            text = "ACCEPTED",
-                            color =  Color(0xFF8EBDC7),
+                            text = stringResource(R.string.profile_stat_accepted),
+                            color = MaterialTheme.colorScheme.primary,
                             fontSize = 9.sp,
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 1.sp,
@@ -89,10 +84,9 @@ fun ProfileAnswerCard(
 
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Answer preview
             Text(
                 text = answer.preview,
-                color = TextGray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
                 lineHeight = 20.sp,
                 maxLines = 5,
@@ -102,7 +96,6 @@ fun ProfileAnswerCard(
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            // Footer
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -110,20 +103,20 @@ fun ProfileAnswerCard(
                 Icon(
                     Icons.Filled.ThumbUp,
                     null,
-                    tint = TextGray,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.size(14.dp)
                 )
                 Spacer(modifier = Modifier.width(4.dp))
                 Text(
                     answer.likes.toString(),
-                    color = TextGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
                 Spacer(modifier = Modifier.weight(1f))
                 Text(
-                    text = "Answered ${answer.timeAgo}",
-                    color = TextGray,
+                    text = stringResource(R.string.profile_answered, answer.timeAgo),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 11.sp,
                     fontStyle = FontStyle.Italic,
                     style = MaterialTheme.typography.bodyMedium
@@ -138,7 +131,7 @@ fun ProfileAnswerCard(
 private fun PrevAnswer() {
     DevzTheme {
         ProfileAnswerCard(
-            answer = ProfileAnswerUiModel (
+            answer = ProfileAnswerUiModel(
                 id = 1,
                 questionId = 1,
                 questionTitle = "How do I make a sealed class for UI states?",

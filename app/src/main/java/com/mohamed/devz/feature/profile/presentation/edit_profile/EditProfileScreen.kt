@@ -5,10 +5,10 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -46,37 +46,34 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import coil3.compose.AsyncImage
+import com.mohamed.devz.R
 import com.mohamed.devz.feature.profile.presentation.edit_profile.components.GovernanceToggle
 import com.mohamed.devz.feature.profile.presentation.edit_profile.components.SectionHeader
 import com.mohamed.devz.feature.profile.presentation.edit_profile.components.SkillChip
 import com.mohamed.devz.feature.profile.presentation.edit_profile.components.SocialField
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.DevzCard
+import com.mohamed.devz.ui.components.DevzButton
+import com.mohamed.devz.ui.components.DevzTextButton
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.LabelGray
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
-import androidx.compose.runtime.remember
-import coil3.compose.AsyncImage
+import com.mohamed.devz.ui.theme.ThemeMode
 
 @Composable
 fun EditProfileScreen(
@@ -101,7 +98,7 @@ fun EditProfileScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFF131313))
+            .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
             .imePadding()
             .padding(horizontal = 16.dp)
@@ -116,39 +113,29 @@ fun EditProfileScreen(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 IconButton(
                     onClick = navigateUp,
-                    modifier = Modifier
-                        .padding(0.dp)
+                    modifier = Modifier.padding(0.dp)
                 ) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
-                        null,
-                        tint = CyanPrimary
+                        contentDescription = stringResource(R.string.profile_back_desc),
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
                 Text(
-                    text = "Edit Profile",
-                    color = TextWhite,
+                    text = stringResource(R.string.editprofile_title),
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 17.sp,
                     fontWeight = FontWeight.Bold,
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-            TextButton(onClick = {
-                viewModel.onAction(EditProfileAction.Save(navigateUp))
-            }) {
-                Text(
-                    text = "Save",
-                    color = CyanPrimary,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
+            DevzTextButton(
+                label = stringResource(R.string.editprofile_save),
+                onClick = { viewModel.onAction(EditProfileAction.Save(navigateUp)) },
+            )
         }
 
         Spacer(modifier = Modifier.height(24.dp))
@@ -179,9 +166,11 @@ fun EditProfileScreen(
                     ) {
                         Icon(
                             Icons.Filled.Add,
-                            contentDescription = "Dismiss",
+                            contentDescription = stringResource(R.string.editprofile_dismiss_error),
                             tint = MaterialTheme.colorScheme.onErrorContainer,
-                            modifier = Modifier.size(16.dp).rotate(45f)
+                            modifier = Modifier
+                                .size(16.dp)
+                                .rotate(45f)
                         )
                     }
                 }
@@ -200,8 +189,8 @@ fun EditProfileScreen(
                 modifier = Modifier
                     .size(96.dp)
                     .clip(CircleShape)
-                    .background(DevzCard)
-                    .border(2.dp, CyanPrimary.copy(alpha = 0.5f), CircleShape),
+                    .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                    .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
                 if (localBitmap != null) {
@@ -225,12 +214,11 @@ fun EditProfileScreen(
                 } else {
                     Icon(
                         Icons.Filled.Person,
-                        null,
-                        tint = CyanPrimary,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(52.dp)
                     )
                 }
-                // Loading overlay during upload
                 if (uiState.isUploadingImage) {
                     Box(
                         modifier = Modifier
@@ -240,26 +228,25 @@ fun EditProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         CircularProgressIndicator(
-                            color = CyanPrimary,
+                            color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(28.dp),
                             strokeWidth = 2.5.dp
                         )
                     }
                 }
             }
-            // Camera button
             Box(
                 modifier = Modifier
                     .size(30.dp)
                     .clip(CircleShape)
-                    .background(CyanPrimary)
+                    .background(MaterialTheme.colorScheme.primary)
                     .clickable { imagePickerLauncher.launch("image/*") },
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     Icons.Filled.CameraAlt,
-                    null,
-                    tint = Color.Black,
+                    contentDescription = stringResource(R.string.editprofile_avatar_desc),
+                    tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -267,8 +254,8 @@ fun EditProfileScreen(
 
         Spacer(modifier = Modifier.height(6.dp))
         Text(
-            text = "AVATAR SELECTION",
-            color = TextGray,
+            text = stringResource(R.string.editprofile_avatar_selection),
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 10.sp,
             fontWeight = FontWeight.Bold,
             letterSpacing = 2.sp,
@@ -277,19 +264,10 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // ── Core Identity ─────────────────────────────────────────────
-        SectionHeader(title = "Core Identity")
+        SectionHeader(title = stringResource(R.string.editprofile_core_identity))
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "FULL NAME",
-            color = LabelGray,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 1.5.sp,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        FieldLabel(stringResource(R.string.editprofile_full_name))
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.fullName,
@@ -297,8 +275,8 @@ fun EditProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
-                    "Enter your full name",
-                    color = TextSubtle,
+                    stringResource(R.string.editprofile_full_name_hint),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -310,16 +288,7 @@ fun EditProfileScreen(
         )
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "USERNAME",
-            color = LabelGray,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 1.5.sp,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        FieldLabel(stringResource(R.string.editprofile_username))
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.username,
@@ -327,8 +296,8 @@ fun EditProfileScreen(
             modifier = Modifier.fillMaxWidth(),
             placeholder = {
                 Text(
-                    "Choose a username",
-                    color = TextSubtle,
+                    stringResource(R.string.editprofile_username_hint),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -340,7 +309,7 @@ fun EditProfileScreen(
             leadingIcon = {
                 Text(
                     "@",
-                    color = TextSubtle,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 16.sp,
                     fontWeight = FontWeight.Bold
                 )
@@ -349,16 +318,7 @@ fun EditProfileScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        Text(
-            text = "BIO",
-            color = LabelGray,
-            fontSize = 11.sp,
-            fontWeight = FontWeight.SemiBold,
-            letterSpacing = 1.5.sp,
-            style = MaterialTheme.typography.titleLarge,
-            modifier = Modifier
-                .fillMaxWidth()
-        )
+        FieldLabel(stringResource(R.string.editprofile_bio))
         Spacer(modifier = Modifier.height(8.dp))
         OutlinedTextField(
             value = uiState.bio,
@@ -368,8 +328,8 @@ fun EditProfileScreen(
                 .height(110.dp),
             placeholder = {
                 Text(
-                    "Tell us about yourself",
-                    color = TextSubtle,
+                    stringResource(R.string.editprofile_bio_hint),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 13.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -383,12 +343,12 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // ── Technical Stack ───────────────────────────────────────────
-        SectionHeader(title = "Technical Stack")
+        SectionHeader(title = stringResource(R.string.editprofile_technical_stack))
         Spacer(modifier = Modifier.height(16.dp))
 
         Surface(
             shape = RoundedCornerShape(14.dp),
-            color = CyanPrimary.copy(alpha = 0.3f),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
@@ -396,7 +356,7 @@ fun EditProfileScreen(
                     .padding(start = 2.dp)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFF1C1B1B))
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
                     .padding(14.dp)
             ) {
                 FlowRow(
@@ -406,21 +366,18 @@ fun EditProfileScreen(
                     uiState.skills.forEach { skill ->
                         SkillChip(
                             skill = skill,
-                            onRemove = {
-                                viewModel.onAction(EditProfileAction.RemoveSkill(skill))
-                            }
+                            onRemove = { viewModel.onAction(EditProfileAction.RemoveSkill(skill)) }
                         )
                     }
-                    // Add interest button
                     Button(
                         onClick = { viewModel.onAction(EditProfileAction.ShowSkillInput) },
                         shape = RoundedCornerShape(20.dp),
                         border = BorderStroke(
                             width = 0.5.dp,
-                            color = Color(0xFF44D8F1).copy(alpha = 0.5f)
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f)
                         ),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color(0xFF353534)
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
                     ) {
@@ -430,13 +387,13 @@ fun EditProfileScreen(
                         ) {
                             Icon(
                                 Icons.Filled.Add,
-                                null,
-                                tint = Color(0xFF44D8F1),
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(14.dp)
                             )
                             Text(
-                                "Add Interest",
-                                color = Color(0xFF44D8F1),
+                                stringResource(R.string.editprofile_add_interest),
+                                color = MaterialTheme.colorScheme.primary,
                                 fontSize = 12.sp,
                                 style = MaterialTheme.typography.titleLarge
                             )
@@ -444,18 +401,16 @@ fun EditProfileScreen(
                     }
                 }
 
-                // Skill input
                 if (uiState.showSkillInput) {
                     Spacer(modifier = Modifier.height(10.dp))
                     OutlinedTextField(
                         value = uiState.skillInput,
                         onValueChange = { viewModel.onAction(EditProfileAction.SkillInputChanged(it)) },
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         placeholder = {
                             Text(
-                                "e.g. Kotlin, Rust",
-                                color = TextSubtle,
+                                stringResource(R.string.editprofile_skill_hint),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 fontSize = 13.sp,
                                 style = MaterialTheme.typography.bodyMedium
                             )
@@ -464,8 +419,8 @@ fun EditProfileScreen(
                             IconButton(onClick = { viewModel.onAction(EditProfileAction.AddSkill) }) {
                                 Icon(
                                     Icons.Rounded.Check,
-                                    null,
-                                    tint = Color(0xFF44D8F1)
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         },
@@ -481,129 +436,106 @@ fun EditProfileScreen(
         Spacer(modifier = Modifier.height(32.dp))
 
         // ── Social Mesh ───────────────────────────────────────────────
-        SectionHeader(title = "Social Mesh")
+        SectionHeader(title = stringResource(R.string.editprofile_social_mesh))
         Spacer(modifier = Modifier.height(16.dp))
 
         SocialField(
             icon = Icons.Filled.Code,
             value = uiState.github,
             onValueChange = { viewModel.onAction(EditProfileAction.GithubChanged(it)) },
-            placeholder = "github.com/your_username"
+            placeholder = stringResource(R.string.editprofile_github_hint)
         )
         Spacer(modifier = Modifier.height(10.dp))
         SocialField(
             icon = Icons.Filled.Link,
             value = uiState.linkedin,
             onValueChange = { viewModel.onAction(EditProfileAction.LinkedinChanged(it)) },
-            placeholder = "linkedin.com/in/your_name"
+            placeholder = stringResource(R.string.editprofile_linkedin_hint)
         )
         Spacer(modifier = Modifier.height(10.dp))
         SocialField(
             icon = Icons.Filled.Language,
             value = uiState.website,
             onValueChange = { viewModel.onAction(EditProfileAction.WebsiteChanged(it)) },
-            placeholder = "your-website.dev"
+            placeholder = stringResource(R.string.editprofile_website_hint)
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // ── Governance ────────────────────────────────────────────────
-        SectionHeader(title = "Governance")
+        SectionHeader(title = stringResource(R.string.editprofile_governance))
         Spacer(modifier = Modifier.height(16.dp))
 
         GovernanceToggle(
-            title = "Public Profile Visibility",
-            subtitle = "Allow others to see your technical queries",
+            title = stringResource(R.string.editprofile_public_profile),
+            subtitle = stringResource(R.string.editprofile_public_profile_desc),
             checked = uiState.isPublicProfile,
-            onCheckedChange = {
-                viewModel.onAction(EditProfileAction.TogglePublicProfile)
-            }
+            onCheckedChange = { viewModel.onAction(EditProfileAction.TogglePublicProfile) }
         )
         Spacer(modifier = Modifier.height(10.dp))
         GovernanceToggle(
-            title = "Display Email Address",
-            subtitle = "Visible to verified team members",
+            title = stringResource(R.string.editprofile_display_email),
+            subtitle = stringResource(R.string.editprofile_display_email_desc),
             checked = uiState.displayEmail,
-            onCheckedChange = {
-                viewModel.onAction(EditProfileAction.ToggleDisplayEmail)
-            }
+            onCheckedChange = { viewModel.onAction(EditProfileAction.ToggleDisplayEmail) }
         )
 
         Spacer(modifier = Modifier.height(32.dp))
 
         // ── Save button ───────────────────────────────────────────────
-        Button(
+        DevzButton(
+            label = stringResource(R.string.editprofile_save_changes),
             onClick = { viewModel.onAction(EditProfileAction.Save(navigateUp)) },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(54.dp)
-                .shadow(
-                    elevation = 10.dp,
-                    shape = RoundedCornerShape(16.dp),
-                    spotColor = CyanPrimary
-                ),
-            shape = RoundedCornerShape(16.dp),
-            enabled = !uiState.isLoading,
-            colors = ButtonDefaults.buttonColors(
-                containerColor = CyanPrimary,
-                contentColor = Color.Black
-            )
-        ) {
-            if (uiState.isLoading) {
-                CircularProgressIndicator(
-                    color = Color.Black,
-                    modifier = Modifier.size(22.dp),
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text(
-                    "Save Profile Changes",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF00363E),
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-        }
+            loading = uiState.isLoading,
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextButton(onClick = { viewModel.onAction(EditProfileAction.DeactivateAccount) }) {
-            Text(
-                text = "Deactivate Account",
-                color = MaterialTheme.colorScheme.error,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.SemiBold,
-                style = MaterialTheme.typography.titleLarge
-            )
-        }
+        DevzTextButton(
+            label = stringResource(R.string.editprofile_deactivate),
+            onClick = { viewModel.onAction(EditProfileAction.DeactivateAccount) },
+        )
 
         Spacer(modifier = Modifier.height(40.dp))
     }
 }
 
 @Composable
+private fun FieldLabel(text: String) {
+    Text(
+        text = text,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        fontSize = 11.sp,
+        fontWeight = FontWeight.SemiBold,
+        letterSpacing = 1.5.sp,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+
+@Composable
 private fun devzTextFieldColors() = OutlinedTextFieldDefaults.colors(
-    focusedBorderColor = Color.Transparent,
+    focusedBorderColor = MaterialTheme.colorScheme.primary,
     unfocusedBorderColor = Color.Transparent,
-    focusedTextColor = TextWhite,
-    unfocusedTextColor = TextWhite,
-    cursorColor = CyanPrimary,
-    focusedContainerColor = Color(0xFF2A2A2A),
-    unfocusedContainerColor = Color(0xFF2A2A2A)
+    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+    cursorColor = MaterialTheme.colorScheme.primary,
+    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
 )
 
-@Preview
+@Preview(name = "Edit Profile — Dark")
 @Composable
-private fun PrevEditProfile() {
-    DevzTheme {
-        EditProfileScreen(
-            navigateUp = {}
-        )
+private fun PrevEditProfileDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        EditProfileScreen(navigateUp = {})
     }
 }
 
-
-
-
-
+@Preview(name = "Edit Profile — Light")
+@Composable
+private fun PrevEditProfileLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        EditProfileScreen(navigateUp = {})
+    }
+}

@@ -17,10 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.TextSubtle
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun SocialField(
@@ -36,7 +33,7 @@ fun SocialField(
         placeholder = {
             Text(
                 placeholder,
-                color = TextSubtle,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontSize = 13.sp,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -44,20 +41,20 @@ fun SocialField(
         singleLine = true,
         shape = RoundedCornerShape(12.dp),
         colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = Color.Transparent,
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
             unfocusedBorderColor = Color.Transparent,
-            focusedTextColor = TextWhite,
-            unfocusedTextColor = TextWhite,
-            cursorColor = CyanPrimary,
-            focusedContainerColor = Color(0xFF2A2A2A),
-            unfocusedContainerColor = Color(0xFF2A2A2A)
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerHigh
         ),
         textStyle = MaterialTheme.typography.bodyMedium,
         leadingIcon = {
             Icon(
                 icon,
                 null,
-                tint = TextSubtle,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }

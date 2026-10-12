@@ -17,8 +17,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.TextWhite
 
 @Composable
 fun SectionHeader(title: String) {
@@ -27,17 +25,17 @@ fun SectionHeader(title: String) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        // Left cyan accent bar
+        // Left accent bar
         Box(
             modifier = Modifier
                 .width(4.dp)
                 .height(22.dp)
                 .clip(RoundedCornerShape(2.dp))
-                .background(CyanPrimary)
+                .background(MaterialTheme.colorScheme.primary)
         )
         Text(
             text = title,
-            color = TextWhite,
+            color = MaterialTheme.colorScheme.onSurface,
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleLarge

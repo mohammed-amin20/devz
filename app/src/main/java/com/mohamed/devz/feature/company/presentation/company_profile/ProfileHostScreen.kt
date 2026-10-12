@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -16,8 +17,6 @@ import androidx.lifecycle.viewModelScope
 import com.mohamed.devz.feature.core.domain.repository.AccountRepository
 import com.mohamed.devz.feature.core.domain.util.Result
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
-import com.mohamed.devz.ui.theme.CyanPrimary
-import com.mohamed.devz.ui.theme.QBg
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -82,15 +81,15 @@ fun ProfileHostScreen(
         )
 
         null -> {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(QBg)
-                    .then(modifier),
-                contentAlignment = Alignment.Center,
-            ) {
-                CircularProgressIndicator(color = CyanPrimary)
-            }
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                        .then(modifier),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
+                }
         }
 
         else -> ProfileScreen(

@@ -7,16 +7,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.TextGray
 
 @Composable
 fun EmptyTabContent(
@@ -34,21 +34,23 @@ fun EmptyTabContent(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = Color(0xFF3A4A4A),
+            tint = MaterialTheme.colorScheme.outlineVariant,
             modifier = Modifier.size(56.dp)
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
             text = title,
-            color = TextGray,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 16.sp,
-            fontWeight = FontWeight.Medium
+            fontWeight = FontWeight.Medium,
+            textAlign = TextAlign.Center
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
             text = subtitle,
-            color = TextGray.copy(alpha = 0.5f),
-            fontSize = 13.sp
+            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f),
+            fontSize = 13.sp,
+            textAlign = TextAlign.Center
         )
     }
 }

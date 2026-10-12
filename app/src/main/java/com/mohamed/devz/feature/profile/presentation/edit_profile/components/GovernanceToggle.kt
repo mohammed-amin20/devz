@@ -22,10 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.mohamed.devz.ui.theme.CyanPrimary
 import com.mohamed.devz.ui.theme.DevzTheme
-import com.mohamed.devz.ui.theme.TextGray
-import com.mohamed.devz.ui.theme.TextWhite
 
 
 @Composable
@@ -37,7 +34,7 @@ fun GovernanceToggle(
 ) {
     Surface(
         shape = RoundedCornerShape(14.dp),
-        color = Color(0xFF1C1B1B),
+        color = MaterialTheme.colorScheme.surfaceContainer,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -48,7 +45,7 @@ fun GovernanceToggle(
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     title,
-                    color = TextWhite,
+                    color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     style = MaterialTheme.typography.titleLarge
@@ -56,7 +53,7 @@ fun GovernanceToggle(
                 Spacer(modifier = Modifier.height(3.dp))
                 Text(
                     subtitle,
-                    color = TextGray,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     fontSize = 12.sp,
                     style = MaterialTheme.typography.bodyMedium
                 )
@@ -66,10 +63,10 @@ fun GovernanceToggle(
                 checked = checked,
                 onCheckedChange = { onCheckedChange() },
                 colors = SwitchDefaults.colors(
-                    checkedThumbColor = Color(0xFF00363E),
-                    checkedTrackColor = CyanPrimary,
-                    uncheckedThumbColor = TextGray,
-                    uncheckedTrackColor = Color(0xFF353534),
+                    checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
+                    checkedTrackColor = MaterialTheme.colorScheme.primary,
+                    uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    uncheckedTrackColor = MaterialTheme.colorScheme.surfaceContainerHighest,
                     uncheckedBorderColor = Color.Transparent,
                 )
             )
@@ -84,7 +81,7 @@ private fun Prev() {
         GovernanceToggle(
             title = "Public Profile Visibility",
             subtitle = "Allow others to see your technical queries",
-            checked= false ,
+            checked = false,
             onCheckedChange = {}
         )
     }
