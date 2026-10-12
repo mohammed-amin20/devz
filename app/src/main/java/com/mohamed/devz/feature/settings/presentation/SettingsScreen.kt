@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.settings.presentation
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
@@ -30,8 +30,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -57,7 +57,6 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    var showLogoutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.event.collect { event ->
@@ -66,6 +65,30 @@ fun SettingsScreen(
             }
         }
     }
+
+    SettingsContent(
+        themeMode = uiState.themeMode,
+        language = uiState.language,
+        onNavigateUp = onNavigateUp,
+        onSelectThemeMode = { viewModel.onAction(SettingsAction.SelectThemeMode(it)) },
+        onSelectLanguage = { viewModel.onAction(SettingsAction.SelectLanguage(it)) },
+        onLogoutConfirm = { viewModel.onAction(SettingsAction.Logout) },
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsContent(
+    themeMode: ThemeMode,
+    language: AppLanguage,
+    onNavigateUp: () -> Unit,
+    onSelectThemeMode: (ThemeMode) -> Unit,
+    onSelectLanguage: (AppLanguage) -> Unit,
+    onLogoutConfirm: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var showLogoutDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -101,8 +124,8 @@ fun SettingsScreen(
                     val modes = listOf(ThemeMode.SYSTEM, ThemeMode.LIGHT, ThemeMode.DARK)
                     modes.forEachIndexed { index, mode ->
                         SegmentedButton(
-                            selected = uiState.themeMode == mode,
-                            onClick = { viewModel.onAction(SettingsAction.SelectThemeMode(mode)) },
+                            selected = themeMode == mode,
+                            onClick = { onSelectThemeMode(mode) },
                             shape = SegmentedButtonDefaults.itemShape(index, modes.size),
                         ) {
                             Text(
@@ -123,14 +146,14 @@ fun SettingsScreen(
             SettingGroup(title = stringResource(R.string.settings_language)) {
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     val languages = listOf(AppLanguage.SYSTEM, AppLanguage.ENGLISH, AppLanguage.ARABIC)
-                    languages.forEachIndexed { index, language ->
+                    languages.forEachIndexed { index, item ->
                         SegmentedButton(
-                            selected = uiState.language == language,
-                            onClick = { viewModel.onAction(SettingsAction.SelectLanguage(language)) },
+                            selected = language == item,
+                            onClick = { onSelectLanguage(item) },
                             shape = SegmentedButtonDefaults.itemShape(index, languages.size),
                         ) {
                             Text(
-                                when (language) {
+                                when (item) {
                                     AppLanguage.SYSTEM -> stringResource(R.string.language_system)
                                     AppLanguage.ENGLISH -> stringResource(R.string.language_english)
                                     AppLanguage.ARABIC -> stringResource(R.string.language_arabic)
@@ -146,17 +169,17 @@ fun SettingsScreen(
 
             Spacer(modifier = Modifier.weight(1f))
 
-OutlinedButton(
-                    onClick = { showLogoutDialog = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    shape = MaterialTheme.shapes.large,
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                ) {
+            OutlinedButton(
+                onClick = { showLogoutDialog = true },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+                shape = MaterialTheme.shapes.large,
+                colors = ButtonDefaults.outlinedButtonColors(
+                    contentColor = MaterialTheme.colorScheme.error,
+                ),
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+            ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.Logout,
                     contentDescription = null,
@@ -180,7 +203,7 @@ OutlinedButton(
                 TextButton(
                     onClick = {
                         showLogoutDialog = false
-                        viewModel.onAction(SettingsAction.Logout)
+                        onLogoutConfirm()
                     }
                 ) {
                     Text(
@@ -224,7 +247,14 @@ private fun SettingGroup(
 @Composable
 private fun PreviewSettingsDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        SettingsScreen(onNavigateUp = {}, onLogout = {})
+        SettingsContent(
+            themeMode = ThemeMode.DARK,
+            language = AppLanguage.SYSTEM,
+            onNavigateUp = {},
+            onSelectThemeMode = {},
+            onSelectLanguage = {},
+            onLogoutConfirm = {},
+        )
     }
 }
 
@@ -232,6 +262,13 @@ private fun PreviewSettingsDark() {
 @Composable
 private fun PreviewSettingsLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        SettingsScreen(onNavigateUp = {}, onLogout = {})
+        SettingsContent(
+            themeMode = ThemeMode.LIGHT,
+            language = AppLanguage.SYSTEM,
+            onNavigateUp = {},
+            onSelectThemeMode = {},
+            onSelectLanguage = {},
+            onLogoutConfirm = {},
+        )
     }
 }

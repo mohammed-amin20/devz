@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.company.presentation.company_dashboard.CompanyJobUiModel
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 import com.mohamed.devz.ui.components.ErrorState
 import com.mohamed.devz.ui.theme.DevzTheme
@@ -78,6 +79,27 @@ fun CompanyProfileScreen(
 
     BackHandler { navigateUp() }
 
+    CompanyProfileContent(
+        state = uiState,
+        onJobClick = onJobClick,
+        onPostJob = onPostJob,
+        onBack = navigateUp,
+        onRefresh = { viewModel.onAction(CompanyProfileAction.Refresh) },
+        onSelectTab = { viewModel.onAction(CompanyProfileAction.SelectTab(it)) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun CompanyProfileContent(
+    state: CompanyProfileUiState,
+    onJobClick: (Int) -> Unit,
+    onPostJob: () -> Unit,
+    onBack: () -> Unit,
+    onRefresh: () -> Unit,
+    onSelectTab: (Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -85,17 +107,17 @@ fun CompanyProfileScreen(
             .then(modifier),
     ) {
         when {
-            uiState.isLoading -> {
+            state.isLoading -> {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.align(Alignment.Center),
                 )
             }
 
-            uiState.error != null -> {
+            state.error != null -> {
                 ErrorState(
-                    message = uiState.error!!.asString(),
-                    onRetry = { viewModel.onAction(CompanyProfileAction.Refresh) },
+                    message = state.error!!.asString(),
+                    onRetry = onRefresh,
                     retryLabel = stringResource(R.string.action_retry),
                 )
             }
@@ -107,26 +129,26 @@ fun CompanyProfileScreen(
                 ) {
                     item {
                         CompanyHeader(
-                            uiState = uiState,
-                            onBack = navigateUp,
+                            state = state,
+                            onBack = onBack,
                         )
                     }
 
                     item {
                         Column(modifier = Modifier.padding(horizontal = 16.dp)) {
                             PrimaryTabRow(
-                                selectedTabIndex = uiState.selectedTab,
+                                selectedTabIndex = state.selectedTab,
                                 containerColor = MaterialTheme.colorScheme.background,
                                 divider = {},
                             ) {
                                 Tab(
-                                    selected = uiState.selectedTab == 0,
-                                    onClick = { viewModel.onAction(CompanyProfileAction.SelectTab(0)) },
+                                    selected = state.selectedTab == 0,
+                                    onClick = { onSelectTab(0) },
                                     text = {
                                         Text(
-                                            stringResource(R.string.company_profile_tab_posted, uiState.postedJobs.size),
-                                            fontWeight = if (uiState.selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 0) {
+                                            stringResource(R.string.company_profile_tab_posted, state.postedJobs.size),
+                                            fontWeight = if (state.selectedTab == 0) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (state.selectedTab == 0) {
                                                 MaterialTheme.colorScheme.primary
                                             } else {
                                                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -135,13 +157,13 @@ fun CompanyProfileScreen(
                                     },
                                 )
                                 Tab(
-                                    selected = uiState.selectedTab == 1,
-                                    onClick = { viewModel.onAction(CompanyProfileAction.SelectTab(1)) },
+                                    selected = state.selectedTab == 1,
+                                    onClick = { onSelectTab(1) },
                                     text = {
                                         Text(
-                                            stringResource(R.string.company_profile_tab_filled, uiState.filledJobs.size),
-                                            fontWeight = if (uiState.selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
-                                            color = if (uiState.selectedTab == 1) {
+                                            stringResource(R.string.company_profile_tab_filled, state.filledJobs.size),
+                                            fontWeight = if (state.selectedTab == 1) FontWeight.Bold else FontWeight.Normal,
+                                            color = if (state.selectedTab == 1) {
                                                 MaterialTheme.colorScheme.primary
                                             } else {
                                                 MaterialTheme.colorScheme.onSurfaceVariant
@@ -153,12 +175,12 @@ fun CompanyProfileScreen(
                         }
                     }
 
-                    val currentJobs = if (uiState.selectedTab == 0) uiState.postedJobs else uiState.filledJobs
+                    val currentJobs = if (state.selectedTab == 0) state.postedJobs else state.filledJobs
                     if (currentJobs.isEmpty()) {
                         item {
                             Text(
                                 text = stringResource(
-                                    if (uiState.selectedTab == 0) {
+                                    if (state.selectedTab == 0) {
                                         R.string.company_profile_empty_posted
                                     } else {
                                         R.string.company_profile_empty_filled
@@ -193,7 +215,7 @@ fun CompanyProfileScreen(
                                             modifier = Modifier.weight(1f),
                                         )
                                         Spacer(modifier = Modifier.width(8.dp))
-                                        val isOpen = uiState.selectedTab == 0
+                                        val isOpen = state.selectedTab == 0
                                         val chipColor = if (isOpen) {
                                             MaterialTheme.extendedColors.success
                                         } else {
@@ -229,7 +251,7 @@ fun CompanyProfileScreen(
             }
         }
 
-        if (uiState.isOwnProfile && !uiState.isLoading) {
+        if (state.isOwnProfile && !state.isLoading) {
             FloatingActionButton(
                 onClick = onPostJob,
                 containerColor = MaterialTheme.colorScheme.primary,
@@ -246,7 +268,7 @@ fun CompanyProfileScreen(
 
 @Composable
 private fun CompanyHeader(
-    uiState: CompanyProfileUiState,
+    state: CompanyProfileUiState,
     onBack: () -> Unit,
 ) {
     val uriHandler = LocalUriHandler.current
@@ -292,9 +314,9 @@ private fun CompanyHeader(
                         .border(3.dp, gold, CircleShape),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (uiState.logoUrl.isNotBlank()) {
+                    if (state.logoUrl.isNotBlank()) {
                         AsyncImage(
-                            model = uiState.logoUrl,
+                            model = state.logoUrl,
                             contentDescription = null,
                             modifier = Modifier
                                 .size(104.dp)
@@ -310,7 +332,7 @@ private fun CompanyHeader(
                         )
                     }
                 }
-                if (uiState.isVerified) {
+                if (state.isVerified) {
                     Box(
                         modifier = Modifier
                             .size(32.dp)
@@ -333,13 +355,13 @@ private fun CompanyHeader(
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = uiState.companyName,
+                    text = state.companyName,
                     color = MaterialTheme.colorScheme.onSurface,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     textAlign = TextAlign.Center,
                 )
-                if (uiState.isVerified) {
+                if (state.isVerified) {
                     Spacer(modifier = Modifier.width(6.dp))
                     Icon(
                         Icons.Filled.Check,
@@ -350,10 +372,10 @@ private fun CompanyHeader(
                 }
             }
 
-            if (uiState.industry.isNotBlank() || uiState.location.isNotBlank()) {
+            if (state.industry.isNotBlank() || state.location.isNotBlank()) {
                 Spacer(modifier = Modifier.height(6.dp))
                 Text(
-                    text = listOf(uiState.industry, uiState.location)
+                    text = listOf(state.industry, state.location)
                         .filter { it.isNotBlank() }
                         .joinToString(" \u00b7 "),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -362,7 +384,7 @@ private fun CompanyHeader(
                 )
             }
 
-            val summary = uiState.bio.ifBlank { uiState.description }
+            val summary = state.bio.ifBlank { state.description }
             if (summary.isNotBlank()) {
                 Spacer(modifier = Modifier.height(10.dp))
                 Text(
@@ -376,17 +398,17 @@ private fun CompanyHeader(
                 )
             }
 
-            if (uiState.website.isNotBlank() || uiState.twitterUrl.isNotBlank()) {
+            if (state.website.isNotBlank() || state.twitterUrl.isNotBlank()) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(16.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    if (uiState.website.isNotBlank()) {
+                    if (state.website.isNotBlank()) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable {
-                                uriHandler.openUri(normalizeUrl(uiState.website))
+                                uriHandler.openUri(normalizeUrl(state.website))
                             },
                         ) {
                             Icon(
@@ -404,11 +426,11 @@ private fun CompanyHeader(
                             )
                         }
                     }
-                    if (uiState.twitterUrl.isNotBlank()) {
+                    if (state.twitterUrl.isNotBlank()) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
                             modifier = Modifier.clickable {
-                                uriHandler.openUri(normalizeUrl(uiState.twitterUrl))
+                                uriHandler.openUri(normalizeUrl(state.twitterUrl))
                             },
                         ) {
                             Icon(
@@ -444,15 +466,15 @@ private fun CompanyHeader(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     StatItem(
-                        value = uiState.totalJobs.toString(),
+                        value = state.totalJobs.toString(),
                         label = stringResource(R.string.company_profile_stat_jobs),
                     )
                     StatItem(
-                        value = uiState.totalApplicants.toString(),
+                        value = state.totalApplicants.toString(),
                         label = stringResource(R.string.company_profile_stat_applicants),
                     )
                     StatItem(
-                        value = uiState.filledJobs.size.toString(),
+                        value = state.filledJobs.size.toString(),
                         label = stringResource(R.string.company_profile_stat_filled),
                     )
                 }
@@ -492,7 +514,34 @@ private fun normalizeUrl(url: String): String {
 @Composable
 private fun PreviewCompanyProfileDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        CompanyProfileScreen(onJobClick = {}, onPostJob = {}, navigateUp = {})
+        CompanyProfileContent(
+            state = CompanyProfileUiState(
+                companyName = "Acme Labs",
+                description = "Building awesome developer tools since 2021.",
+                location = "Amman, Jordan",
+                industry = "Software",
+                website = "https://acme.dev",
+                isVerified = true,
+                isOwnProfile = true,
+                postedJobs = listOf(
+                    CompanyJobUiModel(
+                        id = 1,
+                        title = "Senior Android Developer",
+                        status = "approved",
+                        createdAt = "2024-01-01T00:00:00Z",
+                    )
+                ),
+                totalJobs = 1,
+                totalApplicants = 5,
+                selectedTab = 0,
+                isLoading = false,
+            ),
+            onJobClick = {},
+            onPostJob = {},
+            onBack = {},
+            onRefresh = {},
+            onSelectTab = {},
+        )
     }
 }
 
@@ -500,6 +549,33 @@ private fun PreviewCompanyProfileDark() {
 @Composable
 private fun PreviewCompanyProfileLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        CompanyProfileScreen(onJobClick = {}, onPostJob = {}, navigateUp = {})
+        CompanyProfileContent(
+            state = CompanyProfileUiState(
+                companyName = "Acme Labs",
+                description = "Building awesome developer tools since 2021.",
+                location = "Amman, Jordan",
+                industry = "Software",
+                website = "https://acme.dev",
+                isVerified = true,
+                isOwnProfile = true,
+                postedJobs = listOf(
+                    CompanyJobUiModel(
+                        id = 1,
+                        title = "Senior Android Developer",
+                        status = "approved",
+                        createdAt = "2024-01-01T00:00:00Z",
+                    )
+                ),
+                totalJobs = 1,
+                totalApplicants = 5,
+                selectedTab = 0,
+                isLoading = false,
+            ),
+            onJobClick = {},
+            onPostJob = {},
+            onBack = {},
+            onRefresh = {},
+            onSelectTab = {},
+        )
     }
 }

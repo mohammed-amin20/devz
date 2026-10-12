@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
@@ -43,6 +42,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerInputBar
+import com.mohamed.devz.feature.question.presentation.question_details.components.AnswerUiModel
 import com.mohamed.devz.feature.question.presentation.question_details.components.QuestionContent
 import com.mohamed.devz.feature.question.presentation.question_details.components.TopBar
 import com.mohamed.devz.feature.question.presentation.util.SyntaxLanguage
@@ -97,45 +97,93 @@ fun QuestionDetailScreen(
         }
     }
 
+    QuestionDetailContent(
+        state = uiState,
+        questionId = questionId,
+        navigateUp = navigateUp,
+        modifier = modifier,
+        snackbarHostState = snackbarHostState,
+        onNavigateToProfile = onNavigateToProfile,
+        onEditQuestion = onEditQuestion,
+        onRetryLoad = { viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId)) },
+        onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) },
+        onAnswerVoteClick = { viewModel.onAction(QuestionDetailsAction.ToggleAnswerVote(it)) },
+        onAcceptAnswer = { viewModel.onAction(QuestionDetailsAction.AcceptAnswer(it)) },
+        onCodeLongPress = { viewModel.onAction(QuestionDetailsAction.PrefillAnswerCode(it)) },
+        onShowReport = { viewModel.onAction(QuestionDetailsAction.ShowReport(it)) },
+        onDismissReport = { viewModel.onAction(QuestionDetailsAction.DismissReport) },
+        onPinClick = { viewModel.onAction(QuestionDetailsAction.PinQuestion) },
+        onAnswerTextChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
+        onPostAnswer = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) },
+        onCodeEditorClick = { viewModel.onAction(QuestionDetailsAction.ShowCodeEditor) },
+        onCodeChange = { viewModel.onAction(QuestionDetailsAction.AnswerCodeChanged(it)) },
+        onCodeDone = { viewModel.onAction(QuestionDetailsAction.HideCodeEditor) },
+        onCodeClear = {
+            viewModel.onAction(QuestionDetailsAction.AnswerCodeChanged(null))
+            viewModel.onAction(QuestionDetailsAction.HideCodeEditor)
+        },
+    )
+}
+
+@Composable
+fun QuestionDetailContent(
+    state: QuestionDetailsState,
+    questionId: Int,
+    navigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
+    snackbarHostState: SnackbarHostState,
+    onNavigateToProfile: (Int) -> Unit,
+    onEditQuestion: (Int) -> Unit,
+    onRetryLoad: () -> Unit,
+    onLikeClick: () -> Unit,
+    onAnswerVoteClick: (Int) -> Unit,
+    onAcceptAnswer: (Int) -> Unit,
+    onCodeLongPress: (String) -> Unit,
+    onShowReport: (ReportTarget) -> Unit,
+    onDismissReport: () -> Unit,
+    onPinClick: () -> Unit,
+    onAnswerTextChange: (String) -> Unit,
+    onPostAnswer: () -> Unit,
+    onCodeEditorClick: () -> Unit,
+    onCodeChange: (String) -> Unit,
+    onCodeDone: () -> Unit,
+    onCodeClear: () -> Unit,
+) {
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         modifier = modifier.background(MaterialTheme.colorScheme.background)
     ) { paddingValues ->
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(modifier = Modifier.fillMaxSize()) {
-                val questionForReport = uiState.question
+                val questionForReport = state.question
                 TopBar(
                     onReport = if (questionForReport != null
-                        && uiState.currentAccountId != 0
-                        && questionForReport.authorAccountId != uiState.currentAccountId
+                        && state.currentAccountId != 0
+                        && questionForReport.authorAccountId != state.currentAccountId
                     ) {
                         {
-                            viewModel.onAction(
-                                QuestionDetailsAction.ShowReport(
-                                    ReportTarget(
-                                        reportedType = "question",
-                                        reportedId = questionId,
-                                        preview = questionForReport.title,
-                                    )
+                            onShowReport(
+                                ReportTarget(
+                                    reportedType = "question",
+                                    reportedId = questionId,
+                                    preview = questionForReport.title,
                                 )
                             )
                         }
                     } else null,
                 )
 
-                if (uiState.question == null) {
+                if (state.question == null) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
                             .weight(1f),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (uiState.error != null) {
+                        if (state.error != null) {
                             ErrorState(
-                                message = uiState.error!!.asString(),
-                                onRetry = {
-                                    viewModel.onAction(QuestionDetailsAction.LoadQuestion(questionId))
-                                },
+                                message = state.error!!.asString(),
+                                onRetry = onRetryLoad,
                                 retryLabel = stringResource(R.string.action_retry),
                             )
                         } else {
@@ -143,75 +191,62 @@ fun QuestionDetailScreen(
                         }
                     }
                 } else {
-                    val question = uiState.question!!
+                    val question = state.question!!
                     QuestionContent(
                         question = question,
-                        answers = uiState.answers,
-                        currentAccountId = uiState.currentAccountId,
+                        answers = state.answers,
+                        currentAccountId = state.currentAccountId,
                         modifier = Modifier
                             .fillMaxWidth()
                             .weight(1f),
                         navigateUp = navigateUp,
-                        onLikeClick = { viewModel.onAction(QuestionDetailsAction.ToggleLike) },
-                        onAnswerVoteClick = { answerId ->
-                            viewModel.onAction(QuestionDetailsAction.ToggleAnswerVote(answerId))
-                        },
-                        onAcceptAnswer = { answerId ->
-                            viewModel.onAction(QuestionDetailsAction.AcceptAnswer(answerId))
-                        },
+                        onLikeClick = onLikeClick,
+                        onAnswerVoteClick = onAnswerVoteClick,
+                        onAcceptAnswer = onAcceptAnswer,
                         onQuestionAuthorClick = { onNavigateToProfile(question.authorAccountId) },
-                        onAnswerAuthorClick = { accountId -> onNavigateToProfile(accountId) },
-                        onCodeLongPress = { code ->
-                            viewModel.onAction(QuestionDetailsAction.PrefillAnswerCode(code))
-                        },
+                        onAnswerAuthorClick = onNavigateToProfile,
+                        onCodeLongPress = onCodeLongPress,
                         onAnswerReport = { answer ->
-                            viewModel.onAction(
-                                QuestionDetailsAction.ShowReport(
-                                    ReportTarget(
-                                        reportedType = "answer",
-                                        reportedId = answer.answerId,
-                                        preview = answer.body,
-                                    )
+                            onShowReport(
+                                ReportTarget(
+                                    reportedType = "answer",
+                                    reportedId = answer.answerId,
+                                    preview = answer.body,
                                 )
                             )
                         },
-                        isPro = uiState.isPro,
+                        isPro = state.isPro,
                         isPinned = question.isPinned,
-                        isPinning = uiState.isPinning,
-                        onPinClick = { viewModel.onAction(QuestionDetailsAction.PinQuestion) },
+                        isPinning = state.isPinning,
+                        onPinClick = onPinClick,
                         onEditClick = { onEditQuestion(questionId) },
                     )
 
-                    if (!uiState.isCompany) {
+                    if (!state.isCompany) {
                         AnswerInputBar(
-                            answerText = uiState.answerText,
-                            onAnswerChange = { viewModel.onAction(QuestionDetailsAction.AnswerTextChanged(it)) },
-                            onPost = { viewModel.onAction(QuestionDetailsAction.PostAnswer({})) },
-                            answerCode = uiState.answerCode,
-                            onCodeClick = {
-                                viewModel.onAction(QuestionDetailsAction.ShowCodeEditor)
-                            }
+                            answerText = state.answerText,
+                            onAnswerChange = onAnswerTextChange,
+                            onPost = onPostAnswer,
+                            answerCode = state.answerCode,
+                            onCodeClick = onCodeEditorClick,
                         )
                     }
                 }
             }
 
-            if (uiState.showCodeEditor) {
+            if (state.showCodeEditor) {
                 CodeEditorOverlay(
-                    code = uiState.answerCode ?: "",
-                    onCodeChange = { viewModel.onAction(QuestionDetailsAction.AnswerCodeChanged(it)) },
-                    onDone = { viewModel.onAction(QuestionDetailsAction.HideCodeEditor) },
-                    onClear = {
-                        viewModel.onAction(QuestionDetailsAction.AnswerCodeChanged(null))
-                        viewModel.onAction(QuestionDetailsAction.HideCodeEditor)
-                    },
+                    code = state.answerCode ?: "",
+                    onCodeChange = onCodeChange,
+                    onDone = onCodeDone,
+                    onClear = onCodeClear,
                 )
             }
 
-            uiState.reportTarget?.let { target ->
+            state.reportTarget?.let { target ->
                 ReportSheet(
                     target = target,
-                    onDismiss = { viewModel.onAction(QuestionDetailsAction.DismissReport) },
+                    onDismiss = onDismissReport,
                 )
             }
         }
@@ -310,9 +345,60 @@ private fun CodeEditorOverlay(
 @Composable
 private fun PreviewQuestionDetailScreen() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        QuestionDetailScreen(
+        QuestionDetailContent(
+            state = QuestionDetailsState(
+                question = previewQuestionDetail,
+                answers = listOf(previewAnswer),
+                isLoading = false,
+                currentAccountId = 5,
+            ),
             questionId = 1,
-            navigateUp = {}
+            navigateUp = {},
+            snackbarHostState = SnackbarHostState(),
+            onNavigateToProfile = {},
+            onEditQuestion = {},
+            onRetryLoad = {},
+            onLikeClick = {},
+            onAnswerVoteClick = {},
+            onAcceptAnswer = {},
+            onCodeLongPress = {},
+            onShowReport = {},
+            onDismissReport = {},
+            onPinClick = {},
+            onAnswerTextChange = {},
+            onPostAnswer = {},
+            onCodeEditorClick = {},
+            onCodeChange = {},
+            onCodeDone = {},
+            onCodeClear = {},
         )
     }
 }
+
+private val previewQuestionDetail = QuestionDetailUiModel(
+    title = "How to handle deep links in Compose Navigation?",
+    authorName = "Ahmed Ali",
+    authorAvatarUrl = "",
+    authorAccountId = 10,
+    timeAgo = "2h ago",
+    tags = listOf("compose", "navigation"),
+    body = "I'm trying to navigate to a specific screen using a deep link but it keeps opening the Home screen.",
+    language = SyntaxLanguage.KOTLIN,
+    code = "composable<Route.QuestionDetails>(\n    deepLinks = listOf(navDeepLink { uriPattern = \"devz://question/{id}\" })\n)",
+    likes = 12,
+    answersCount = 3,
+    isAuthorPro = true,
+)
+
+private val previewAnswer = AnswerUiModel(
+    answerId = 1,
+    authorName = "Sara Khaled",
+    avatarUrl = "",
+    authorAccountId = 11,
+    body = "Make sure your deep link URI matches the pattern exactly, including the scheme.",
+    isAccepted = true,
+    likes = 5,
+    timeAgo = "1h ago",
+    code = "android:host=\"question\"",
+    language = SyntaxLanguage.KOTLIN,
+)

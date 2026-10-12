@@ -98,256 +98,288 @@ fun EditCompanyProfileOverlay(
         enter = fadeIn(tween(300)),
         exit = fadeOut(tween(250)),
     ) {
-        Box(
+        EditCompanyProfileContent(
+            state = uiState,
+            onDismiss = onDismiss,
+            onPickImage = { imagePickerLauncher.launch("image/*") },
+            onSave = { viewModel.onAction(EditCompanyProfileAction.Save(onSaved)) },
+            onCompanyNameChanged = { viewModel.onAction(EditCompanyProfileAction.CompanyNameChanged(it)) },
+            onIndustryChanged = { viewModel.onAction(EditCompanyProfileAction.IndustryChanged(it)) },
+            onLocationChanged = { viewModel.onAction(EditCompanyProfileAction.LocationChanged(it)) },
+            onWebsiteChanged = { viewModel.onAction(EditCompanyProfileAction.WebsiteChanged(it)) },
+            onTwitterChanged = { viewModel.onAction(EditCompanyProfileAction.TwitterChanged(it)) },
+            onDescriptionChanged = { viewModel.onAction(EditCompanyProfileAction.DescriptionChanged(it)) },
+            onBioChanged = { viewModel.onAction(EditCompanyProfileAction.BioChanged(it)) },
+            modifier = modifier,
+        )
+    }
+}
+
+@Composable
+fun EditCompanyProfileContent(
+    state: EditCompanyProfileState,
+    onDismiss: () -> Unit,
+    onPickImage: () -> Unit,
+    onSave: () -> Unit,
+    onCompanyNameChanged: (String) -> Unit,
+    onIndustryChanged: (String) -> Unit,
+    onLocationChanged: (String) -> Unit,
+    onWebsiteChanged: (String) -> Unit,
+    onTwitterChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onBioChanged: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.7f))
+            .clickable(
+                interactionSource = remember { MutableInteractionSource() },
+                indication = null,
+            ) { onDismiss() }
+            .then(modifier),
+        contentAlignment = Alignment.Center,
+    ) {
+        Surface(
             modifier = Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.7f))
+                .fillMaxWidth()
+                .fillMaxHeight(0.92f)
+                .padding(horizontal = 16.dp)
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                ) { onDismiss() },
-            contentAlignment = Alignment.Center,
+                ) {},
+            shape = RoundedCornerShape(24.dp),
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            tonalElevation = 8.dp,
         ) {
-            Surface(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.92f)
-                    .padding(horizontal = 16.dp)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                    ) {},
-                shape = RoundedCornerShape(24.dp),
-                color = MaterialTheme.colorScheme.surfaceContainer,
-                tonalElevation = 8.dp,
-            ) {
-                Column(modifier = Modifier.fillMaxSize()) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .statusBarsPadding()
-                            .padding(start = 20.dp, end = 8.dp, top = 12.dp, bottom = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        Text(
-                            text = stringResource(R.string.company_edit_title),
-                            color = MaterialTheme.colorScheme.onSurface,
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Bold,
-                            style = MaterialTheme.typography.titleLarge,
+            Column(modifier = Modifier.fillMaxSize()) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .statusBarsPadding()
+                        .padding(start = 20.dp, end = 8.dp, top = 12.dp, bottom = 8.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.company_edit_title),
+                        color = MaterialTheme.colorScheme.onSurface,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        style = MaterialTheme.typography.titleLarge,
+                    )
+                    IconButton(onClick = onDismiss) {
+                        Icon(
+                            Icons.Filled.Close,
+                            contentDescription = stringResource(R.string.company_edit_close),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
-                        IconButton(onClick = onDismiss) {
-                            Icon(
-                                Icons.Filled.Close,
-                                contentDescription = stringResource(R.string.company_edit_close),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
+                    }
+                }
+
+                when {
+                    state.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                         }
                     }
 
-                    when {
-                        uiState.isLoading -> {
-                            Box(
-                                modifier = Modifier.fillMaxSize(),
-                                contentAlignment = Alignment.Center,
-                            ) {
-                                CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                            }
-                        }
-
-                        else -> {
-                            Column(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .verticalScroll(rememberScrollState())
-                                    .imePadding()
-                                    .padding(horizontal = 20.dp),
-                            ) {
-                                uiState.error?.let { error ->
-                                    Surface(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        shape = RoundedCornerShape(12.dp),
-                                        color = MaterialTheme.colorScheme.errorContainer,
-                                    ) {
-                                        Text(
-                                            text = error.asString(),
-                                            color = MaterialTheme.colorScheme.onErrorContainer,
-                                            fontSize = 13.sp,
-                                            modifier = Modifier.padding(12.dp),
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.height(16.dp))
+                    else -> {
+                        Column(
+                            modifier = Modifier
+                                .weight(1f)
+                                .verticalScroll(rememberScrollState())
+                                .imePadding()
+                                .padding(horizontal = 20.dp),
+                        ) {
+                            state.error?.let { error ->
+                                Surface(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp),
+                                    color = MaterialTheme.colorScheme.errorContainer,
+                                ) {
+                                    Text(
+                                        text = error.asString(),
+                                        color = MaterialTheme.colorScheme.onErrorContainer,
+                                        fontSize = 13.sp,
+                                        modifier = Modifier.padding(12.dp),
+                                    )
                                 }
+                                Spacer(modifier = Modifier.height(16.dp))
+                            }
 
-                                Box(contentAlignment = Alignment.BottomEnd) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(96.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.surfaceContainerHigh)
-                                            .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        if (uiState.logoUrl.isNotEmpty()) {
-                                            AsyncImage(
-                                                model = uiState.logoUrl,
-                                                contentDescription = null,
-                                                modifier = Modifier
-                                                    .size(96.dp)
-                                                    .clip(CircleShape),
-                                                contentScale = ContentScale.Crop,
-                                            )
-                                        } else {
-                                            Icon(
-                                                Icons.Filled.Business,
-                                                contentDescription = null,
-                                                tint = MaterialTheme.colorScheme.primary,
-                                                modifier = Modifier.size(52.dp),
-                                            )
-                                        }
-                                        if (uiState.isUploadingImage) {
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(96.dp)
-                                                    .clip(CircleShape)
-                                                    .background(Color.Black.copy(alpha = 0.5f)),
-                                                contentAlignment = Alignment.Center,
-                                            ) {
-                                                CircularProgressIndicator(
-                                                    color = MaterialTheme.colorScheme.primary,
-                                                    modifier = Modifier.size(28.dp),
-                                                    strokeWidth = 2.5.dp,
-                                                )
-                                            }
-                                        }
-                                    }
-                                    Box(
-                                        modifier = Modifier
-                                            .size(30.dp)
-                                            .clip(CircleShape)
-                                            .background(MaterialTheme.colorScheme.primary)
-                                            .clickable { imagePickerLauncher.launch("image/*") },
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Icon(
-                                            Icons.Filled.CameraAlt,
+                            Box(contentAlignment = Alignment.BottomEnd) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(96.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surfaceContainerHigh)
+                                        .border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), CircleShape),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    if (state.logoUrl.isNotEmpty()) {
+                                        AsyncImage(
+                                            model = state.logoUrl,
                                             contentDescription = null,
-                                            tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(16.dp),
+                                            modifier = Modifier
+                                                .size(96.dp)
+                                                .clip(CircleShape),
+                                            contentScale = ContentScale.Crop,
+                                        )
+                                    } else {
+                                        Icon(
+                                            Icons.Filled.Business,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.size(52.dp),
                                         )
                                     }
+                                    if (state.isUploadingImage) {
+                                        Box(
+                                            modifier = Modifier
+                                                .size(96.dp)
+                                                .clip(CircleShape)
+                                                .background(Color.Black.copy(alpha = 0.5f)),
+                                            contentAlignment = Alignment.Center,
+                                        ) {
+                                            CircularProgressIndicator(
+                                                color = MaterialTheme.colorScheme.primary,
+                                                modifier = Modifier.size(28.dp),
+                                                strokeWidth = 2.5.dp,
+                                            )
+                                        }
+                                    }
                                 }
-
-                                Spacer(modifier = Modifier.height(6.dp))
-                                FieldLabel(stringResource(R.string.company_edit_logo))
-                                Spacer(modifier = Modifier.height(24.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_name))
-                                EditField(
-                                    value = uiState.companyName,
-                                    placeholder = stringResource(R.string.company_edit_name_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.CompanyNameChanged(it)) },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_industry))
-                                EditField(
-                                    value = uiState.industry,
-                                    placeholder = stringResource(R.string.company_edit_industry_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.IndustryChanged(it)) },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_location))
-                                EditField(
-                                    value = uiState.location,
-                                    placeholder = stringResource(R.string.company_edit_location_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.LocationChanged(it)) },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_website))
-                                EditField(
-                                    value = uiState.website,
-                                    placeholder = stringResource(R.string.company_edit_website_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.WebsiteChanged(it)) },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_twitter))
-                                EditField(
-                                    value = uiState.twitterUrl,
-                                    placeholder = stringResource(R.string.company_edit_twitter_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.TwitterChanged(it)) },
-                                    singleLine = true,
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_description))
-                                EditField(
-                                    value = uiState.description,
-                                    placeholder = stringResource(R.string.company_edit_description_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.DescriptionChanged(it)) },
-                                )
-                                Spacer(modifier = Modifier.height(16.dp))
-
-                                FieldLabel(stringResource(R.string.company_edit_field_bio))
-                                EditField(
-                                    value = uiState.bio,
-                                    placeholder = stringResource(R.string.company_edit_bio_hint),
-                                    onValueChange = { viewModel.onAction(EditCompanyProfileAction.BioChanged(it)) },
-                                )
-                                Spacer(modifier = Modifier.height(24.dp))
+                                Box(
+                                    modifier = Modifier
+                                        .size(30.dp)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.primary)
+                                        .clickable(onClick = onPickImage),
+                                    contentAlignment = Alignment.Center,
+                                ) {
+                                    Icon(
+                                        Icons.Filled.CameraAlt,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimary,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
                             }
+
+                            Spacer(modifier = Modifier.height(6.dp))
+                            FieldLabel(stringResource(R.string.company_edit_logo))
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_name))
+                            EditField(
+                                value = state.companyName,
+                                placeholder = stringResource(R.string.company_edit_name_hint),
+                                onValueChange = onCompanyNameChanged,
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_industry))
+                            EditField(
+                                value = state.industry,
+                                placeholder = stringResource(R.string.company_edit_industry_hint),
+                                onValueChange = onIndustryChanged,
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_location))
+                            EditField(
+                                value = state.location,
+                                placeholder = stringResource(R.string.company_edit_location_hint),
+                                onValueChange = onLocationChanged,
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_website))
+                            EditField(
+                                value = state.website,
+                                placeholder = stringResource(R.string.company_edit_website_hint),
+                                onValueChange = onWebsiteChanged,
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_twitter))
+                            EditField(
+                                value = state.twitterUrl,
+                                placeholder = stringResource(R.string.company_edit_twitter_hint),
+                                onValueChange = onTwitterChanged,
+                                singleLine = true,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_description))
+                            EditField(
+                                value = state.description,
+                                placeholder = stringResource(R.string.company_edit_description_hint),
+                                onValueChange = onDescriptionChanged,
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+
+                            FieldLabel(stringResource(R.string.company_edit_field_bio))
+                            EditField(
+                                value = state.bio,
+                                placeholder = stringResource(R.string.company_edit_bio_hint),
+                                onValueChange = onBioChanged,
+                            )
+                            Spacer(modifier = Modifier.height(24.dp))
                         }
                     }
+                }
 
-                    Row(
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Button(
+                        onClick = onDismiss,
+                        enabled = !state.isSaving,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
                     ) {
-                        Button(
-                            onClick = onDismiss,
-                            enabled = !uiState.isSaving,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                            ),
-                        ) {
-                            Text(stringResource(R.string.company_edit_cancel), fontWeight = FontWeight.SemiBold)
-                        }
-                        Button(
-                            onClick = { viewModel.onAction(EditCompanyProfileAction.Save(onSaved)) },
-                            enabled = !uiState.isSaving,
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(50.dp),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = MaterialTheme.colorScheme.primary,
-                                contentColor = MaterialTheme.colorScheme.onPrimary,
-                            ),
-                        ) {
-                            if (uiState.isSaving) {
-                                CircularProgressIndicator(
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    modifier = Modifier.size(18.dp),
-                                    strokeWidth = 2.dp,
-                                )
-                            } else {
-                                Text(stringResource(R.string.company_edit_save), fontWeight = FontWeight.SemiBold)
-                            }
+                        Text(stringResource(R.string.company_edit_cancel), fontWeight = FontWeight.SemiBold)
+                    }
+                    Button(
+                        onClick = onSave,
+                        enabled = !state.isSaving,
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onPrimary,
+                        ),
+                    ) {
+                        if (state.isSaving) {
+                            CircularProgressIndicator(
+                                color = MaterialTheme.colorScheme.onPrimary,
+                                modifier = Modifier.size(18.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text(stringResource(R.string.company_edit_save), fontWeight = FontWeight.SemiBold)
                         }
                     }
                 }
@@ -411,7 +443,28 @@ private fun editTextFieldColors() = OutlinedTextFieldDefaults.colors(
 @Composable
 private fun PreviewEditCompanyProfileDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        EditCompanyProfileOverlay(visible = true, onDismiss = {}, onSaved = {})
+        EditCompanyProfileContent(
+            state = EditCompanyProfileState(
+                companyName = "Acme Labs",
+                industry = "Software",
+                location = "Amman, Jordan",
+                website = "https://acme.dev",
+                twitterUrl = "https://twitter.com/acme",
+                description = "We build developer tools.",
+                bio = "Hiring great engineers.",
+                isLoading = false,
+            ),
+            onDismiss = {},
+            onPickImage = {},
+            onSave = {},
+            onCompanyNameChanged = {},
+            onIndustryChanged = {},
+            onLocationChanged = {},
+            onWebsiteChanged = {},
+            onTwitterChanged = {},
+            onDescriptionChanged = {},
+            onBioChanged = {},
+        )
     }
 }
 
@@ -419,6 +472,27 @@ private fun PreviewEditCompanyProfileDark() {
 @Composable
 private fun PreviewEditCompanyProfileLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        EditCompanyProfileOverlay(visible = true, onDismiss = {}, onSaved = {})
+        EditCompanyProfileContent(
+            state = EditCompanyProfileState(
+                companyName = "Acme Labs",
+                industry = "Software",
+                location = "Amman, Jordan",
+                website = "https://acme.dev",
+                twitterUrl = "https://twitter.com/acme",
+                description = "We build developer tools.",
+                bio = "Hiring great engineers.",
+                isLoading = false,
+            ),
+            onDismiss = {},
+            onPickImage = {},
+            onSave = {},
+            onCompanyNameChanged = {},
+            onIndustryChanged = {},
+            onLocationChanged = {},
+            onWebsiteChanged = {},
+            onTwitterChanged = {},
+            onDescriptionChanged = {},
+            onBioChanged = {},
+        )
     }
 }

@@ -55,7 +55,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +62,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.core.domain.model.Report
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
 import com.mohamed.devz.ui.components.EmptyState
 import com.mohamed.devz.ui.components.ErrorState
@@ -92,6 +92,34 @@ fun ManageReportsScreen(
         }
     }
 
+    ManageReportsContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onFilterSelected = { viewModel.onAction(ManageReportsAction.FilterSelected(it)) },
+        onRefresh = { viewModel.onAction(ManageReportsAction.Refresh) },
+        onSelectReport = { viewModel.onAction(ManageReportsAction.SelectReport(it)) },
+        onDismissDetail = { viewModel.onAction(ManageReportsAction.DismissDetail) },
+        onDismissReport = { viewModel.onAction(ManageReportsAction.DismissReport(it)) },
+        onDeleteContent = { viewModel.onAction(ManageReportsAction.DeleteContent(it)) },
+        onBanUser = { viewModel.onAction(ManageReportsAction.BanUser(it)) },
+        snackbarHostState = snackbarHostState,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageReportsContent(
+    state: ManageReportsState,
+    onNavigateUp: () -> Unit,
+    onFilterSelected: (Int) -> Unit,
+    onRefresh: () -> Unit,
+    onSelectReport: (Report) -> Unit,
+    onDismissDetail: () -> Unit,
+    onDismissReport: (Report) -> Unit,
+    onDeleteContent: (Report) -> Unit,
+    onBanUser: (Report) -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -132,8 +160,8 @@ fun ManageReportsScreen(
             ) {
                 FILTERS.forEachIndexed { index, labelRes ->
                     FilterChip(
-                        selected = uiState.selectedFilter == index,
-                        onClick = { viewModel.onAction(ManageReportsAction.FilterSelected(index)) },
+                        selected = state.selectedFilter == index,
+                        onClick = { onFilterSelected(index) },
                         label = { Text(stringResource(labelRes), fontSize = 12.sp, fontWeight = FontWeight.SemiBold) },
                         colors = FilterChipDefaults.filterChipColors(
                             containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -144,7 +172,7 @@ fun ManageReportsScreen(
                         ),
                         border = FilterChipDefaults.filterChipBorder(
                             enabled = true,
-                            selected = uiState.selectedFilter == index,
+                            selected = state.selectedFilter == index,
                             borderColor = MaterialTheme.colorScheme.outlineVariant,
                             selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                             borderWidth = 1.dp,
@@ -154,7 +182,7 @@ fun ManageReportsScreen(
             }
 
             when {
-                uiState.isLoading && uiState.allReports.isEmpty() -> {
+                state.isLoading && state.allReports.isEmpty() -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -163,10 +191,10 @@ fun ManageReportsScreen(
                     }
                 }
 
-                uiState.error != null && uiState.allReports.isEmpty() -> {
+                state.error != null && state.allReports.isEmpty() -> {
                     ErrorState(
-                        message = uiState.error!!.asString(),
-                        onRetry = { viewModel.onAction(ManageReportsAction.Refresh) },
+                        message = state.error!!.asString(),
+                        onRetry = onRefresh,
                         retryLabel = stringResource(R.string.action_retry),
                     )
                 }
@@ -174,20 +202,20 @@ fun ManageReportsScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageReportsAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
-                        if (uiState.filteredReports.isEmpty()) {
+                        if (state.filteredReports.isEmpty()) {
                             EmptyState(
                                 icon = Icons.Filled.Report,
                                 title = stringResource(R.string.admin_empty_reports),
@@ -203,10 +231,10 @@ fun ManageReportsScreen(
                                 ),
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
-                                items(uiState.filteredReports, key = { it.report.id }) { model ->
+                                items(state.filteredReports, key = { it.report.id }) { model ->
                                     ReportCard(
                                         model = model,
-                                        onClick = { viewModel.onAction(ManageReportsAction.SelectReport(model.report)) },
+                                        onClick = { onSelectReport(model.report) },
                                     )
                                 }
                             }
@@ -217,14 +245,14 @@ fun ManageReportsScreen(
         }
     }
 
-    uiState.selectedReport?.let { selected ->
+    state.selectedReport?.let { selected ->
         ReportDetailSheet(
             model = selected,
-            isProcessing = uiState.isProcessing,
-            onDismiss = { viewModel.onAction(ManageReportsAction.DismissDetail) },
-            onDismissReport = { viewModel.onAction(ManageReportsAction.DismissReport(selected.report)) },
-            onDeleteContent = { viewModel.onAction(ManageReportsAction.DeleteContent(selected.report)) },
-            onBanUser = { viewModel.onAction(ManageReportsAction.BanUser(selected.report)) },
+            isProcessing = state.isProcessing,
+            onDismiss = onDismissDetail,
+            onDismissReport = { onDismissReport(selected.report) },
+            onDeleteContent = { onDeleteContent(selected.report) },
+            onBanUser = { onBanUser(selected.report) },
         )
     }
 }
@@ -556,7 +584,22 @@ private fun DetailRow(
 @Composable
 private fun PreviewManageReportsDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageReportsScreen(onNavigateUp = {})
+        ManageReportsContent(
+            state = ManageReportsState(
+                allReports = listOf(previewReport),
+                filteredReports = listOf(previewReport),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onFilterSelected = {},
+            onRefresh = {},
+            onSelectReport = {},
+            onDismissDetail = {},
+            onDismissReport = {},
+            onDeleteContent = {},
+            onBanUser = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
 
@@ -564,6 +607,36 @@ private fun PreviewManageReportsDark() {
 @Composable
 private fun PreviewManageReportsLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageReportsScreen(onNavigateUp = {})
+        ManageReportsContent(
+            state = ManageReportsState(
+                allReports = listOf(previewReport),
+                filteredReports = listOf(previewReport),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onFilterSelected = {},
+            onRefresh = {},
+            onSelectReport = {},
+            onDismissDetail = {},
+            onDismissReport = {},
+            onDeleteContent = {},
+            onBanUser = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
+
+private val previewReport = ReportUiModel(
+    report = Report(
+        id = 1,
+        reporterId = 7,
+        reportedType = "question",
+        reportedId = 99,
+        reason = "Spam",
+        details = "This question looks like spam.",
+        status = "pending",
+        createdAt = "2024-01-01T00:00:00Z",
+    ),
+    reporterName = "Ahmed",
+    targetTitle = "How to use Compose?",
+)

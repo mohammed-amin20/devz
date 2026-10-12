@@ -1,5 +1,6 @@
 package com.mohamed.devz.feature.admin.presentation.manage_announcements
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -76,11 +77,43 @@ fun ManageAnnouncementsScreen(
         }
     }
 
-    if (uiState.showDeleteDialog && uiState.targetDeleteNotification != null) {
-        val parts = uiState.targetDeleteNotification!!.message.split("\n", limit = 2)
+    ManageAnnouncementsContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onTitleChanged = { viewModel.onAction(ManageAnnouncementsAction.TitleChanged(it)) },
+        onMessageChanged = { viewModel.onAction(ManageAnnouncementsAction.MessageChanged(it)) },
+        onCreateAnnouncement = { viewModel.onAction(ManageAnnouncementsAction.CreateAnnouncement) },
+        onShowCreateDialog = { viewModel.onAction(ManageAnnouncementsAction.ShowCreateDialog) },
+        onDismissCreateDialog = { viewModel.onAction(ManageAnnouncementsAction.DismissCreateDialog) },
+        onDeleteAnnouncement = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(it)) },
+        onConfirmDelete = { viewModel.onAction(ManageAnnouncementsAction.ConfirmDelete(it)) },
+        onDismissDeleteDialog = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) },
+        onRefresh = { viewModel.onAction(ManageAnnouncementsAction.Refresh) },
+        snackbarHostState = snackbarHostState,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageAnnouncementsContent(
+    state: ManageAnnouncementsState,
+    onNavigateUp: () -> Unit,
+    onTitleChanged: (String) -> Unit,
+    onMessageChanged: (String) -> Unit,
+    onCreateAnnouncement: () -> Unit,
+    onShowCreateDialog: () -> Unit,
+    onDismissCreateDialog: () -> Unit,
+    onDeleteAnnouncement: (Notification) -> Unit,
+    onConfirmDelete: (Notification) -> Unit,
+    onDismissDeleteDialog: () -> Unit,
+    onRefresh: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
+    if (state.showDeleteDialog && state.targetDeleteNotification != null) {
+        val parts = state.targetDeleteNotification!!.message.split("\n", limit = 2)
         val title = parts.getOrElse(0) { "" }
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) },
+            onDismissRequest = onDismissDeleteDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -97,7 +130,7 @@ fun ManageAnnouncementsScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageAnnouncementsAction.ConfirmDelete(uiState.targetDeleteNotification!!)) },
+                    onClick = { onConfirmDelete(state.targetDeleteNotification!!) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
@@ -107,16 +140,16 @@ fun ManageAnnouncementsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageAnnouncementsAction.DismissDeleteDialog) }) {
+                TextButton(onClick = onDismissDeleteDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
-    if (uiState.showCreateDialog) {
+    if (state.showCreateDialog) {
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageAnnouncementsAction.DismissCreateDialog) },
+            onDismissRequest = onDismissCreateDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -128,15 +161,15 @@ fun ManageAnnouncementsScreen(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     DevzTextField(
-                        value = uiState.createTitle,
-                        onValueChange = { viewModel.onAction(ManageAnnouncementsAction.TitleChanged(it)) },
+                        value = state.createTitle,
+                        onValueChange = onTitleChanged,
                         modifier = Modifier.fillMaxWidth(),
                         label = stringResource(R.string.admin_field_title),
                         singleLine = true,
                     )
                     DevzTextField(
-                        value = uiState.createMessage,
-                        onValueChange = { viewModel.onAction(ManageAnnouncementsAction.MessageChanged(it)) },
+                        value = state.createMessage,
+                        onValueChange = onMessageChanged,
                         modifier = Modifier.fillMaxWidth(),
                         label = stringResource(R.string.admin_field_message),
                         singleLine = false,
@@ -146,7 +179,7 @@ fun ManageAnnouncementsScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageAnnouncementsAction.CreateAnnouncement) },
+                    onClick = onCreateAnnouncement,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(10.dp),
                 ) {
@@ -154,7 +187,7 @@ fun ManageAnnouncementsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageAnnouncementsAction.DismissCreateDialog) }) {
+                TextButton(onClick = onDismissCreateDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
@@ -194,7 +227,7 @@ fun ManageAnnouncementsScreen(
                 .padding(horizontal = 16.dp),
         ) {
             Button(
-                onClick = { viewModel.onAction(ManageAnnouncementsAction.ShowCreateDialog) },
+                onClick = onShowCreateDialog,
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
@@ -209,7 +242,7 @@ fun ManageAnnouncementsScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             when {
-                uiState.isLoading -> {
+                state.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -217,7 +250,7 @@ fun ManageAnnouncementsScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                uiState.announcements.isEmpty() -> {
+                state.announcements.isEmpty() -> {
                     EmptyState(
                         icon = Icons.Filled.Campaign,
                         title = stringResource(R.string.admin_empty_announcements),
@@ -226,14 +259,14 @@ fun ManageAnnouncementsScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageAnnouncementsAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -242,10 +275,10 @@ fun ManageAnnouncementsScreen(
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            items(uiState.announcements, key = { it.id }) { notification ->
+                            items(state.announcements, key = { it.id }) { notification ->
                                 SystemNotificationCard(
                                     notification = notification,
-                                    onDelete = { viewModel.onAction(ManageAnnouncementsAction.DeleteAnnouncement(notification)) },
+                                    onDelete = { onDeleteAnnouncement(notification) },
                                 )
                             }
                             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -312,7 +345,7 @@ private fun SystemNotificationCard(
                     onClick = onDelete,
                     shape = RoundedCornerShape(10.dp),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)),
                 ) {
                     Text(stringResource(R.string.action_delete), fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
                 }
@@ -325,7 +358,23 @@ private fun SystemNotificationCard(
 @Composable
 private fun PreviewManageAnnouncementsDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageAnnouncementsScreen(onNavigateUp = {})
+        ManageAnnouncementsContent(
+            state = ManageAnnouncementsState(
+                announcements = listOf(previewNotification),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onTitleChanged = {},
+            onMessageChanged = {},
+            onCreateAnnouncement = {},
+            onShowCreateDialog = {},
+            onDismissCreateDialog = {},
+            onDeleteAnnouncement = {},
+            onConfirmDelete = {},
+            onDismissDeleteDialog = {},
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
 
@@ -333,6 +382,36 @@ private fun PreviewManageAnnouncementsDark() {
 @Composable
 private fun PreviewManageAnnouncementsLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageAnnouncementsScreen(onNavigateUp = {})
+        ManageAnnouncementsContent(
+            state = ManageAnnouncementsState(
+                announcements = listOf(previewNotification),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onTitleChanged = {},
+            onMessageChanged = {},
+            onCreateAnnouncement = {},
+            onShowCreateDialog = {},
+            onDismissCreateDialog = {},
+            onDeleteAnnouncement = {},
+            onConfirmDelete = {},
+            onDismissDeleteDialog = {},
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
+
+private val previewNotification = Notification(
+    id = 1,
+    typeId = 1,
+    userId = 1,
+    actorId = 1,
+    questionId = 0,
+    answerId = null,
+    type = "system",
+    message = "System update\nWe are improving the app performance.",
+    isRead = false,
+    createdAt = "2024-01-01T00:00:00Z",
+    isGlobal = true,
+)

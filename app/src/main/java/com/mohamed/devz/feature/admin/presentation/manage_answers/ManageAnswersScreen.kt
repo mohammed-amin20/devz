@@ -68,9 +68,33 @@ fun ManageAnswersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.showDeleteDialog && uiState.targetDeleteAnswer != null) {
+    ManageAnswersContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onAnswerClick = onAnswerClick,
+        onSearchQueryChanged = { viewModel.onAction(ManageAnswersAction.SearchQueryChanged(it)) },
+        onRefresh = { viewModel.onAction(ManageAnswersAction.Refresh) },
+        onDeleteAnswer = { viewModel.onAction(ManageAnswersAction.DeleteAnswer(it)) },
+        onConfirmDelete = { viewModel.onAction(ManageAnswersAction.ConfirmDelete(it)) },
+        onDismissDeleteDialog = { viewModel.onAction(ManageAnswersAction.DismissDeleteDialog) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageAnswersContent(
+    state: ManageAnswersState,
+    onNavigateUp: () -> Unit,
+    onAnswerClick: (Int) -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onRefresh: () -> Unit,
+    onDeleteAnswer: (Answer) -> Unit,
+    onConfirmDelete: (Answer) -> Unit,
+    onDismissDeleteDialog: () -> Unit,
+) {
+    if (state.showDeleteDialog && state.targetDeleteAnswer != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageAnswersAction.DismissDeleteDialog) },
+            onDismissRequest = onDismissDeleteDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -87,7 +111,7 @@ fun ManageAnswersScreen(
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageAnswersAction.ConfirmDelete(uiState.targetDeleteAnswer!!)) },
+                    onClick = { onConfirmDelete(state.targetDeleteAnswer!!) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
@@ -97,7 +121,7 @@ fun ManageAnswersScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageAnswersAction.DismissDeleteDialog) }) {
+                TextButton(onClick = onDismissDeleteDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
@@ -136,8 +160,8 @@ fun ManageAnswersScreen(
                 .padding(horizontal = 16.dp),
         ) {
             DevzTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onAction(ManageAnswersAction.SearchQueryChanged(it)) },
+                value = state.searchQuery,
+                onValueChange = onSearchQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(R.string.admin_search_answers),
                 leadingIcon = Icons.Filled.Search,
@@ -147,7 +171,7 @@ fun ManageAnswersScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             when {
-                uiState.isLoading -> {
+                state.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -155,7 +179,7 @@ fun ManageAnswersScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                uiState.filteredAnswers.isEmpty() -> {
+                state.filteredAnswers.isEmpty() -> {
                     EmptyState(
                         icon = Icons.Filled.Search,
                         title = stringResource(R.string.admin_empty_answers),
@@ -164,14 +188,14 @@ fun ManageAnswersScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageAnswersAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -180,15 +204,15 @@ fun ManageAnswersScreen(
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            items(uiState.filteredAnswers, key = { it.id }) { answer ->
+                            items(state.filteredAnswers, key = { it.id }) { answer ->
                                 AnswerCard(
                                     answer = answer,
-                                    authorName = uiState.authorNames[answer.accountId]
+                                    authorName = state.authorNames[answer.accountId]
                                         ?: stringResource(R.string.admin_unknown),
-                                    questionTitle = uiState.questionTitles[answer.questionId]
+                                    questionTitle = state.questionTitles[answer.questionId]
                                         ?: stringResource(R.string.admin_unknown),
                                     onAnswerClick = { onAnswerClick(answer.questionId) },
-                                    onDelete = { viewModel.onAction(ManageAnswersAction.DeleteAnswer(answer)) },
+                                    onDelete = { onDeleteAnswer(answer) },
                                 )
                             }
                             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -308,7 +332,21 @@ private fun AnswerCard(
 @Composable
 private fun PreviewManageAnswersDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageAnswersScreen(onNavigateUp = {}, onAnswerClick = {})
+        ManageAnswersContent(
+            state = ManageAnswersState(
+                filteredAnswers = listOf(previewAnswer),
+                authorNames = mapOf(1 to "Sara Ali"),
+                questionTitles = mapOf(10 to "How to scope coroutines?"),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onAnswerClick = {},
+            onSearchQueryChanged = {},
+            onRefresh = {},
+            onDeleteAnswer = {},
+            onConfirmDelete = {},
+            onDismissDeleteDialog = {},
+        )
     }
 }
 
@@ -316,6 +354,30 @@ private fun PreviewManageAnswersDark() {
 @Composable
 private fun PreviewManageAnswersLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageAnswersScreen(onNavigateUp = {}, onAnswerClick = {})
+        ManageAnswersContent(
+            state = ManageAnswersState(
+                filteredAnswers = listOf(previewAnswer),
+                authorNames = mapOf(1 to "Sara Ali"),
+                questionTitles = mapOf(10 to "How to scope coroutines?"),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onAnswerClick = {},
+            onSearchQueryChanged = {},
+            onRefresh = {},
+            onDeleteAnswer = {},
+            onConfirmDelete = {},
+            onDismissDeleteDialog = {},
+        )
     }
 }
+
+private val previewAnswer = Answer(
+    id = 1,
+    description = "Use viewModelScope and collect state in a LaunchedEffect.",
+    accepted = true,
+    votedIds = "1,2,3",
+    questionId = 10,
+    accountId = 1,
+    createdAt = "2024-01-01T00:00:00Z",
+)

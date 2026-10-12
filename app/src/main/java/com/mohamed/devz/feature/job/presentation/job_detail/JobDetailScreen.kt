@@ -80,8 +80,50 @@ fun JobDetailScreen(
         }
     }
 
+    Box(modifier = modifier) {
+        JobDetailContent(
+            state = uiState,
+            onNavigateUp = navigateUp,
+            onProfileClick = onProfileClick,
+            onRetry = { viewModel.onAction(JobDetailAction.LoadJob(jobId)) },
+            onShowReport = { viewModel.onAction(JobDetailAction.ShowReport(it)) },
+            onApply = { viewModel.showApplySheet() },
+            modifier = Modifier.fillMaxSize(),
+        )
+        SnackbarHost(
+            hostState = snackbarHostState,
+            modifier = Modifier.align(Alignment.BottomCenter),
+        )
+    }
+
+    if (uiState.showApplySheet) {
+        ApplySheet(
+            state = uiState,
+            onAction = viewModel::onAction,
+            onDismiss = { viewModel.hideApplySheet() },
+        )
+    }
+
+    uiState.reportTarget?.let { target ->
+        ReportSheet(
+            target = target,
+            onDismiss = { viewModel.onAction(JobDetailAction.DismissReport) },
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun JobDetailContent(
+    state: JobDetailState,
+    onNavigateUp: () -> Unit,
+    onProfileClick: (Int) -> Unit,
+    onRetry: () -> Unit,
+    onShowReport: (ReportTarget) -> Unit,
+    onApply: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
-        snackbarHost = { SnackbarHost(snackbarHostState) },
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             Row(
@@ -92,24 +134,22 @@ fun JobDetailScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                IconButton(onClick = navigateUp) {
+                IconButton(onClick = onNavigateUp) {
                     Icon(
                         Icons.AutoMirrored.Filled.ArrowBack,
                         contentDescription = stringResource(R.string.jobdetail_back),
                         tint = MaterialTheme.colorScheme.primary,
                     )
                 }
-                val jobForReport = uiState.job
-                if (jobForReport != null && uiState.currentAccountId != 0 && jobForReport.accountId != uiState.currentAccountId) {
+                val jobForReport = state.job
+                if (jobForReport != null && state.currentAccountId != 0 && jobForReport.accountId != state.currentAccountId) {
                     ReportMenu(
                         onReport = {
-                            viewModel.onAction(
-                                JobDetailAction.ShowReport(
-                                    ReportTarget(
-                                        reportedType = "job",
-                                        reportedId = jobForReport.id,
-                                        preview = jobForReport.title,
-                                    )
+                            onShowReport(
+                                ReportTarget(
+                                    reportedType = "job",
+                                    reportedId = jobForReport.id,
+                                    preview = jobForReport.title,
                                 )
                             )
                         }
@@ -120,7 +160,7 @@ fun JobDetailScreen(
         modifier = modifier,
     ) { paddingValues ->
         when {
-            uiState.isLoading -> {
+            state.isLoading -> {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
@@ -131,18 +171,18 @@ fun JobDetailScreen(
                 }
             }
 
-            uiState.error != null && uiState.job == null -> {
+            state.error != null && state.job == null -> {
                 Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                     ErrorState(
-                        message = uiState.error!!.asString(),
-                        onRetry = { viewModel.onAction(JobDetailAction.LoadJob(jobId)) },
+                        message = state.error!!.asString(),
+                        onRetry = onRetry,
                         retryLabel = stringResource(R.string.action_retry),
                     )
                 }
             }
 
-            uiState.job != null -> {
-                val job = uiState.job!!
+            state.job != null -> {
+                val job = state.job!!
 
                 Column(
                     modifier = Modifier
@@ -224,31 +264,16 @@ fun JobDetailScreen(
                     DevzButton(
                         label = when {
                             job.status == "filled" -> stringResource(R.string.jobdetail_status_reserved)
-                            uiState.hasApplied -> stringResource(R.string.jobdetail_applied)
+                            state.hasApplied -> stringResource(R.string.jobdetail_applied)
                             else -> stringResource(R.string.jobdetail_apply)
                         },
-                        onClick = { viewModel.showApplySheet() },
-                        enabled = job.status != "filled" && !uiState.hasApplied,
+                        onClick = onApply,
+                        enabled = job.status != "filled" && !state.hasApplied,
                     )
 
                     Spacer(modifier = Modifier.height(24.dp))
                 }
             }
-        }
-
-        if (uiState.showApplySheet) {
-            ApplySheet(
-                state = uiState,
-                onAction = viewModel::onAction,
-                onDismiss = { viewModel.hideApplySheet() },
-            )
-        }
-
-        uiState.reportTarget?.let { target ->
-            ReportSheet(
-                target = target,
-                onDismiss = { viewModel.onAction(JobDetailAction.DismissReport) },
-            )
         }
     }
 }
@@ -337,40 +362,58 @@ private fun jobTypeLabel(type: String): String = stringResource(
 
 @Preview
 @Composable
-private fun PreviewJobHeaderDark() {
+private fun PreviewJobDetailDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        JobHeader(
-            job = JobDetailUiModel(
-                id = 1,
-                accountId = 1,
-                companyName = "Acme Labs",
-                title = "Senior Android Developer",
-                description = "Build great things.",
-                salaryRange = "$80k - $120k",
-                jobType = "full-time",
-                createdAt = "2024-01-01T00:00:00Z",
+        JobDetailContent(
+            state = JobDetailState(
+                job = JobDetailUiModel(
+                    id = 1,
+                    accountId = 1,
+                    companyName = "Acme Labs",
+                    title = "Senior Android Developer",
+                    description = "Build great things.",
+                    salaryRange = "$80k - $120k",
+                    jobType = "full-time",
+                    createdAt = "2024-01-01T00:00:00Z",
+                    status = "approved",
+                    applicantCount = 3,
+                ),
+                currentAccountId = 2,
             ),
+            onNavigateUp = {},
             onProfileClick = {},
+            onRetry = {},
+            onShowReport = {},
+            onApply = {},
         )
     }
 }
 
 @Preview
 @Composable
-private fun PreviewJobHeaderLight() {
+private fun PreviewJobDetailLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        JobHeader(
-            job = JobDetailUiModel(
-                id = 1,
-                accountId = 1,
-                companyName = "Acme Labs",
-                title = "Senior Android Developer",
-                description = "Build great things.",
-                salaryRange = "$80k - $120k",
-                jobType = "full-time",
-                createdAt = "2024-01-01T00:00:00Z",
+        JobDetailContent(
+            state = JobDetailState(
+                job = JobDetailUiModel(
+                    id = 1,
+                    accountId = 1,
+                    companyName = "Acme Labs",
+                    title = "Senior Android Developer",
+                    description = "Build great things.",
+                    salaryRange = "$80k - $120k",
+                    jobType = "full-time",
+                    createdAt = "2024-01-01T00:00:00Z",
+                    status = "approved",
+                    applicantCount = 3,
+                ),
+                currentAccountId = 2,
             ),
+            onNavigateUp = {},
             onProfileClick = {},
+            onRetry = {},
+            onShowReport = {},
+            onApply = {},
         )
     }
 }

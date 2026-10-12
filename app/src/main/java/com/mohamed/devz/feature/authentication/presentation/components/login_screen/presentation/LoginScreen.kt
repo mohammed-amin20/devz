@@ -59,6 +59,26 @@ fun LoginScreen(
     viewModel: LoginViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    LoginContent(
+        state = uiState,
+        modifier = modifier,
+        onNavigateToRegister = onNavigateToRegister,
+        onUsernameChanged = { viewModel.onAction(LoginAction.UsernameChanged(it)) },
+        onPasswordChanged = { viewModel.onAction(LoginAction.PasswordChanged(it)) },
+        onLoginClicked = { viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess, onBanned)) },
+    )
+}
+
+@Composable
+fun LoginContent(
+    state: LoginState,
+    onNavigateToRegister: () -> Unit,
+    modifier: Modifier = Modifier,
+    onUsernameChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onLoginClicked: () -> Unit,
+) {
     var passwordVisible by remember { mutableStateOf(false) }
 
     Box(
@@ -109,13 +129,13 @@ fun LoginScreen(
                     DevzFieldLabel(text = stringResource(R.string.login_username_label))
                     Spacer(modifier = Modifier.height(8.dp))
                     DevzTextField(
-                        value = uiState.username,
-                        onValueChange = { viewModel.onAction(LoginAction.UsernameChanged(it)) },
+                        value = state.username,
+                        onValueChange = onUsernameChanged,
                         placeholder = stringResource(R.string.login_username_hint),
                         leadingIcon = Icons.Filled.Person,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                        isError = uiState.usernameError != null,
-                        errorMessage = uiState.usernameError?.asString(),
+                        isError = state.usernameError != null,
+                        errorMessage = state.usernameError?.asString(),
                     )
 
                     Spacer(modifier = Modifier.height(20.dp))
@@ -123,8 +143,8 @@ fun LoginScreen(
                     DevzFieldLabel(text = stringResource(R.string.login_password_label))
                     Spacer(modifier = Modifier.height(8.dp))
                     DevzTextField(
-                        value = uiState.password,
-                        onValueChange = { viewModel.onAction(LoginAction.PasswordChanged(it)) },
+                        value = state.password,
+                        onValueChange = onPasswordChanged,
                         placeholder = stringResource(R.string.login_password_hint),
                         leadingIcon = Icons.Filled.Lock,
                         trailingIcon = {
@@ -140,24 +160,22 @@ fun LoginScreen(
                         visualTransformation = if (passwordVisible) VisualTransformation.None
                         else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        isError = uiState.passwordError != null,
-                        errorMessage = uiState.passwordError?.asString(),
+                        isError = state.passwordError != null,
+                        errorMessage = state.passwordError?.asString(),
                     )
 
                     Spacer(modifier = Modifier.height(28.dp))
 
                     DevzButton(
                         label = stringResource(R.string.login_button),
-                        onClick = {
-                            viewModel.onAction(LoginAction.LoginClicked(onLoginSuccess, onBanned))
-                        },
-                        enabled = !uiState.isLoading,
-                        loading = uiState.isLoading,
+                        onClick = onLoginClicked,
+                        enabled = !state.isLoading,
+                        loading = state.isLoading,
                     )
                 }
             }
 
-            uiState.error?.let {
+            state.error?.let {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
                     text = it.asString(),
@@ -198,10 +216,12 @@ fun LoginScreen(
 @Composable
 private fun PreviewLoginScreen() {
     DevzTheme {
-        LoginScreen(
-            onLoginSuccess = {},
+        LoginContent(
+            state = LoginState(),
             onNavigateToRegister = {},
-            onBanned = {}
+            onUsernameChanged = {},
+            onPasswordChanged = {},
+            onLoginClicked = {},
         )
     }
 }

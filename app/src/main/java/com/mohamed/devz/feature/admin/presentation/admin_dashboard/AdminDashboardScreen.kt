@@ -56,6 +56,32 @@ fun AdminDashboardScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    AdminDashboardContent(
+        state = uiState,
+        onNavigateToUsers = onNavigateToUsers,
+        onNavigateToQuestions = onNavigateToQuestions,
+        onNavigateToAnswers = onNavigateToAnswers,
+        onNavigateToAnnouncements = onNavigateToAnnouncements,
+        onNavigateToJobs = onNavigateToJobs,
+        onNavigateToCompanies = onNavigateToCompanies,
+        onNavigateToReports = onNavigateToReports,
+        onNavigateUp = onNavigateUp,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AdminDashboardContent(
+    state: AdminDashboardState,
+    onNavigateToUsers: () -> Unit,
+    onNavigateToQuestions: () -> Unit,
+    onNavigateToAnswers: () -> Unit,
+    onNavigateToAnnouncements: () -> Unit,
+    onNavigateToJobs: () -> Unit = {},
+    onNavigateToCompanies: () -> Unit = {},
+    onNavigateToReports: () -> Unit = {},
+    onNavigateUp: () -> Unit,
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -92,7 +118,7 @@ fun AdminDashboardScreen(
                 .padding(horizontal = 24.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            if (uiState.isLoading) {
+            if (state.isLoading) {
                 CircularProgressIndicator(
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -104,13 +130,13 @@ fun AdminDashboardScreen(
                 ) {
                     StatCard(
                         label = stringResource(R.string.admin_stat_users),
-                        value = "${uiState.totalUsers}",
+                        value = "${state.totalUsers}",
                         emoji = "\uD83D\uDC65",
                         modifier = Modifier.weight(1f),
                     )
                     StatCard(
                         label = stringResource(R.string.admin_stat_questions),
-                        value = "${uiState.totalQuestions}",
+                        value = "${state.totalQuestions}",
                         emoji = "❓",
                         modifier = Modifier.weight(1f),
                     )
@@ -121,13 +147,13 @@ fun AdminDashboardScreen(
                 ) {
                     StatCard(
                         label = stringResource(R.string.admin_stat_answers),
-                        value = "${uiState.totalAnswers}",
+                        value = "${state.totalAnswers}",
                         emoji = "\uD83D\uDCAC",
                         modifier = Modifier.weight(1f),
                     )
                     StatCard(
                         label = stringResource(R.string.admin_stat_banned),
-                        value = "${uiState.bannedUsers}",
+                        value = "${state.bannedUsers}",
                         emoji = "\u26D4\uFE0F",
                         valueColor = MaterialTheme.colorScheme.error,
                         modifier = Modifier.weight(1f),
@@ -214,7 +240,14 @@ private fun AdminMenuItem(
 @Composable
 private fun PreviewAdminDashboardDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        AdminDashboardScreen(
+        AdminDashboardContent(
+            state = AdminDashboardState(
+                totalUsers = 120,
+                totalQuestions = 340,
+                totalAnswers = 890,
+                bannedUsers = 3,
+                isLoading = false,
+            ),
             onNavigateToUsers = {},
             onNavigateToQuestions = {},
             onNavigateToAnswers = {},
@@ -228,7 +261,14 @@ private fun PreviewAdminDashboardDark() {
 @Composable
 private fun PreviewAdminDashboardLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        AdminDashboardScreen(
+        AdminDashboardContent(
+            state = AdminDashboardState(
+                totalUsers = 120,
+                totalQuestions = 340,
+                totalAnswers = 890,
+                bannedUsers = 3,
+                isLoading = false,
+            ),
             onNavigateToUsers = {},
             onNavigateToQuestions = {},
             onNavigateToAnswers = {},

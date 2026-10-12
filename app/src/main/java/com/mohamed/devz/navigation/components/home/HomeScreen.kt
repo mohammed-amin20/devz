@@ -54,6 +54,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.notification.presentation.NotificationType
+import com.mohamed.devz.feature.notification.presentation.NotificationUiModel
 import com.mohamed.devz.feature.notification.presentation.NotificationsScreen
 import com.mohamed.devz.feature.profile.presentation.view_profile.ProfileScreen
 import com.mohamed.devz.feature.job.presentation.jobs_screen.JobsScreen
@@ -99,102 +100,6 @@ fun HomeScreen(
         }
     }
 
-    var isFullScreenImage by remember { mutableStateOf(false) }
-    var isDialogOpen by remember { mutableStateOf(false) }
-
-    data class NavigationItem(
-        val title: String,
-        val icon: ImageVector,
-        val index: Int,
-        val onClick: () -> Unit,
-        val content: (@Composable (Modifier) -> Unit)?,
-    )
-
-    val navigationItems = listOf(
-        NavigationItem(
-            title = stringResource(R.string.nav_home),
-            icon = Icons.Rounded.Home,
-            index = 0,
-            onClick = { viewModel.onSelectedIndexChange(0) },
-            content = {
-                ViewQuestionsScreen(
-                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onAuthorClick = { accountId ->
-                        if (accountId == currentAccountId) {
-                            viewModel.onSelectedIndexChange(4)
-                        } else {
-                            navigateToProfile(accountId)
-                        }
-                    },
-                )
-            }
-        ),
-        NavigationItem(
-            title = stringResource(R.string.nav_add),
-            icon = Icons.Rounded.Add,
-            index = 1,
-            onClick = { navigateToAddEditQuestion(null) },
-            content = null
-        ),
-        NavigationItem(
-            title = stringResource(R.string.nav_notifications),
-            icon = Icons.Rounded.Notifications,
-            index = 2,
-            onClick = { viewModel.onSelectedIndexChange(2) },
-            content = {
-                NotificationsScreen(
-                    onNotificationClick = { notification ->
-                        if (notification.type == NotificationType.FOLLOWER) {
-                            navigateToProfile(notification.actorId)
-                        } else {
-                            navigateToQuestionDetails(notification.questionId)
-                        }
-                    },
-                    onUnreadChanged = viewModel::refreshUnreadCount
-                )
-            }
-        ),
-        NavigationItem(
-            title = stringResource(R.string.nav_jobs),
-            icon = Icons.Rounded.WorkHistory,
-            index = 3,
-            onClick = { viewModel.onSelectedIndexChange(3) },
-            content = {
-                JobsScreen(
-                    onJobClick = { jobId -> navigateToJobDetail(jobId) },
-                    onCompanyClick = { accountId -> navigateToProfile(accountId) },
-                )
-            }
-        ),
-        NavigationItem(
-            title = stringResource(R.string.nav_profile),
-            icon = Icons.Rounded.Person,
-            index = 4,
-            onClick = { viewModel.onSelectedIndexChange(4) },
-            content = {
-                ProfileScreen(
-                    onEditProfile = navigateToEditProfile,
-                    onQuestionClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onAnswerClick = { questionId -> navigateToQuestionDetails(questionId) },
-                    onJobClick = navigateToJobDetail,
-                    refreshTrigger = profileRefreshCounter,
-                    onFullScreenChanged = { isFullScreenImage = it },
-                    onDialogVisibilityChanged = { isDialogOpen = it },
-                    onAdminPanelClick = navigateToAdminDashboard,
-                    onSettingsClick = navigateToSettings,
-                    onProfileClick = { accountId ->
-                        if (accountId == currentAccountId) {
-                            viewModel.onSelectedIndexChange(4)
-                        } else {
-                            navigateToProfile(accountId)
-                        }
-                    },
-                    navigateUp = { viewModel.onSelectedIndexChange(0) }
-                )
-            }
-        )
-    )
-
     if (isHomeLoading) {
         Box(
             modifier = Modifier
@@ -221,13 +126,152 @@ fun HomeScreen(
         }
     }
 
+    HomeContent(
+        selectedIndex = selectedIndex,
+        currentAccountId = currentAccountId,
+        unreadCount = unreadCount,
+        modifier = modifier,
+        refreshTrigger = profileRefreshCounter,
+        onTabSelected = viewModel::onSelectedIndexChange,
+        onUnreadChanged = viewModel::refreshUnreadCount,
+        onBackToFeed = { viewModel.onSelectedIndexChange(0) },
+        onAddQuestion = { navigateToAddEditQuestion(null) },
+        onQuestionClick = navigateToQuestionDetails,
+        onAuthorClick = { accountId ->
+            if (accountId == currentAccountId) {
+                viewModel.onSelectedIndexChange(4)
+            } else {
+                navigateToProfile(accountId)
+            }
+        },
+        onNotificationClick = { notification ->
+            if (notification.type == NotificationType.FOLLOWER) {
+                navigateToProfile(notification.actorId)
+            } else {
+                navigateToQuestionDetails(notification.questionId)
+            }
+        },
+        onJobClick = navigateToJobDetail,
+        onCompanyClick = navigateToProfile,
+        onProfileClick = { accountId ->
+            if (accountId == currentAccountId) {
+                viewModel.onSelectedIndexChange(4)
+            } else {
+                navigateToProfile(accountId)
+            }
+        },
+        onEditProfile = navigateToEditProfile,
+        onAdminPanelClick = navigateToAdminDashboard,
+        onSettingsClick = navigateToSettings,
+    )
+}
+
+@Composable
+fun HomeContent(
+    selectedIndex: Int,
+    currentAccountId: Int,
+    unreadCount: Int,
+    modifier: Modifier = Modifier,
+    refreshTrigger: Int = 0,
+    onTabSelected: (Int) -> Unit,
+    onUnreadChanged: () -> Unit,
+    onBackToFeed: () -> Unit,
+    onAddQuestion: () -> Unit,
+    onQuestionClick: (Int) -> Unit,
+    onAuthorClick: (Int) -> Unit,
+    onNotificationClick: (NotificationUiModel) -> Unit,
+    onJobClick: (Int) -> Unit,
+    onCompanyClick: (Int) -> Unit,
+    onProfileClick: (Int) -> Unit,
+    onEditProfile: () -> Unit,
+    onAdminPanelClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+) {
+    var isFullScreenImage by remember { mutableStateOf(false) }
+    var isDialogOpen by remember { mutableStateOf(false) }
+
+    data class NavigationItem(
+        val title: String,
+        val icon: ImageVector,
+        val index: Int,
+        val onClick: () -> Unit,
+        val content: (@Composable (Modifier) -> Unit)?,
+    )
+
+    val navigationItems = listOf(
+        NavigationItem(
+            title = stringResource(R.string.nav_home),
+            icon = Icons.Rounded.Home,
+            index = 0,
+            onClick = { onTabSelected(0) },
+            content = {
+                ViewQuestionsScreen(
+                    onQuestionClick = { questionId -> onQuestionClick(questionId) },
+                    onAuthorClick = onAuthorClick,
+                )
+            }
+        ),
+        NavigationItem(
+            title = stringResource(R.string.nav_add),
+            icon = Icons.Rounded.Add,
+            index = 1,
+            onClick = { onAddQuestion() },
+            content = null
+        ),
+        NavigationItem(
+            title = stringResource(R.string.nav_notifications),
+            icon = Icons.Rounded.Notifications,
+            index = 2,
+            onClick = { onTabSelected(2) },
+            content = {
+                NotificationsScreen(
+                    onNotificationClick = onNotificationClick,
+                    onUnreadChanged = onUnreadChanged,
+                )
+            }
+        ),
+        NavigationItem(
+            title = stringResource(R.string.nav_jobs),
+            icon = Icons.Rounded.WorkHistory,
+            index = 3,
+            onClick = { onTabSelected(3) },
+            content = {
+                JobsScreen(
+                    onJobClick = onJobClick,
+                    onCompanyClick = onCompanyClick,
+                )
+            }
+        ),
+        NavigationItem(
+            title = stringResource(R.string.nav_profile),
+            icon = Icons.Rounded.Person,
+            index = 4,
+            onClick = { onTabSelected(4) },
+            content = {
+                ProfileScreen(
+                    onEditProfile = onEditProfile,
+                    onQuestionClick = onQuestionClick,
+                    onAnswerClick = onQuestionClick,
+                    onJobClick = onJobClick,
+                    refreshTrigger = refreshTrigger,
+                    onFullScreenChanged = { isFullScreenImage = it },
+                    onDialogVisibilityChanged = { isDialogOpen = it },
+                    onAdminPanelClick = onAdminPanelClick,
+                    onSettingsClick = onSettingsClick,
+                    onProfileClick = onProfileClick,
+                    navigateUp = onBackToFeed,
+                )
+            }
+        )
+    )
+
     BackHandler(enabled = selectedIndex != 0) {
-        viewModel.onSelectedIndexChange(0)
+        onBackToFeed()
     }
 
     Scaffold(
         containerColor = Color.Transparent,
-bottomBar = if (!isFullScreenImage && !isDialogOpen) {
+        bottomBar = if (!isFullScreenImage && !isDialogOpen) {
             {
                 val scrimColor = MaterialTheme.colorScheme.scrim
                 Box(
@@ -356,13 +400,23 @@ private fun NavIconButton(
 @Composable
 private fun PreviewHomeScreen() {
     DevzTheme {
-        HomeScreen(
-            navigateToQuestionDetails = { _ -> },
-            navigateToAddEditQuestion = { _ -> },
-            navigateToEditProfile = {},
-            navigateToProfile = { _ -> },
-            navigateToJobDetail = { _ -> },
-            onLogout = {}
+        HomeContent(
+            selectedIndex = 0,
+            currentAccountId = 1,
+            unreadCount = 3,
+            onTabSelected = {},
+            onUnreadChanged = {},
+            onBackToFeed = {},
+            onAddQuestion = {},
+            onQuestionClick = {},
+            onAuthorClick = {},
+            onNotificationClick = {},
+            onJobClick = {},
+            onCompanyClick = {},
+            onProfileClick = {},
+            onEditProfile = {},
+            onAdminPanelClick = {},
+            onSettingsClick = {},
         )
     }
 }

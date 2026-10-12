@@ -19,6 +19,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -47,7 +48,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -71,6 +71,7 @@ import com.mohamed.devz.ui.components.ShimmerBox
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.ThemeMode
 import com.mohamed.devz.ui.theme.spacing
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 sealed class FeedItem {
@@ -107,6 +108,38 @@ fun ViewQuestionsScreen(
         }
     }
 
+    ViewQuestionsContent(
+        state = uiState,
+        pagerState = pagerState,
+        coroutineScope = coroutineScope,
+        modifier = modifier,
+        onSearchQueryChanged = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
+        onTabSelected = { viewModel.onAction(ViewQuestionsAction.TabSelected(it)) },
+        onLoadNextPage = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
+        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+        onQuestionClick = onQuestionClick,
+        onAuthorClick = onAuthorClick,
+        onShowReport = { viewModel.onAction(ViewQuestionsAction.ShowReport(it)) },
+        onDismissReport = { viewModel.onAction(ViewQuestionsAction.DismissReport) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ViewQuestionsContent(
+    state: ViewQuestionsState,
+    pagerState: PagerState,
+    coroutineScope: CoroutineScope,
+    modifier: Modifier = Modifier,
+    onSearchQueryChanged: (String) -> Unit,
+    onTabSelected: (Int) -> Unit,
+    onLoadNextPage: () -> Unit,
+    onRefresh: () -> Unit,
+    onQuestionClick: (Int) -> Unit,
+    onAuthorClick: (Int) -> Unit,
+    onShowReport: (ReportTarget) -> Unit,
+    onDismissReport: () -> Unit,
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -121,8 +154,8 @@ fun ViewQuestionsScreen(
             Spacer(Modifier.height(MaterialTheme.spacing.md))
 
             DevzTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onAction(ViewQuestionsAction.SearchQueryChanged(it)) },
+                value = state.searchQuery,
+                onValueChange = onSearchQueryChanged,
                 placeholder = stringResource(R.string.feed_search_hint),
                 leadingIcon = Icons.Filled.Search,
                 singleLine = true,
@@ -152,6 +185,7 @@ fun ViewQuestionsScreen(
                         selected = pagerState.currentPage == index,
                         onClick = {
                             coroutineScope.launch { pagerState.animateScrollToPage(index) }
+                            onTabSelected(index)
                         },
                         text = {
                             Text(
@@ -172,10 +206,10 @@ fun ViewQuestionsScreen(
             Spacer(Modifier.height(MaterialTheme.spacing.sm))
         }
 
-        if (uiState.error != null && uiState.questions.isEmpty() && !uiState.isLoading) {
+        if (state.error != null && state.questions.isEmpty() && !state.isLoading) {
             ErrorState(
-                message = uiState.error!!.asString(),
-                onRetry = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                message = state.error!!.asString(),
+                onRetry = onRefresh,
                 retryLabel = stringResource(R.string.action_retry),
             )
         } else {
@@ -185,29 +219,29 @@ fun ViewQuestionsScreen(
             ) { page ->
                 when (page) {
                     0 -> ForYouFeed(
-                        uiState = uiState,
-                        onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
-                        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                        uiState = state,
+                        onLoadMore = onLoadNextPage,
+                        onRefresh = onRefresh,
                         onQuestionClick = onQuestionClick,
                         onAuthorClick = onAuthorClick,
-                        onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
+                        onReport = onShowReport,
                     )
                     1 -> FollowingFeed(
-                        uiState = uiState,
-                        onLoadMore = { viewModel.onAction(ViewQuestionsAction.LoadNextPage) },
-                        onRefresh = { viewModel.onAction(ViewQuestionsAction.Refresh) },
+                        uiState = state,
+                        onLoadMore = onLoadNextPage,
+                        onRefresh = onRefresh,
                         onQuestionClick = onQuestionClick,
                         onAuthorClick = onAuthorClick,
-                        onReport = { target -> viewModel.onAction(ViewQuestionsAction.ShowReport(target)) },
+                        onReport = onShowReport,
                     )
                 }
             }
         }
 
-        uiState.reportTarget?.let { target ->
+        state.reportTarget?.let { target ->
             ReportSheet(
                 target = target,
-                onDismiss = { viewModel.onAction(ViewQuestionsAction.DismissReport) },
+                onDismiss = onDismissReport,
             )
         }
     }
@@ -629,7 +663,24 @@ private fun AdBannerItem() {
 @Composable
 private fun PreviewViewQuestionsScreenDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ViewQuestionsScreen(onQuestionClick = {})
+        ViewQuestionsContent(
+            state = ViewQuestionsState(
+                questions = listOf(previewQuestion, previewQuestion2),
+                pinnedQuestions = listOf(previewQuestionPinned),
+                isLoading = false,
+                currentAccountId = 2,
+            ),
+            pagerState = rememberPagerState(pageCount = { 2 }),
+            coroutineScope = rememberCoroutineScope(),
+            onSearchQueryChanged = {},
+            onTabSelected = {},
+            onLoadNextPage = {},
+            onRefresh = {},
+            onQuestionClick = {},
+            onAuthorClick = {},
+            onShowReport = {},
+            onDismissReport = {},
+        )
     }
 }
 
@@ -637,6 +688,70 @@ private fun PreviewViewQuestionsScreenDark() {
 @Composable
 private fun PreviewViewQuestionsScreenLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ViewQuestionsScreen(onQuestionClick = {})
+        ViewQuestionsContent(
+            state = ViewQuestionsState(
+                questions = listOf(previewQuestion, previewQuestion2),
+                pinnedQuestions = listOf(previewQuestionPinned),
+                isLoading = false,
+                currentAccountId = 2,
+            ),
+            pagerState = rememberPagerState(pageCount = { 2 }),
+            coroutineScope = rememberCoroutineScope(),
+            onSearchQueryChanged = {},
+            onTabSelected = {},
+            onLoadNextPage = {},
+            onRefresh = {},
+            onQuestionClick = {},
+            onAuthorClick = {},
+            onShowReport = {},
+            onDismissReport = {},
+        )
     }
 }
+
+private val previewQuestion = QuestionFeedUiModel(
+    id = 1,
+    authorAccountId = 10,
+    authorName = "Ahmed Ali",
+    authorAvatarUrl = "",
+    timeAgo = "2h",
+    category = "Android",
+    title = "How to handle deep links in Compose Navigation?",
+    preview = "I'm trying to navigate to a specific screen using a deep link but it keeps opening the Home screen.",
+    codeSnippet = null,
+    tags = listOf("compose", "navigation"),
+    likes = 12,
+    answers = 3,
+    isAuthorPro = true,
+)
+
+private val previewQuestion2 = QuestionFeedUiModel(
+    id = 2,
+    authorAccountId = 11,
+    authorName = "Sara Khaled",
+    authorAvatarUrl = "",
+    timeAgo = "5h",
+    category = "Kotlin",
+    title = "What is the difference between apply and also?",
+    preview = "Both are scope functions but I can't tell when to use which.",
+    codeSnippet = "val l = list.map {\n    it * 2\n}.also { println(it) }",
+    tags = listOf("kotlin", "scope-functions"),
+    likes = 8,
+    answers = 5,
+)
+
+private val previewQuestionPinned = QuestionFeedUiModel(
+    id = 3,
+    authorAccountId = 10,
+    authorName = "Ahmed Ali",
+    authorAvatarUrl = "",
+    timeAgo = "1d",
+    category = "Compose",
+    title = "Pinned: Best practices for state hoisting",
+    preview = "A pinned question to show off the pinned feed section.",
+    codeSnippet = null,
+    tags = listOf("compose"),
+    likes = 50,
+    answers = 20,
+    isPinned = true,
+)

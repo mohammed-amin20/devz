@@ -48,7 +48,6 @@ import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -78,9 +77,55 @@ fun ManageUsersScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.showBanDialog && uiState.targetBanAccount != null) {
+    ManageUsersContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onUserClick = onUserClick,
+        onSearchQueryChanged = { viewModel.onAction(ManageUsersAction.SearchQueryChanged(it)) },
+        onRefresh = { viewModel.onAction(ManageUsersAction.Refresh) },
+        onFilterAll = { viewModel.onAction(ManageUsersAction.FilterAll) },
+        onFilterBanned = { viewModel.onAction(ManageUsersAction.FilterBanned) },
+        onFilterPro = { viewModel.onAction(ManageUsersAction.FilterPro) },
+        onFilterAdmin = { viewModel.onAction(ManageUsersAction.FilterAdmin) },
+        onBanUser = { viewModel.onAction(ManageUsersAction.BanUser(it)) },
+        onUnbanUser = { viewModel.onAction(ManageUsersAction.UnbanUser(it)) },
+        onConfirmBan = { viewModel.onAction(ManageUsersAction.ConfirmBan(it)) },
+        onDismissBanDialog = { viewModel.onAction(ManageUsersAction.DismissBanDialog) },
+        onShowProDialog = { viewModel.onAction(ManageUsersAction.ShowProDialog(it)) },
+        onConfirmPro = { viewModel.onAction(ManageUsersAction.ConfirmPro(it)) },
+        onDismissProDialog = { viewModel.onAction(ManageUsersAction.DismissProDialog) },
+        onShowAdminDialog = { viewModel.onAction(ManageUsersAction.ShowAdminDialog(it)) },
+        onConfirmAdmin = { viewModel.onAction(ManageUsersAction.ConfirmAdmin(it)) },
+        onDismissAdminDialog = { viewModel.onAction(ManageUsersAction.DismissAdminDialog) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageUsersContent(
+    state: ManageUsersState,
+    onNavigateUp: () -> Unit,
+    onUserClick: (Int) -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onRefresh: () -> Unit,
+    onFilterAll: () -> Unit,
+    onFilterBanned: () -> Unit,
+    onFilterPro: () -> Unit,
+    onFilterAdmin: () -> Unit,
+    onBanUser: (Account) -> Unit,
+    onUnbanUser: (Account) -> Unit,
+    onConfirmBan: (Account) -> Unit,
+    onDismissBanDialog: () -> Unit,
+    onShowProDialog: (Account) -> Unit,
+    onConfirmPro: (Account) -> Unit,
+    onDismissProDialog: () -> Unit,
+    onShowAdminDialog: (Account) -> Unit,
+    onConfirmAdmin: (Account) -> Unit,
+    onDismissAdminDialog: () -> Unit,
+) {
+    if (state.showBanDialog && state.targetBanAccount != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageUsersAction.DismissBanDialog) },
+            onDismissRequest = onDismissBanDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -91,13 +136,13 @@ fun ManageUsersScreen(
             },
             text = {
                 Text(
-                    text = stringResource(R.string.admin_ban_message, uiState.targetBanAccount!!.username),
+                    text = stringResource(R.string.admin_ban_message, state.targetBanAccount!!.username),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageUsersAction.ConfirmBan(uiState.targetBanAccount!!)) },
+                    onClick = { onConfirmBan(state.targetBanAccount!!) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
@@ -107,17 +152,17 @@ fun ManageUsersScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissBanDialog) }) {
+                TextButton(onClick = onDismissBanDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
-    if (uiState.showProDialog && uiState.targetProAccount != null) {
-        val isPro = uiState.targetProAccount!!.isPro
+    if (state.showProDialog && state.targetProAccount != null) {
+        val isPro = state.targetProAccount!!.isPro
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageUsersAction.DismissProDialog) },
+            onDismissRequest = onDismissProDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -130,31 +175,31 @@ fun ManageUsersScreen(
                 Text(
                     text = stringResource(
                         if (isPro) R.string.admin_pro_remove_message else R.string.admin_pro_make_message,
-                        uiState.targetProAccount!!.username,
+                        state.targetProAccount!!.username,
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageUsersAction.ConfirmPro(uiState.targetProAccount!!)) },
+                    onClick = { onConfirmPro(state.targetProAccount!!) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(stringResource(if (isPro) R.string.action_remove else R.string.admin_pro_make_title))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissProDialog) }) {
+                TextButton(onClick = onDismissProDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
         )
     }
 
-    if (uiState.showAdminDialog && uiState.targetAdminAccount != null) {
-        val isAdmin = uiState.targetAdminAccount!!.isAdmin
+    if (state.showAdminDialog && state.targetAdminAccount != null) {
+        val isAdmin = state.targetAdminAccount!!.isAdmin
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageUsersAction.DismissAdminDialog) },
+            onDismissRequest = onDismissAdminDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -167,21 +212,21 @@ fun ManageUsersScreen(
                 Text(
                     text = stringResource(
                         if (isAdmin) R.string.admin_admin_remove_message else R.string.admin_admin_make_message,
-                        uiState.targetAdminAccount!!.username,
+                        state.targetAdminAccount!!.username,
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageUsersAction.ConfirmAdmin(uiState.targetAdminAccount!!)) },
+                    onClick = { onConfirmAdmin(state.targetAdminAccount!!) },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 ) {
                     Text(stringResource(if (isAdmin) R.string.action_remove else R.string.admin_admin_make_title))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageUsersAction.DismissAdminDialog) }) {
+                TextButton(onClick = onDismissAdminDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
@@ -220,8 +265,8 @@ fun ManageUsersScreen(
                 .padding(horizontal = 16.dp),
         ) {
             DevzTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onAction(ManageUsersAction.SearchQueryChanged(it)) },
+                value = state.searchQuery,
+                onValueChange = onSearchQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(R.string.admin_search_users),
                 leadingIcon = Icons.Filled.Search,
@@ -232,32 +277,32 @@ fun ManageUsersScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 AdminFilterChip(
-                    selected = uiState.selectedFilter == 0,
+                    selected = state.selectedFilter == 0,
                     label = stringResource(R.string.admin_filter_all),
-                    onClick = { viewModel.onAction(ManageUsersAction.FilterAll) },
+                    onClick = onFilterAll,
                 )
                 AdminFilterChip(
-                    selected = uiState.selectedFilter == 1,
+                    selected = state.selectedFilter == 1,
                     label = stringResource(R.string.admin_filter_banned),
-                    onClick = { viewModel.onAction(ManageUsersAction.FilterBanned) },
+                    onClick = onFilterBanned,
                     accent = MaterialTheme.colorScheme.error,
                 )
                 AdminFilterChip(
-                    selected = uiState.selectedFilter == 2,
+                    selected = state.selectedFilter == 2,
                     label = stringResource(R.string.admin_filter_pro),
-                    onClick = { viewModel.onAction(ManageUsersAction.FilterPro) },
+                    onClick = onFilterPro,
                 )
                 AdminFilterChip(
-                    selected = uiState.selectedFilter == 3,
+                    selected = state.selectedFilter == 3,
                     label = stringResource(R.string.admin_filter_admin),
-                    onClick = { viewModel.onAction(ManageUsersAction.FilterAdmin) },
+                    onClick = onFilterAdmin,
                 )
             }
 
             Spacer(modifier = Modifier.height(12.dp))
 
             when {
-                uiState.isLoading -> {
+                state.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -265,7 +310,7 @@ fun ManageUsersScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                uiState.filteredAccounts.isEmpty() -> {
+                state.filteredAccounts.isEmpty() -> {
                     EmptyState(
                         icon = Icons.Filled.Person,
                         title = stringResource(R.string.admin_empty_users),
@@ -274,14 +319,14 @@ fun ManageUsersScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageUsersAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -290,15 +335,15 @@ fun ManageUsersScreen(
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(12.dp),
                         ) {
-                            items(uiState.filteredAccounts, key = { it.id }) { account ->
+                            items(state.filteredAccounts, key = { it.id }) { account ->
                                 UserCard(
                                     account = account,
-                                    isMainAdmin = uiState.currentAccountIsMainAdmin,
+                                    isMainAdmin = state.currentAccountIsMainAdmin,
                                     onUserClick = { onUserClick(account.id) },
-                                    onBan = { viewModel.onAction(ManageUsersAction.BanUser(account)) },
-                                    onUnban = { viewModel.onAction(ManageUsersAction.UnbanUser(account)) },
-                                    onShowProDialog = { viewModel.onAction(ManageUsersAction.ShowProDialog(account)) },
-                                    onShowAdminDialog = { viewModel.onAction(ManageUsersAction.ShowAdminDialog(account)) },
+                                    onBan = { onBanUser(account) },
+                                    onUnban = { onUnbanUser(account) },
+                                    onShowProDialog = { onShowProDialog(account) },
+                                    onShowAdminDialog = { onShowAdminDialog(account) },
                                 )
                             }
                             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -541,7 +586,31 @@ private fun Badge(text: String, color: Color) {
 @Composable
 private fun PreviewManageUsersDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageUsersScreen(onNavigateUp = {}, onUserClick = {})
+        ManageUsersContent(
+            state = ManageUsersState(
+                filteredAccounts = listOf(previewAccount),
+                selectedFilter = 0,
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onUserClick = {},
+            onSearchQueryChanged = {},
+            onRefresh = {},
+            onFilterAll = {},
+            onFilterBanned = {},
+            onFilterPro = {},
+            onFilterAdmin = {},
+            onBanUser = {},
+            onUnbanUser = {},
+            onConfirmBan = {},
+            onDismissBanDialog = {},
+            onShowProDialog = {},
+            onConfirmPro = {},
+            onDismissProDialog = {},
+            onShowAdminDialog = {},
+            onConfirmAdmin = {},
+            onDismissAdminDialog = {},
+        )
     }
 }
 
@@ -549,6 +618,46 @@ private fun PreviewManageUsersDark() {
 @Composable
 private fun PreviewManageUsersLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageUsersScreen(onNavigateUp = {}, onUserClick = {})
+        ManageUsersContent(
+            state = ManageUsersState(
+                filteredAccounts = listOf(previewAccount),
+                selectedFilter = 0,
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onUserClick = {},
+            onSearchQueryChanged = {},
+            onRefresh = {},
+            onFilterAll = {},
+            onFilterBanned = {},
+            onFilterPro = {},
+            onFilterAdmin = {},
+            onBanUser = {},
+            onUnbanUser = {},
+            onConfirmBan = {},
+            onDismissBanDialog = {},
+            onShowProDialog = {},
+            onConfirmPro = {},
+            onDismissProDialog = {},
+            onShowAdminDialog = {},
+            onConfirmAdmin = {},
+            onDismissAdminDialog = {},
+        )
     }
 }
+
+private val previewAccount = Account(
+    id = 1,
+    username = "sara",
+    fullName = "Sara Ali",
+    email = "sara@example.com",
+    password = "secret",
+    imageUrl = "",
+    bio = "Android developer",
+    techStack = "Kotlin",
+    githubUrl = "",
+    linkedInUrl = "",
+    websiteUrl = "",
+    points = 120,
+    isPro = true,
+)

@@ -56,6 +56,34 @@ fun PostJobScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
+    PostJobContent(
+        state = uiState,
+        onNavigateUp = navigateUp,
+        onTitleChanged = { viewModel.onAction(PostJobAction.TitleChanged(it)) },
+        onDescriptionChanged = { viewModel.onAction(PostJobAction.DescriptionChanged(it)) },
+        onSalaryRangeChanged = { viewModel.onAction(PostJobAction.SalaryRangeChanged(it)) },
+        onJobTypeSelected = { viewModel.onAction(PostJobAction.JobTypeSelected(it)) },
+        onFieldFocusChanged = { field, focused ->
+            viewModel.onAction(PostJobAction.FieldFocusChanged(field, focused))
+        },
+        onSubmit = { viewModel.onAction(PostJobAction.Submit(onPostSuccess)) },
+        modifier = modifier,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PostJobContent(
+    state: PostJobState,
+    onNavigateUp: () -> Unit,
+    onTitleChanged: (String) -> Unit,
+    onDescriptionChanged: (String) -> Unit,
+    onSalaryRangeChanged: (String) -> Unit,
+    onJobTypeSelected: (String) -> Unit,
+    onFieldFocusChanged: (PostJobField, Boolean) -> Unit,
+    onSubmit: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -68,7 +96,7 @@ fun PostJobScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = navigateUp) {
+                    IconButton(onClick = onNavigateUp) {
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.postjob_back),
@@ -93,43 +121,43 @@ fun PostJobScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             DevzTextField(
-                value = uiState.title,
-                onValueChange = { viewModel.onAction(PostJobAction.TitleChanged(it)) },
+                value = state.title,
+                onValueChange = onTitleChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .then(onLostFocus {
-                        viewModel.onAction(PostJobAction.FieldFocusChanged(PostJobField.TITLE, false))
+                        onFieldFocusChanged(PostJobField.TITLE, false)
                     }),
                 label = stringResource(R.string.postjob_field_title),
                 placeholder = stringResource(R.string.postjob_title_hint),
                 singleLine = true,
-                isError = uiState.titleTouched && uiState.titleError != null,
-                errorMessage = uiState.titleError?.takeIf { uiState.titleTouched }?.asString(),
+                isError = state.titleTouched && state.titleError != null,
+                errorMessage = state.titleError?.takeIf { state.titleTouched }?.asString(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             DevzTextField(
-                value = uiState.description,
-                onValueChange = { viewModel.onAction(PostJobAction.DescriptionChanged(it)) },
+                value = state.description,
+                onValueChange = onDescriptionChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
                     .then(onLostFocus {
-                        viewModel.onAction(PostJobAction.FieldFocusChanged(PostJobField.DESCRIPTION, false))
+                        onFieldFocusChanged(PostJobField.DESCRIPTION, false)
                     }),
                 label = stringResource(R.string.postjob_field_description),
                 placeholder = stringResource(R.string.postjob_description_hint),
                 singleLine = false,
-                isError = uiState.descriptionTouched && uiState.descriptionError != null,
-                errorMessage = uiState.descriptionError?.takeIf { uiState.descriptionTouched }?.asString(),
+                isError = state.descriptionTouched && state.descriptionError != null,
+                errorMessage = state.descriptionError?.takeIf { state.descriptionTouched }?.asString(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
 
             DevzTextField(
-                value = uiState.salaryRange,
-                onValueChange = { viewModel.onAction(PostJobAction.SalaryRangeChanged(it)) },
+                value = state.salaryRange,
+                onValueChange = onSalaryRangeChanged,
                 modifier = Modifier.fillMaxWidth(),
                 label = stringResource(R.string.postjob_field_salary),
                 placeholder = stringResource(R.string.postjob_salary_hint),
@@ -144,7 +172,7 @@ fun PostJobScreen(
                 onExpandedChange = { expanded = it },
             ) {
                 OutlinedTextField(
-                    value = jobTypeLabel(uiState.jobType),
+                    value = jobTypeLabel(state.jobType),
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.postjob_field_type)) },
@@ -163,7 +191,7 @@ fun PostJobScreen(
                         DropdownMenuItem(
                             text = { Text(jobTypeLabel(type)) },
                             onClick = {
-                                viewModel.onAction(PostJobAction.JobTypeSelected(type))
+                                onJobTypeSelected(type)
                                 expanded = false
                             },
                         )
@@ -171,10 +199,10 @@ fun PostJobScreen(
                 }
             }
 
-            if (uiState.error != null) {
+            if (state.error != null) {
                 Spacer(modifier = Modifier.height(12.dp))
                 Text(
-                    text = uiState.error!!.asString(),
+                    text = state.error!!.asString(),
                     color = MaterialTheme.colorScheme.error,
                     fontSize = 13.sp,
                 )
@@ -184,9 +212,9 @@ fun PostJobScreen(
 
             DevzButton(
                 label = stringResource(R.string.postjob_submit),
-                onClick = { viewModel.onAction(PostJobAction.Submit(onPostSuccess)) },
-                enabled = uiState.canSubmit,
-                loading = uiState.isLoading,
+                onClick = onSubmit,
+                enabled = state.canSubmit,
+                loading = state.isLoading,
             )
 
             Spacer(modifier = Modifier.height(24.dp))
@@ -220,7 +248,21 @@ private fun dropdownColors() = OutlinedTextFieldDefaults.colors(
 @Composable
 private fun PreviewPostJobDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        PostJobScreen(navigateUp = {}, onPostSuccess = {})
+        PostJobContent(
+            state = PostJobState(
+                title = "Senior Android Developer",
+                description = "We are looking for a senior Android developer.",
+                salaryRange = "$80k - $120k",
+                jobType = "full-time",
+            ),
+            onNavigateUp = {},
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onSalaryRangeChanged = {},
+            onJobTypeSelected = {},
+            onFieldFocusChanged = { _, _ -> },
+            onSubmit = {},
+        )
     }
 }
 
@@ -228,6 +270,20 @@ private fun PreviewPostJobDark() {
 @Composable
 private fun PreviewPostJobLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        PostJobScreen(navigateUp = {}, onPostSuccess = {})
+        PostJobContent(
+            state = PostJobState(
+                title = "Senior Android Developer",
+                description = "We are looking for a senior Android developer.",
+                salaryRange = "$80k - $120k",
+                jobType = "full-time",
+            ),
+            onNavigateUp = {},
+            onTitleChanged = {},
+            onDescriptionChanged = {},
+            onSalaryRangeChanged = {},
+            onJobTypeSelected = {},
+            onFieldFocusChanged = { _, _ -> },
+            onSubmit = {},
+        )
     }
 }

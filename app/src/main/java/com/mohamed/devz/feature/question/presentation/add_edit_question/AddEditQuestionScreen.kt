@@ -76,15 +76,48 @@ fun AddEditQuestionScreen(
     val uiState by viewModel.uiState.collectAsState()
     val isEdit = questionId != null
 
-    var selectedLanguage by remember { mutableStateOf(SyntaxLanguage.KOTLIN) }
-
     LaunchedEffect(questionId) {
         questionId?.let { viewModel.onAction(AddEditQuestionAction.LoadQuestion(it)) }
     }
 
-    LaunchedEffect(uiState.selectedLangTypeId, uiState.languageTypes) {
-        if (uiState.languageTypes.isNotEmpty()) {
-            val match = uiState.languageTypes.find { it.id == uiState.selectedLangTypeId }
+    AddEditQuestionContent(
+        state = uiState,
+        isEdit = isEdit,
+        navigateUp = navigateUp,
+        modifier = modifier,
+        onTitleChanged = { viewModel.onAction(AddEditQuestionAction.TitleChanged(it)) },
+        onBodyChanged = { viewModel.onAction(AddEditQuestionAction.BodyChanged(it)) },
+        onLanguageSelected = { viewModel.onAction(AddEditQuestionAction.LanguageSelected(it)) },
+        onCodeChanged = { viewModel.onAction(AddEditQuestionAction.CodeChanged(it)) },
+        onTagInputChanged = { viewModel.onAction(AddEditQuestionAction.TagInputChanged(it)) },
+        onAddTag = { viewModel.onAction(AddEditQuestionAction.AddTag) },
+        onRemoveTag = { viewModel.onAction(AddEditQuestionAction.RemoveTag(it)) },
+        onShowTagInput = { viewModel.onAction(AddEditQuestionAction.ShowTagInput) },
+        onPublish = { viewModel.onAction(AddEditQuestionAction.Publish(navigateUp)) },
+    )
+}
+
+@Composable
+fun AddEditQuestionContent(
+    state: AddEditQuestionState,
+    isEdit: Boolean,
+    navigateUp: () -> Unit,
+    modifier: Modifier = Modifier,
+    onTitleChanged: (String) -> Unit,
+    onBodyChanged: (String) -> Unit,
+    onLanguageSelected: (Int) -> Unit,
+    onCodeChanged: (String) -> Unit,
+    onTagInputChanged: (String) -> Unit,
+    onAddTag: () -> Unit,
+    onRemoveTag: (String) -> Unit,
+    onShowTagInput: () -> Unit,
+    onPublish: () -> Unit,
+) {
+    var selectedLanguage by remember { mutableStateOf(SyntaxLanguage.KOTLIN) }
+
+    LaunchedEffect(state.selectedLangTypeId, state.languageTypes) {
+        if (state.languageTypes.isNotEmpty()) {
+            val match = state.languageTypes.find { it.id == state.selectedLangTypeId }
             selectedLanguage = match?.let { typeToSyntaxLanguage(it.type) } ?: SyntaxLanguage.KOTLIN
         }
     }
@@ -125,18 +158,16 @@ fun AddEditQuestionScreen(
                 )
             }
             Button(
-                onClick = {
-                    viewModel.onAction(AddEditQuestionAction.Publish(navigateUp))
-                },
+                onClick = onPublish,
                 shape = RoundedCornerShape(10.dp),
-                enabled = !uiState.isLoading,
+                enabled = !state.isLoading,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ),
                 contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
             ) {
-                if (uiState.isLoading) {
+                if (state.isLoading) {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.size(18.dp),
@@ -209,10 +240,10 @@ fun AddEditQuestionScreen(
             selectedLanguage = selectedLanguage,
             onLanguageSelected = { lang ->
                 selectedLanguage = lang
-                val typeId = uiState.languageTypes
+                val typeId = state.languageTypes
                     .find { it.type.equals(lang.label, ignoreCase = true) }
                     ?.id ?: 1
-                viewModel.onAction(AddEditQuestionAction.LanguageSelected(typeId))
+                onLanguageSelected(typeId)
             },
             modifier = Modifier
                 .padding(horizontal = 16.dp)
@@ -228,8 +259,8 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = uiState.title,
-            onValueChange = { viewModel.onAction(AddEditQuestionAction.TitleChanged(it)) },
+            value = state.title,
+            onValueChange = onTitleChanged,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
@@ -242,12 +273,12 @@ fun AddEditQuestionScreen(
                 )
             },
             singleLine = true,
-            isError = uiState.titleError != null,
+            isError = state.titleError != null,
             shape = RoundedCornerShape(12.dp),
-            colors = devzTextFieldColors(isError = uiState.titleError != null)
+            colors = devzTextFieldColors(isError = state.titleError != null)
         )
 
-        uiState.titleError?.let {
+        state.titleError?.let {
             Text(
                 text = it.asString(),
                 color = MaterialTheme.colorScheme.error,
@@ -267,13 +298,13 @@ fun AddEditQuestionScreen(
         Spacer(modifier = Modifier.height(8.dp))
 
         OutlinedTextField(
-            value = uiState.body,
-            onValueChange = { viewModel.onAction(AddEditQuestionAction.BodyChanged(it)) },
+            value = state.body,
+            onValueChange = onBodyChanged,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
                 .height(140.dp),
-            isError = uiState.bodyError != null,
+            isError = state.bodyError != null,
             placeholder = {
                 Text(
                     stringResource(R.string.addedit_body_placeholder),
@@ -283,10 +314,10 @@ fun AddEditQuestionScreen(
                 )
             },
             shape = RoundedCornerShape(12.dp),
-            colors = devzTextFieldColors(isError = uiState.bodyError != null)
+            colors = devzTextFieldColors(isError = state.bodyError != null)
         )
 
-        uiState.bodyError?.let {
+        state.bodyError?.let {
             Text(
                 text = it.asString(),
                 color = MaterialTheme.colorScheme.error,
@@ -316,12 +347,10 @@ fun AddEditQuestionScreen(
                 modifier = Modifier
                     .clip(RoundedCornerShape(50))
                     .clickable {
-                        viewModel.onAction(
-                            AddEditQuestionAction.CodeChanged(
-                                formatCode(
-                                    selectedLanguage,
-                                    uiState.code
-                                )
+                        onCodeChanged(
+                            formatCode(
+                                selectedLanguage,
+                                state.code
                             )
                         )
                     }
@@ -340,8 +369,8 @@ fun AddEditQuestionScreen(
             CodeEditorField(
                 modifier = Modifier
                     .padding(start = 3.dp),
-                code = uiState.code,
-                onCodeChange = { viewModel.onAction(AddEditQuestionAction.CodeChanged(it)) }
+                code = state.code,
+                onCodeChange = onCodeChanged
             )
         }
         Spacer(modifier = Modifier.height(20.dp))
@@ -359,7 +388,7 @@ fun AddEditQuestionScreen(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            uiState.tags.forEach { tag ->
+            state.tags.forEach { tag ->
                 Box(
                     modifier = Modifier
                         .padding(vertical = 4.dp)
@@ -392,16 +421,14 @@ fun AddEditQuestionScreen(
                             modifier = Modifier
                                 .size(14.dp)
                                 .clickable {
-                                    viewModel.onAction(
-                                        AddEditQuestionAction.RemoveTag(tag)
-                                    )
+                                    onRemoveTag(tag)
                                 }
                         )
                     }
                 }
             }
             Button(
-                onClick = { viewModel.onAction(AddEditQuestionAction.ShowTagInput) },
+                onClick = onShowTagInput,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
                 ),
@@ -424,11 +451,11 @@ fun AddEditQuestionScreen(
             }
         }
 
-        if (uiState.showTagInput) {
+        if (state.showTagInput) {
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(
-                value = uiState.tagInput,
-                onValueChange = { viewModel.onAction(AddEditQuestionAction.TagInputChanged(it)) },
+                value = state.tagInput,
+                onValueChange = onTagInputChanged,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -442,7 +469,7 @@ fun AddEditQuestionScreen(
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
                 trailingIcon = {
-                    IconButton(onClick = { viewModel.onAction(AddEditQuestionAction.AddTag) }) {
+                    IconButton(onClick = onAddTag) {
                         Icon(
                             Icons.Filled.Check,
                             contentDescription = null,
@@ -456,7 +483,7 @@ fun AddEditQuestionScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        uiState.error?.let { error ->
+        state.error?.let { error ->
             Text(
                 text = error.asString(),
                 color = MaterialTheme.colorScheme.error,
@@ -540,7 +567,24 @@ private fun devzTextFieldColors(isError: Boolean = false) = OutlinedTextFieldDef
 @Composable
 private fun PreviewAddEditQuestionScreenDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        AddEditQuestionScreen(navigateUp = {})
+        AddEditQuestionContent(
+            state = AddEditQuestionState(
+                title = "How to handle deep links in Compose Navigation?",
+                body = "I'm trying to navigate to a specific screen using a deep link but it keeps opening the Home screen.",
+                tags = listOf("compose", "navigation"),
+            ),
+            isEdit = false,
+            navigateUp = {},
+            onTitleChanged = {},
+            onBodyChanged = {},
+            onLanguageSelected = {},
+            onCodeChanged = {},
+            onTagInputChanged = {},
+            onAddTag = {},
+            onRemoveTag = {},
+            onShowTagInput = {},
+            onPublish = {},
+        )
     }
 }
 
@@ -548,6 +592,23 @@ private fun PreviewAddEditQuestionScreenDark() {
 @Composable
 private fun PreviewAddEditQuestionScreenLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        AddEditQuestionScreen(navigateUp = {})
+        AddEditQuestionContent(
+            state = AddEditQuestionState(
+                title = "How to handle deep links in Compose Navigation?",
+                body = "I'm trying to navigate to a specific screen using a deep link but it keeps opening the Home screen.",
+                tags = listOf("compose", "navigation"),
+            ),
+            isEdit = false,
+            navigateUp = {},
+            onTitleChanged = {},
+            onBodyChanged = {},
+            onLanguageSelected = {},
+            onCodeChanged = {},
+            onTagInputChanged = {},
+            onAddTag = {},
+            onRemoveTag = {},
+            onShowTagInput = {},
+            onPublish = {},
+        )
     }
 }

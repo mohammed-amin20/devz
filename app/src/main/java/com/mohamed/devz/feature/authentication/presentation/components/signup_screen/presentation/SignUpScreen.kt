@@ -7,13 +7,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,7 +26,6 @@ import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
@@ -71,6 +68,47 @@ fun SignUpScreen(
     viewModel: SignUpViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    BackHandler {
+        onNavigateToLogin()
+    }
+
+    SignUpContent(
+        state = uiState,
+        modifier = modifier,
+        onNavigateToLogin = onNavigateToLogin,
+        onCompanyNameChanged = { viewModel.onAction(SignUpAction.CompanyNameChanged(it)) },
+        onFullNameChanged = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
+        onUsernameChanged = { viewModel.onAction(SignUpAction.UsernameChanged(it)) },
+        onEmailChanged = { viewModel.onAction(SignUpAction.EmailChanged(it)) },
+        onPasswordChanged = { viewModel.onAction(SignUpAction.PasswordChanged(it)) },
+        onConfirmPasswordChanged = { viewModel.onAction(SignUpAction.ConfirmPasswordChanged(it)) },
+        onIsCompanyToggled = { viewModel.onAction(SignUpAction.IsCompanyToggled(it)) },
+        onRegisterClicked = {
+            viewModel.onAction(
+                SignUpAction.RegisterClicked(
+                    onSuccess = onRegisterSuccess,
+                    onCompanySuccess = onCompanyRegisterSuccess,
+                )
+            )
+        },
+    )
+}
+
+@Composable
+fun SignUpContent(
+    state: SignUpState,
+    onNavigateToLogin: () -> Unit,
+    modifier: Modifier = Modifier,
+    onCompanyNameChanged: (String) -> Unit,
+    onFullNameChanged: (String) -> Unit,
+    onUsernameChanged: (String) -> Unit,
+    onEmailChanged: (String) -> Unit,
+    onPasswordChanged: (String) -> Unit,
+    onConfirmPasswordChanged: (String) -> Unit,
+    onIsCompanyToggled: (Boolean) -> Unit,
+    onRegisterClicked: () -> Unit,
+) {
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
@@ -79,10 +117,6 @@ fun SignUpScreen(
     val termsAnd = stringResource(R.string.signup_terms_and)
     val termsPrivacy = stringResource(R.string.signup_terms_privacy)
     val termsSuffix = stringResource(R.string.signup_terms_suffix)
-
-    BackHandler {
-        onNavigateToLogin()
-    }
 
     Box(
         modifier = modifier
@@ -137,7 +171,7 @@ fun SignUpScreen(
                 ) {
                     Text(
                         text = stringResource(
-                            if (uiState.isCompany) R.string.signup_mode_company
+                            if (state.isCompany) R.string.signup_mode_company
                             else R.string.signup_mode_developer
                         ),
                         color = MaterialTheme.colorScheme.onBackground,
@@ -145,8 +179,8 @@ fun SignUpScreen(
                         fontWeight = FontWeight.SemiBold,
                     )
                     Switch(
-                        checked = uiState.isCompany,
-                        onCheckedChange = { viewModel.onAction(SignUpAction.IsCompanyToggled(it)) },
+                        checked = state.isCompany,
+                        onCheckedChange = onIsCompanyToggled,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                             checkedTrackColor = MaterialTheme.colorScheme.primary,
@@ -167,27 +201,27 @@ fun SignUpScreen(
                     color = MaterialTheme.colorScheme.surfaceContainer
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        if (uiState.isCompany) {
+                        if (state.isCompany) {
                             DevzFieldLabel(text = stringResource(R.string.signup_label_company_name))
                             Spacer(modifier = Modifier.height(8.dp))
                             DevzTextField(
-                                value = uiState.companyName,
-                                onValueChange = { viewModel.onAction(SignUpAction.CompanyNameChanged(it)) },
+                                value = state.companyName,
+                                onValueChange = onCompanyNameChanged,
                                 placeholder = stringResource(R.string.signup_hint_company),
                                 leadingIcon = Icons.Filled.Person,
-                                isError = uiState.companyNameError != null,
-                                errorMessage = uiState.companyNameError?.asString(),
+                                isError = state.companyNameError != null,
+                                errorMessage = state.companyNameError?.asString(),
                             )
                         } else {
                             DevzFieldLabel(text = stringResource(R.string.signup_label_full_name))
                             Spacer(modifier = Modifier.height(8.dp))
                             DevzTextField(
-                                value = uiState.fullName,
-                                onValueChange = { viewModel.onAction(SignUpAction.FullNameChanged(it)) },
+                                value = state.fullName,
+                                onValueChange = onFullNameChanged,
                                 placeholder = stringResource(R.string.signup_hint_full_name),
                                 leadingIcon = Icons.Filled.Person,
-                                isError = uiState.fullNameError != null,
-                                errorMessage = uiState.fullNameError?.asString(),
+                                isError = state.fullNameError != null,
+                                errorMessage = state.fullNameError?.asString(),
                             )
                         }
 
@@ -196,12 +230,12 @@ fun SignUpScreen(
                         DevzFieldLabel(text = stringResource(R.string.signup_label_username))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = uiState.username,
-                            onValueChange = { viewModel.onAction(SignUpAction.UsernameChanged(it)) },
+                            value = state.username,
+                            onValueChange = onUsernameChanged,
                             placeholder = stringResource(R.string.signup_hint_username),
                             leadingIcon = Icons.Filled.AlternateEmail,
-                            isError = uiState.usernameError != null,
-                            errorMessage = uiState.usernameError?.asString(),
+                            isError = state.usernameError != null,
+                            errorMessage = state.usernameError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -209,13 +243,13 @@ fun SignUpScreen(
                         DevzFieldLabel(text = stringResource(R.string.signup_label_email))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = uiState.email,
-                            onValueChange = { viewModel.onAction(SignUpAction.EmailChanged(it)) },
+                            value = state.email,
+                            onValueChange = onEmailChanged,
                             placeholder = stringResource(R.string.signup_hint_email),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                             leadingIcon = Icons.Filled.Email,
-                            isError = uiState.emailError != null,
-                            errorMessage = uiState.emailError?.asString(),
+                            isError = state.emailError != null,
+                            errorMessage = state.emailError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -223,8 +257,8 @@ fun SignUpScreen(
                         DevzFieldLabel(text = stringResource(R.string.signup_label_password))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = uiState.password,
-                            onValueChange = { viewModel.onAction(SignUpAction.PasswordChanged(it)) },
+                            value = state.password,
+                            onValueChange = onPasswordChanged,
                             placeholder = stringResource(R.string.signup_hint_password),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             leadingIcon = Icons.Filled.Lock,
@@ -240,8 +274,8 @@ fun SignUpScreen(
                             },
                             visualTransformation = if (passwordVisible) VisualTransformation.None
                             else PasswordVisualTransformation(),
-                            isError = uiState.passwordError != null,
-                            errorMessage = uiState.passwordError?.asString(),
+                            isError = state.passwordError != null,
+                            errorMessage = state.passwordError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(20.dp))
@@ -249,10 +283,8 @@ fun SignUpScreen(
                         DevzFieldLabel(text = stringResource(R.string.signup_label_confirm_password))
                         Spacer(modifier = Modifier.height(8.dp))
                         DevzTextField(
-                            value = uiState.confirmPassword,
-                            onValueChange = {
-                                viewModel.onAction(SignUpAction.ConfirmPasswordChanged(it))
-                            },
+                            value = state.confirmPassword,
+                            onValueChange = onConfirmPasswordChanged,
                             placeholder = stringResource(R.string.signup_hint_password),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
                             leadingIcon = Icons.Filled.Lock,
@@ -268,8 +300,8 @@ fun SignUpScreen(
                             },
                             visualTransformation = if (confirmPasswordVisible) VisualTransformation.None
                             else PasswordVisualTransformation(),
-                            isError = uiState.confirmPasswordError != null,
-                            errorMessage = uiState.confirmPasswordError?.asString(),
+                            isError = state.confirmPasswordError != null,
+                            errorMessage = state.confirmPasswordError?.asString(),
                         )
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -301,26 +333,19 @@ fun SignUpScreen(
 
                         DevzButton(
                             label = stringResource(
-                                if (uiState.isCompany) R.string.signup_button_company
+                                if (state.isCompany) R.string.signup_button_company
                                 else R.string.signup_button_developer
                             ),
-                            onClick = {
-                                viewModel.onAction(
-                                    SignUpAction.RegisterClicked(
-                                        onSuccess = onRegisterSuccess,
-                                        onCompanySuccess = onCompanyRegisterSuccess,
-                                    )
-                                )
-                            },
-                            enabled = !uiState.isLoading,
-                            loading = uiState.isLoading,
+                            onClick = onRegisterClicked,
+                            enabled = !state.isLoading,
+                            loading = state.isLoading,
                         )
                     }
                 }
             }
 
             item {
-                uiState.error?.let {
+                state.error?.let {
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         text = it.asString(),
@@ -361,15 +386,17 @@ fun SignUpScreen(
 @Composable
 private fun PreviewSignUpScreen() {
     DevzTheme {
-        Scaffold(
-            contentWindowInsets = WindowInsets.safeDrawing
-        ) { innerPadding ->
-            SignUpScreen(
-                onNavigateToLogin = {},
-                onRegisterSuccess = {},
-
-                modifier = Modifier.padding(innerPadding)
-            )
-        }
+        SignUpContent(
+            state = SignUpState(),
+            onNavigateToLogin = {},
+            onCompanyNameChanged = {},
+            onFullNameChanged = {},
+            onUsernameChanged = {},
+            onEmailChanged = {},
+            onPasswordChanged = {},
+            onConfirmPasswordChanged = {},
+            onIsCompanyToggled = {},
+            onRegisterClicked = {},
+        )
     }
 }

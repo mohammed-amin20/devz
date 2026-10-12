@@ -54,6 +54,20 @@ fun OnboardingScreen(
     modifier: Modifier = Modifier,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
+    OnboardingContent(
+        modifier = modifier,
+        onFinish = {
+            viewModel.onAction(OnboardingAction.FinishAction)
+            onFinish()
+        },
+    )
+}
+
+@Composable
+fun OnboardingContent(
+    onFinish: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     var visible by remember { mutableStateOf(false) }
 
     val pagerState = rememberPagerState(pageCount = { 3 })
@@ -119,7 +133,6 @@ fun OnboardingScreen(
                         if (!isLastPage) {
                             pagerState.animateScrollToPage(pagerState.currentPage + 1)
                         } else {
-                            viewModel.onAction(OnboardingAction.FinishAction)
                             onFinish()
                         }
                     }
@@ -155,10 +168,7 @@ fun OnboardingScreen(
         if (!isLastPage) {
             DevzTextButton(
                 label = stringResource(R.string.onboarding_skip),
-                onClick = {
-                    viewModel.onAction(OnboardingAction.FinishAction)
-                    onFinish()
-                },
+                onClick = onFinish,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 16.dp)
@@ -173,7 +183,7 @@ fun OnboardingScreen(
 @Composable
 private fun PrevS1() {
     DevzTheme {
-        OnboardingScreen(
+        OnboardingContent(
             onFinish = {}
         )
     }

@@ -60,6 +60,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mohamed.devz.R
 import com.mohamed.devz.feature.core.presentation.util.UiText
+import com.mohamed.devz.feature.core.domain.model.JobPosting
 import com.mohamed.devz.ui.components.EmptyState
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.ThemeMode
@@ -84,9 +85,37 @@ fun ManageJobsScreen(
         }
     }
 
-    if (uiState.showConfirmDialog && uiState.targetJob != null) {
+    ManageJobsContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onCompanyClick = onCompanyClick,
+        onJobClick = onJobClick,
+        onApproveJob = { viewModel.onAction(ManageJobsAction.ApproveJob(it)) },
+        onRejectJob = { viewModel.onAction(ManageJobsAction.RejectJob(it)) },
+        onConfirmApprove = { viewModel.confirmApprove() },
+        onDismissDialog = { viewModel.onAction(ManageJobsAction.DismissDialog) },
+        onRefresh = { viewModel.onAction(ManageJobsAction.Refresh) },
+        snackbarHostState = snackbarHostState,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageJobsContent(
+    state: ManageJobsState,
+    onNavigateUp: () -> Unit,
+    onCompanyClick: (Int) -> Unit,
+    onJobClick: (Int) -> Unit,
+    onApproveJob: (JobPosting) -> Unit,
+    onRejectJob: (JobPosting) -> Unit,
+    onConfirmApprove: () -> Unit,
+    onDismissDialog: () -> Unit,
+    onRefresh: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
+    if (state.showConfirmDialog && state.targetJob != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageJobsAction.DismissDialog) },
+            onDismissRequest = onDismissDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -99,15 +128,15 @@ fun ManageJobsScreen(
                 Text(
                     text = stringResource(
                         R.string.admin_approve_job_message,
-                        uiState.targetJob!!.title,
-                        uiState.targetJob!!.companyName,
+                        state.targetJob!!.title,
+                        state.targetJob!!.companyName,
                     ),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.confirmApprove() },
+                    onClick = onConfirmApprove,
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.extendedColors.success,
                         contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -117,7 +146,7 @@ fun ManageJobsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageJobsAction.DismissDialog) }) {
+                TextButton(onClick = onDismissDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
@@ -151,7 +180,7 @@ fun ManageJobsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { innerPadding ->
         when {
-            uiState.isLoading -> {
+            state.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center,
@@ -159,7 +188,7 @@ fun ManageJobsScreen(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
-            uiState.jobs.isEmpty() -> {
+            state.jobs.isEmpty() -> {
                 EmptyState(
                     icon = Icons.Filled.Work,
                     title = stringResource(R.string.admin_empty_jobs),
@@ -169,14 +198,14 @@ fun ManageJobsScreen(
             else -> {
                 val pullRefreshState = rememberPullToRefreshState()
                 PullToRefreshBox(
-                    isRefreshing = uiState.isRefreshing,
-                    onRefresh = { viewModel.onAction(ManageJobsAction.Refresh) },
+                    isRefreshing = state.isRefreshing,
+                    onRefresh = onRefresh,
                     state = pullRefreshState,
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     indicator = {
                         PullToRefreshDefaults.Indicator(
                             modifier = Modifier.align(Alignment.TopCenter),
-                            isRefreshing = uiState.isRefreshing,
+                            isRefreshing = state.isRefreshing,
                             state = pullRefreshState,
                             color = MaterialTheme.colorScheme.primary,
                         )
@@ -186,12 +215,12 @@ fun ManageJobsScreen(
                         modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
                         verticalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
-                        items(uiState.jobs, key = { it.id }) { job ->
+                        items(state.jobs, key = { it.id }) { job ->
                             JobCard(
                                 job = job,
-                                logoUrl = uiState.companyLogos[job.accountId] ?: "",
-                                onApprove = { viewModel.onAction(ManageJobsAction.ApproveJob(job)) },
-                                onReject = { viewModel.onAction(ManageJobsAction.RejectJob(job)) },
+                                logoUrl = state.companyLogos[job.accountId] ?: "",
+                                onApprove = { onApproveJob(job) },
+                                onReject = { onRejectJob(job) },
                                 onCompanyClick = { onCompanyClick(job.accountId) },
                                 onClick = { onJobClick(job.id) },
                             )
@@ -218,7 +247,7 @@ private fun jobTypeLabel(jobType: String): String {
 
 @Composable
 private fun JobCard(
-    job: com.mohamed.devz.feature.core.domain.model.JobPosting,
+    job: JobPosting,
     logoUrl: String,
     onApprove: () -> Unit,
     onReject: () -> Unit,
@@ -350,7 +379,22 @@ private fun StatusBadge(status: String) {
 @Composable
 private fun PreviewManageJobsDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageJobsScreen(onNavigateUp = {})
+        ManageJobsContent(
+            state = ManageJobsState(
+                jobs = listOf(previewJob),
+                companyLogos = emptyMap(),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onCompanyClick = {},
+            onJobClick = {},
+            onApproveJob = {},
+            onRejectJob = {},
+            onConfirmApprove = {},
+            onDismissDialog = {},
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
 
@@ -358,6 +402,33 @@ private fun PreviewManageJobsDark() {
 @Composable
 private fun PreviewManageJobsLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageJobsScreen(onNavigateUp = {})
+        ManageJobsContent(
+            state = ManageJobsState(
+                jobs = listOf(previewJob),
+                companyLogos = emptyMap(),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onCompanyClick = {},
+            onJobClick = {},
+            onApproveJob = {},
+            onRejectJob = {},
+            onConfirmApprove = {},
+            onDismissDialog = {},
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
+
+private val previewJob = JobPosting(
+    id = 1,
+    companyName = "Tech Co",
+    title = "Senior Android Developer",
+    description = "We are looking for a senior Android developer.",
+    salaryRange = "$5000",
+    jobType = "full-time",
+    status = "pending",
+    createdAt = "2024-01-01T00:00:00Z",
+    accountId = 42,
+)

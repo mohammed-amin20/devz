@@ -68,15 +68,40 @@ fun NotificationsScreen(
     viewModel: NotificationsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val notifications = uiState.notifications
-    var isRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         viewModel.onAction(NotificationsAction.Refresh)
     }
 
-    LaunchedEffect(uiState.isLoading) {
-        if (!uiState.isLoading) {
+    NotificationsContent(
+        state = uiState,
+        onNotificationClick = onNotificationClick,
+        onUnreadChanged = onUnreadChanged,
+        onMarkRead = { viewModel.onAction(NotificationsAction.MarkRead(it)) },
+        onMarkAllRead = {
+            viewModel.onAction(NotificationsAction.MarkAllRead)
+            onUnreadChanged()
+        },
+        onRefresh = { viewModel.onAction(NotificationsAction.Refresh) },
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun NotificationsContent(
+    state: NotificationsUiState,
+    onNotificationClick: (NotificationUiModel) -> Unit = {},
+    onUnreadChanged: () -> Unit = {},
+    onMarkRead: (String) -> Unit = {},
+    onMarkAllRead: () -> Unit = {},
+    onRefresh: () -> Unit = {},
+    modifier: Modifier = Modifier,
+) {
+    val notifications = state.notifications
+    var isRefreshing by remember { mutableStateOf(false) }
+
+    LaunchedEffect(state.isLoading) {
+        if (!state.isLoading) {
             isRefreshing = false
         }
     }
@@ -97,12 +122,7 @@ fun NotificationsScreen(
             ) {
                 DevzBrandHeader()
                 if (notifications.any { !it.isRead }) {
-                    TextButton(
-                        onClick = {
-                            viewModel.onAction(NotificationsAction.MarkAllRead)
-                            onUnreadChanged()
-                        }
-                    ) {
+                    TextButton(onClick = onMarkAllRead) {
                         Text(
                             text = stringResource(R.string.notif_mark_all_read),
                             color = MaterialTheme.colorScheme.primary,
@@ -118,7 +138,7 @@ fun NotificationsScreen(
                 isRefreshing = isRefreshing,
                 onRefresh = {
                     isRefreshing = true
-                    viewModel.onAction(NotificationsAction.Refresh)
+                    onRefresh()
                 },
                 state = pullRefreshState,
                 modifier = Modifier.fillMaxSize(),
@@ -132,7 +152,7 @@ fun NotificationsScreen(
                 },
             ) {
                 when {
-                    uiState.isLoading && notifications.isEmpty() -> {
+                    state.isLoading && notifications.isEmpty() -> {
                         Box(
                             modifier = Modifier.fillMaxSize(),
                             contentAlignment = Alignment.Center
@@ -141,15 +161,15 @@ fun NotificationsScreen(
                         }
                     }
 
-                    uiState.error != null && notifications.isEmpty() -> {
+                    state.error != null && notifications.isEmpty() -> {
                         ErrorState(
-                            message = uiState.error!!.asString(),
-                            onRetry = { viewModel.onAction(NotificationsAction.Refresh) },
+                            message = state.error!!.asString(),
+                            onRetry = onRefresh,
                             retryLabel = stringResource(R.string.action_retry),
                         )
                     }
 
-                    !uiState.isLoading && notifications.isEmpty() -> {
+                    !state.isLoading && notifications.isEmpty() -> {
                         EmptyState(
                             icon = Icons.Filled.NotificationsNone,
                             title = stringResource(R.string.notif_empty_title),
@@ -170,7 +190,7 @@ fun NotificationsScreen(
                                 NotificationItem(
                                     notification = notification,
                                     onClick = {
-                                        viewModel.onAction(NotificationsAction.MarkRead(notification.id))
+                                        onMarkRead(notification.id)
                                         onUnreadChanged()
                                         onNotificationClick(notification)
                                     }
@@ -373,6 +393,44 @@ fun NotificationItem(
 @Composable
 private fun PreviewNotifications() {
     DevzTheme {
-        NotificationsScreen()
+        NotificationsContent(
+            state = NotificationsUiState(
+                notifications = listOf(
+                    NotificationUiModel(
+                        id = "1",
+                        type = NotificationType.ANSWER,
+                        message = "answered your question",
+                        actorName = "Sara",
+                        questionId = 10,
+                        questionTitle = "How does Flutter handle hot reload?",
+                        timeAgo = "2h ago",
+                        isRead = false,
+                        senderType = "user",
+                    ),
+                    NotificationUiModel(
+                        id = "2",
+                        type = NotificationType.UPVOTE,
+                        message = "upvoted your answer",
+                        actorName = null,
+                        questionId = 11,
+                        questionTitle = "Best practices for Jetpack Compose",
+                        timeAgo = "1d ago",
+                        isRead = true,
+                        senderType = "user",
+                    ),
+                    NotificationUiModel(
+                        id = "3",
+                        type = NotificationType.SYSTEM,
+                        message = "devZ maintenance\nScheduled maintenance on Sunday at 02:00 AM.",
+                        actorName = null,
+                        questionId = 0,
+                        questionTitle = "",
+                        timeAgo = "3d ago",
+                        isRead = true,
+                        senderType = "system",
+                    ),
+                ),
+            ),
+        )
     }
 }

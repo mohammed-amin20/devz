@@ -47,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -71,9 +70,39 @@ fun ManageQuestionsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    if (uiState.showHideDialog && uiState.targetHideQuestion != null) {
+    ManageQuestionsContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onQuestionClick = onQuestionClick,
+        onSearchQueryChanged = { viewModel.onAction(ManageQuestionsAction.SearchQueryChanged(it)) },
+        onFilterAll = { viewModel.onAction(ManageQuestionsAction.FilterAll) },
+        onFilterHidden = { viewModel.onAction(ManageQuestionsAction.FilterHidden) },
+        onRefresh = { viewModel.onAction(ManageQuestionsAction.Refresh) },
+        onHideQuestion = { viewModel.onAction(ManageQuestionsAction.HideQuestion(it)) },
+        onUnhideQuestion = { viewModel.onAction(ManageQuestionsAction.UnhideQuestion(it)) },
+        onConfirmHide = { viewModel.onAction(ManageQuestionsAction.ConfirmHide(it)) },
+        onDismissHideDialog = { viewModel.onAction(ManageQuestionsAction.DismissHideDialog) },
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@Composable
+fun ManageQuestionsContent(
+    state: ManageQuestionsState,
+    onNavigateUp: () -> Unit,
+    onQuestionClick: (Int) -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onFilterAll: () -> Unit,
+    onFilterHidden: () -> Unit,
+    onRefresh: () -> Unit,
+    onHideQuestion: (Question) -> Unit,
+    onUnhideQuestion: (Question) -> Unit,
+    onConfirmHide: (Question) -> Unit,
+    onDismissHideDialog: () -> Unit,
+) {
+    if (state.showHideDialog && state.targetHideQuestion != null) {
         AlertDialog(
-            onDismissRequest = { viewModel.onAction(ManageQuestionsAction.DismissHideDialog) },
+            onDismissRequest = onDismissHideDialog,
             containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
             title = {
                 Text(
@@ -84,13 +113,13 @@ fun ManageQuestionsScreen(
             },
             text = {
                 Text(
-                    text = stringResource(R.string.admin_hide_question_message, uiState.targetHideQuestion!!.title),
+                    text = stringResource(R.string.admin_hide_question_message, state.targetHideQuestion!!.title),
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = { viewModel.onAction(ManageQuestionsAction.ConfirmHide(uiState.targetHideQuestion!!)) },
+                    onClick = { onConfirmHide(state.targetHideQuestion!!) },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                         contentColor = MaterialTheme.colorScheme.onError,
@@ -100,7 +129,7 @@ fun ManageQuestionsScreen(
                 }
             },
             dismissButton = {
-                TextButton(onClick = { viewModel.onAction(ManageQuestionsAction.DismissHideDialog) }) {
+                TextButton(onClick = onDismissHideDialog) {
                     Text(stringResource(R.string.action_cancel))
                 }
             },
@@ -139,8 +168,8 @@ fun ManageQuestionsScreen(
                 .padding(horizontal = 16.dp),
         ) {
             DevzTextField(
-                value = uiState.searchQuery,
-                onValueChange = { viewModel.onAction(ManageQuestionsAction.SearchQueryChanged(it)) },
+                value = state.searchQuery,
+                onValueChange = onSearchQueryChanged,
                 modifier = Modifier.fillMaxWidth(),
                 placeholder = stringResource(R.string.admin_search_questions),
                 leadingIcon = Icons.Filled.Search,
@@ -151,8 +180,8 @@ fun ManageQuestionsScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 FilterChip(
-                    selected = uiState.selectedFilter == 0,
-                    onClick = { viewModel.onAction(ManageQuestionsAction.FilterAll) },
+                    selected = state.selectedFilter == 0,
+                    onClick = onFilterAll,
                     label = { Text(stringResource(R.string.admin_filter_all), fontSize = 13.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -164,12 +193,12 @@ fun ManageQuestionsScreen(
                         borderColor = MaterialTheme.colorScheme.outlineVariant,
                         selectedBorderColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.5f),
                         enabled = true,
-                        selected = uiState.selectedFilter == 0,
+                        selected = state.selectedFilter == 0,
                     ),
                 )
                 FilterChip(
-                    selected = uiState.selectedFilter == 1,
-                    onClick = { viewModel.onAction(ManageQuestionsAction.FilterHidden) },
+                    selected = state.selectedFilter == 1,
+                    onClick = onFilterHidden,
                     label = { Text(stringResource(R.string.admin_filter_hidden), fontSize = 13.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -181,7 +210,7 @@ fun ManageQuestionsScreen(
                         borderColor = MaterialTheme.colorScheme.outlineVariant,
                         selectedBorderColor = MaterialTheme.colorScheme.error.copy(alpha = 0.5f),
                         enabled = true,
-                        selected = uiState.selectedFilter == 1,
+                        selected = state.selectedFilter == 1,
                     ),
                 )
             }
@@ -189,7 +218,7 @@ fun ManageQuestionsScreen(
             Spacer(modifier = Modifier.height(12.dp))
 
             when {
-                uiState.isLoading -> {
+                state.isLoading -> {
                     Box(
                         modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center,
@@ -197,7 +226,7 @@ fun ManageQuestionsScreen(
                         CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                     }
                 }
-                uiState.filteredQuestions.isEmpty() -> {
+                state.filteredQuestions.isEmpty() -> {
                     EmptyState(
                         icon = Icons.Filled.Search,
                         title = stringResource(R.string.admin_empty_questions),
@@ -206,14 +235,14 @@ fun ManageQuestionsScreen(
                 else -> {
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageQuestionsAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -222,14 +251,14 @@ fun ManageQuestionsScreen(
                         LazyColumn(
                             verticalArrangement = Arrangement.spacedBy(10.dp),
                         ) {
-                            items(uiState.filteredQuestions, key = { it.id }) { question ->
+                            items(state.filteredQuestions, key = { it.id }) { question ->
                                 QuestionCard(
                                     question = question,
-                                    authorName = uiState.authorNames[question.accountId]
+                                    authorName = state.authorNames[question.accountId]
                                         ?: stringResource(R.string.admin_unknown),
                                     onQuestionClick = { onQuestionClick(question.id) },
-                                    onHide = { viewModel.onAction(ManageQuestionsAction.HideQuestion(question)) },
-                                    onUnhide = { viewModel.onAction(ManageQuestionsAction.UnhideQuestion(question)) },
+                                    onHide = { onHideQuestion(question) },
+                                    onUnhide = { onUnhideQuestion(question) },
                                 )
                             }
                             item { Spacer(modifier = Modifier.height(16.dp)) }
@@ -362,7 +391,24 @@ private fun QuestionCard(
 @Composable
 private fun PreviewManageQuestionsDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageQuestionsScreen(onNavigateUp = {}, onQuestionClick = {})
+        ManageQuestionsContent(
+            state = ManageQuestionsState(
+                filteredQuestions = listOf(previewQuestion),
+                authorNames = mapOf(1 to "Sara Ali"),
+                selectedFilter = 0,
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onQuestionClick = {},
+            onSearchQueryChanged = {},
+            onFilterAll = {},
+            onFilterHidden = {},
+            onRefresh = {},
+            onHideQuestion = {},
+            onUnhideQuestion = {},
+            onConfirmHide = {},
+            onDismissHideDialog = {},
+        )
     }
 }
 
@@ -370,6 +416,36 @@ private fun PreviewManageQuestionsDark() {
 @Composable
 private fun PreviewManageQuestionsLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageQuestionsScreen(onNavigateUp = {}, onQuestionClick = {})
+        ManageQuestionsContent(
+            state = ManageQuestionsState(
+                filteredQuestions = listOf(previewQuestion),
+                authorNames = mapOf(1 to "Sara Ali"),
+                selectedFilter = 0,
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onQuestionClick = {},
+            onSearchQueryChanged = {},
+            onFilterAll = {},
+            onFilterHidden = {},
+            onRefresh = {},
+            onHideQuestion = {},
+            onUnhideQuestion = {},
+            onConfirmHide = {},
+            onDismissHideDialog = {},
+        )
     }
 }
+
+private val previewQuestion = Question(
+    id = 1,
+    title = "How to scope coroutines in Jetpack Compose?",
+    description = "I'm trying to understand best practices here.",
+    code = "",
+    likesCount = 12,
+    answersCount = 4,
+    tags = "Kotlin, Compose",
+    langTypeId = 1,
+    accountId = 1,
+    createdAt = "2024-01-01T00:00:00Z",
+)

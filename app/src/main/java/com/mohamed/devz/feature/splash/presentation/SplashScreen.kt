@@ -60,6 +60,28 @@ fun SplashScreen(
     modifier: Modifier = Modifier,
     viewModel: SplashViewModel = hiltViewModel()
 ) {
+    LaunchedEffect(Unit) {
+        viewModel.splashEvent.collect { event ->
+            when (event) {
+                SplashEvent.NavigateToOnboarding -> navigateToOnboarding()
+                SplashEvent.NavigateToAuth -> navigateToAuth()
+                SplashEvent.NavigateToHome -> navigateToHome()
+                SplashEvent.NavigateToBanned -> navigateToBanned()
+            }
+        }
+    }
+
+    SplashContent(
+        modifier = modifier,
+        onAnimationFinished = { viewModel.onAction(SplashAction.DecideWhereToGoAction) },
+    )
+}
+
+@Composable
+fun SplashContent(
+    modifier: Modifier = Modifier,
+    onAnimationFinished: () -> Unit,
+) {
     var visible by remember { mutableStateOf(false) }
 
     val alpha by animateFloatAsState(
@@ -92,18 +114,7 @@ fun SplashScreen(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 1000, easing = LinearEasing)
         )
-        viewModel.onAction(SplashAction.DecideWhereToGoAction)
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.splashEvent.collect { event ->
-            when (event) {
-                SplashEvent.NavigateToOnboarding -> navigateToOnboarding()
-                SplashEvent.NavigateToAuth -> navigateToAuth()
-                SplashEvent.NavigateToHome -> navigateToHome()
-                SplashEvent.NavigateToBanned -> navigateToBanned()
-            }
-        }
+        onAnimationFinished()
     }
 
     BrandBackground(
@@ -204,11 +215,8 @@ fun SplashScreen(
 @Composable
 private fun PreviewSplashScreen() {
     DevzTheme {
-        SplashScreen(
-            navigateToOnboarding = {},
-            navigateToAuth = {},
-            navigateToHome = {},
-            navigateToBanned = {},
+        SplashContent(
+            onAnimationFinished = {},
         )
     }
 }

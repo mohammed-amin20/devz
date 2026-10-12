@@ -93,6 +93,7 @@ import com.mohamed.devz.feature.profile.presentation.view_profile.components.Pro
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.ProfileQuestionCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.components.StatCard
 import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileJobApplicationUiModel
+import com.mohamed.devz.feature.profile.presentation.view_profile.util.ProfileUiModel
 import com.mohamed.devz.feature.report.presentation.ReportMenu
 import com.mohamed.devz.feature.report.presentation.ReportSheet
 import com.mohamed.devz.feature.report.presentation.ReportTarget
@@ -158,6 +159,54 @@ fun ProfileScreen(
         }
     }
 
+    ProfileContent(
+        state = uiState,
+        modifier = modifier,
+        showImagePreview = showImagePreview,
+        onImagePreviewChange = { showImagePreview = it },
+        onRefresh = { viewModel.onAction(ProfileAction.Refresh) },
+        onEditProfile = onEditProfile,
+        onQuestionClick = onQuestionClick,
+        onAnswerClick = onAnswerClick,
+        onJobClick = onJobClick,
+        onProfileClick = onProfileClick,
+        onAdminPanelClick = onAdminPanelClick,
+        onSettingsClick = onSettingsClick,
+        onToggleFollow = { viewModel.onAction(ProfileAction.ToggleFollow(it)) },
+        onShowFollowers = { viewModel.onAction(ProfileAction.ShowFollowers) },
+        onShowFollowing = { viewModel.onAction(ProfileAction.ShowFollowing) },
+        onDismissDialog = { viewModel.onAction(ProfileAction.DismissDialog) },
+        onShowReport = { viewModel.onAction(ProfileAction.ShowReport(it)) },
+        onDismissReport = { viewModel.onAction(ProfileAction.DismissReport) },
+        onFullScreenChanged = onFullScreenChanged,
+        navigateUp = navigateUp,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileContent(
+    state: ProfileState,
+    modifier: Modifier = Modifier,
+    showImagePreview: Boolean,
+    onImagePreviewChange: (Boolean) -> Unit,
+    onRefresh: () -> Unit,
+    onEditProfile: () -> Unit,
+    onQuestionClick: (Int) -> Unit,
+    onAnswerClick: (Int) -> Unit = onQuestionClick,
+    onJobClick: (Int) -> Unit = {},
+    onProfileClick: (Int) -> Unit = {},
+    onAdminPanelClick: () -> Unit = {},
+    onSettingsClick: () -> Unit = {},
+    onToggleFollow: (Int) -> Unit,
+    onShowFollowers: () -> Unit,
+    onShowFollowing: () -> Unit,
+    onDismissDialog: () -> Unit,
+    onShowReport: (ReportTarget) -> Unit,
+    onDismissReport: () -> Unit,
+    onFullScreenChanged: (Boolean) -> Unit = {},
+    navigateUp: () -> Unit,
+) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -169,17 +218,17 @@ fun ProfileScreen(
                 .fillMaxSize()
         ) {
             when {
-                uiState.isLoading && uiState.profile == null -> {
+                state.isLoading && state.profile == null -> {
                     CircularProgressIndicator(
                         color = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
 
-                uiState.error != null && uiState.profile == null -> {
+                state.error != null && state.profile == null -> {
                     ErrorState(
-                        message = uiState.error!!.asString(),
-                        onRetry = { viewModel.onAction(ProfileAction.Refresh) },
+                        message = state.error!!.asString(),
+                        onRetry = onRefresh,
                         retryLabel = stringResource(R.string.action_retry),
                     )
                 }
@@ -189,31 +238,31 @@ fun ProfileScreen(
                     val tabs = buildList {
                         add(
                             stringResource(
-                                if (uiState.isOwnProfile) R.string.profile_tab_my_questions
+                                if (state.isOwnProfile) R.string.profile_tab_my_questions
                                 else R.string.profile_tab_their_questions
                             )
                         )
                         add(
                             stringResource(
-                                if (uiState.isOwnProfile) R.string.profile_tab_my_answers
+                                if (state.isOwnProfile) R.string.profile_tab_my_answers
                                 else R.string.profile_tab_their_answers
                             )
                         )
-                        if (uiState.isOwnProfile) {
+                        if (state.isOwnProfile) {
                             add(stringResource(R.string.profile_tab_applications))
                         }
                     }
 
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isLoading,
-                        onRefresh = { viewModel.onAction(ProfileAction.Refresh) },
+                        isRefreshing = state.isLoading,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isLoading,
+                                isRefreshing = state.isLoading,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
@@ -234,7 +283,7 @@ fun ProfileScreen(
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Row(verticalAlignment = Alignment.CenterVertically) {
-                                        if (!uiState.isOwnProfile) {
+                                        if (!state.isOwnProfile) {
                                             IconButton(onClick = navigateUp) {
                                                 Icon(
                                                     Icons.AutoMirrored.Filled.ArrowBack,
@@ -247,7 +296,7 @@ fun ProfileScreen(
                                         }
                                         DevzBrandHeader()
                                     }
-                                    if (uiState.isOwnProfile) {
+                                    if (state.isOwnProfile) {
                                         IconButton(onClick = onSettingsClick) {
                                             Icon(
                                                 Icons.Filled.Settings,
@@ -256,17 +305,15 @@ fun ProfileScreen(
                                                 modifier = Modifier.size(22.dp)
                                             )
                                         }
-                                    } else if (uiState.id != 0) {
+                                    } else if (state.id != 0) {
                                         ReportMenu(
                                             onReport = {
-                                                viewModel.onAction(
-                                                    ProfileAction.ShowReport(
-                                                        ReportTarget(
-                                                            reportedType = "user",
-                                                            reportedId = uiState.id,
-                                                            preview = uiState.profile?.fullName
-                                                                ?: "@${uiState.profile?.username ?: "user"}",
-                                                        )
+                                                onShowReport(
+                                                    ReportTarget(
+                                                        reportedType = "user",
+                                                        reportedId = state.id,
+                                                        preview = state.profile?.fullName
+                                                            ?: "@${state.profile?.username ?: "user"}",
                                                     )
                                                 )
                                             }
@@ -278,11 +325,11 @@ fun ProfileScreen(
                             // ── Avatar ────────────────────────────────────────────
                             item {
                                 Spacer(modifier = Modifier.height(16.dp))
-                                val isPro = uiState.profile?.isPro == true
+                                val isPro = state.profile?.isPro == true
                                 val proColor = MaterialTheme.extendedColors.pro
                                 Box(
                                     modifier = Modifier.clickable {
-                                        showImagePreview = true
+                                        onImagePreviewChange(true)
                                         onFullScreenChanged(true)
                                     },
                                     contentAlignment = Alignment.Center
@@ -331,7 +378,7 @@ fun ProfileScreen(
                                             ),
                                         contentAlignment = Alignment.Center
                                     ) {
-                                        val avatarUrl = uiState.profile?.imageUrl
+                                        val avatarUrl = state.profile?.imageUrl
                                         if (avatarUrl != null && avatarUrl.isNotEmpty()) {
                                             AsyncImage(
                                                 model = avatarUrl,
@@ -356,7 +403,7 @@ fun ProfileScreen(
 
                             item {
                                 Text(
-                                    text = uiState.profile?.fullName.orEmpty(),
+                                    text = state.profile?.fullName.orEmpty(),
                                     color = MaterialTheme.colorScheme.onSurface,
                                     fontSize = 22.sp,
                                     fontWeight = FontWeight.Bold,
@@ -367,7 +414,7 @@ fun ProfileScreen(
                                     verticalAlignment = Alignment.CenterVertically,
                                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                                 ) {
-                                    val username = uiState.profile?.username
+                                    val username = state.profile?.username
                                     if (!username.isNullOrEmpty()) {
                                         Text(
                                             text = "@$username",
@@ -375,7 +422,7 @@ fun ProfileScreen(
                                             fontSize = 14.sp,
                                             style = MaterialTheme.typography.bodyMedium
                                         )
-                                        if (uiState.profile?.isPro == true) {
+                                        if (state.profile?.isPro == true) {
                                             ProBadge()
                                         }
                                     } else {
@@ -387,7 +434,7 @@ fun ProfileScreen(
                                         )
                                     }
                                 }
-                                val bio = uiState.profile?.bio
+                                val bio = state.profile?.bio
                                 if (bio != null && bio.isNotEmpty()) {
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Text(
@@ -411,7 +458,7 @@ fun ProfileScreen(
                                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    if (uiState.isOwnProfile) {
+                                    if (state.isOwnProfile) {
                                         Button(
                                             onClick = onEditProfile,
                                             modifier = Modifier
@@ -431,10 +478,10 @@ fun ProfileScreen(
                                             )
                                         }
                                     } else {
-                                        val isFollowing = uiState.isFollowing
+                                        val isFollowing = state.isFollowing
                                         if (isFollowing) {
                                             OutlinedButton(
-                                                onClick = { viewModel.onAction(ProfileAction.ToggleFollow(uiState.id)) },
+                                                onClick = { onToggleFollow(state.id) },
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .height(40.dp),
@@ -453,7 +500,7 @@ fun ProfileScreen(
                                             }
                                         } else {
                                             Button(
-                                                onClick = { viewModel.onAction(ProfileAction.ToggleFollow(uiState.id)) },
+                                                onClick = { onToggleFollow(state.id) },
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .height(40.dp),
@@ -473,21 +520,21 @@ fun ProfileScreen(
                                         }
                                     }
                                     FollowCountBox(
-                                        count = uiState.followersCount,
+                                        count = state.followersCount,
                                         label = stringResource(R.string.profile_followers),
-                                        onClick = { viewModel.onAction(ProfileAction.ShowFollowers) },
+                                        onClick = onShowFollowers,
                                     )
                                     FollowCountBox(
-                                        count = uiState.followingCount,
+                                        count = state.followingCount,
                                         label = stringResource(R.string.profile_following),
-                                        onClick = { viewModel.onAction(ProfileAction.ShowFollowing) },
+                                        onClick = onShowFollowing,
                                     )
                                 }
                                 Spacer(modifier = Modifier.height(8.dp))
                             }
 
                             // ── Admin Panel ───────────────────────────────────────
-                            if (uiState.isOwnProfile && uiState.profile?.isAdmin == true) {
+                            if (state.isOwnProfile && state.profile?.isAdmin == true) {
                                 item {
                                     OutlinedButton(
                                         onClick = onAdminPanelClick,
@@ -517,8 +564,8 @@ fun ProfileScreen(
                             // ── Gamification ──────────────────────────────────────
                             item {
                                 GamificationCard(
-                                    points = uiState.profile?.points?.toIntOrNull() ?: 0,
-                                    isPro = uiState.profile?.isPro == true,
+                                    points = state.profile?.points?.toIntOrNull() ?: 0,
+                                    isPro = state.profile?.isPro == true,
                                 )
                                 Spacer(modifier = Modifier.height(10.dp))
                             }
@@ -531,17 +578,17 @@ fun ProfileScreen(
                                 ) {
                                     StatCard(
                                         label = stringResource(R.string.profile_stat_answers),
-                                        value = "${uiState.profile?.answerCount ?: 0}",
+                                        value = "${state.profile?.answerCount ?: 0}",
                                         modifier = Modifier.weight(1f)
                                     )
                                     StatCard(
                                         label = stringResource(R.string.profile_stat_questions),
-                                        value = "${uiState.profile?.questionCount ?: 0}",
+                                        value = "${state.profile?.questionCount ?: 0}",
                                         modifier = Modifier.weight(1f)
                                     )
                                     StatCard(
                                         label = stringResource(R.string.profile_stat_accepted),
-                                        value = uiState.profile?.acceptedRate ?: "0%",
+                                        value = state.profile?.acceptedRate ?: "0%",
                                         modifier = Modifier.weight(1f)
                                     )
                                 }
@@ -551,15 +598,15 @@ fun ProfileScreen(
                             // ── Skills & Social Links (collapsible) ───────────────
                             item {
                                 var sectionsExpanded by remember { mutableStateOf(false) }
-                                val skills = uiState.profile?.skills ?: emptyList()
+                                val skills = state.profile?.skills ?: emptyList()
                                 val socialLinks = listOfNotNull(
-                                    uiState.profile?.let { p ->
+                                    state.profile?.let { p ->
                                         if (p.githubUrl.isNotBlank()) Triple(Icons.Filled.Code, "GitHub", p.githubUrl) else null
                                     },
-                                    uiState.profile?.let { p ->
+                                    state.profile?.let { p ->
                                         if (p.linkedInUrl.isNotBlank()) Triple(Icons.Filled.Link, "LinkedIn", p.linkedInUrl) else null
                                     },
-                                    uiState.profile?.let { p ->
+                                    state.profile?.let { p ->
                                         if (p.websiteUrl.isNotBlank()) Triple(Icons.Filled.Language, "Website", p.websiteUrl) else null
                                     },
                                 )
@@ -735,7 +782,7 @@ fun ProfileScreen(
                             // ── Tab content ──────────────────────────────────────
                             when (selectedTab) {
                                 0 -> {
-                                    if (uiState.myQuestions.isEmpty()) {
+                                    if (state.myQuestions.isEmpty()) {
                                         item {
                                             EmptyTabContent(
                                                 icon = Icons.AutoMirrored.Filled.Help,
@@ -744,7 +791,7 @@ fun ProfileScreen(
                                             )
                                         }
                                     } else {
-                                        items(uiState.myQuestions, key = { it.id }) { question ->
+                                        items(state.myQuestions, key = { it.id }) { question ->
                                             ProfileQuestionCard(
                                                 question = question,
                                                 onClick = { onQuestionClick(question.id) }
@@ -754,7 +801,7 @@ fun ProfileScreen(
                                     }
                                 }
                                 1 -> {
-                                    if (uiState.myAnswers.isEmpty()) {
+                                    if (state.myAnswers.isEmpty()) {
                                         item {
                                             EmptyTabContent(
                                                 icon = Icons.Filled.Forum,
@@ -763,7 +810,7 @@ fun ProfileScreen(
                                             )
                                         }
                                     } else {
-                                        items(uiState.myAnswers, key = { it.id }) { answer ->
+                                        items(state.myAnswers, key = { it.id }) { answer ->
                                             ProfileAnswerCard(
                                                 answer = answer,
                                                 onClick = { onAnswerClick(answer.questionId) }
@@ -774,7 +821,7 @@ fun ProfileScreen(
                                 }
                                 2 -> {
                                     when {
-                                        uiState.isLoadingApplications -> {
+                                        state.isLoadingApplications -> {
                                             item {
                                                 Box(
                                                     modifier = Modifier
@@ -786,17 +833,17 @@ fun ProfileScreen(
                                                 }
                                             }
                                         }
-                                        uiState.applicationsError != null -> {
+                                        state.applicationsError != null -> {
                                             item {
                                                 EmptyTabContent(
                                                     icon = Icons.Filled.Warning,
                                                     title = stringResource(R.string.profile_applications_error_title),
-                                                    subtitle = uiState.applicationsError?.asString()
+                                                    subtitle = state.applicationsError?.asString()
                                                         ?: stringResource(R.string.something_went_wrong),
                                                 )
                                             }
                                         }
-                                        uiState.myApplications.isEmpty() -> {
+                                        state.myApplications.isEmpty() -> {
                                             item {
                                                 EmptyTabContent(
                                                     icon = Icons.Filled.Business,
@@ -806,7 +853,7 @@ fun ProfileScreen(
                                             }
                                         }
                                         else -> {
-                                            items(uiState.myApplications, key = { it.id }) { app ->
+                                            items(state.myApplications, key = { it.id }) { app ->
                                                 ApplicationCard(
                                                     application = app,
                                                     onClick = { onJobClick(app.jobId) },
@@ -836,12 +883,12 @@ fun ProfileScreen(
                     .fillMaxSize()
                     .background(Color.Black.copy(alpha = 0.8f))
                     .clickable {
-                        showImagePreview = false
+                        onImagePreviewChange(false)
                         onFullScreenChanged(false)
                     },
                 contentAlignment = Alignment.Center
             ) {
-                val avatarUrl = uiState.profile?.imageUrl
+                val avatarUrl = state.profile?.imageUrl
                 if (avatarUrl != null && avatarUrl.isNotEmpty()) {
                     Box(
                         modifier = Modifier
@@ -882,37 +929,37 @@ fun ProfileScreen(
         }
 
         FollowListSheet(
-            visible = uiState.showFollowersDialog,
+            visible = state.showFollowersDialog,
             title = stringResource(R.string.profile_followers),
-            countLabel = stringResource(R.string.profile_followers_count, uiState.followersCount),
+            countLabel = stringResource(R.string.profile_followers_count, state.followersCount),
             emptyText = stringResource(R.string.profile_followers_empty),
-            accounts = uiState.followerAccounts,
-            isLoading = uiState.isLoadingDialog,
-            onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
+            accounts = state.followerAccounts,
+            isLoading = state.isLoadingDialog,
+            onDismiss = onDismissDialog,
             onProfileClick = { accountId ->
-                viewModel.onAction(ProfileAction.DismissDialog)
+                onDismissDialog()
                 onProfileClick(accountId)
             },
         )
 
         FollowListSheet(
-            visible = uiState.showFollowingDialog,
+            visible = state.showFollowingDialog,
             title = stringResource(R.string.profile_following),
-            countLabel = stringResource(R.string.profile_following_count, uiState.followingCount),
+            countLabel = stringResource(R.string.profile_following_count, state.followingCount),
             emptyText = stringResource(R.string.profile_following_empty),
-            accounts = uiState.followingAccounts,
-            isLoading = uiState.isLoadingDialog,
-            onDismiss = { viewModel.onAction(ProfileAction.DismissDialog) },
+            accounts = state.followingAccounts,
+            isLoading = state.isLoadingDialog,
+            onDismiss = onDismissDialog,
             onProfileClick = { accountId ->
-                viewModel.onAction(ProfileAction.DismissDialog)
+                onDismissDialog()
                 onProfileClick(accountId)
             },
         )
 
-        uiState.reportTarget?.let { target ->
+        state.reportTarget?.let { target ->
             ReportSheet(
                 target = target,
-                onDismiss = { viewModel.onAction(ProfileAction.DismissReport) },
+                onDismiss = onDismissReport,
             )
         }
     }
@@ -1024,15 +1071,49 @@ private fun ApplicationCard(
     }
 }
 
+private val sampleProfile = ProfileUiModel(
+    fullName = "Ahmad Khatib",
+    username = "akhatib_dev",
+    imageUrl = "",
+    bio = "Android developer building with Kotlin & Compose. Open source enthusiast.",
+    points = "1280",
+    answerCount = 42,
+    questionCount = 17,
+    acceptedRate = "72%",
+    skills = listOf("Kotlin", "Jetpack Compose", "Supabase"),
+    githubUrl = "github.com/akhatib",
+    linkedInUrl = "",
+    websiteUrl = "akhatib.dev",
+    isPro = true,
+)
+
+private val sampleProfileState = ProfileState(
+    id = 1,
+    profile = sampleProfile,
+    isOwnProfile = true,
+    followersCount = 128,
+    followingCount = 64,
+)
+
 @Preview(name = "Profile — Dark")
 @Composable
 private fun PrevProfileDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ProfileScreen(
+        ProfileContent(
+            state = sampleProfileState,
+            showImagePreview = false,
+            onImagePreviewChange = {},
+            onRefresh = {},
             onEditProfile = {},
-            onQuestionClick = { _ -> },
-            onAnswerClick = { _ -> },
-            navigateUp = {}
+            onQuestionClick = {},
+            onToggleFollow = {},
+            onShowFollowers = {},
+            onShowFollowing = {},
+            onDismissDialog = {},
+            onShowReport = {},
+            onDismissReport = {},
+            onFullScreenChanged = {},
+            navigateUp = {},
         )
     }
 }
@@ -1041,11 +1122,21 @@ private fun PrevProfileDark() {
 @Composable
 private fun PrevProfileLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ProfileScreen(
+        ProfileContent(
+            state = sampleProfileState,
+            showImagePreview = false,
+            onImagePreviewChange = {},
+            onRefresh = {},
             onEditProfile = {},
-            onQuestionClick = { _ -> },
-            onAnswerClick = { _ -> },
-            navigateUp = {}
+            onQuestionClick = {},
+            onToggleFollow = {},
+            onShowFollowers = {},
+            onShowFollowing = {},
+            onDismissDialog = {},
+            onShowReport = {},
+            onDismissReport = {},
+            onFullScreenChanged = {},
+            navigateUp = {},
         )
     }
 }

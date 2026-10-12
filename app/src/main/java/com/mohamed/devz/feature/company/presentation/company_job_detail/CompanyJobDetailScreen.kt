@@ -53,9 +53,9 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.mohamed.devz.R
+import com.mohamed.devz.feature.core.domain.model.JobPosting
 import com.mohamed.devz.feature.core.presentation.components.ProBadge
 import com.mohamed.devz.feature.core.presentation.util.formatTimestamp
-import com.mohamed.devz.feature.core.domain.model.JobPosting
 import com.mohamed.devz.ui.components.ErrorState
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.ThemeMode
@@ -77,6 +77,29 @@ fun CompanyJobDetailScreen(
         viewModel.onAction(CompanyJobDetailAction.LoadJob(jobId))
     }
 
+    CompanyJobDetailContent(
+        state = uiState,
+        onNavigateUp = navigateUp,
+        onProfileClick = onProfileClick,
+        onRetry = { viewModel.onAction(CompanyJobDetailAction.LoadJob(jobId)) },
+        onApprove = { applicationId, applicantId ->
+            viewModel.onAction(
+                CompanyJobDetailAction.ApproveApplication(applicationId, applicantId)
+            )
+        },
+        modifier = modifier,
+    )
+}
+
+@Composable
+fun CompanyJobDetailContent(
+    state: CompanyJobDetailState,
+    onNavigateUp: () -> Unit,
+    onProfileClick: (Int) -> Unit,
+    onRetry: () -> Unit,
+    onApprove: (applicationId: Int, applicantId: Int) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -89,7 +112,7 @@ fun CompanyJobDetailScreen(
                 .padding(horizontal = 4.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = navigateUp) {
+            IconButton(onClick = onNavigateUp) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.jobdetail_back),
@@ -105,7 +128,7 @@ fun CompanyJobDetailScreen(
         }
 
         when {
-            uiState.isLoading -> {
+            state.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
@@ -114,16 +137,16 @@ fun CompanyJobDetailScreen(
                 }
             }
 
-            uiState.error != null && uiState.job == null -> {
+            state.error != null && state.job == null -> {
                 ErrorState(
-                    message = uiState.error!!.asString(),
-                    onRetry = { viewModel.onAction(CompanyJobDetailAction.LoadJob(jobId)) },
+                    message = state.error!!.asString(),
+                    onRetry = onRetry,
                     retryLabel = stringResource(R.string.action_retry),
                 )
             }
 
-            uiState.job != null -> {
-                val job = uiState.job!!
+            state.job != null -> {
+                val job = state.job!!
 
                 LazyColumn(
                     modifier = Modifier
@@ -174,7 +197,7 @@ fun CompanyJobDetailScreen(
 
                     item {
                         Text(
-                            text = stringResource(R.string.company_job_detail_applicants, uiState.proposals.size),
+                            text = stringResource(R.string.company_job_detail_applicants, state.proposals.size),
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = 18.sp,
                             fontWeight = FontWeight.Bold,
@@ -182,7 +205,7 @@ fun CompanyJobDetailScreen(
                         )
                     }
 
-                    if (uiState.proposals.isEmpty()) {
+                    if (state.proposals.isEmpty()) {
                         item {
                             Text(
                                 text = stringResource(R.string.company_job_detail_empty),
@@ -192,19 +215,14 @@ fun CompanyJobDetailScreen(
                             )
                         }
                     } else {
-                        items(uiState.proposals, key = { it.applicationId }) { proposal ->
+                        items(state.proposals, key = { it.applicationId }) { proposal ->
                             ProposalCard(
                                 proposal = proposal,
                                 onProfileClick = { onProfileClick(proposal.applicantId) },
                                 onApprove = {
-                                    viewModel.onAction(
-                                        CompanyJobDetailAction.ApproveApplication(
-                                            proposal.applicationId,
-                                            proposal.applicantId,
-                                        )
-                                    )
+                                    onApprove(proposal.applicationId, proposal.applicantId)
                                 },
-                                isApproving = uiState.isApproving,
+                                isApproving = state.isApproving,
                             )
                         }
                     }
@@ -425,6 +443,56 @@ private val previewProposal = ProposalUiModel(
     createdAt = "2024-01-01T00:00:00Z",
     isPro = true,
 )
+
+@Preview
+@Composable
+private fun PreviewCompanyJobDetailDark() {
+    DevzTheme(themeMode = ThemeMode.DARK) {
+        CompanyJobDetailContent(
+            state = CompanyJobDetailState(
+                job = JobPosting(
+                    id = 1,
+                    companyName = "Acme Labs",
+                    title = "Senior Android Developer",
+                    description = "Build great things.",
+                    salaryRange = "$80k - $120k",
+                    jobType = "full-time",
+                ),
+                proposals = listOf(previewProposal),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onProfileClick = {},
+            onRetry = {},
+            onApprove = { _, _ -> },
+        )
+    }
+}
+
+@Preview
+@Composable
+private fun PreviewCompanyJobDetailLight() {
+    DevzTheme(themeMode = ThemeMode.LIGHT) {
+        CompanyJobDetailContent(
+            state = CompanyJobDetailState(
+                job = JobPosting(
+                    id = 1,
+                    companyName = "Acme Labs",
+                    title = "Senior Android Developer",
+                    description = "Build great things.",
+                    salaryRange = "$80k - $120k",
+                    jobType = "full-time",
+                ),
+                proposals = listOf(previewProposal),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onProfileClick = {},
+            onRetry = {},
+            onApprove = { _, _ -> },
+        )
+    }
+}
 
 @Preview
 @Composable

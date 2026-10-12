@@ -80,6 +80,30 @@ fun ManageCompaniesScreen(
         }
     }
 
+    ManageCompaniesContent(
+        state = uiState,
+        onNavigateUp = onNavigateUp,
+        onCompanyClick = onCompanyClick,
+        onSearchQueryChanged = { viewModel.onAction(ManageCompaniesAction.SearchQueryChanged(it)) },
+        onToggleSubscription = { company, activate ->
+            viewModel.onAction(ManageCompaniesAction.ToggleSubscription(company.accountId, activate))
+        },
+        onRefresh = { viewModel.onAction(ManageCompaniesAction.Refresh) },
+        snackbarHostState = snackbarHostState,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ManageCompaniesContent(
+    state: ManageCompaniesState,
+    onNavigateUp: () -> Unit,
+    onCompanyClick: (Int) -> Unit,
+    onSearchQueryChanged: (String) -> Unit,
+    onToggleSubscription: (CompanyUiModel, Boolean) -> Unit,
+    onRefresh: () -> Unit,
+    snackbarHostState: SnackbarHostState,
+) {
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -107,7 +131,7 @@ fun ManageCompaniesScreen(
         },
     ) { innerPadding ->
         when {
-            uiState.isLoading -> {
+            state.isLoading -> {
                 Box(
                     modifier = Modifier.fillMaxSize().padding(innerPadding),
                     contentAlignment = Alignment.Center,
@@ -115,7 +139,7 @@ fun ManageCompaniesScreen(
                     CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
                 }
             }
-            uiState.companies.isEmpty() -> {
+            state.companies.isEmpty() -> {
                 EmptyState(
                     icon = Icons.Filled.Business,
                     title = stringResource(R.string.admin_empty_companies),
@@ -130,8 +154,8 @@ fun ManageCompaniesScreen(
                         .padding(horizontal = 16.dp),
                 ) {
                     DevzTextField(
-                        value = uiState.searchQuery,
-                        onValueChange = { viewModel.onAction(ManageCompaniesAction.SearchQueryChanged(it)) },
+                        value = state.searchQuery,
+                        onValueChange = onSearchQueryChanged,
                         modifier = Modifier.fillMaxWidth(),
                         placeholder = stringResource(R.string.admin_search_companies),
                         leadingIcon = Icons.Filled.Search,
@@ -142,20 +166,20 @@ fun ManageCompaniesScreen(
 
                     val pullRefreshState = rememberPullToRefreshState()
                     PullToRefreshBox(
-                        isRefreshing = uiState.isRefreshing,
-                        onRefresh = { viewModel.onAction(ManageCompaniesAction.Refresh) },
+                        isRefreshing = state.isRefreshing,
+                        onRefresh = onRefresh,
                         state = pullRefreshState,
                         modifier = Modifier.fillMaxSize(),
                         indicator = {
                             PullToRefreshDefaults.Indicator(
                                 modifier = Modifier.align(Alignment.TopCenter),
-                                isRefreshing = uiState.isRefreshing,
+                                isRefreshing = state.isRefreshing,
                                 state = pullRefreshState,
                                 color = MaterialTheme.colorScheme.primary,
                             )
                         },
                     ) {
-                        if (uiState.filteredCompanies.isEmpty()) {
+                        if (state.filteredCompanies.isEmpty()) {
                             EmptyState(
                                 icon = Icons.Filled.Business,
                                 title = stringResource(R.string.admin_empty_companies_search),
@@ -165,14 +189,10 @@ fun ManageCompaniesScreen(
                                 modifier = Modifier.fillMaxSize(),
                                 verticalArrangement = Arrangement.spacedBy(10.dp),
                             ) {
-                                items(uiState.filteredCompanies, key = { it.id }) { company ->
+                                items(state.filteredCompanies, key = { it.id }) { company ->
                                     CompanyCard(
                                         company = company,
-                                        onToggle = { activate ->
-                                            viewModel.onAction(
-                                                ManageCompaniesAction.ToggleSubscription(company.accountId, activate),
-                                            )
-                                        },
+                                        onToggle = { activate -> onToggleSubscription(company, activate) },
                                         onCompanyClick = { onCompanyClick(company.accountId) },
                                     )
                                 }
@@ -296,7 +316,19 @@ private fun CompanyCard(
 @Composable
 private fun PreviewManageCompaniesDark() {
     DevzTheme(themeMode = ThemeMode.DARK) {
-        ManageCompaniesScreen(onNavigateUp = {})
+        ManageCompaniesContent(
+            state = ManageCompaniesState(
+                companies = listOf(previewCompany),
+                filteredCompanies = listOf(previewCompany),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onCompanyClick = {},
+            onSearchQueryChanged = {},
+            onToggleSubscription = { _, _ -> },
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
 
@@ -304,6 +336,26 @@ private fun PreviewManageCompaniesDark() {
 @Composable
 private fun PreviewManageCompaniesLight() {
     DevzTheme(themeMode = ThemeMode.LIGHT) {
-        ManageCompaniesScreen(onNavigateUp = {})
+        ManageCompaniesContent(
+            state = ManageCompaniesState(
+                companies = listOf(previewCompany),
+                filteredCompanies = listOf(previewCompany),
+                isLoading = false,
+            ),
+            onNavigateUp = {},
+            onCompanyClick = {},
+            onSearchQueryChanged = {},
+            onToggleSubscription = { _, _ -> },
+            onRefresh = {},
+            snackbarHostState = SnackbarHostState(),
+        )
     }
 }
+
+private val previewCompany = CompanyUiModel(
+    id = 1,
+    companyName = "Tech Co",
+    website = "https://techco.dev",
+    subscriptionStatus = "active",
+    accountId = 42,
+)
