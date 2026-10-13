@@ -5,6 +5,8 @@
   <img src="docs/hero-dark.svg" alt="devZ — Ask. Answer. Grow." width="100%"/>
 </picture>
 
+<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=600&size=30&duration=3200&pause=900&color=44D8F1&center=true&vCenter=true&width=680&height=70&lines=Ask.+Answer.+Grow.;A+Q%26A+platform+for+developers.;Ask+questions+%C2%B7+ship+answers+%C2%B7+land+jobs." alt="Ask. Answer. Grow."/>
+
 <a href="#-screenshots"><img alt="Screens" src="https://img.shields.io/badge/Screens-28-44D8F1?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="#-architecture"><img alt="Clean Architecture" src="https://img.shields.io/badge/Architecture-Clean_+_MVI-00BCD4?style=for-the-badge&logo=dependencyci&logoColor=white"></a>
 <a href="#-tech-stack"><img alt="Kotlin" src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white"></a>
