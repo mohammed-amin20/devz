@@ -1,8 +1,8 @@
 <div align="center">
 
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="docs/banner-light.svg"/>
-  <img src="docs/banner-dark.svg" alt="devZ — an Android Q&amp;A and jobs app. Bilingual (English &amp; العربية) with dark and light themes." width="100%"/>
+  <source media="(prefers-color-scheme: light)" srcset="docs/hero-light.svg"/>
+  <img src="docs/hero-dark.svg" alt="devZ — Ask. Answer. Grow." width="100%"/>
 </picture>
 
 <a href="#-screenshots"><img alt="Screens" src="https://img.shields.io/badge/Screens-28-44D8F1?style=for-the-badge&logo=android&logoColor=white"></a>
@@ -23,8 +23,6 @@
 
 <br/>
 
-<img src="https://readme-typing-svg.demolab.com?font=Space+Grotesk&weight=600&size=30&duration=3200&pause=900&color=44D8F1&center=true&vCenter=true&width=680&height=70&lines=Ask.+Answer.+Grow.;A+Q%26A+platform+for+developers.;Ask+questions+%C2%B7+ship+answers+%C2%B7+land+jobs." alt="Ask. Answer. Grow."/>
-
 <p>
 <b>devZ</b> is a mobile Q&amp;A platform with a built-in job board — ask coding<br/>
 questions, earn reputation, follow great developers, hire and get hired.
@@ -39,57 +37,6 @@ questions, earn reputation, follow great developers, hire and get hired.
 <a href="#-architecture">Architecture</a> ·
 <a href="#-tech-stack">Tech&nbsp;Stack</a> ·
 <a href="#-getting-started">Setup</a>
-
-</div>
-
----
-
-## 📱 Screenshots
-
-<div align="center">
-
-<sub>These images adapt to your GitHub theme — they show the <b>dark</b> variant in dark mode and the <b>light</b> variant in light mode.</sub>
-
-### Splash & Onboarding
-| Splash | Onboarding |
-|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/splash-content-light.png"><img src="docs/screenshots/splash-content-dark.png" width="200" alt="Splash"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/onboarding-content-light.png"><img src="docs/screenshots/onboarding-content-dark.png" width="200" alt="Onboarding"/></picture> |
-
-### Authentication
-| Login | Sign Up | Banned |
-|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/login-content-light.png"><img src="docs/screenshots/login-content-dark.png" width="200" alt="Login"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/signup-content-light.png"><img src="docs/screenshots/signup-content-dark.png" width="200" alt="Sign up"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/banned-content-light.png"><img src="docs/screenshots/banned-content-dark.png" width="200" alt="Banned"/></picture> |
-
-### Feed & Questions
-| Feed | Question Details | Add / Edit Question |
-|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/feed-content-light.png"><img src="docs/screenshots/feed-content-dark.png" width="200" alt="Feed"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/question-details-content-light.png"><img src="docs/screenshots/question-details-content-dark.png" width="200" alt="Question details"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/add-edit-question-content-light.png"><img src="docs/screenshots/add-edit-question-content-dark.png" width="200" alt="Add / edit question"/></picture> |
-
-### Profile
-| View Profile | Admin Profile | Edit Profile | Settings |
-|:---:|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/profile-content-light.png"><img src="docs/screenshots/profile-content-dark.png" width="200" alt="Profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/admin-profile-content-light.png"><img src="docs/screenshots/admin-profile-content-dark.png" width="200" alt="Admin profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-profile-content-light.png"><img src="docs/screenshots/edit-profile-content-dark.png" width="200" alt="Edit profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/settings-content-light.png"><img src="docs/screenshots/settings-content-dark.png" width="200" alt="Settings"/></picture> |
-
-> 🛠️ Admins get an extra **Admin Panel** entry on their profile → Admin Dashboard.
-
-### Notifications & Jobs
-| Notifications | Job Detail | Post Job |
-|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/notifications-content-light.png"><img src="docs/screenshots/notifications-content-dark.png" width="200" alt="Notifications"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/job-detail-content-light.png"><img src="docs/screenshots/job-detail-content-dark.png" width="200" alt="Job detail"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/post-job-content-light.png"><img src="docs/screenshots/post-job-content-dark.png" width="200" alt="Post job"/></picture> |
-
-### Company
-| Company Dashboard | Company Profile | Company Job Detail | Edit Company Profile | Pending Approval |
-|:---:|:---:|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-dashboard-content-light.png"><img src="docs/screenshots/company-dashboard-content-dark.png" width="200" alt="Company dashboard"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-profile-content-light.png"><img src="docs/screenshots/company-profile-content-dark.png" width="200" alt="Company profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-job-detail-content-light.png"><img src="docs/screenshots/company-job-detail-content-dark.png" width="200" alt="Company job detail"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-company-profile-content-light.png"><img src="docs/screenshots/edit-company-profile-content-dark.png" width="200" alt="Edit company profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/pending-approval-content-light.png"><img src="docs/screenshots/pending-approval-content-dark.png" width="200" alt="Pending approval"/></picture> |
-
-### Admin
-| Admin Dashboard | Manage Users | Manage Questions | Manage Answers |
-|:---:|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/admin-dashboard-content-light.png"><img src="docs/screenshots/admin-dashboard-content-dark.png" width="200" alt="Admin dashboard"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-users-content-light.png"><img src="docs/screenshots/manage-users-content-dark.png" width="200" alt="Manage users"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-questions-content-light.png"><img src="docs/screenshots/manage-questions-content-dark.png" width="200" alt="Manage questions"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-answers-content-light.png"><img src="docs/screenshots/manage-answers-content-dark.png" width="200" alt="Manage answers"/></picture> |
-
-| Manage Announcements | Manage Jobs | Manage Companies | Manage Reports |
-|:---:|:---:|:---:|:---:|
-| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-announcements-content-light.png"><img src="docs/screenshots/manage-announcements-content-dark.png" width="200" alt="Manage announcements"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-jobs-content-light.png"><img src="docs/screenshots/manage-jobs-content-dark.png" width="200" alt="Manage jobs"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-companies-content-light.png"><img src="docs/screenshots/manage-companies-content-dark.png" width="200" alt="Manage companies"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-reports-content-light.png"><img src="docs/screenshots/manage-reports-content-dark.png" width="200" alt="Manage reports"/></picture> |
 
 </div>
 
@@ -162,6 +109,57 @@ A full-featured developer community app, built as a single-module Android projec
 </td>
 </tr>
 </table>
+
+---
+
+## 📱 Screenshots
+
+<div align="center">
+
+<sub>These images adapt to your GitHub theme — they show the <b>dark</b> variant in dark mode and the <b>light</b> variant in light mode.</sub>
+
+### Splash & Onboarding
+| Splash | Onboarding |
+|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/splash-content-light.png"><img src="docs/screenshots/splash-content-dark.png" width="200" alt="Splash"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/onboarding-content-light.png"><img src="docs/screenshots/onboarding-content-dark.png" width="200" alt="Onboarding"/></picture> |
+
+### Authentication
+| Login | Sign Up | Banned |
+|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/login-content-light.png"><img src="docs/screenshots/login-content-dark.png" width="200" alt="Login"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/signup-content-light.png"><img src="docs/screenshots/signup-content-dark.png" width="200" alt="Sign up"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/banned-content-light.png"><img src="docs/screenshots/banned-content-dark.png" width="200" alt="Banned"/></picture> |
+
+### Feed & Questions
+| Feed | Question Details | Add / Edit Question |
+|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/feed-content-light.png"><img src="docs/screenshots/feed-content-dark.png" width="200" alt="Feed"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/question-details-content-light.png"><img src="docs/screenshots/question-details-content-dark.png" width="200" alt="Question details"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/add-edit-question-content-light.png"><img src="docs/screenshots/add-edit-question-content-dark.png" width="200" alt="Add / edit question"/></picture> |
+
+### Profile
+| View Profile | Admin Profile | Edit Profile | Settings |
+|:---:|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/profile-content-light.png"><img src="docs/screenshots/profile-content-dark.png" width="200" alt="Profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/admin-profile-content-light.png"><img src="docs/screenshots/admin-profile-content-dark.png" width="200" alt="Admin profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-profile-content-light.png"><img src="docs/screenshots/edit-profile-content-dark.png" width="200" alt="Edit profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/settings-content-light.png"><img src="docs/screenshots/settings-content-dark.png" width="200" alt="Settings"/></picture> |
+
+> 🛠️ Admins get an extra **Admin Panel** entry on their profile → Admin Dashboard.
+
+### Notifications & Jobs
+| Notifications | Job Detail | Post Job |
+|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/notifications-content-light.png"><img src="docs/screenshots/notifications-content-dark.png" width="200" alt="Notifications"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/job-detail-content-light.png"><img src="docs/screenshots/job-detail-content-dark.png" width="200" alt="Job detail"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/post-job-content-light.png"><img src="docs/screenshots/post-job-content-dark.png" width="200" alt="Post job"/></picture> |
+
+### Company
+| Company Dashboard | Company Profile | Company Job Detail | Edit Company Profile | Pending Approval |
+|:---:|:---:|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-dashboard-content-light.png"><img src="docs/screenshots/company-dashboard-content-dark.png" width="200" alt="Company dashboard"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-profile-content-light.png"><img src="docs/screenshots/company-profile-content-dark.png" width="200" alt="Company profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/company-job-detail-content-light.png"><img src="docs/screenshots/company-job-detail-content-dark.png" width="200" alt="Company job detail"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/edit-company-profile-content-light.png"><img src="docs/screenshots/edit-company-profile-content-dark.png" width="200" alt="Edit company profile"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/pending-approval-content-light.png"><img src="docs/screenshots/pending-approval-content-dark.png" width="200" alt="Pending approval"/></picture> |
+
+### Admin
+| Admin Dashboard | Manage Users | Manage Questions | Manage Answers |
+|:---:|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/admin-dashboard-content-light.png"><img src="docs/screenshots/admin-dashboard-content-dark.png" width="200" alt="Admin dashboard"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-users-content-light.png"><img src="docs/screenshots/manage-users-content-dark.png" width="200" alt="Manage users"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-questions-content-light.png"><img src="docs/screenshots/manage-questions-content-dark.png" width="200" alt="Manage questions"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-answers-content-light.png"><img src="docs/screenshots/manage-answers-content-dark.png" width="200" alt="Manage answers"/></picture> |
+
+| Manage Announcements | Manage Jobs | Manage Companies | Manage Reports |
+|:---:|:---:|:---:|:---:|
+| <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-announcements-content-light.png"><img src="docs/screenshots/manage-announcements-content-dark.png" width="200" alt="Manage announcements"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-jobs-content-light.png"><img src="docs/screenshots/manage-jobs-content-dark.png" width="200" alt="Manage jobs"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-companies-content-light.png"><img src="docs/screenshots/manage-companies-content-dark.png" width="200" alt="Manage companies"/></picture> | <picture><source media="(prefers-color-scheme: light)" srcset="docs/screenshots/manage-reports-content-light.png"><img src="docs/screenshots/manage-reports-content-dark.png" width="200" alt="Manage reports"/></picture> |
+
+</div>
 
 ---
 
