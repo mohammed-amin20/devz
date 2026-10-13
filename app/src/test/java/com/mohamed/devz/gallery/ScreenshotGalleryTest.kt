@@ -163,7 +163,6 @@ class ScreenshotGalleryTest {
                     ui()
                 } else {
                     Scaffold(
-                        containerColor = Color.Transparent,
                         bottomBar = { TestBottomBar(selectedIndex = selectedTab) },
                     ) { innerPadding ->
                         Box(modifier = Modifier.fillMaxSize().padding(innerPadding)) {
