@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
@@ -111,6 +112,7 @@ import com.mohamed.devz.feature.question.presentation.view_questions.util.Questi
 import com.mohamed.devz.feature.settings.presentation.AppLanguage
 import com.mohamed.devz.feature.settings.presentation.SettingsContent
 import com.mohamed.devz.feature.splash.presentation.SplashContent
+import com.mohamed.devz.ui.components.BrandBackground
 import com.mohamed.devz.ui.theme.DevzTheme
 import com.mohamed.devz.ui.theme.ThemeMode
 import org.junit.Rule
@@ -376,28 +378,32 @@ class ScreenshotGalleryTest {
 // ── Screen content (mirrors the private fixtures in each screen's @Preview) ──
 
 private val loginUi: @Composable () -> Unit = {
-    LoginContent(
-        state = LoginState(),
-        onNavigateToRegister = {},
-        onUsernameChanged = {},
-        onPasswordChanged = {},
-        onLoginClicked = {},
-    )
+    BrandBackground {
+        LoginContent(
+            state = LoginState(),
+            onNavigateToRegister = {},
+            onUsernameChanged = {},
+            onPasswordChanged = {},
+            onLoginClicked = {},
+        )
+    }
 }
 
 private val signupUi: @Composable () -> Unit = {
-    SignUpContent(
-        state = SignUpState(),
-        onNavigateToLogin = {},
-        onCompanyNameChanged = {},
-        onFullNameChanged = {},
-        onUsernameChanged = {},
-        onEmailChanged = {},
-        onPasswordChanged = {},
-        onConfirmPasswordChanged = {},
-        onIsCompanyToggled = {},
-        onRegisterClicked = {},
-    )
+    BrandBackground(accentCenter = Offset(0.65f, 0.58f)) {
+        SignUpContent(
+            state = SignUpState(),
+            onNavigateToLogin = {},
+            onCompanyNameChanged = {},
+            onFullNameChanged = {},
+            onUsernameChanged = {},
+            onEmailChanged = {},
+            onPasswordChanged = {},
+            onConfirmPasswordChanged = {},
+            onIsCompanyToggled = {},
+            onRegisterClicked = {},
+        )
+    }
 }
 
 private val bannedUi: @Composable () -> Unit = { BannedScreen() }
