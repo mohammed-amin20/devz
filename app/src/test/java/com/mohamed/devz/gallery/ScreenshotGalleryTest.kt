@@ -6,15 +6,19 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -31,6 +35,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -192,6 +197,7 @@ class ScreenshotGalleryTest {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
+                .height(88.dp)
                 .drawBehind {
                     drawRect(
                         brush = Brush.verticalGradient(
@@ -204,33 +210,50 @@ class ScreenshotGalleryTest {
         ) {
             Row(
                 modifier = Modifier
+                    .align(Alignment.BottomCenter)
                     .fillMaxWidth()
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                     .background(MaterialTheme.colorScheme.surfaceContainer)
                     .height(64.dp)
                     .imePadding()
-                    .padding(horizontal = 8.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
+                    .padding(horizontal = 4.dp),
+                horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                icons.forEachIndexed { index, icon ->
+                listOf(0, 2).forEach { index ->
                     TestNavIcon(
-                        icon = icon,
+                        icon = icons[index],
                         isSelected = index == selectedIndex,
                         badgeCount = if (index == 2) unreadCount else 0,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+                Spacer(modifier = Modifier.width(76.dp))
+                listOf(3, 4).forEach { index ->
+                    TestNavIcon(
+                        icon = icons[index],
+                        isSelected = index == selectedIndex,
+                        badgeCount = 0,
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
+
+            TestAddFab(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .offset(y = (-4).dp),
+            )
         }
     }
 
     @Composable
-    private fun TestNavIcon(icon: ImageVector, isSelected: Boolean, badgeCount: Int) {
+    private fun TestNavIcon(icon: ImageVector, isSelected: Boolean, badgeCount: Int, modifier: Modifier = Modifier) {
         val tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline
         val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier
+            modifier = modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(50))
                 .drawBehind {
@@ -269,6 +292,27 @@ class ScreenshotGalleryTest {
                     )
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun TestAddFab(modifier: Modifier = Modifier) {
+        val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = modifier
+                .size(60.dp)
+                .shadow(16.dp, CircleShape, clip = false, ambientColor = glowColor, spotColor = glowColor)
+                .clip(CircleShape)
+                .background(Brush.linearGradient(listOf(Color(0xFF00BCD4), Color(0xFF44D8F1))))
+                .border(1.5.dp, Color.White.copy(alpha = 0.35f), CircleShape),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Add,
+                contentDescription = null,
+                tint = Color(0xFF00363E),
+                modifier = Modifier.size(32.dp),
+            )
         }
     }
 

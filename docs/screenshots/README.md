@@ -26,11 +26,12 @@ source files.
 
 ### The bottom navigation bar
 
-The three in-app tab screens (Feed, View profile, Notifications) are captured
-with the home shell's **bottom navigation bar** drawn underneath them. The
-production bar lives inside the Hilt-bound `HomeContent`, so the test uses a
-small visual replica (same icons, colors, height and selected-tab state) rather
-than importing it.
+The in-app tab screens captured with the bar (Feed, View profile,
+Notifications, and the admin profile) are drawn with the home shell's **bottom
+navigation bar** underneath them, including the raised cyan **Add** button at
+center. The production bar lives inside the Hilt-bound `HomeContent`, so the test
+uses a small visual replica (same icons, colors, height, selected-tab state and
+center FAB) rather than importing it.
 
 ### Screens that are not captured
 

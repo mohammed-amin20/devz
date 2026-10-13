@@ -3,18 +3,24 @@
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -38,10 +44,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -277,6 +285,7 @@ fun HomeContent(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
+                        .height(88.dp)
                         .drawBehind {
                             drawRect(
                                 brush = Brush.verticalGradient(
@@ -289,24 +298,46 @@ fun HomeContent(
                 ) {
                     Row(
                         modifier = Modifier
+                            .align(Alignment.BottomCenter)
                             .fillMaxWidth()
                             .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
                             .background(MaterialTheme.colorScheme.surfaceContainer)
                             .height(64.dp)
                             .imePadding()
-                            .padding(horizontal = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceAround,
+                            .padding(horizontal = 4.dp),
+                        horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        navigationItems.forEachIndexed { index, item ->
+                        listOf(0, 2).forEach { index ->
+                            val item = navigationItems[index]
                             NavIconButton(
                                 icon = item.icon,
                                 isSelected = index == selectedIndex,
                                 onClick = item.onClick,
                                 badgeCount = if (index == 2) unreadCount else 0,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+
+                        Spacer(modifier = Modifier.width(76.dp))
+
+                        listOf(3, 4).forEach { index ->
+                            val item = navigationItems[index]
+                            NavIconButton(
+                                icon = item.icon,
+                                isSelected = index == selectedIndex,
+                                onClick = item.onClick,
+                                modifier = Modifier.weight(1f),
                             )
                         }
                     }
+
+                    AddQuestionFab(
+                        onClick = onAddQuestion,
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .offset(y = (-4).dp),
+                    )
                 }
             }
         } else {
@@ -314,7 +345,7 @@ fun HomeContent(
         },
         modifier = modifier
     ) { innerPadding ->
-        navigationItems[selectedIndex]
+        navigationItems.first { it.index == selectedIndex }
             .content?.let { content ->
                 content(
                     Modifier
@@ -329,9 +360,9 @@ fun HomeContent(
 private fun NavIconButton(
     icon: ImageVector,
     isSelected: Boolean,
-    isAccent: Boolean = false,
     badgeCount: Int = 0,
     onClick: () -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val tint by animateColorAsState(
         targetValue = when {
@@ -341,14 +372,14 @@ private fun NavIconButton(
         label = "navIconTint",
     )
     val iconSize by animateDpAsState(
-        targetValue = if (isAccent && isSelected) 30.dp else 26.dp,
+        targetValue = 26.dp,
         label = "navIconSize",
     )
     val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.12f).toArgb()
 
     Box(
         contentAlignment = Alignment.Center,
-        modifier = Modifier
+        modifier = modifier
             .size(48.dp)
             .clip(RoundedCornerShape(50))
             .drawBehind {
@@ -393,6 +424,52 @@ private fun NavIconButton(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun AddQuestionFab(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.9f else 1f,
+        label = "addFabScale",
+    )
+    val glowColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.45f)
+
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = modifier
+            .size(60.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .shadow(
+                elevation = 16.dp,
+                shape = CircleShape,
+                clip = false,
+                ambientColor = glowColor,
+                spotColor = glowColor,
+            )
+            .clip(CircleShape)
+            .background(Brush.linearGradient(listOf(Color(0xFF00BCD4), Color(0xFF44D8F1))))
+            .border(1.5.dp, Color.White.copy(alpha = 0.35f), CircleShape)
+            .clickable(
+                indication = null,
+                interactionSource = interactionSource,
+                onClick = onClick,
+            ),
+    ) {
+        Icon(
+            imageVector = Icons.Rounded.Add,
+            contentDescription = stringResource(R.string.nav_add),
+            tint = Color(0xFF00363E),
+            modifier = Modifier.size(32.dp),
+        )
     }
 }
 
